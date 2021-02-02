@@ -28,12 +28,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <artifactId>chaos-platform-web</artifactId>
-                <groupId>com.alibaba.chaosblade</groupId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
                 <artifactId>chaos-platform-service</artifactId>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <version>${project.version}</version>
@@ -60,19 +54,13 @@
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaos-platform-invoker-chaosblade-http</artifactId>
+                <artifactId>chaos-platform-invoker-http</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--- chaos-invoker -->
 
 
             <!-- chaos metric -->
-            <dependency>
-                <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaos-platform-metric</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <artifactId>chaos-platform-metric-api</artifactId>
@@ -82,12 +70,6 @@
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <artifactId>chaos-platform-metric-aliyun</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaos-platform-metric-skywalking</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -108,12 +90,6 @@
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-cms</artifactId>
                 <version>7.0.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.graphql-java</groupId>
-                <artifactId>graphql-java-tools</artifactId>
-                <version>4.3.0</version>
             </dependency>
             <!-- chaos metric -->
 
@@ -198,6 +174,9 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
+                <mysql.url></mysql.url>
+                <mysql.username></mysql.username>
+                <mysql.password></mysql.password>
             </properties>
         </profile>
     </profiles>

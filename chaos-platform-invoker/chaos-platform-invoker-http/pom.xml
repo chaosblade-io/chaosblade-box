@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>chaos-platform-invoker-chaosblade-http</artifactId>
+    <artifactId>chaos-platform-invoker-http</artifactId>
 
     <dependencies>
 
