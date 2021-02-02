@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>com.alibaba.chaosblade</groupId>
-            <artifactId>chaos-platform-invoker-chaosblade-http</artifactId>
+            <artifactId>chaos-platform-invoker-http</artifactId>
         </dependency>
 
         <dependency>
