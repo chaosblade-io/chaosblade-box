@@ -45,4 +45,6 @@ public class SceneParamResponse {
     private String defaultValue;
 
     private String component;
+
+    private Boolean required;
 }

@@ -81,24 +81,24 @@ create table t_chaos_device
 (
     id                   bigint unsigned auto_increment comment 'primary key'
         primary key,
-    gmt_create           datetime          not null comment 'create time',
-    gmt_modified         datetime          not null comment 'modified time',
-    ip                   varchar(128)      not null comment 'ip',
-    hostname             varchar(256)      null comment 'hostname',
-    version              varchar(256)      null comment 'os version',
-    cpu_core             int               null comment 'CPU core size',
-    memory_size          int               null comment 'memory size',
-    status               tinyint default 0 null comment '0-offline / 1-online',
-    connect_time         datetime          null comment 'connect_time',
-    install_mode         varchar(64)       null comment 'install_mode： host、k8s_helm',
-    uptime               varchar(128)      null comment 'uptime',
-    type                 tinyint           not null comment 'type 0-host,1-node, 2-pod',
-    last_ping_time       datetime          null comment 'last ping time',
-    last_online_time     datetime          null comment 'last ping result time',
-    is_experimented      tinyint default 0 not null comment 'is experimented',
-    last_experiment_time datetime          null comment 'last experiment time',
-    last_task_id         bigint            null comment 'last task id',
-    last_task_status     tinyint           null comment 'last task status'
+    gmt_create           datetime               not null comment 'create time',
+    gmt_modified         datetime               not null comment 'modified time',
+    ip                   varchar(128) default null comment 'ip',
+    hostname             varchar(256)           null comment 'hostname',
+    version              varchar(256)           null comment 'os version',
+    cpu_core             int                    null comment 'CPU core size',
+    memory_size          int                    null comment 'memory size',
+    status               tinyint      default 0 null comment '0-offline / 1-online',
+    connect_time         datetime               null comment 'connect_time',
+    install_mode         varchar(64)            null comment 'install_mode： host、k8s_helm',
+    uptime               varchar(128)           null comment 'uptime',
+    type                 tinyint                not null comment 'type 0-host,1-node, 2-pod',
+    last_ping_time       datetime               null comment 'last ping time',
+    last_online_time     datetime               null comment 'last ping result time',
+    is_experimented      tinyint      default 0 not null comment 'is experimented',
+    last_experiment_time datetime               null comment 'last experiment time',
+    last_task_id         bigint                 null comment 'last task id',
+    last_task_status     tinyint                null comment 'last task status'
 )
     ENGINE = InnoDB
     comment 'device'
@@ -135,7 +135,7 @@ create table t_chaos_device_pod
     gmt_modified datetime        not null comment 'modified time',
     node_id      bigint          not null comment 'node ip',
     device_id    bigint unsigned null,
-    namespace    bigint          not null comment 'namespace',
+    namespace    varchar(256)    null comment 'namespace',
     pod_name     varchar(128)    not null comment 'pod name',
     pod_ip       varchar(128)    null comment 'pod ip',
     containers   longtext        null comment 'containers, json'
@@ -156,7 +156,7 @@ create table t_chaos_experiment
     name         varchar(256)                not null comment 'experiment name',
     description  text                        null comment 'experiment description',
     version      bigint unsigned             null comment 'experiment version',
-    task_id      varchar(64)                 null comment 'current or last task id ',
+    task_id      bigint unsigned             null comment 'current or last task id ',
     metric       longtext                    null comment 'metric config',
     run_model    varchar(16) default 'PHASE' not null comment 'run model，PHASE/SEQUENCE',
     duration     int unsigned                null comment 'duration',
@@ -350,8 +350,8 @@ create table t_chaos_scene
     categories          longtext                   null comment 'categories',
     scene_code          varchar(100)               not null comment 'scene code',
     scene_name          varchar(300)               not null comment 'scene name',
-    pre_scene_code      varchar(100)               null comment 'pre scene code',
-    next_scene_code     varchar(100)               null comment 'next scene code',
+    pre_scene_id        bigint unsigned            null comment 'pre scene id',
+    next_scene_id       bigint unsigned            null comment 'next scene id',
     description         varchar(600)               null comment 'description',
     version             varchar(10)                not null comment 'version',
     status              tinyint unsigned default 0 not null comment 'status',
@@ -452,14 +452,8 @@ alter table t_chaos_metric_task
 
 INSERT INTO chaosblade.t_chaos_metric_category (id, gmt_create, gmt_modified, name, parent_id, level, unit, code,
                                                 params)
-VALUES (1, now(), now(), '阿里云监控', null, 0, null, 'metric.aliyun', null);
-INSERT INTO chaosblade.t_chaos_metric_category (id, gmt_create, gmt_modified, name, parent_id, level, unit, code,
-                                                params)
-VALUES (2, now(), now(), 'Prometheus 监控', null, 0, null, 'metric.prometheus', '[{"name":"url", "desc":"prometheus url", "type":"text"},{"name":"query", "desc":"prometheus query", "type":"text"}]
-');
-INSERT INTO chaosblade.t_chaos_metric_category (id, gmt_create, gmt_modified, name, parent_id, level, unit, code,
-                                                params)
-VALUES (3, now(), now(), 'CPU 使用率', 1, 1, '%', 'cpu_total', null);
+VALUES (2, now(), now(), 'Prometheus 监控', null, 0, null, 'metric.prometheus',
+        '[{"name":"url", "desc":"prometheus url", "type":"text", "required": true},{"name":"query", "desc":"prometheus query", "type":"text", "required": true}, {"name":"rule", "desc":"rule", "type":"text"}]');
 
 
 INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)

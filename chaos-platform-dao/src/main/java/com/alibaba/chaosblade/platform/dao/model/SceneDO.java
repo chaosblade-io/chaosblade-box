@@ -39,9 +39,9 @@ public class SceneDO extends BaseDO {
 
     private String sceneName;
 
-    private String preSceneCode;
+    private Long preSceneId;
 
-    private String nextSceneCode;
+    private Long nextSceneId;
 
     private String description;
 

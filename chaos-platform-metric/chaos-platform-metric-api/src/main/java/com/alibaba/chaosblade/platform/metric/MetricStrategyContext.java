@@ -21,6 +21,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,18 +34,21 @@ import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEn
 @Service("metricService")
 public class MetricStrategyContext implements MetricService, BeanPostProcessor {
 
-    private Map<MetricSource, MetricService> strategies = new ConcurrentHashMap<>();
+    private final Map<MetricSource, MetricService> strategies = new ConcurrentHashMap<>();
 
     @Override
-    public CompletableFuture<MetricChartLineResponse> selectChartLine(MetricChartLineRequest metricChartLineRequest) {
-
-        String category = metricChartLineRequest.getCategoryCode();
-        String[] split = category.split("[.]");
-        MetricService metricService = strategies.get(MetricSource.parse(split[1]));
-
-        Preconditions.checkNotNull(category, METRIC_NO_SERVICE);
-
-        return metricService.selectChartLine(metricChartLineRequest);
+    public CompletableFuture<List<MetricChartLineResponse>> selectChartLine(MetricChartLineRequest metricChartLineRequest) {
+        try {
+            String category = metricChartLineRequest.getCategoryCode();
+            String[] split = category.split("[.]");
+            MetricService metricService = strategies.get(MetricSource.parse(split[1]));
+            Preconditions.checkNotNull(category, METRIC_NO_SERVICE);
+            return metricService.selectChartLine(metricChartLineRequest);
+        } catch (Exception e) {
+            CompletableFuture<List<MetricChartLineResponse>> future = new CompletableFuture<>();
+            future.completeExceptionally(e);
+            return future;
+        }
     }
 
     @Override

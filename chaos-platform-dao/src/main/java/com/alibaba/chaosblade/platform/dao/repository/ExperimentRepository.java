@@ -48,7 +48,8 @@ public class ExperimentRepository implements IRepository<Long, ExperimentDO> {
 
     @Override
     public boolean updateByPrimaryKey(Long id, ExperimentDO experimentDO) {
-        return false;
+        experimentDO.setId(id);
+        return experimentMapper.updateById(experimentDO) == 1;
     }
 
     public List<ExperimentDO> fuzzySelect(ExperimentDO experimentDO) {

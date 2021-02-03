@@ -19,7 +19,6 @@ package com.alibaba.chaosblade.platform.metric.controller;
 import com.alibaba.chaosblade.platform.service.MetricTaskService;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricCategoryResponse;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricTaskRequest;
-import com.alibaba.chaosblade.platform.service.model.metric.MetricTaskResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +30,7 @@ import java.util.List;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class MetricController {
 
     @Autowired
@@ -42,7 +42,7 @@ public class MetricController {
     }
 
     @RequestMapping("/QueryTaskMonitor")
-    public List<MetricTaskResponse> queryTaskMonitor(@RequestBody MetricTaskRequest metricTaskRequest) {
+    public List<MetricCategoryResponse> queryTaskMonitor(@RequestBody MetricTaskRequest metricTaskRequest) {
         return metricTaskService.selectByTaskId(metricTaskRequest);
     }
 }

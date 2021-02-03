@@ -17,6 +17,7 @@
 package com.alibaba.chaosblade.platform.dao.repository;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.ExperimentActivityMapper;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityDO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -67,6 +68,13 @@ public class ExperimentActivityRepository extends ServiceImpl<ExperimentActivity
 
     @Override
     public boolean updateByPrimaryKey(Long id, ExperimentActivityDO experimentActivityDO) {
-        return false;
+        experimentActivityDO.setId(id);
+        return experimentActivityMapper.updateById(experimentActivityDO) == 1;
+    }
+
+    public void deleteExperimentId(Long experimentId) {
+        QueryWrapper<ExperimentActivityDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(ExperimentActivityDO::getExperimentId, experimentId);
+        experimentActivityMapper.delete(queryWrapper);
     }
 }

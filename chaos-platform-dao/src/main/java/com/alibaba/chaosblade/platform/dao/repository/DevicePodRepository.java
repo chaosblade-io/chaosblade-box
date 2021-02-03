@@ -38,6 +38,9 @@ public class DevicePodRepository implements IRepository<Long, DevicePodDO> {
 
     public List<DevicePodDO> selectList(DevicePodDO devicePodDO) {
         QueryWrapper<DevicePodDO> queryWrapper = QueryWrapperBuilder.build();
+        if (StrUtil.isNotBlank(devicePodDO.getNamespace())) {
+            queryWrapper.lambda().like(DevicePodDO::getNamespace, devicePodDO.getNamespace());
+        }
         if (StrUtil.isNotBlank(devicePodDO.getPodName())) {
             queryWrapper.lambda().like(DevicePodDO::getPodName, devicePodDO.getPodName());
         }
@@ -47,18 +50,27 @@ public class DevicePodRepository implements IRepository<Long, DevicePodDO> {
         return devicePodMapper.selectList(queryWrapper);
     }
 
+    public Optional<DevicePodDO> selectByNameAndNamespace(String namespace, String podName) {
+        QueryWrapper<DevicePodDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(DevicePodDO::getPodName, podName);
+        queryWrapper.lambda().eq(DevicePodDO::getNamespace, namespace);
+        return Optional.ofNullable(devicePodMapper.selectOne(queryWrapper));
+    }
+
     @Override
     public Optional<DevicePodDO> selectById(Long aLong) {
-        return Optional.empty();
+        return Optional.ofNullable(devicePodMapper.selectById(aLong));
     }
 
     @Override
     public Long insert(DevicePodDO devicePodDO) {
-        return 0L;
+        devicePodMapper.insert(devicePodDO);
+        return devicePodDO.getId();
     }
 
     @Override
     public boolean updateByPrimaryKey(Long id, DevicePodDO devicePodDO) {
-        return false;
+        devicePodDO.setId(id);
+        return devicePodMapper.updateById(devicePodDO) == 1;
     }
 }

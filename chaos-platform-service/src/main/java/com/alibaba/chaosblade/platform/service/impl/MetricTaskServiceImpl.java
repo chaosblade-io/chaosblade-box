@@ -64,7 +64,7 @@ public class MetricTaskServiceImpl implements MetricTaskService {
     private MetricCategoryRepository metricCategoryRepository;
 
     @Override
-    public List<MetricTaskResponse> selectByTaskId(MetricTaskRequest metricTaskRequest) {
+    public List<MetricCategoryResponse> selectByTaskId(MetricTaskRequest metricTaskRequest) {
 
         ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectById(metricTaskRequest.getTaskId())
                 .orElseThrow(() -> new BizException(ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT));
@@ -75,38 +75,42 @@ public class MetricTaskServiceImpl implements MetricTaskService {
 
         List<DeviceMeta> deviceMetas = experimentMiniFlowService.selectExperimentDevice(experimentTaskDO.getExperimentId());
 
-        return metricModels.stream().flatMap(metricModel ->
-                deviceMetas.stream().map(deviceMeta -> {
-                            List<MetricTaskDO> metricTaskDOS = metricTaskRepository
-                                    .selectByTaskIdAndCategory(metricTaskRequest.getTaskId(),
-                                            deviceMeta.getDeviceId(),
-                                            metricModel.getCode(),
-                                            metricTaskRequest.getStartTime(),
-                                            metricTaskRequest.getEndTime());
+        return metricModels.stream().map(metricModel ->
+                MetricCategoryResponse.builder()
+                        .categoryId(metricModel.getCategoryId())
+                        .name(metricModel.getName())
+                        .code(metricModel.getCode())
+                        .params(metricModel.getParams().keySet().stream().map(
+                                k -> MetricParam.builder()
+                                        .name(k)
+                                        .value(metricModel.getParams().get(k))
+                                        .build()
+                        ).collect(Collectors.toList()))
+                        .metricTask(deviceMetas.stream().flatMap(deviceMeta -> {
+                                    List<MetricTaskDO> metricTaskDOS = metricTaskRepository
+                                            .selectByTaskIdAndCategory(metricTaskRequest.getTaskId(),
+                                                    deviceMeta.getDeviceId(),
+                                                    metricModel.getCode(),
+                                                    metricTaskRequest.getStartTime(),
+                                                    metricTaskRequest.getEndTime());
 
-                            return MetricTaskResponse.builder().category(
-                                    MetricCategoryResponse.builder()
-                                            .categoryId(metricModel.getCategoryId())
-                                            .name(metricModel.getName())
-                                            .code(metricModel.getCode())
-                                            .params(metricModel.getParams().keySet().stream().map(
-                                                    k -> MetricParam.builder()
-                                                            .name(k)
-                                                            .value(metricModel.getParams().get(k))
-                                                            .build()
-                                            ).collect(Collectors.toList()))
-                                            .build()
-                            )
-                                    .hostname(deviceMeta.getHostname())
-                                    .ip(deviceMeta.getIp())
-                                    .taskId(metricTaskRequest.getTaskId())
-                                    .metrics(metricTaskDOS.stream().map(metricTaskDO -> MetricTask.builder()
-                                            .date(metricTaskDO.getDate())
-                                            .value(metricTaskDO.getValue())
-                                            .build()).collect(Collectors.toList()))
-                                    .build();
-                        }
-                )
+                                    return metricTaskDOS.stream().collect(Collectors.groupingBy(MetricTaskDO::getMetric))
+                                            .entrySet()
+                                            .stream()
+                                            .map(e -> MetricTaskResponse.builder()
+                                                    .hostname(deviceMeta.getHostname())
+                                                    .ip(deviceMeta.getIp())
+                                                    .taskId(metricTaskRequest.getTaskId())
+                                                    .metric(e.getKey())
+                                                    .metrics(e.getValue().stream().map(metricTaskDO -> MetricTask.builder()
+                                                            .date(metricTaskDO.getDate())
+                                                            .value(metricTaskDO.getValue())
+                                                            .build()).collect(Collectors.toList()))
+                                                    .build());
+
+                                }
+                        ).collect(Collectors.toList()))
+                        .build()
         ).collect(Collectors.toList());
     }
 

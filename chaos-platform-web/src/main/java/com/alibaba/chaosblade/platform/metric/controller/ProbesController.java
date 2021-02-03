@@ -21,8 +21,10 @@ import com.alibaba.chaosblade.platform.service.probes.model.InstallProbesRequest
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesRequest;
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,10 +33,14 @@ import java.util.List;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class ProbesController {
 
     @Autowired
     private ProbesService probesService;
+
+    @Value("${chaos.collector.enable}")
+    private boolean enableCollect;
 
     @PostMapping("/GetAnsibleHosts")
     public List<ProbesResponse> getMachinesForHost() {
@@ -75,6 +81,11 @@ public class ProbesController {
     @PostMapping("/UnbanProbe")
     public ProbesResponse unbanProbe(@RequestBody ProbesRequest probesRequest) {
         return probesService.unbanProbe(probesRequest);
+    }
+
+    @PostMapping("/QueryCollectStatus")
+    public boolean queryCollectStatus() {
+        return enableCollect;
     }
 
 }

@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.metric;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -28,5 +29,5 @@ public interface MetricService {
      * @param metricChartLineRequest
      * @return
      */
-    CompletableFuture<MetricChartLineResponse> selectChartLine(MetricChartLineRequest metricChartLineRequest) ;
+    CompletableFuture<List<MetricChartLineResponse>> selectChartLine(MetricChartLineRequest metricChartLineRequest) ;
 }

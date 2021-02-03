@@ -33,7 +33,7 @@ public class InetUtils {
             try {
                 hostAddress = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
-                e.printStackTrace();
+                AnyThrow.throwUnchecked(e);
             }
             return hostAddress;
         }

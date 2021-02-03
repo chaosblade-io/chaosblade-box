@@ -16,14 +16,19 @@
 
 package com.alibaba.chaosblade.platform.metric.prometheus;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
+import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.metric.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
@@ -39,9 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -55,33 +58,36 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
 
     private final static String PARAM_QUERY = "query";
 
+    private final static String PARAM_STEP = "step";
+
+    private final static String PARAM_RULE = "rule";
+
     private CloseableHttpAsyncClient client;
 
     @Override
-    public CompletableFuture<MetricChartLineResponse> selectChartLine(MetricChartLineRequest metricChartLineRequest) {
-        CompletableFuture<MetricChartLineResponse> future = new CompletableFuture<>();
+    public CompletableFuture<List<MetricChartLineResponse>> selectChartLine(MetricChartLineRequest metricChartLineRequest) {
+        CompletableFuture<List<MetricChartLineResponse>> future = new CompletableFuture<>();
 
         Map<String, String> map = metricChartLineRequest.getParams();
-        if (map == null) {
-            future.completeExceptionally(new IllegalArgumentException("Prometheus need param"));
-        }
+        Preconditions.checkNotNull(map, new BizException("Prometheus need param"));
 
         String paramUrl = map.get(PARAM_URL);
-        if (paramUrl == null) {
-            future.completeExceptionally(new IllegalArgumentException("Prometheus need param url"));
-        }
+        Preconditions.checkNotNull(paramUrl, new BizException("Prometheus need param url"));
+
         String query = map.get(PARAM_QUERY);
-        if (query == null) {
-            future.completeExceptionally(new IllegalArgumentException("Prometheus need param query"));
+        Preconditions.checkNotNull(query, new BizException("Prometheus need param query"));
+
+        String step = map.get(PARAM_STEP);
+        if (step == null) {
+            step = "14";
         }
 
         HttpPost httpPost = new HttpPost(paramUrl);
         List<NameValuePair> params = new ArrayList<>();
-
         params.add(new BasicNameValuePair("query", query));
         params.add(new BasicNameValuePair("start", String.valueOf(metricChartLineRequest.getStartTime().getTime() / 1000)));
         params.add(new BasicNameValuePair("end", String.valueOf(metricChartLineRequest.getEndTime().getTime() / 1000)));
-        params.add(new BasicNameValuePair("step", "14"));
+        params.add(new BasicNameValuePair("step", step));
 
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -98,26 +104,58 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                     ByteArrayInputStream inputStream = new ByteArrayInputStream(EntityUtils.toByteArray(entity));
                     JsonNode jsonNode = JsonUtils.reader().readTree(inputStream);
 
-                    ArrayNode arrayNode = (ArrayNode) jsonNode.get("data").get("result").get(0).get("values");
+                    ArrayNode result = (ArrayNode) jsonNode.get("data").get("result");
 
-                    List<MetricChartLine> metricChartLines = new ArrayList<>();
-                    for (JsonNode node : arrayNode) {
-                        String date = node.get(0).asText();
-                        String value = node.get(1).asText();
-                        metricChartLines.add(
-                                MetricChartLine.builder()
-                                        .time(DateUtil.date(new BigDecimal(date).longValue() * 1000))
-                                        .value(value)
-                                        .category(metricChartLineRequest.getCategoryCode())
-                                        .build());
+                    String rule = map.get(PARAM_RULE);
+                    Map<String, String> ipToInstance = new HashMap<>();
+                    if (StrUtil.isNotBlank(rule)) {
+                        ArrayNode arrayNode = (ArrayNode) JsonUtils.reader().readTree(rule);
+                        for (JsonNode node : arrayNode) {
+                            String field = node.fieldNames().next();
+                            ipToInstance.put(field, node.get(field).asText());
+                        }
                     }
 
-                    MetricChartLineResponse response = MetricChartLineResponse.builder()
-                            .metricChartLines(metricChartLines)
-                            .build();
+                    List<MetricChartLineResponse> metricChartLineResponses = CollUtil.newArrayList();
+                    if (CollUtil.isNotEmpty(result)) {
+                        for (JsonNode node : result) {
 
-                    future.complete(response);
-                } catch (IOException e) {
+                            String metric = node.get("metric").toString();
+                            MetricChartLineResponse metricChartLineResponse = MetricChartLineResponse.builder().metric(metric)
+                                    .build();
+                            // values
+                            ArrayNode values = (ArrayNode) node.get("values");
+                            List<MetricChartLine> metricChartLines = new ArrayList<>();
+                            for (JsonNode dot : values) {
+                                String date = dot.get(0).asText();
+                                String value = dot.get(1).asText();
+                                metricChartLines.add(MetricChartLine.builder()
+                                        .time(DateUtil.date(new BigDecimal(date).longValue() * 1000))
+                                        .value(value)
+                                        .build());
+                            }
+
+                            metricChartLineRequest.getDevices().stream().filter(deviceMeta -> {
+                                if (metric.contains(deviceMeta.getIp())) {
+                                    return true;
+                                }
+                                String value = ipToInstance.get(deviceMeta.getIp());
+                                if (value != null) {
+                                    return metric.contains(value);
+                                }
+                                return false;
+                            }).findFirst().ifPresent(deviceMeta -> {
+                                metricChartLineResponse.setMetricChartLines(metricChartLines);
+                                metricChartLineResponse.setDeviceMeta(deviceMeta);
+                                metricChartLineResponses.add(metricChartLineResponse);
+                            });
+                        }
+                        future.complete(metricChartLineResponses);
+                    } else {
+                        future.complete(Collections.emptyList());
+                    }
+                } catch (
+                        IOException e) {
                     future.completeExceptionally(e);
                 }
             }
@@ -142,7 +180,8 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
 
     @Override
     public void afterPropertiesSet() {
-        client = HttpAsyncClients.createDefault();
+        RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(3000).setConnectTimeout(3000).build();
+        client = HttpAsyncClients.custom().setDefaultRequestConfig(requestConfig).build();
         client.start();
     }
 }

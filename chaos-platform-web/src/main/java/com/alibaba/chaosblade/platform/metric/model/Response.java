@@ -33,8 +33,6 @@ public class Response<T> implements Serializable {
 
     private Integer code = SUCCESS_CODE;
 
-    private String original;
-
     private String message;
 
     private boolean success;

@@ -18,7 +18,6 @@ package com.alibaba.chaosblade.platform.service;
 
 import com.alibaba.chaosblade.platform.service.model.metric.MetricCategoryResponse;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricTaskRequest;
-import com.alibaba.chaosblade.platform.service.model.metric.MetricTaskResponse;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public interface MetricTaskService {
      *
      * @param metricTaskRequest
      */
-    List<MetricTaskResponse> selectByTaskId(MetricTaskRequest metricTaskRequest);
+    List<MetricCategoryResponse> selectByTaskId(MetricTaskRequest metricTaskRequest);
 
     /**
      *

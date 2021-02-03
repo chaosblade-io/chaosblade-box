@@ -31,4 +31,6 @@ public class Scene {
     private String scope;
 
     private List<Action> actions;
+
+    private Prepare prepare;
 }

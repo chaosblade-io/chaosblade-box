@@ -27,6 +27,14 @@ public class Preconditions {
     private Preconditions() {
     }
 
+    public static <T> T checkNotNull(T reference, BizException bizException) {
+        if (reference == null) {
+            throw bizException;
+        } else {
+            return reference;
+        }
+    }
+
     public static <T> T checkNotNull(T reference, ExceptionMessageEnum exceptionMessageEnum) {
         if (reference == null) {
             throw new BizException(exceptionMessageEnum);

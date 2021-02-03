@@ -21,7 +21,6 @@ package com.alibaba.chaosblade.platform.service.model.scene.prepare;
  */
 public class JavaAgentPrepare {
 
-    public static final String CODE = "chaos.prepare.jvm";
     public static final String PID = "pid";
     public static final String PROCESS = "process";
 

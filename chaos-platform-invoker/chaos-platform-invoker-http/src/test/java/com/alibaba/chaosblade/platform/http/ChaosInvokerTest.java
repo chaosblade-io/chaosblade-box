@@ -108,6 +108,32 @@ public class ChaosInvokerTest {
                 .get();
     }
 
+    @Test
+    public void attackNodeTest() throws Throwable {
+
+        HashMap<String, String> flags = new HashMap<String, String>();
+        ModelRequest modelRequest = new ModelRequest();
+        modelRequest.setHost("192.168.0.1");
+        modelRequest.setScope("node");
+        modelRequest.setPort(19527);
+        modelRequest.setTarget("node-cpu");
+        modelRequest.setAction("load");
+        flags.put("debug", "true");
+        flags.put("cpu-percent", "60");
+        flags.put("names", "izuf6gjchf1lak9iqeugunz");
+        modelRequest.setArguments(flags);
+
+        CompletableFuture<ResponseCommand> future = chaosBladeHttpInvoker.invoke(modelRequest);
+        future.thenAccept(r ->
+                System.out.println(r)
+        )
+                .exceptionally((e) -> {
+                    e.printStackTrace();
+                    return null;
+                })
+                .get();
+    }
+
     @Configuration
     @ComponentScan("com.alibaba.chaosblade.platform.http")
     public static class Config {

@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class ToolsController {
 
     @Autowired

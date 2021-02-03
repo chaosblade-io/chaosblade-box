@@ -26,14 +26,12 @@ import java.util.List;
 public interface ExperimentService {
 
     /**
-     * 创建演练
      * @param createExperimentRequest
      * @return
      */
     ExperimentResponse createExperiment(CreateExperimentRequest createExperimentRequest) throws Exception;
 
     /**
-     * 创建演练
      * @param experimentRequest
      * @return
      */
@@ -71,4 +69,10 @@ public interface ExperimentService {
      * @return
      */
     List<ExperimentResponse> getExperimentsPageable(ExperimentRequest experimentRequest);
+
+    /**
+     *
+     * @return
+     */
+    ExperimentStatisticsResponse getExperimentTotalStatistics();
 }

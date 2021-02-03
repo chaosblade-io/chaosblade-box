@@ -36,21 +36,24 @@ import org.springframework.context.ApplicationContext;
 @Slf4j
 public class DBLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
-    public final static String LONGS_PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS}, %green(%-5level), %red([%thread]) %boldMagenta(%logger{72}) - %msg%n";
+    private final static String LONGS_PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS}, %green(%-5level), %red([%thread]) %boldMagenta(%logger{72}) - %msg%n";
 
-    public final static String APPENDER_NAME = "DBLoggerAppender";
+    private final static String APPENDER_NAME = "DBLoggerAppender";
+
+    private final static PatternLayoutEncoder encoder;
+
+    static {
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        encoder = new PatternLayoutEncoder();
+        encoder.setContext(loggerContext);
+        encoder.setPattern(LONGS_PATTERN);
+        encoder.start();
+    }
 
     private static ApplicationContext applicationContext;
 
     @Override
     public void append(ILoggingEvent iLoggingEvent) {
-
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-        encoder.setContext(loggerContext);
-        encoder.setPattern(LONGS_PATTERN);
-        encoder.start();
-
         String message = new String(encoder.encode(iLoggingEvent));
 
         ExperimentTaskLogRepository logRepository = applicationContext.getBean(ExperimentTaskLogRepository.class);
@@ -80,15 +83,16 @@ public class DBLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEvent> 
         if (sm != null) {
             sm.add(new InfoStatus("Setting up default configuration.", lc));
         }
-
-        // thread safety
-        DBLoggerAppender DBLoggerAppender = new DBLoggerAppender();
-        DBLoggerAppender.setContext(lc);
-        DBLoggerAppender.setName(APPENDER_NAME);
-        DBLoggerAppender.start();
-
         ch.qos.logback.classic.Logger logger = lc.getLogger(clazz);
-        logger.setAdditive(true);
-        logger.addAppender(DBLoggerAppender);
+        if (logger.getAppender(APPENDER_NAME) == null) {
+            // thread safety
+            DBLoggerAppender DBLoggerAppender = new DBLoggerAppender();
+            DBLoggerAppender.setContext(lc);
+            DBLoggerAppender.setName(APPENDER_NAME);
+            DBLoggerAppender.start();
+
+            logger.setAdditive(true);
+            logger.addAppender(DBLoggerAppender);
+        }
     }
 }

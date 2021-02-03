@@ -18,6 +18,7 @@ package com.alibaba.chaosblade.platform.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.SceneStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
@@ -67,6 +68,7 @@ public class SceneServiceImpl implements SceneService {
     private SceneParamService sceneParamService;
 
     @Override
+    @Transactional
     public SceneImportResponse importScenarios(SceneImportRequest sceneImportRequest) {
         String version = sceneImportRequest.getVersion();
         String source = sceneImportRequest.getName();
@@ -78,16 +80,63 @@ public class SceneServiceImpl implements SceneService {
                 continue;
             }
 
+            Long prepareId = null;
+            if (scenario.getPrepare() != null) {
+                Prepare prepare = scenario.getPrepare();
+                String sconeCode = StrUtil.builder(source,
+                        ChaosConstant.DOT,
+                        ChaosConstant.PHASE_PREPARE.toLowerCase(),
+                        ChaosConstant.DOT,
+                        prepare.getType()).toString();
+
+                prepareId = sceneRepository.selectByCodeAndVersion(sconeCode, version).map(SceneDO::getId)
+                        .orElseGet(() -> {
+                            SceneDO sceneDO = SceneDO.builder()
+                                    .sceneName(sconeCode)
+                                    .sceneCode(sconeCode)
+                                    .version(version)
+                                    .original(source)
+                                    .build();
+                            sceneRepository.insert(sceneDO);
+                            return sceneDO.getId();
+                        });
+
+                if (CollUtil.isNotEmpty(prepare.getFlags())) {
+                    Long finalPrepareId = prepareId;
+                    prepare.getFlags().forEach(flag -> {
+
+                        sceneParamRepository.insert(SceneParamDO.builder()
+                                .sceneId(finalPrepareId)
+                                .alias(flag.getName())
+                                .paramName(flag.getName())
+                                .description(flag.getDesc())
+                                .isRequired(flag.isRequired())
+                                .build());
+                    });
+                }
+            }
+
             for (Action action : scenario.getActions()) {
-                String sconeCode = ChaosConstant.CHAOS_PREFIX + scenario.getTarget() + ChaosConstant.DOT + action.getName();
-                if (CollUtil.isNotEmpty(sceneRepository.selectByCodeAndVersion(sconeCode, version))) {
-                    throw new BizException(ExceptionMessageEnum.SCENE_EXISTS, sconeCode + ":" + version) ;
+                String sconeCode;
+                if ("host".equals(scenario.getScope())) {
+                    sconeCode = StrUtil.builder(source, ChaosConstant.DOT, scenario.getTarget(), ChaosConstant.DOT, action.getName()).toString();
+                } else {
+                    sconeCode = StrUtil.builder(source, ChaosConstant.DOT,
+                            scenario.getScope(),
+                            "-",
+                            scenario.getTarget(),
+                            ChaosConstant.DOT, action.getName()).toString();
+                }
+
+                if (sceneRepository.selectByCodeAndVersion(sconeCode, version).isPresent()) {
+                    throw new BizException(ExceptionMessageEnum.SCENE_EXISTS, sconeCode + ":" + version);
                 }
 
                 SceneDO sceneDO = SceneDO.builder()
-                        .sceneName(action.getName())
+                        .sceneName(sconeCode)
                         .sceneCode(sconeCode)
                         .description(action.getDesc())
+                        .preSceneId(prepareId)
                         .version(version)
                         .original(source)
                         .build();
@@ -103,6 +152,18 @@ public class SceneServiceImpl implements SceneService {
                                 .paramName(matcher.getName())
                                 .description(matcher.getDesc())
                                 .isRequired(matcher.isRequired())
+                                .build());
+                    });
+                }
+                if (CollUtil.isNotEmpty(action.getFlags())) {
+                    action.getFlags().forEach(flag -> {
+
+                        sceneParamRepository.insert(SceneParamDO.builder()
+                                .sceneId(sceneDO.getId())
+                                .alias(flag.getName())
+                                .paramName(flag.getName())
+                                .description(flag.getDesc())
+                                .isRequired(flag.isRequired())
                                 .build());
                     });
                 }
@@ -283,6 +344,7 @@ public class SceneServiceImpl implements SceneService {
                                 sceneParamService.selectSceneParamBySceneId(scene.getId())
                         )
                         .count(Optional.ofNullable(scene.getUseCount()).orElse(0))
+                        .preScenarioId(scene.getPreSceneId())
                         .build()
         ).orElseThrow(() -> new BizException(ExceptionMessageEnum.SCENE_IS_NULL));
     }

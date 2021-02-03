@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.cmmon.jackson;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.IOException;
+import java.sql.Struct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +42,15 @@ public class ArgumentsToMapDeserializer extends JsonDeserializer<Map<String, Str
                 ArrayNode arrayNode = (ArrayNode) treeNode;
                 Map<String, String> map = new HashMap<>();
                 for (JsonNode jsonNode : arrayNode) {
-                    map.put(jsonNode.get("name").asText(), jsonNode.get("value").asText());
+                   if (!jsonNode.get("value").isNull()) {
+                       String value = jsonNode.get("value").asText();
+                       if (StrUtil.isBlank(value)) {
+                           value = jsonNode.get("value").toString();
+                       }
+                       if (StrUtil.isNotBlank(value)) {
+                           map.put(jsonNode.get("name").asText(), value);
+                       }
+                   }
                 }
                 return map;
             }

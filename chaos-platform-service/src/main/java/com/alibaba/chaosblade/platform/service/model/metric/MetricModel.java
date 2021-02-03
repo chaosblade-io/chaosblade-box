@@ -47,4 +47,5 @@ public class MetricModel {
     @JsonDeserialize(using = ArgumentsToMapDeserializer.class)
     @JsonSerialize(using = MapToArgumentsDeserializer.class)
     private Map<String, String> params;
+
 }

@@ -11,6 +11,7 @@
         <module>chaos-platform-common</module>
         <module>chaos-platform-invoker</module>
         <module>chaos-platform-metric</module>
+        <module>chaos-platform-collector</module>
     </modules>
 
     <parent>
@@ -78,7 +79,6 @@
                 <artifactId>chaos-platform-metric-prometheus</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- chaos metric -->
 
             <dependency>
                 <groupId>com.aliyun</groupId>
@@ -92,6 +92,20 @@
                 <version>7.0.3</version>
             </dependency>
             <!-- chaos metric -->
+
+            <!-- chaos collector -->
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-collector-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-collector-prometheus</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- chaos collector -->
 
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -174,9 +188,6 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
-                <mysql.url></mysql.url>
-                <mysql.username></mysql.username>
-                <mysql.password></mysql.password>
             </properties>
         </profile>
     </profiles>

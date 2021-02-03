@@ -41,13 +41,6 @@ public interface ExperimentTaskService {
 
     /**
      *
-     * @param experimentId
-     * @return
-     */
-    ExperimentTaskResponse selectLatestByExperimentId(Long experimentId);
-
-    /**
-     *
      * @param experimentRequest
      * @return
      */

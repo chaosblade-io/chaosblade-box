@@ -16,6 +16,9 @@
 
 package com.alibaba.chaosblade.platform.metric.controller;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.service.ExperimentService;
 import com.alibaba.chaosblade.platform.service.model.experiment.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.*;
+
 
 /**
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class ExperimentController {
 
     @Autowired
@@ -38,6 +44,9 @@ public class ExperimentController {
     @RequestMapping("/CreateExperiment")
     public ExperimentResponse createExperiment(@RequestBody CreateExperimentRequest createExperimentRequest)
             throws Exception {
+        Preconditions.checkArgument(StrUtil.isBlank(createExperimentRequest.getExperimentName()), EXPERIMENT_NAME_IS_NULL);
+        Preconditions.checkArgument(CollUtil.isEmpty(createExperimentRequest.getMachines()), EXPERIMENT_DEVICE_IS_NULL);
+        Preconditions.checkNotNull(createExperimentRequest.getScenarioId(), EXPERIMENT_SCENE_IS_NULL);
         return experimentService.createExperiment(createExperimentRequest);
     }
 
@@ -72,4 +81,8 @@ public class ExperimentController {
         experimentService.finishExperiment(experimentTaskRequest);
     }
 
+    @RequestMapping("/GetExperimentTotalStatistics")
+    public ExperimentStatisticsResponse getExperimentTotalStatistics() {
+        return experimentService.getExperimentTotalStatistics();
+    }
 }

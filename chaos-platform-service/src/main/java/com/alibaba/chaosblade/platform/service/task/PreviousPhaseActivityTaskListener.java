@@ -24,5 +24,5 @@ public interface PreviousPhaseActivityTaskListener {
     /**
      *
      */
-    void complete(ActivityTaskExecuteContext context);
+    void complete(ActivityTaskExecuteContext context, Throwable throwable);
 }

@@ -73,22 +73,35 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
 
     @Override
     public void fireExecute() {
+        TaskNode<ActivityTask> internalTask = null;
         try {
             if (currentTask == null) {
-                while (!atomicReferenceFieldUpdater.compareAndSet(this, null, activityTaskExecutePipeline.head())) {
-                }
-                if (experimentTaskStartListener != null) {
-                    experimentTaskStartListener.notify(this, currentTask.getTask().activityTaskDTO());
+                internalTask = activityTaskExecutePipeline.head();
+                if (atomicReferenceFieldUpdater.compareAndSet(this, null, internalTask)) {
+                    if (currentTask == null) {
+                        return;
+                    }
+                    if (experimentTaskStartListener != null) {
+                        experimentTaskStartListener.notify(this, currentTask.getTask().activityTaskDTO());
+                    }
+                } else {
+                    fireExecute();
                 }
             } else {
-                while (!atomicReferenceFieldUpdater.compareAndSet(this, currentTask, currentTask.next())) {
+                internalTask = currentTask.next();
+                if (!atomicReferenceFieldUpdater.compareAndSet(this, currentTask, internalTask)) {
+                    fireExecute();
                 }
                 if (currentTask == null) {
                     return;
                 }
             }
 
-            final TaskNode<ActivityTask> internalTask = currentTask;
+            if (internalTask.prev() != null && !internalTask.prev().getTask().activityTaskDTO().getPhase()
+                    .equals(internalTask.getTask().activityTaskDTO().getPhase())) {
+                return;
+            }
+
             final ActivityTask activityTask = internalTask.getTask();
 
             List<CompletableFuture> futures = CollUtil.newArrayList();
@@ -101,10 +114,11 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
             if (next != null && next.getTask() instanceof PreviousPhaseActivityTaskListener) {
                 final ActivityTask nextTask = next.getTask();
 
-                CompletableFuture.allOf(ArrayUtil.toArray(futures, CompletableFuture.class)).thenRun(() -> {
+                CompletableFuture.allOf(ArrayUtil.toArray(futures, CompletableFuture.class)).handle((r, e) -> {
                     if (nextTask.preHandler(DefaultActivityTaskExecuteContext.this)) {
-                        ((PreviousPhaseActivityTaskListener) nextTask).complete(DefaultActivityTaskExecuteContext.this);
+                        ((PreviousPhaseActivityTaskListener) nextTask).complete(DefaultActivityTaskExecuteContext.this, e);
                     }
+                    return null;
                 });
             }
 
@@ -132,7 +146,9 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                 executor.execute(() -> executeActivityTask(activityTask));
             }
         } catch (Throwable throwable) {
-            currentTask.getTask().postHandler(this, throwable);
+            if (internalTask != null) {
+                internalTask.getTask().postHandler(this, throwable);
+            }
         }
     }
 

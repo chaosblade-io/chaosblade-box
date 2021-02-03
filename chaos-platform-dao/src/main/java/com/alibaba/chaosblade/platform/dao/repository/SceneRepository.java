@@ -65,11 +65,11 @@ public class SceneRepository extends ServiceImpl<SceneMapper, SceneDO> implement
         return sceneMapper.selectList(queryWrapper);
     }
 
-    public List<SceneDO> selectByCodeAndVersion(String code, String version) {
+    public Optional<SceneDO> selectByCodeAndVersion(String code, String version) {
         QueryWrapper<SceneDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(SceneDO::getVersion, version);
         queryWrapper.lambda().like(SceneDO::getSceneCode, code);
-        return sceneMapper.selectList(queryWrapper);
+        return Optional.ofNullable(sceneMapper.selectOne(queryWrapper));
     }
 
     public void insertBatch(Collection<SceneDO> collection) {

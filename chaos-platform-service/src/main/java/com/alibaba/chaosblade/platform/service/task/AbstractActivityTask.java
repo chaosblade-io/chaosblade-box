@@ -22,6 +22,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
+import com.alibaba.chaosblade.platform.cmmon.enums.ProbesInstallModel;
 import com.alibaba.chaosblade.platform.cmmon.enums.ResultStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
@@ -29,6 +30,7 @@ import com.alibaba.chaosblade.platform.cmmon.utils.AnyThrow;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
+import com.alibaba.chaosblade.platform.dao.model.ProbesDO;
 import com.alibaba.chaosblade.platform.dao.repository.*;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
@@ -78,6 +80,9 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
     @Autowired
     protected DeviceRepository deviceRepository;
 
+    @Autowired
+    private ProbesRepository probesRepository;
+
     public AbstractActivityTask(ActivityTaskDTO activityTaskDTO) {
         this.activityTaskDTO = activityTaskDTO;
         this.completableFuture = new CompletableFuture<>();
@@ -119,10 +124,6 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
                         .activityId(activityTaskDTO.getActivityId())
                         .build());
 
-                // update scene use count
-                String sceneCode = activityTaskDO.getSceneCode();
-
-
                 return true;
             } else {
                 log.warn("子运行状态不可运行，任务ID: {}，阶段：{}, 子任务ID：{} ",
@@ -132,7 +133,10 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
                 );
             }
         } else {
-            log.warn("当前任务状态不可运行，任务ID: {}，状态：{} ", activityTaskDTO.getExperimentTaskId(), runStatus.name());
+            log.warn("当前任务状态不可运行，任务ID: {}，阶段：{}, 状态：{} ",
+                    activityTaskDTO.getExperimentTaskId(),
+                    activityTaskDTO.getPhase(),
+                    runStatus.name());
         }
         return false;
     }
@@ -156,19 +160,40 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
             log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
                     activityTaskDTO.getExperimentTaskId(),
                     activityTaskDTO.getPhase(),
-                    activityTaskDTO.getActivityTaskId(),
-                    throwable
-            );
+                    activityTaskDTO.getActivityTaskId());
         } else {
             log.error("子任务运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: {} ",
                     activityTaskDTO.getExperimentTaskId(),
                     activityTaskDTO.getPhase(),
                     activityTaskDTO.getActivityTaskId(),
-                    throwable.getMessage()
-            );
+                    throwable.getMessage());
         }
 
-        completableFuture.complete(null);
+        Long waitOfAfter = activityTaskDTO.getWaitOfAfter();
+        if (waitOfAfter != null) {
+            log.info("演练阶段完成后等待通知, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
+                    activityTaskDTO.getExperimentTaskId(),
+                    activityTaskDTO.getActivityTaskId(),
+                    waitOfAfter);
+
+            timerFactory.getTimer().newTimeout(timeout ->
+                    {
+                        if (throwable != null) {
+                            completableFuture.completeExceptionally(throwable);
+                        } else {
+                            completableFuture.complete(null);
+                        }
+                    },
+                    waitOfAfter,
+                    TimeUnit.MILLISECONDS);
+        } else {
+            if (throwable != null) {
+                completableFuture.completeExceptionally(throwable);
+            } else {
+                completableFuture.complete(null);
+            }
+        }
+
     }
 
     @Override
@@ -204,10 +229,22 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
                 continue;
             }
 
-            requestCommand.setHost(deviceMeta.getIp());
+            DeviceType deviceType = DeviceType.transByCode(deviceMeta.getDeviceType());
+            switch (deviceType) {
+                case HOST:
+                    requestCommand.setHost(deviceMeta.getIp());
+                    break;
+                case NODE:
+                case POD:
+                    // todo
+                    List<ProbesDO> probesDOS = probesRepository.selectByType((byte) ProbesInstallModel.K8S_HELM.getCode());
+                    ProbesDO probesDO = probesDOS.get(0);
+                    requestCommand.setHost(probesDO.getIp());
+            }
+
             requestCommand.setPort(19527);
 
-            requestCommand.setScope( DeviceType.transByCode(deviceMeta.getDeviceType()).name().toLowerCase());
+            requestCommand.setScope(DeviceType.transByCode(deviceMeta.getDeviceType()).name().toLowerCase());
             requestCommand.setPhase(activityTaskDTO.getPhase());
             requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
 
@@ -221,8 +258,21 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
                     record.setSuccess(result.isSuccess());
                     record.setCode(result.getCode());
                     record.setResult(result.getResult());
+                    record.setErrorMessage(result.getError());
+
+                    if (!result.isSuccess()) {
+                        e = new BizException(result.getError());
+                    }
                 }
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
+                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
+                        activityTaskDTO.getExperimentTaskId(),
+                        activityTaskDTO.getPhase(),
+                        activityTaskDTO.getActivityTaskId(),
+                        deviceMeta.getHostname() + "-" + deviceMeta.getIp(),
+                        record.getSuccess(),
+                        record.getErrorMessage());
+
                 if (e != null) {
                     AnyThrow.throwUnchecked(e);
                 }

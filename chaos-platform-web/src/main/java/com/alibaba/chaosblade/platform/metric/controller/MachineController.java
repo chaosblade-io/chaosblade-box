@@ -19,10 +19,7 @@ package com.alibaba.chaosblade.platform.metric.controller;
 import com.alibaba.chaosblade.platform.service.DeviceService;
 import com.alibaba.chaosblade.platform.service.model.device.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +27,7 @@ import java.util.List;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class MachineController {
 
     @Autowired
@@ -45,13 +43,13 @@ public class MachineController {
         return deviceService.getKubernetesTotalStatistics();
     }
 
-    @GetMapping("/GetMachinesForNodePageable")
+    @PostMapping("/GetMachinesForNodePageable")
     public List<DeviceNodeResponse> getMachinesForNode(
             @RequestBody DevicePodsRequest deviceNodeRequest) {
         return deviceService.getMachinesForNode(deviceNodeRequest);
     }
 
-    @GetMapping("/GetMachinesForPodPageable")
+    @PostMapping("/GetMachinesForPodPageable")
     public List<DevicePodResponse> getMachinesForPod(
             @RequestBody DevicePodRequest devicePodRequest) {
 
@@ -66,5 +64,10 @@ public class MachineController {
     @PostMapping("/UnbanMachine")
     public DeviceResponse UnbanMachine(@RequestBody DeviceRequest deviceRequest) {
         return deviceService.unbanMachine(deviceRequest);
+    }
+
+    @RequestMapping("/GetHostTotalStatistics")
+    public HostStatisticsResponse getHostTotalStatistics() {
+        return deviceService.getHostTotalStatistics();
     }
 }

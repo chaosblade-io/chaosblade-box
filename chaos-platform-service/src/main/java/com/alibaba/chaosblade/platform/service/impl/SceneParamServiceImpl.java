@@ -75,6 +75,7 @@ public class SceneParamServiceImpl implements SceneParamService {
                 .name(sceneParamDO.getParamName())
                 .defaultValue(sceneParamDO.getDefaultValue())
                 .description(sceneParamDO.getDescription())
+                .required(sceneParamDO.getIsRequired())
                 .component(sceneParamDO.getComponent())
                 .build()
         ).collect(Collectors.toList());

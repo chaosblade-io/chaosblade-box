@@ -21,6 +21,7 @@ import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.MetricTaskMapper;
 import com.alibaba.chaosblade.platform.dao.model.MetricTaskDO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +32,7 @@ import java.util.Optional;
  * @author yefei
  */
 @Repository
-public class MetricTaskRepository implements IRepository<Long, MetricTaskDO> {
+public class MetricTaskRepository extends ServiceImpl<MetricTaskMapper, MetricTaskDO> implements IRepository<Long, MetricTaskDO> {
 
     @Autowired
     private MetricTaskMapper metricTaskMapper;

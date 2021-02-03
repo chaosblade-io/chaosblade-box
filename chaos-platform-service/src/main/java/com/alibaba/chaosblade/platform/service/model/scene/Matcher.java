@@ -31,4 +31,6 @@ public class Matcher {
     private String type;
 
     private boolean required;
+
+    private String defaultValue;
 }

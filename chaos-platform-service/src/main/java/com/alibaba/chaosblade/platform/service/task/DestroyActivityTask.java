@@ -71,7 +71,7 @@ public class DestroyActivityTask extends AbstractActivityTask<HttpChannelRequest
     }
 
     @Override
-    public void complete(ActivityTaskExecuteContext context) {
+    public void complete(ActivityTaskExecuteContext context, Throwable throwable) {
         execute(context);
     }
 

@@ -18,10 +18,7 @@ package com.alibaba.chaosblade.platform.cmmon;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @author yefei
@@ -31,6 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode
 public class DeviceMeta {
 
     @JsonProperty("machineId")
@@ -42,7 +40,5 @@ public class DeviceMeta {
     private String hostname;
 
     private String ip;
-
-    private int port = 19527;
 
 }

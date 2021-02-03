@@ -41,7 +41,7 @@ public final class PrepareActivityTask extends AbstractActivityTask<PrepareComma
     }
 
     @Override
-    public void complete(ActivityTaskExecuteContext activityTaskExecuteContext) {
+    public void complete(ActivityTaskExecuteContext activityTaskExecuteContext, Throwable throwable) {
         execute(activityTaskExecuteContext);
     }
 
@@ -51,6 +51,8 @@ public final class PrepareActivityTask extends AbstractActivityTask<PrepareComma
         String prepareType = SceneCodeParseUtil.getPrepareType(sceneCode);
         PrepareCommandRequest prepareCommandRequest = new PrepareCommandRequest();
         prepareCommandRequest.setType(prepareType);
+        prepareCommandRequest.setArguments(activityTaskDTO.getArguments());
+        prepareCommandRequest.setTimeout(5 * 60 * 1000L);
         return prepareCommandRequest;
     }
 }

@@ -21,7 +21,7 @@ import com.alibaba.chaosblade.platform.http.util.Base64Util;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -87,7 +87,7 @@ public class ModelRequest extends HttpChannelRequest implements ChaosBladeReques
 
     public String base64encodeScriptContent(String key, String value) {
         if ("filter-script-content".equals(key) || "script-content".equals(key)) {
-            return Base64Util.encode(value.getBytes(Charset.forName("UTF-8")), false);
+            return Base64Util.encode(value.getBytes(StandardCharsets.UTF_8), false);
         }
         return value;
     }

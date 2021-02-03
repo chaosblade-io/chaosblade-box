@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.metric;
 
+import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import lombok.Builder;
 import lombok.Data;
 
@@ -27,6 +28,10 @@ import java.util.List;
 @Data
 @Builder
 public class MetricChartLineResponse {
+
+    private String metric;
+
+    private DeviceMeta deviceMeta;
 
     private List<MetricChartLine> metricChartLines;
 

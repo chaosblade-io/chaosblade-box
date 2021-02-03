@@ -32,5 +32,4 @@ public class MetricChartLine {
 
     private String value;
 
-    private String category;
 }

@@ -22,15 +22,22 @@ package com.alibaba.chaosblade.platform.cmmon.enums;
 public enum ProbesInstallModel {
 
     ANSIBLE(0),
+    SSH(1),
+    K8S(2),
+    K8S_HELM(3)
     ;
+
+    public boolean isHost() {
+       return name().equals(ANSIBLE.name()) || name().equals(SSH.name());
+    }
 
     private int code;
 
-    ProbesInstallModel(int code) {
-        this.code = code;
+    public int getCode() {
+        return code;
     }
 
-    public byte getCode() {
-        return (byte) this.code;
+    ProbesInstallModel(int code) {
+        this.code = code;
     }
 }

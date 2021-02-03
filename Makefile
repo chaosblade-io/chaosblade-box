@@ -1,5 +1,11 @@
 .PHONY: build clean
 
+SRC_ROOT=$(shell pwd)
+
+# chaos-platform-fe
+CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaos-platform-fe.git
+CHAOS_PLATFORM_FE_BRANCH=master
+
 mysql:
 	docker run --rm -d -it \
 			-p 3306:3306 \
@@ -9,6 +15,14 @@ mysql:
             --character-set-server=utf8mb4 \
             --collation-server=utf8mb4_unicode_ci \
             --default-time_zone='+8:00'
+
+build_fe:
+	rm -rf ./cache
+	mkdir -p ./cache/chaos-platform-fe
+	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaos-platform-fe
+	cd cache/chaos-platform-fe
+	yarn build
+	cp -R cache/chaos-platform-fe/build/* $(SRC_ROOT)/chaos-platform-web/src/main/resources/static
 
 build:
 	docker run -it \

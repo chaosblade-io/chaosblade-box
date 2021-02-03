@@ -31,4 +31,6 @@ public class Action {
     private String desc;
 
     private List<Matcher> matchers;
+
+    private List<Flag> flags;
 }
