@@ -20,12 +20,16 @@ import com.alibaba.chaosblade.platform.service.model.MachineResponse;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * @author yefei
  */
 @Data
 @Accessors(chain = true)
 public class DevicePodResponse extends MachineResponse {
+
+    private String namespace;
 
     private String clusterName;
 
@@ -39,6 +43,6 @@ public class DevicePodResponse extends MachineResponse {
 
     private String podIp;
 
-    private String containers;
+    private List<ContainerBO> containers;
 
 }

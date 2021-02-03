@@ -34,6 +34,11 @@
             <artifactId>chaos-platform-metric-prometheus</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-collector-prometheus</artifactId>
+        </dependency>
+
     </dependencies>
 
 

@@ -38,17 +38,25 @@ public class DeviceNodeRepository implements IRepository<Long, DeviceNodeDO> {
 
     @Override
     public Optional<DeviceNodeDO> selectById(Long aLong) {
-        return Optional.empty();
+        return Optional.ofNullable(deviceNodeMapper.selectById(aLong));
+    }
+
+    public Optional<DeviceNodeDO> selectByNodeName(String nodeName) {
+        QueryWrapper<DeviceNodeDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(DeviceNodeDO::getNodeName, nodeName);
+        return Optional.ofNullable(deviceNodeMapper.selectOne(queryWrapper));
     }
 
     @Override
     public Long insert(DeviceNodeDO deviceNodeDO) {
-        return 0L;
+        deviceNodeMapper.insert(deviceNodeDO);
+        return deviceNodeDO.getId();
     }
 
     @Override
     public boolean updateByPrimaryKey(Long id, DeviceNodeDO deviceNodeDO) {
-        return false;
+        deviceNodeDO.setId(id);
+        return deviceNodeMapper.updateById(deviceNodeDO) == 1;
     }
 
     public long selectCount() {

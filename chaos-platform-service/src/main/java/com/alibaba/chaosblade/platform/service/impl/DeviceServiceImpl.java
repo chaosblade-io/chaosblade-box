@@ -20,12 +20,15 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.platform.cmmon.enums.AgentType;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
+import com.alibaba.chaosblade.platform.cmmon.enums.ProbesInstallModel;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
-import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.DeviceNodeMapper;
 import com.alibaba.chaosblade.platform.dao.model.*;
@@ -34,6 +37,8 @@ import com.alibaba.chaosblade.platform.dao.repository.*;
 import com.alibaba.chaosblade.platform.service.DeviceService;
 import com.alibaba.chaosblade.platform.service.model.device.*;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsResponse;
+import com.alibaba.chaosblade.platform.service.probes.heartbeats.Heartbeats;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,60 +85,62 @@ public class DeviceServiceImpl implements DeviceService {
     @Autowired
     private ToolsRepository toolsRepository;
 
+    @Autowired
+    private Heartbeats heartbeats;
+
     @Override
     @Transactional
     public void deviceRegister(DeviceRegisterRequest deviceRegisterRequest) {
-        Long appId = applicationRepository.selectOneByNamespaceAndAppName(deviceRegisterRequest.getNamespace(), deviceRegisterRequest.getAppInstance())
-                .map(ApplicationDO::getId)
-                .orElseGet(() -> {
-                    ApplicationDO applicationDO = ApplicationDO.builder()
-                            .namespace(deviceRegisterRequest.getNamespace())
-                            .appName(deviceRegisterRequest.getAppInstance())
-                            .build();
-                    applicationRepository.insert(applicationDO);
-                    return applicationDO.getId();
-                });
 
-        Long groupId = applicationGroupRepository.selectOneByAppIdAndGroupName(appId, deviceRegisterRequest.getAppGroup())
-                .map(ApplicationGroupDO::getId)
-                .orElseGet(() -> {
-                    ApplicationGroupDO applicationGroupDO = ApplicationGroupDO.builder()
-                            .appId(appId)
-                            .appName(deviceRegisterRequest.getAppInstance())
-                            .groupName(deviceRegisterRequest.getAppGroup())
-                            .build();
+        ProbesInstallModel installModel = EnumUtil.fromString(ProbesInstallModel.class, deviceRegisterRequest.getInstallMode().toUpperCase());
+        switch (installModel) {
+            case ANSIBLE:
+            case SSH:
+                Long appId = applicationRepository.selectOneByNamespaceAndAppName(
+                        deviceRegisterRequest.getNamespace(),
+                        deviceRegisterRequest.getAppInstance())
 
-                    applicationGroupRepository.insert(applicationGroupDO);
-                    return applicationGroupDO.getId();
-                });
-
-
-        DeviceType deviceType = DeviceType.transByCode(deviceRegisterRequest.getDeviceType());
-        Preconditions.checkNotNull(deviceType, ExceptionMessageEnum.DEVICE_TYPE_NOT_FOUNT, deviceRegisterRequest.getDeviceType());
-
-        switch (deviceType) {
-            case NODE:
-                // todo
-                break;
-            case POD:
-                // todo
-                break;
-            case HOST:
-                DeviceDO device = deviceRepository.selectOneByUnique(deviceType.getCode(), deviceRegisterRequest.getHostName(), deviceRegisterRequest.getIp())
+                        .map(ApplicationDO::getId)
                         .orElseGet(() -> {
-                            DeviceDO deviceDO = DeviceDO.builder()
-                                    .ip(deviceRegisterRequest.getIp())
-                                    .hostname(deviceRegisterRequest.getHostName())
-                                    .version(deviceRegisterRequest.getVersion())
-                                    .cpuCore(deviceRegisterRequest.getCpuCore())
-                                    .status(DeviceStatus.ONLINE.getStatus())
-                                    .memorySize(deviceRegisterRequest.getMemorySize() == null ? null : deviceRegisterRequest.getMemorySize().intValue())
-                                    .uptime(deviceRegisterRequest.getUptime())
-                                    .installMode(deviceRegisterRequest.getInstallMode())
-                                    .type(deviceRegisterRequest.getDeviceType())
+                            ApplicationDO applicationDO = ApplicationDO.builder()
+                                    .namespace(deviceRegisterRequest.getNamespace())
+                                    .appName(deviceRegisterRequest.getAppInstance())
                                     .build();
-                            deviceRepository.insert(deviceDO);
+                            applicationRepository.insert(applicationDO);
+                            return applicationDO.getId();
+                        });
 
+                Long groupId = applicationGroupRepository.selectOneByAppIdAndGroupName(appId, deviceRegisterRequest.getAppGroup())
+                        .map(ApplicationGroupDO::getId)
+                        .orElseGet(() -> {
+                            ApplicationGroupDO applicationGroupDO = ApplicationGroupDO.builder()
+                                    .appId(appId)
+                                    .appName(deviceRegisterRequest.getAppInstance())
+                                    .groupName(deviceRegisterRequest.getAppGroup())
+                                    .build();
+
+                            applicationGroupRepository.insert(applicationGroupDO);
+                            return applicationGroupDO.getId();
+                        });
+
+                DeviceDO deviceDO = DeviceDO.builder()
+                        .ip(deviceRegisterRequest.getIp())
+                        .hostname(deviceRegisterRequest.getHostName())
+                        .version(deviceRegisterRequest.getVersion())
+                        .cpuCore(deviceRegisterRequest.getCpuCore())
+                        .status(DeviceStatus.ONLINE.getStatus())
+                        .memorySize(deviceRegisterRequest.getMemorySize() == null ? null : deviceRegisterRequest.getMemorySize().intValue())
+                        .uptime(deviceRegisterRequest.getUptime())
+                        .installMode(deviceRegisterRequest.getInstallMode())
+                        .type(DeviceType.HOST.getCode())
+                        .build();
+
+                Long deviceId = deviceRepository.selectOneByUnique(DeviceType.HOST.getCode(), deviceRegisterRequest.getHostName())
+                        .map(device -> {
+                            deviceRepository.updateByPrimaryKey(device.getId(), deviceDO);
+                            return device.getId();
+                        }).orElseGet(() -> {
+                            deviceRepository.insert(deviceDO);
                             applicationDeviceRepository.insert(ApplicationDeviceDO.builder()
                                     .namespace(deviceRegisterRequest.getNamespace())
                                     .appId(appId)
@@ -142,30 +149,39 @@ public class DeviceServiceImpl implements DeviceService {
                                     .groupName(deviceRegisterRequest.getAppGroup())
                                     .deviceId(deviceDO.getId())
                                     .build());
-
-                            return deviceDO;
+                            return deviceDO.getId();
                         });
 
-                try {
-                    long id = Long.parseLong(deviceRegisterRequest.getAgentId());
-                    probesRepository.updateByPrimaryKey(id,
-                            ProbesDO.builder()
-                                    .deviceId(device.getId())
-                                    .version(deviceRegisterRequest.getVersion())
-                                    .build());
-                } catch (Exception e) {
-                    log.warn(e.getMessage(), e);
-                }
+
+                long id = Long.parseLong(deviceRegisterRequest.getAgentId());
+                probesRepository.updateByPrimaryKey(id,
+                        ProbesDO.builder()
+                                .deviceId(deviceId)
+                                .hostname(deviceRegisterRequest.getHostName())
+                                .status(DeviceStatus.ONLINE.getStatus())
+                                .version(deviceRegisterRequest.getAgentVersion())
+                                .build());
+
                 break;
+            case K8S:
+            case K8S_HELM:
+                ProbesDO probesDO = probesRepository.selectByHost(deviceRegisterRequest.getIp())
+                        .orElseGet(() -> {
+                            ProbesDO probes = ProbesDO.builder()
+                                    .ip(deviceRegisterRequest.getIp())
+                                    .agentType(AgentType.KUBERNETES.getCode())
+                                    .status(DeviceStatus.ONLINE.getStatus())
+                                    .hostname(deviceRegisterRequest.getHostName())
+                                    .version(deviceRegisterRequest.getAgentVersion())
+                                    .installMode((byte) installModel.getCode())
+                                    .ip(deviceRegisterRequest.getIp())
+                                    .build();
+                            probesRepository.insert(probes);
+                            return probes;
+                        });
+
+                heartbeats.addHeartbeats(probesDO);
         }
-
-        probesRepository.selectByHost(deviceRegisterRequest.getIp()).ifPresent(probesDO -> {
-            probesRepository.updateByHost(deviceRegisterRequest.getIp(), ProbesDO.builder()
-                    .hostname(deviceRegisterRequest.getHostName())
-                    .status(DeviceStatus.ONLINE.getStatus())
-                    .build());
-        });
-
     }
 
     @Override
@@ -222,10 +238,10 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public KubernetesStatisticsResponse getKubernetesTotalStatistics() {
         return KubernetesStatisticsResponse.builder()
-                .nodes(deviceRepository.selectCount(DeviceDO.builder()
+                .nodes(deviceRepository.selectHostCount(DeviceDO.builder()
                         .type(DeviceType.NODE.getCode())
                         .build()))
-                .pods(deviceRepository.selectCount(DeviceDO.builder()
+                .pods(deviceRepository.selectHostCount(DeviceDO.builder()
                         .type(DeviceType.POD.getCode())
                         .build()))
                 .cluster(Optional.ofNullable(deviceNodeMapper.selectCount(QueryWrapperBuilder.<DeviceNodeDO>build()
@@ -295,6 +311,7 @@ public class DeviceServiceImpl implements DeviceService {
 
         PageUtils.startPage(devicePodRequest);
         List<DevicePodDO> devicePodDOS = devicePodRepository.selectList(DevicePodDO.builder()
+                .namespace(devicePodRequest.getNamespace())
                 .podName(devicePodRequest.getPodName())
                 .podIp(devicePodRequest.getPodId())
                 .build());
@@ -308,10 +325,20 @@ public class DeviceServiceImpl implements DeviceService {
                 {
                     DevicePodResponse devicePodResponse = new DevicePodResponse();
 
+                    List<ContainerBO> containers;
+                    if (StrUtil.isBlank(devicePodDO.getContainers())) {
+                        containers = Collections.emptyList();
+                    } else {
+                        containers = JsonUtils.readValue(new TypeReference<List<ContainerBO>>() {
+                        }, devicePodDO.getContainers());
+                    }
+
                     devicePodResponse.setClusterName(nodeMap.get(devicePodDO.getNodeId()).getClusterName())
                             .setNodeName(nodeMap.get(devicePodDO.getNodeId()).getNodeName())
                             .setNodeIp(nodeMap.get(devicePodDO.getNodeId()).getNodeIp())
                             .setNodeVersion(nodeMap.get(devicePodDO.getNodeId()).getNodeVersion())
+                            .setNamespace(devicePodDO.getNamespace())
+                            .setContainers(containers)
                             .setPodName(devicePodDO.getPodName())
                             .setPodIp(devicePodDO.getPodIp())
                             .setDeviceId(devicePodDO.getId())
@@ -386,5 +413,13 @@ public class DeviceServiceImpl implements DeviceService {
                 .setOriginal(deviceRequest.getOriginal())
                 .setChaostools(tools);
         return deviceResponse;
+    }
+
+    @Override
+    public HostStatisticsResponse getHostTotalStatistics() {
+        return HostStatisticsResponse.builder()
+                .totals(deviceRepository.selectHostCount())
+                .onlines(deviceRepository.selectHostOnlineCount())
+                .build();
     }
 }

@@ -24,46 +24,27 @@ import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
  */
 public class SceneCodeParseUtil {
 
-    private final static String DEFAULT_ORIGINAL = "chaosblade";
-
     public static String getOriginal(String sceneCode) {
         String s = StrUtil.subBefore(sceneCode, ".", false);
-        if (s.equals(ChaosConstant.CHAOS)) {
-            return DEFAULT_ORIGINAL;
-        } else {
-            return s;
-        }
-    }
-
-    public static String removeOriginal(String sceneCode) {
-        String s = StrUtil.subBefore(sceneCode, ".", false);
-        if (s.equals(ChaosConstant.CHAOS)) {
-            return sceneCode;
-        } else {
-            return sceneCode.substring(sceneCode.indexOf(".") + 1);
-        }
-    }
-
-    public static Boolean isPrepare(String sceneCode) {
-        return removeOriginal(sceneCode).startsWith("chaos.prepare");
+        return s;
     }
 
     public static String getPrepareType(String sceneCode) {
-        String[] split = removeOriginal(sceneCode).split("[.]");
+        String[] split = sceneCode.split("[.]");
         return split[2];
     }
 
     public static Boolean isRevoke(String sceneCode) {
-        return removeOriginal(sceneCode).startsWith("chaos.revoke");
+        return sceneCode.startsWith("chaosblade.revoke");
     }
 
     public static String getTarget(String sceneCode) {
-        String[] split = removeOriginal(sceneCode).split("[.]");
+        String[] split = sceneCode.split("[.]");
         return split[1];
     }
 
     public static String getAction(String sceneCode) {
-        String[] split = removeOriginal(sceneCode).split("[.]");
+        String[] split = sceneCode.split("[.]");
         return split[2];
     }
 }

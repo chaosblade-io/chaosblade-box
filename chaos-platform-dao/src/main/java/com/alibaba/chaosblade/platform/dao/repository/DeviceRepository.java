@@ -17,6 +17,8 @@
 package com.alibaba.chaosblade.platform.dao.repository;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
+import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.DeviceMapper;
 import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
@@ -42,14 +44,12 @@ public class DeviceRepository implements IRepository<Long, DeviceDO> {
      *  deviceType hostName ip
      * @param deviceType
      * @param hostName
-     * @param ip
      * @return
      */
-    public Optional<DeviceDO> selectOneByUnique(Byte deviceType, String hostName, String ip) {
+    public Optional<DeviceDO> selectOneByUnique(Byte deviceType, String hostName) {
         QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(DeviceDO::getType, deviceType);
         queryWrapper.lambda().eq(DeviceDO::getHostname, hostName);
-        queryWrapper.lambda().eq(DeviceDO::getIp, ip);
         return Optional.ofNullable(deviceMapper.selectOne(queryWrapper));
     }
 
@@ -58,7 +58,7 @@ public class DeviceRepository implements IRepository<Long, DeviceDO> {
         return deviceMapper.selectList(queryWrapper);
     }
 
-    public long selectCount(DeviceDO deviceDO) {
+    public long selectHostCount(DeviceDO deviceDO) {
         QueryWrapper<DeviceDO> queryWrapper = newQueryWrapper(deviceDO);
         return deviceMapper.selectCount(queryWrapper);
     }
@@ -104,7 +104,16 @@ public class DeviceRepository implements IRepository<Long, DeviceDO> {
         return deviceMapper.selectBatchIds(idList);
     }
 
-    public long selectCount() {
-        return deviceMapper.selectCount(new QueryWrapper<>());
+    public Integer selectHostCount() {
+        QueryWrapper<DeviceDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.HOST.getCode());
+        return deviceMapper.selectCount(queryWrapper);
+    }
+
+    public Integer selectHostOnlineCount() {
+        QueryWrapper<DeviceDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.HOST.getCode());
+        queryWrapper.lambda().eq(DeviceDO::getStatus, DeviceStatus.ONLINE.getStatus());
+        return deviceMapper.selectCount(queryWrapper);
     }
 }

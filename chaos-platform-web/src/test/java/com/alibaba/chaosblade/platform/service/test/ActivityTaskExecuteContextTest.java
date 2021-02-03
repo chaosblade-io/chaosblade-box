@@ -34,7 +34,7 @@ public class ActivityTaskExecuteContextTest {
     public void test() throws Throwable {
         ActivityTaskDTO activityTaskDTO = new ActivityTaskDTO();
         activityTaskDTO.setActivityId(0L);
-        HashMap<String, String> flags = new HashMap<String, String>();
+        HashMap<String, String> flags = new HashMap<>();
         flags.put("process", "ChaosBladeApplication");
         flags.put("debug", "true");
 
@@ -42,7 +42,7 @@ public class ActivityTaskExecuteContextTest {
         activityTaskDTO.setPhase(ChaosConstant.PHASE_PREPARE);
 
         ArrayList<DeviceMeta> scopes = CollUtil.newArrayList(
-                new DeviceMeta(4L, (byte) 0, "leaf", "30.11.189.48", 19527)
+                new DeviceMeta(4L, (byte) 0, "leaf", "192.168.0.1")
         );
         activityTaskDTO.setDeviceMetas(scopes);
 

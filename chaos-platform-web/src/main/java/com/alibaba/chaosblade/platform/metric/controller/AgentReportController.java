@@ -50,24 +50,6 @@ public class AgentReportController {
         log.debug(JsonUtils.writeValueAsString(param));
     }
 
-    @RequestMapping("/k8sPod")
-    @ResponseBody
-    public void k8sPod(@RequestBody Map<String, String> param) {
-        log.debug(JsonUtils.writeValueAsString(param));
-    }
-
-    @RequestMapping("/k8sNode")
-    @ResponseBody
-    public void k8sNode(@RequestBody Map<String, String> param) {
-        log.debug(JsonUtils.writeValueAsString(param));
-    }
-
-    @RequestMapping("/k8sNamespace")
-    @ResponseBody
-    public void k8sNamespace(@RequestBody Map<String, String> param) {
-        log.debug(JsonUtils.writeValueAsString(param));
-    }
-
     @RequestMapping("/chaos/AgentClosed")
     @ResponseBody
     public void agentClose(@RequestBody DeviceRegisterRequest registerRequest) {

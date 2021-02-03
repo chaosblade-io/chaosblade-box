@@ -99,8 +99,17 @@ public class AttackActivityTask extends AbstractActivityTask<ModelRequest> imple
     }
 
     @Override
-    public void complete(ActivityTaskExecuteContext activityTaskExecuteContext) {
-        execute(activityTaskExecuteContext);
+    public void complete(ActivityTaskExecuteContext activityTaskExecuteContext, Throwable throwable) {
+        if (throwable == null) {
+            execute(activityTaskExecuteContext);
+        } else {
+            log.error("子任务运行失败，上一个阶段运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: {} ",
+                    activityTaskDTO.getExperimentTaskId(),
+                    activityTaskDTO.getPhase(),
+                    activityTaskDTO.getActivityTaskId(),
+                    throwable.getMessage()
+            );
+        }
     }
 
     @Override

@@ -16,20 +16,23 @@
 
 package com.alibaba.chaosblade.platform.metric.aliyun;
 
-import cn.hutool.core.date.DateField;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
+import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
+import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.metric.*;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.cms.model.v20190101.DescribeMetricListRequest;
 import com.aliyuncs.cms.model.v20190101.DescribeMetricListResponse;
-import com.aliyuncs.cms.model.v20190101.DescribeMonitoringAgentStatusesRequest;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +48,8 @@ import java.util.stream.Collectors;
 @MetricStrategy(MetricSource.ALIYUN)
 public class AliyunMetricService implements MetricService, InitializingBean {
 
+    private final static String PARAM_REGION = "region";
+
     private String ak;
 
     private String sk;
@@ -52,47 +57,91 @@ public class AliyunMetricService implements MetricService, InitializingBean {
     private IAcsClient client;
 
     @Override
-    public CompletableFuture<MetricChartLineResponse> selectChartLine(MetricChartLineRequest metricChartLineRequest) {
+    public CompletableFuture<List<MetricChartLineResponse>> selectChartLine(MetricChartLineRequest metricChartLineRequest) {
+        CompletableFuture<List<MetricChartLineResponse>> completableFuture = new CompletableFuture<>();
 
-        DescribeMonitoringAgentStatusesRequest request = new DescribeMonitoringAgentStatusesRequest();
-        request.setInstanceIds(metricChartLineRequest.getInstance());
+        Map<String, String> map = metricChartLineRequest.getParams();
+        Preconditions.checkNotNull(map, new BizException("Aliyun Metric need param"));
+        Preconditions.checkNotNull(map.get(PARAM_REGION), new BizException("region param url"));
 
-        MetricChartLineResponse metricChartLineResponse = MetricChartLineResponse.builder().build();
-        DescribeMetricListRequest describeMetricListRequest = new DescribeMetricListRequest();
-        describeMetricListRequest.setStartTime(DateUtil.date().offset(DateField.MINUTE, -10).toStringDefaultTimeZone());
-        describeMetricListRequest.setEndTime(DateUtil.date().toStringDefaultTimeZone());
-        describeMetricListRequest.setPeriod("60");
-        describeMetricListRequest.setNamespace("acs_ecs_dashboard");
-        describeMetricListRequest.setMetricName(metricChartLineRequest.getCategoryCode());
+        List<MetricChartLineResponse> metricChartLineResponses = CollUtil.newArrayList();
+        for (DeviceMeta device : metricChartLineRequest.getDevices()) {
 
-        CompletableFuture<MetricChartLineResponse> completableFuture = new CompletableFuture<>();
-        DescribeMetricListResponse response = null;
-        try {
-            response = client.getAcsResponse(describeMetricListRequest);
-        } catch (ClientException e) {
-            completableFuture.completeExceptionally(e);
+            DescribeMetricListRequest describeMetricListRequest = new DescribeMetricListRequest();
+            describeMetricListRequest.setDimensions("{\"instanceId\":\"" + device.getHostname() + "\"}");
+            describeMetricListRequest.setStartTime(DateUtil.date(metricChartLineRequest.getStartTime()).toStringDefaultTimeZone());
+            describeMetricListRequest.setEndTime(DateUtil.date(metricChartLineRequest.getEndTime()).toStringDefaultTimeZone());
+            describeMetricListRequest.setPeriod("15");
+            describeMetricListRequest.setNamespace("acs_ecs_dashboard");
+            String[] split = metricChartLineRequest.getCategoryCode().split("[.]");
+            describeMetricListRequest.setMetricName(split[2]);
+
+            DescribeMetricListResponse response = null;
+            try {
+                DefaultProfile profile = DefaultProfile.getProfile(map.get(PARAM_REGION), ak, sk);
+                response = client.getAcsResponse(describeMetricListRequest, profile);
+            } catch (ClientException e) {
+                completableFuture.completeExceptionally(e);
+            }
+            String datapoints = response.getDatapoints();
+            List<Map<String, String>> list = JsonUtils.readValue(new TypeReference<List<Map<String, String>>>() {
+            }, datapoints);
+
+            {
+                List<MetricChartLine> lines = list.stream().map(dot ->
+                        MetricChartLine.builder()
+                                .time(DateUtil.date(Long.parseLong(dot.get("timestamp"))))
+                                .value(dot.get("Average"))
+                                .build()
+                ).collect(Collectors.toList());
+
+                Metric metric = Metric.builder().instance(device.getHostname()).dimension("Average").build();
+                MetricChartLineResponse metricChartLineResponse = MetricChartLineResponse.builder().build();
+                metricChartLineResponse.setMetricChartLines(lines);
+                metricChartLineResponse.setMetric(JsonUtils.writeValueAsString(metric));
+                metricChartLineResponse.setDeviceMeta(device);
+                metricChartLineResponses.add(metricChartLineResponse);
+            }
+
+            {
+                List<MetricChartLine> lines = list.stream().map(dot ->
+                        MetricChartLine.builder()
+                                .time(DateUtil.date(Long.parseLong(dot.get("timestamp"))))
+                                .value(dot.get("Minimum"))
+                                .build()
+                ).collect(Collectors.toList());
+
+                Metric metric = Metric.builder().instance(device.getHostname()).dimension("Minimum").build();
+                MetricChartLineResponse metricChartLineResponse = MetricChartLineResponse.builder().build();
+                metricChartLineResponse.setMetricChartLines(lines);
+                metricChartLineResponse.setMetric(JsonUtils.writeValueAsString(metric));
+                metricChartLineResponse.setDeviceMeta(device);
+                metricChartLineResponses.add(metricChartLineResponse);
+            }
+
+            {
+                List<MetricChartLine> lines = list.stream().map(dot ->
+                        MetricChartLine.builder()
+                                .time(DateUtil.date(Long.parseLong(dot.get("timestamp"))))
+                                .value(dot.get("Maximum"))
+                                .build()
+                ).collect(Collectors.toList());
+
+                Metric metric = Metric.builder().instance(device.getHostname()).dimension("Maximum").build();
+                MetricChartLineResponse metricChartLineResponse = MetricChartLineResponse.builder().build();
+                metricChartLineResponse.setMetricChartLines(lines);
+                metricChartLineResponse.setMetric(JsonUtils.writeValueAsString(metric));
+                metricChartLineResponse.setDeviceMeta(device);
+                metricChartLineResponses.add(metricChartLineResponse);
+            }
         }
-        String datapoints = response.getDatapoints();
-        List<Map<String, String>> list = JsonUtils.readValue(new TypeReference<List<Map<String, String>>>() {
-        }, datapoints);
 
-        List<MetricChartLine> lines = list.stream().map(map ->
-                MetricChartLine.builder()
-                        .time(DateUtil.date(Long.valueOf(map.get("timestamp"))))
-                        .value(map.get("Average"))
-                        .category(JsonUtils.writeValueAsString(map))
-                        .build()
-        ).collect(Collectors.toList());
-
-        metricChartLineResponse.setMetricChartLines(lines);
-
-        completableFuture.complete(metricChartLineResponse);
+        completableFuture.complete(metricChartLineResponses);
         return completableFuture;
     }
 
     @Override
     public void afterPropertiesSet() {
-        DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", ak, sk);
-        client = new DefaultAcsClient(profile);
+        client = new DefaultAcsClient();
     }
 }

@@ -92,6 +92,10 @@ public class ChaosBladeHttpInvoker implements ChaosInvoker<HttpChannelRequest, R
         StringEntity stringEntity = new StringEntity(JsonUtils.writeValueAsString(requestCommand), Charset.defaultCharset());
         httpPost.setEntity(stringEntity);
 
+        if (requestCommand.getTimeout() != null) {
+            httpPost.setConfig(RequestConfig.custom().setSocketTimeout(requestCommand.getTimeout().intValue()).build());
+        }
+
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
         Class<?> classGeneric = Reflects.getInterfaceGeneric(this, 0, 1);
         httpclient.execute(httpPost, new FutureCallback<HttpResponse>() {

@@ -16,12 +16,14 @@
 
 package com.alibaba.chaosblade.platform.metric;
 
+import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,11 +35,9 @@ import java.util.Map;
 @NoArgsConstructor
 public class MetricChartLineRequest {
 
+    private List<DeviceMeta> devices;
+
     private String categoryCode;
-
-    private String instance;
-
-    private String hostName;
 
     private Date startTime;
 

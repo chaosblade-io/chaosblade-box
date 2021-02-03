@@ -21,6 +21,7 @@ import com.alibaba.chaosblade.platform.service.model.scene.categroy.SceneCategor
 import com.alibaba.chaosblade.platform.service.model.scene.categroy.SceneCategoryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.List;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class SceneCategoryController {
 
     @Autowired

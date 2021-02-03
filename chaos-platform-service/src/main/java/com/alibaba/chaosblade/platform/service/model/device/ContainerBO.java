@@ -16,13 +16,21 @@
 
 package com.alibaba.chaosblade.platform.service.model.device;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yefei
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ContainerBO {
+
+    private String containerId;
 
     private String containerName;
 }

@@ -24,12 +24,18 @@ public enum ExceptionMessageEnum {
     ERROR(6000, "系统异常"),
 
     // DEVICE
-    DEVICE_TYPE_NOT_FOUNT(6100, "找不到对应的机器类型"),
+    DEVICE_TYPE_NOT_FOUNT(6100, "不支持的设备类型"),
     DEVICE_NOT_FOUNT(6101, "机器不存在"),
 
     // EXPERIMENT
     EXPERIMENT_NOT_FOUNT(6200, "演练不存在"),
     EXPERIMENT_TASK_NOT_FOUNT(6201, "演练任务不存在"),
+    EXPERIMENT_TASK_STOPPING(6202, "演练任务停止中"),
+    EXPERIMENT_TASK_END(6203, "演练任务已结束"),
+    EXPERIMENT_NAME_IS_NULL(6204, "演练名称不能为空"),
+    EXPERIMENT_DEVICE_IS_NULL(6205, "演练机器不能为空"),
+    EXPERIMENT_SCENE_IS_NULL(6206, "请选择演练场景"),
+    EXPERIMENT_PRE_NO_FINISH(6207, "上一次演练任务未结束"),
 
     // METRIC
     METRIC_NOT_FOUNT(6300, "监控类目不存在"),

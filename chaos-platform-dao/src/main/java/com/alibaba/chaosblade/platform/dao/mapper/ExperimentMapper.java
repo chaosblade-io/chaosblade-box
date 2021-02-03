@@ -20,9 +20,24 @@ import com.alibaba.chaosblade.platform.dao.model.ExperimentDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author yefei
  */
 @Repository
 public interface ExperimentMapper extends BaseMapper<ExperimentDO> {
+
+    List<ExperimentDO> selectExperimentAndStatus(ExperimentDO experimentDO);
+
+    Integer selectPreparesCount();
+
+    Integer selectSuccessCount();
+
+    Integer selectFailedCount();
+
+    Integer selectRunningCount();
+
+    Integer selectFinishedCount();
 }
+

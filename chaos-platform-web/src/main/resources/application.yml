@@ -37,8 +37,13 @@ mybatis-plus:
   map-underscore-to-camel-case: true
 
 chaos:
-  ak:
-  sk:
+  collector:
+    enable: false
+    type: prometheus
+    prometheus:
+      api:
+  metric:
+    aliyun:
   agent:
     port: 19527
     release: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/demo/chaosagent

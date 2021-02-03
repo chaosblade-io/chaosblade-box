@@ -122,7 +122,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return ApplicationStatisticsResponse.builder()
                 .app(applicationRepository.selectCount())
                 .appGroup(applicationGroupRepository.selectCount())
-                .machine(deviceRepository.selectCount())
+                .machine(deviceRepository.selectHostCount())
                 .build();
     }
 

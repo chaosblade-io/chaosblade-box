@@ -37,6 +37,7 @@ target/*
 .idea/*
 *.iml
 */*.iml
+*.http
 build-target
 # Logs and databases #
 ######################
@@ -56,4 +57,5 @@ Thumbs.db
 
 # project
 /plugins
-/cp.sh
+/cache
+**/static/**

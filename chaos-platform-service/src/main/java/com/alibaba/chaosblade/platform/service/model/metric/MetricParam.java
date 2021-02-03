@@ -38,4 +38,6 @@ public class MetricParam {
 
     private String desc;
 
+    private boolean required;
+
 }

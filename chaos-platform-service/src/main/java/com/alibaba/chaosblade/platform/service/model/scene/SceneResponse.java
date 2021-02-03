@@ -57,4 +57,6 @@ public class SceneResponse {
 
     private Boolean requiredJavaAgent;
 
+    private Long preScenarioId;
+
 }

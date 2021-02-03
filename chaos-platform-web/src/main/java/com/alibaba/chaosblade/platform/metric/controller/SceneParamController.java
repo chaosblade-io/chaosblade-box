@@ -30,6 +30,7 @@ import java.util.List;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class SceneParamController {
 
     @Autowired

@@ -30,7 +30,7 @@ public class PrometheusApiTest {
         CloseableHttpAsyncClient client = HttpAsyncClients.createDefault();
         client.start();
 
-        HttpPost httpPost = new HttpPost("http://101.37.30.161:9090/api/v1/query_range");
+        HttpPost httpPost = new HttpPost("http://192.168.0.1:9090/api/v1/query_range");
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("query", "node_memory_MemFree_bytes"));

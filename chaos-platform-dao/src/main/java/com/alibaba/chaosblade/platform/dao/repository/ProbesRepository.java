@@ -78,6 +78,12 @@ public class ProbesRepository implements IRepository<Long, ProbesDO> {
         return probesMapper.selectList(queryWrapper);
     }
 
+    public List<ProbesDO> selectByType(byte... type) {
+        QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().in(ProbesDO::getAgentType, type);
+        return probesMapper.selectList(queryWrapper);
+    }
+
     public List<ProbesDO> selectByIds(Collection<Long> collection) {
         return probesMapper.selectBatchIds(collection);
     }

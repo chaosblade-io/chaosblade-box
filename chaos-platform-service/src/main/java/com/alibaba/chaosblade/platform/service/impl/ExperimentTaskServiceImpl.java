@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT;
+import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.*;
 
 /**
  * @author yefei
@@ -87,6 +87,14 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
     public ExperimentTaskResponse createExperimentTask(Long experimentId) {
         ExperimentDO experimentDO = experimentRepository.selectById(experimentId)
                 .orElseThrow(() -> new BizException(ExceptionMessageEnum.EXPERIMENT_NOT_FOUNT));
+        Long preTaskId = experimentDO.getTaskId();
+        if (preTaskId != null) {
+            ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectById(preTaskId).get();
+
+            if (!(experimentTaskDO.getRunStatus() == RunStatus.FINISHED.getValue())) {
+                throw new BizException(EXPERIMENT_PRE_NO_FINISH);
+            }
+        }
 
         ExperimentTaskDO experimentTaskDO = ExperimentTaskDO.builder()
                 .experimentId(experimentId)
@@ -97,6 +105,10 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .build();
         // ready experiment task
         experimentTaskRepository.insert(experimentTaskDO);
+
+        experimentRepository.updateByPrimaryKey(experimentId, ExperimentDO.builder()
+                .taskId(experimentTaskDO.getId())
+                .build());
 
         ExperimentActivity experimentActivity = experimentActivityService.selectByExperimentId(experimentId);
         readyActivityTasks(null, experimentActivity, experimentTaskDO.getId());
@@ -143,6 +155,13 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
     public void stopExperimentTask(Long taskId) {
 
         ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectById(taskId).orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
+        if (RunStatus.STOPPING.getValue() == experimentTaskDO.getRunStatus()) {
+            throw new BizException(EXPERIMENT_TASK_STOPPING);
+        }
+        if (RunStatus.FINISHED.getValue() == experimentTaskDO.getRunStatus()) {
+            throw new BizException(EXPERIMENT_TASK_END);
+        }
+
         experimentTaskRepository.updateByPrimaryKey(taskId, ExperimentTaskDO.builder()
                 .runStatus(RunStatus.STOPPING.getValue())
                 .build());
@@ -165,19 +184,6 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .collect(Collectors.toList());
 
         experimentActivityTaskService.executeActivityTasks(recovers, experimentTaskDO);
-
-    }
-
-    @Override
-    public ExperimentTaskResponse selectLatestByExperimentId(Long experimentId) {
-        ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectLatestByExperimentId(experimentId);
-        if (experimentTaskDO == null) {
-            return null;
-        }
-        return ExperimentTaskResponse.builder()
-                .startTime(experimentTaskDO.getGmtCreate())
-                .status(experimentTaskDO.getRunStatus())
-                .build();
     }
 
     @Override
@@ -189,6 +195,7 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .startTime(experimentTaskDO.getGmtStart())
                 .taskName(experimentTaskDO.getTaskName())
                 .status(experimentTaskDO.getRunStatus())
+                .resultStatus(experimentTaskDO.getResultStatus())
                 .build()).collect(Collectors.toList());
     }
 
@@ -244,7 +251,7 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
     @Override
     public List<String> queryTaskLog(ExperimentTaskRequest experimentRequest) {
         List<ExperimentTaskLogDO> experimentTaskLogs = experimentTaskLogRepository.selectByTaskId(experimentRequest.getTaskId());
-        return experimentTaskLogs.stream().map(experimentTaskLogDO -> experimentTaskLogDO.getContent())
+        return experimentTaskLogs.stream().map(ExperimentTaskLogDO::getContent)
                 .collect(Collectors.toList());
     }
 

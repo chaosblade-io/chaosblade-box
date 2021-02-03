@@ -30,13 +30,13 @@ public class MetricTaskResponse {
 
     private Long taskId;
 
-    private MetricCategoryResponse category;
-
     private String hostname;
 
     private Long machineId;
 
     private String ip;
+
+    private String metric;
 
     private List<MetricTask> metrics;
 

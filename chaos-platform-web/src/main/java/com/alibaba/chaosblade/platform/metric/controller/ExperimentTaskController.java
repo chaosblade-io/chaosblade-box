@@ -20,7 +20,6 @@ import com.alibaba.chaosblade.platform.service.ExperimentTaskService;
 import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentTaskResponse;
-import com.alibaba.chaosblade.platform.service.model.metric.MetricTaskResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +31,7 @@ import java.util.List;
  * @author yefei
  */
 @RestController
+@RequestMapping("/api")
 public class ExperimentTaskController {
 
     @Autowired

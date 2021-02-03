@@ -25,6 +25,8 @@ import lombok.Data;
 @Data
 public class DevicePodRequest extends PageQuery {
 
+    private String namespace;
+
     private String clusterName;
 
     private String nodeName;

@@ -18,7 +18,6 @@ package com.alibaba.chaosblade.platform.metric.config;
 
 import com.alibaba.chaosblade.platform.metric.interceptor.AttachRequestIdInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -34,7 +33,7 @@ public class WebAppConfigurer implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new AttachRequestIdInterceptor())
-                .addPathPatterns("/**")
+                .addPathPatterns("/api")
                 .excludePathPatterns("/favicon.ico")
                 .excludePathPatterns("/*.html")
                 .excludePathPatterns("/webjars/**");
@@ -45,6 +44,9 @@ public class WebAppConfigurer implements WebMvcConfigurer {
 
         registry.addResourceHandler("/swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
+
+        registry.addResourceHandler("/index.html")
+                .addResourceLocations("classpath:/resources/static/");
     }
 
 }

@@ -9,7 +9,7 @@ chaos-platform a chaos engineering platform with rich scenes
 make mysql mysql.password=${mysql.password}
 ````
 
-### mysql
+### build with docker
 ````shell script
 make build mysql.url=${mysql.url} mysql.username=${mysql.username} mysql.password=${mysql.password}
 ````

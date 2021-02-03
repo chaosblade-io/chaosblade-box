@@ -37,7 +37,7 @@ public class DevicePodDO extends BaseDO {
 
     private Long deviceId;
 
-    private Long namespace;
+    private String namespace;
 
     private String podName;
 

@@ -17,6 +17,8 @@
 package com.alibaba.chaosblade.platform.service.model.experiment;
 
 import com.alibaba.chaosblade.platform.dao.page.PageQuery;
+import com.alibaba.chaosblade.platform.service.model.experiment.jackson.ExperimentStatusDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,10 +39,14 @@ public class ExperimentRequest extends PageQuery {
 
     private String description;
 
-    private Byte status;
-
     private String namespace;
 
     private String runMode;
+
+    @JsonDeserialize(using = ExperimentStatusDeserializer.class)
+    private Integer lastTaskResult;
+
+    @JsonDeserialize(using = ExperimentStatusDeserializer.class)
+    private Integer lastTaskStatus;
 
 }

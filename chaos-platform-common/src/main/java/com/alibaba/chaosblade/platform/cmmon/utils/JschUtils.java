@@ -60,7 +60,7 @@ public class JschUtils {
     public static String start(String host, String user, String password, int port, String version, String platFormHost) throws Exception {
         Session session = JschUtil.getSession(host, port, user, password);
         ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-        channelExec.setCommand(String.format("sh -c 'nohup /opt/chaos-agent-%s/chaosAgent --transport.endpoint=%s:8080 > chaos-agent.log 2>&1 &'", version, platFormHost));
+        channelExec.setCommand(String.format("sh -c 'nohup /opt/chaos-agent/chaosAgent --transport.endpoint=%s > chaos-agent.log 2>&1 &'", version, platFormHost));
         channelExec.connect();
         InputStream errStream = channelExec.getErrStream();
         if (errStream.available() > 0) {

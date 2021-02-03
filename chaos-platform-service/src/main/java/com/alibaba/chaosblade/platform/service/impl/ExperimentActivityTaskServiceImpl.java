@@ -54,6 +54,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static com.alibaba.chaosblade.platform.cmmon.enums.RunStatus.FINISHED;
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT;
@@ -89,11 +90,11 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
     private ExecutorService executorService;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         ExecutorFactory executorFactory = new ThreadPoolExecutorFactory();
         executorService = executorFactory.createExecutorService(new ThreadFactory() {
 
-            AtomicInteger atomicInteger = new AtomicInteger();
+            final AtomicInteger atomicInteger = new AtomicInteger();
 
             @Override
             public Thread newThread(Runnable r) {
@@ -124,7 +125,6 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
             activityTaskDTO.setDeviceMetas(deviceMetas);
             activityTaskDTO.setFlowId(experimentActivityTask.getFlowId());
             activityTaskDTO.setExperimentTaskId(experimentActivityTask.getExperimentTaskId());
-            activityTaskDTO.setSceneCode(experimentActivityTask.getSceneCode());
             activityTaskDTO.setActivityId(experimentActivityTask.getActivityId());
             activityTaskDTO.setActivityTaskId(experimentActivityTask.getId());
             activityTaskDTO.setPreActivityTaskId(experimentActivityTask.getPreActivityTaskId());
@@ -133,11 +133,13 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
 
             pipeline.addList((ActivityTask) applicationContext.getBean(experimentActivityTask.getPhase(), activityTaskDTO));
             if (activityTaskDTO.getManualChecked()) {
+                // todo
                 break;
             }
         }
         DefaultActivityTaskExecuteContext executeContext = applicationContext.getBean(DefaultActivityTaskExecuteContext.class, pipeline, executorService);
 
+        // experiment before notify
         executeContext.addExperimentTaskStartListener((context, activityTaskDTO) -> {
 
             Logger logger = context.getContextLogger();
@@ -173,6 +175,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
             }
         });
 
+        // experiment after notify
         executeContext.addExperimentTaskCompleteListener((context, activityTaskDTO, e) -> {
             Logger logger = context.getContextLogger();
             if (activityTaskDTO.isAttackPhase()) {
@@ -212,6 +215,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
             }
         });
 
+        // fire experiment
         executeContext.fireExecute();
     }
 
@@ -219,39 +223,38 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
         Logger logger = context.getContextLogger();
         timerFactory.getTimer().newTimeout(timeout -> {
 
-            for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
-                metricService.selectChartLine(MetricChartLineRequest.builder()
-                        .startTime(DateUtil.date().offset(DateField.SECOND, -10))
-                        .endTime(DateUtil.date().offset(DateField.SECOND, -5))
-                        .instance(deviceMeta.getIp())
-                        .hostName(deviceMeta.getHostname())
-                        .categoryCode(metricModel.getCode())
-                        .params(metricModel.getParams())
-                        .build())
-                        .handleAsync((r, e) -> {
-                            if (e != null) {
-                                logger.error("获取监控数据失败, 任务ID：{}, 机器：{}, 异常: {}",
-                                        activityTaskDTO.getExperimentTaskId(),
-                                        deviceMeta.getDeviceId(),
-                                        e.getMessage());
-                            } else {
-                                for (MetricChartLine metricChartLine : r.getMetricChartLines()) {
-                                    metricTaskRepository.insert(MetricTaskDO.builder()
-                                            .ip(deviceMeta.getIp())
-                                            .deviceId(deviceMeta.getDeviceId())
-                                            .categoryId(metricModel.getCategoryId())
-                                            .hostname(deviceMeta.getHostname())
-                                            .categoryCode(metricModel.getCode())
-                                            .date(metricChartLine.getTime())
-                                            .value(metricChartLine.getValue())
-                                            .taskId(activityTaskDTO.getExperimentTaskId())
-                                            .build());
-                                }
-                            }
-                            return null;
-                        }, context.executor());
+            metricService.selectChartLine(MetricChartLineRequest.builder()
+                    .devices(activityTaskDTO.getDeviceMetas())
+                    .startTime(DateUtil.date())
+                    .endTime(DateUtil.date().offset(DateField.SECOND, +10))
+                    .categoryCode(metricModel.getCode())
+                    .params(metricModel.getParams())
+                    .build())
+                    .handleAsync((r, e) -> {
+                        if (e != null) {
+                            logger.error("获取监控数据失败, 任务ID：{}, 机器信息：{}, 异常: {}",
+                                    activityTaskDTO.getExperimentTaskId(),
+                                    JsonUtils.writeValueAsString(activityTaskDTO.getDeviceMetas()),
+                                    e.getMessage());
+                        } else {
+                            metricTaskRepository.saveBatch(
+                                    r.stream().flatMap(v -> v.getMetricChartLines().stream().map(metricChartLine ->
+                                            MetricTaskDO.builder()
+                                                    .ip(v.getDeviceMeta().getIp())
+                                                    .deviceId(v.getDeviceMeta().getDeviceId())
+                                                    .hostname(v.getDeviceMeta().getHostname())
+                                                    .categoryId(metricModel.getCategoryId())
+                                                    .categoryCode(metricModel.getCode())
+                                                    .date(metricChartLine.getTime())
+                                                    .value(metricChartLine.getValue())
+                                                    .taskId(activityTaskDTO.getExperimentTaskId())
+                                                    .metric(v.getMetric())
+                                                    .build()
+                                    )).collect(Collectors.toList()));
+                        }
+                        return null;
+                    }, context.executor());
 
-            }
 
             Byte status = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
                     .map(ExperimentTaskDO::getRunStatus)

@@ -22,6 +22,9 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author yefei
  */
@@ -41,10 +44,16 @@ public class TimerFactory implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() {
-        timer = new HashedWheelTimer(r -> {
-            Thread thread = new Thread(r);
-            thread.setName("timer");
-            return thread;
+        timer = new HashedWheelTimer(new ThreadFactory() {
+
+            AtomicInteger atomicInteger = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setName("timer-" + atomicInteger.getAndIncrement());
+                return thread;
+            }
         });
     }
 }

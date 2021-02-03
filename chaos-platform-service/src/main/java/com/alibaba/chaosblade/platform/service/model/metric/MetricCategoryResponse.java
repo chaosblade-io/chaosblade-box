@@ -45,4 +45,6 @@ public class MetricCategoryResponse {
     private List<MetricParam> params;
 
     private List<MetricCategoryResponse> children;
+
+    private List<MetricTaskResponse> metricTask;
 }

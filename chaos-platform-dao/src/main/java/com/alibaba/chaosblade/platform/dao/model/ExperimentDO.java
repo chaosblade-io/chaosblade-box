@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.dao.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,11 +38,18 @@ public class ExperimentDO extends BaseDO {
 
     private String description;
 
-    private String taskId;
+    private Long taskId;
 
     private Integer duration;
 
     private String dimension;
 
     private String metric;
+
+    @TableField(exist = false)
+    private Integer lastTaskStatus;
+
+    @TableField(exist = false)
+    private Integer lastTaskResult;
+
 }

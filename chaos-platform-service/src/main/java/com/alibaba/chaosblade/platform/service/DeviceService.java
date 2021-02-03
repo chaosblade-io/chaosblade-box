@@ -76,4 +76,10 @@ public interface DeviceService {
      */
     DeviceResponse getMachinesById(DeviceRequest deviceRequest);
 
+    /**
+     *
+     * @return
+     */
+    HostStatisticsResponse getHostTotalStatistics();
+
 }
