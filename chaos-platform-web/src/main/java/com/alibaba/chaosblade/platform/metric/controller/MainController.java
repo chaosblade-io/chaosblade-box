@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class MainController {
 
-    @GetMapping("/")
+    @GetMapping(path = {"/", "/experiment/**","/machine/**", "/scenario/**","/chaostools/**"})
     public String root() {
-        return "index.html";
+        return "/index.html";
     }
 }
