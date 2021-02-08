@@ -26,7 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * @author yefei
  */
-@Configuration
+//@Configuration
 public class WebAppConfigurer implements WebMvcConfigurer {
 
     @Override
