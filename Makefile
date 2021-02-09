@@ -39,6 +39,6 @@ app:
     		-p 8080:8080 \
     		-p 8000:8000 \
     		openjdk:8 \
-    		java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,suspend=n -Duser.timezone=Asia/Shanghai -jar /root/chaos-platform-web-0.0.1-SNAPSHOT.jar
+    		java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000,suspend=n -Duser.timezone=Asia/Shanghai -jar /root/chaos-platform-web-0.0.1-alpha.jar
 
 
