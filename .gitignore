@@ -58,6 +58,3 @@ Thumbs.db
 # project
 /plugins
 /cache
-**/static/**
-
-**/web/build/**

@@ -4,7 +4,7 @@ SRC_ROOT=$(shell pwd)
 
 # chaos-platform-fe
 CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaos-platform-fe.git
-CHAOS_PLATFORM_FE_BRANCH=master
+CHAOS_PLATFORM_FE_BRANCH=main
 
 mysql:
 	docker run --rm -d -it \
@@ -22,7 +22,7 @@ build_fe:
 	mkdir -p ./cache/chaos-platform-fe
 	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaos-platform-fe
 	cd cache/chaos-platform-fe && yarn add react-app-rewired && yarn build
-	cp -R cache/chaos-platform-fe/build/* $(SRC_ROOT)/chaos-platform-web/src/main/resources/web/build
+	cp -r cache/chaos-platform-fe/build/* $(SRC_ROOT)/chaos-platform-web/src/main/resources/web/build
 
 build:
 	docker run -it \
