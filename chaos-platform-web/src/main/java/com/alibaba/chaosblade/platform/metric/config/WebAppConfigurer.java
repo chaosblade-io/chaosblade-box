@@ -26,7 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * @author yefei
  */
-//@Configuration
+@Configuration
 public class WebAppConfigurer implements WebMvcConfigurer {
 
     @Override
@@ -45,8 +45,8 @@ public class WebAppConfigurer implements WebMvcConfigurer {
         registry.addResourceHandler("/swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
 
-        registry.addResourceHandler("/index.html")
-                .addResourceLocations("classpath:/resources/static/");
+        registry.addResourceHandler("/*/**")
+                .addResourceLocations("classpath:/web/build/");
     }
 
 }
