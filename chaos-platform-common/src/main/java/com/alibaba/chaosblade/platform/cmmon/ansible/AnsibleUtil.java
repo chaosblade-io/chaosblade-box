@@ -51,7 +51,7 @@ public class AnsibleUtil {
 
     public static AnsibleResponse deployAgent(String host, Long probesId, String commandOptions) {
         try {
-            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/demo/chaosagentctl.sh -O chaosagentctl.sh " +
+            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagentctl.sh -O chaosagentctl.sh " +
                     "&& chmod +x chaosagentctl.sh " +
                     "&& ./chaosagentctl.sh install -u %d %s", probesId, commandOptions);
 
@@ -76,7 +76,7 @@ public class AnsibleUtil {
 
     public static AnsibleResponse unDeployAgent(String host) {
         try {
-            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/demo/chaosagentctl.sh -O chaosagentctl.sh " +
+            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagentctl.sh -O chaosagentctl.sh " +
                     "&& chmod +x chaosagentctl.sh " +
                     "&& ./chaosagentctl.sh uninstall");
 
@@ -101,7 +101,7 @@ public class AnsibleUtil {
 
     public static AnsibleResponse deployTools(String host, String name, String version, String url) {
         try {
-            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/demo/chaostoolsctl.sh -O chaostoolsctl.sh " +
+            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaostoolsctl.sh -O chaostoolsctl.sh " +
                     "&& chmod +x chaostoolsctl.sh " +
                     "&& ./chaostoolsctl.sh install -n %s -v %s -r %s", name, version, url);
 
@@ -126,7 +126,7 @@ public class AnsibleUtil {
 
     public static AnsibleResponse unDeployTools(String host, String name) {
         try {
-            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/demo/chaostoolsctl.sh -O chaostoolsctl.sh " +
+            String command = String.format("wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaostoolsctl.sh -O chaostoolsctl.sh " +
                     "&& chmod +x chaostoolsctl.sh " +
                     "&& ./chaostoolsctl.sh uninstall -n %s", name);
 

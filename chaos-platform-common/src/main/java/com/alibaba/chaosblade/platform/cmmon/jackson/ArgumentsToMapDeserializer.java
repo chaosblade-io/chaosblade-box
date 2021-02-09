@@ -42,15 +42,15 @@ public class ArgumentsToMapDeserializer extends JsonDeserializer<Map<String, Str
                 ArrayNode arrayNode = (ArrayNode) treeNode;
                 Map<String, String> map = new HashMap<>();
                 for (JsonNode jsonNode : arrayNode) {
-                   if (!jsonNode.get("value").isNull()) {
-                       String value = jsonNode.get("value").asText();
-                       if (StrUtil.isBlank(value)) {
-                           value = jsonNode.get("value").toString();
-                       }
-                       if (StrUtil.isNotBlank(value)) {
-                           map.put(jsonNode.get("name").asText(), value);
-                       }
-                   }
+                    if (jsonNode.get("value") != null && !jsonNode.get("value").isNull()) {
+                        String value = jsonNode.get("value").asText();
+                        if (StrUtil.isBlank(value)) {
+                            value = jsonNode.get("value").toString();
+                        }
+                        if (StrUtil.isNotBlank(value)) {
+                            map.put(jsonNode.get("name").asText(), value);
+                        }
+                    }
                 }
                 return map;
             }

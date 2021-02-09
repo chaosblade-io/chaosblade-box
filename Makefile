@@ -18,11 +18,11 @@ mysql:
 
 build_fe:
 	rm -rf ./cache
+	rm -rf chaos-platform-web/src/main/resources/web/build/*
 	mkdir -p ./cache/chaos-platform-fe
 	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaos-platform-fe
-	cd cache/chaos-platform-fe
-	yarn build
-	cp -R cache/chaos-platform-fe/build/* $(SRC_ROOT)/chaos-platform-web/src/main/resources/static
+	cd cache/chaos-platform-fe && yarn add react-app-rewired && yarn build
+	cp -R cache/chaos-platform-fe/build/* $(SRC_ROOT)/chaos-platform-web/src/main/resources/web/build
 
 build:
 	docker run -it \
