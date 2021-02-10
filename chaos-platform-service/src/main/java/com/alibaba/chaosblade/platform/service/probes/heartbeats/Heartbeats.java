@@ -25,6 +25,7 @@ import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ProbesRepository;
 import com.alibaba.chaosblade.platform.http.ChaosBladeHttpInvoker;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
+import com.alibaba.chaosblade.platform.http.model.reuest.PingHttpRequest;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -65,7 +66,7 @@ public class Heartbeats implements InitializingBean {
         timerFactory.getTimer().newTimeout(timeout -> {
             executorService.execute(() -> {
 
-                HttpChannelRequest request = new HttpChannelRequest();
+                HttpChannelRequest request = new PingHttpRequest();
                 request.setRequestURL("/ping");
                 request.setHost(probesDO.getIp());
                 request.setPort(chaosAgentPort);

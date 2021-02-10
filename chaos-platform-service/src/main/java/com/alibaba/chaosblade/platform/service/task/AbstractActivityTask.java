@@ -19,10 +19,12 @@ package com.alibaba.chaosblade.platform.service.task;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.platform.blade.kubeapi.model.StatusResponseCommand;
+import com.alibaba.chaosblade.platform.blade.kubeapi.model.UIDRequest;
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
-import com.alibaba.chaosblade.platform.cmmon.enums.ProbesInstallModel;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.enums.ResultStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
@@ -30,17 +32,22 @@ import com.alibaba.chaosblade.platform.cmmon.utils.AnyThrow;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
-import com.alibaba.chaosblade.platform.dao.model.ProbesDO;
-import com.alibaba.chaosblade.platform.dao.repository.*;
+import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
+import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRecordRepository;
+import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRepository;
+import com.alibaba.chaosblade.platform.dao.repository.ExperimentTaskRepository;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
+import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +59,7 @@ import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEn
  */
 @Slf4j
 @TaskLogRecord
-public abstract class AbstractActivityTask<R extends HttpChannelRequest> implements ActivityTask {
+public abstract class AbstractActivityTask<R extends RequestCommand> implements ActivityTask {
 
     protected final ActivityTaskDTO activityTaskDTO;
 
@@ -80,8 +87,8 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
     @Autowired
     protected DeviceRepository deviceRepository;
 
-    @Autowired
-    private ProbesRepository probesRepository;
+    @Value("${chaos.agent.port}")
+    private int chaosAgentPort;
 
     public AbstractActivityTask(ActivityTaskDTO activityTaskDTO) {
         this.activityTaskDTO = activityTaskDTO;
@@ -145,7 +152,9 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
     public void postHandler(ActivityTaskExecuteContext context, Throwable throwable) {
 
         List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTaskDTO.getExperimentTaskId());
-        long count = records.stream().filter(r -> r.getPhase().equals(ChaosConstant.PHASE_ATTACK) && r.getSuccess()).count();
+        long count = records.stream().filter(r ->
+                r.getPhase().equals(ChaosConstant.PHASE_ATTACK)
+                        && Optional.ofNullable(r.getSuccess()).orElse(false)).count();
 
         // update activity task
         experimentActivityTaskRepository.updateByPrimaryKey(activityTaskDTO.getActivityTaskId(),
@@ -197,93 +206,154 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
     }
 
     @Override
-    public void execute(ActivityTaskExecuteContext context) {
+    public void handler(ActivityTaskExecuteContext context) {
         if (!atomicBoolean.compareAndSet(false, true)) {
             return;
         }
 
+        CompletableFuture<Void> future = null;
         List<CompletableFuture<ResponseCommand>> futures = CollUtil.newArrayList();
-        for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
 
-            final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
-                    .ip(deviceMeta.getIp())
-                    .deviceId(deviceMeta.getDeviceId())
-                    .hostname(deviceMeta.getHostname())
-                    .experimentTaskId(activityTaskDTO.getExperimentTaskId())
-                    .flowId(activityTaskDTO.getFlowId())
-                    .activityTaskId(activityTaskDTO.getActivityTaskId())
-                    .sceneCode(activityTaskDTO.getSceneCode())
-                    .gmtStart(DateUtil.date())
-                    .phase(activityTaskDTO.getPhase())
-                    .build();
-            experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
+        ExperimentDimension experimentDimension = activityTaskDTO.getExperimentDimension();
+        switch (experimentDimension) {
+            case HOST:
+            case APPLICATION:
+                for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
 
-            R requestCommand = requestCommand(deviceMeta);
-            if (requestCommand == null) {
+                    final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
+                            .ip(deviceMeta.getIp())
+                            .deviceId(deviceMeta.getDeviceId())
+                            .hostname(deviceMeta.getHostname())
+                            .experimentTaskId(activityTaskDTO.getExperimentTaskId())
+                            .flowId(activityTaskDTO.getFlowId())
+                            .activityTaskId(activityTaskDTO.getActivityTaskId())
+                            .sceneCode(activityTaskDTO.getSceneCode())
+                            .gmtStart(DateUtil.date())
+                            .phase(activityTaskDTO.getPhase())
+                            .build();
+                    experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
+
+                    R requestCommand = requestCommand(deviceMeta);
+                    if (requestCommand == null) {
+                        experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(),
+                                ExperimentActivityTaskRecordDO.builder()
+                                        .gmtEnd(DateUtil.date())
+                                        .success(true)
+                                        .build()
+                        );
+                        continue;
+                    }
+                    if (requestCommand instanceof HttpChannelRequest) {
+                        ((HttpChannelRequest) requestCommand).setPort(chaosAgentPort);
+                    }
+
+                    requestCommand.setScope(DeviceType.transByCode(deviceMeta.getDeviceType()).name().toLowerCase());
+                    requestCommand.setPhase(activityTaskDTO.getPhase());
+                    requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
+
+                    CompletableFuture<ResponseCommand> invoke = chaosInvokerStrategyContext.invoke(requestCommand);
+                    futures.add(invoke.handleAsync((result, e) -> {
+                        ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
+                        if (e != null) {
+                            record.setSuccess(false);
+                            record.setErrorMessage(e.getMessage());
+                        } else {
+                            record.setSuccess(result.isSuccess());
+                            record.setCode(result.getCode());
+                            record.setResult(result.getResult());
+                            record.setErrorMessage(result.getError());
+
+                            if (!result.isSuccess()) {
+                                if (StrUtil.isNotBlank(result.getError())) {
+                                    e = new BizException(result.getError());
+                                } else {
+                                    e = new BizException(result.getResult());
+                                }
+                            }
+                        }
+                        experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
+                        log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
+                                activityTaskDTO.getExperimentTaskId(),
+                                activityTaskDTO.getPhase(),
+                                activityTaskDTO.getActivityTaskId(),
+                                deviceMeta.getHostname() + "-" + deviceMeta.getIp(),
+                                record.getSuccess(),
+                                record.getErrorMessage());
+
+                        if (e != null) {
+                            AnyThrow.throwUnchecked(e);
+                        }
+                        return null;
+                    }, context.executor()));
+                }
+                future = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                break;
+            case NODE:
+            case POD:
+            case CONTAINER:
+                String hosts = activityTaskDTO.getArguments().get("names");
+                final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
+                        .experimentTaskId(activityTaskDTO.getExperimentTaskId())
+                        .flowId(activityTaskDTO.getFlowId())
+                        .hostname(hosts)
+                        .activityTaskId(activityTaskDTO.getActivityTaskId())
+                        .sceneCode(activityTaskDTO.getSceneCode())
+                        .gmtStart(DateUtil.date())
+                        .phase(activityTaskDTO.getPhase())
+                        .build();
+                experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
+
+                R requestCommand = requestCommand(null);
+
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(),
                         ExperimentActivityTaskRecordDO.builder()
                                 .gmtEnd(DateUtil.date())
                                 .success(true)
                                 .build()
                 );
-                continue;
-            }
 
-            DeviceType deviceType = DeviceType.transByCode(deviceMeta.getDeviceType());
-            switch (deviceType) {
-                case HOST:
-                    requestCommand.setHost(deviceMeta.getIp());
-                    break;
-                case NODE:
-                case POD:
-                    // todo
-                    List<ProbesDO> probesDOS = probesRepository.selectByType((byte) ProbesInstallModel.K8S_HELM.getCode());
-                    ProbesDO probesDO = probesDOS.get(0);
-                    requestCommand.setHost(probesDO.getIp());
-            }
+                requestCommand.setScope(experimentDimension.name().toLowerCase());
+                requestCommand.setPhase(activityTaskDTO.getPhase());
+                requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
+                requestCommand.setArguments(activityTaskDTO.getArguments());
 
-            requestCommand.setPort(19527);
+                future = new CompletableFuture<>();
 
-            requestCommand.setScope(DeviceType.transByCode(deviceMeta.getDeviceType()).name().toLowerCase());
-            requestCommand.setPhase(activityTaskDTO.getPhase());
-            requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
+                CompletableFuture<Void> finalFuture = future;
+                chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
+                    ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
+                    if (e != null) {
+                        record.setSuccess(false);
+                        record.setErrorMessage(e.getMessage());
+                    } else {
+                        checkStatus(context, finalFuture, result.getResult());
+                        record.setCode(result.getCode());
+                        record.setResult(result.getResult());
+                        record.setSuccess(result.isSuccess());
+                        record.setErrorMessage(result.getError());
 
-            CompletableFuture<ResponseCommand> invoke = chaosInvokerStrategyContext.invoke(requestCommand);
-            futures.add(invoke.handleAsync((result, e) -> {
-                ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
-                if (e != null) {
-                    record.setSuccess(false);
-                    record.setErrorMessage(e.getMessage());
-                } else {
-                    record.setSuccess(result.isSuccess());
-                    record.setCode(result.getCode());
-                    record.setResult(result.getResult());
-                    record.setErrorMessage(result.getError());
-
-                    if (!result.isSuccess()) {
-                        e = new BizException(result.getError());
+                        if (!result.isSuccess()) {
+                            if (StrUtil.isNotBlank(result.getError())) {
+                                e = new BizException(result.getError());
+                            } else {
+                                e = new BizException(result.getResult());
+                            }
+                        }
                     }
-                }
-                experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
-                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
-                        activityTaskDTO.getExperimentTaskId(),
-                        activityTaskDTO.getPhase(),
-                        activityTaskDTO.getActivityTaskId(),
-                        deviceMeta.getHostname() + "-" + deviceMeta.getIp(),
-                        record.getSuccess(),
-                        record.getErrorMessage());
+                    experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
 
-                if (e != null) {
-                    AnyThrow.throwUnchecked(e);
-                }
-                return null;
-            }, context.executor()));
-        }
-        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(futures.stream().toArray(CompletableFuture[]::new))
-                .handleAsync((r, e) -> {
-                    postHandler(context, e);
+                    if (e != null) {
+                        finalFuture.completeExceptionally(e);
+                        AnyThrow.throwUnchecked(e);
+                    }
                     return null;
                 }, context.executor());
+        }
+
+        future.handleAsync((r, e) -> {
+            postHandler(context, e);
+            return null;
+        }, context.executor());
 
         // 执行后等待, 同步执行后续所有任务
         Long waitOfAfter = activityTaskDTO.getWaitOfAfter();
@@ -293,24 +363,71 @@ public abstract class AbstractActivityTask<R extends HttpChannelRequest> impleme
                     activityTaskDTO.getActivityTaskId(),
                     waitOfAfter);
 
+            CompletableFuture<Void> finalVoidCompletableFuture = future;
             timerFactory.getTimer().newTimeout(timeout ->
-                            voidCompletableFuture.thenRunAsync(context::fireExecute, context.executor()),
+                            finalVoidCompletableFuture.thenRunAsync(context::fireExecute, context.executor()),
                     waitOfAfter,
                     TimeUnit.MILLISECONDS);
-            return;
         } else {
             context.fireExecute();
         }
     }
 
-    @Override
-    public CompletableFuture<Void> future() {
-        return completableFuture;
+    private void checkStatus(ActivityTaskExecuteContext context, CompletableFuture<Void> future, String name) {
+        timerFactory.getTimer().newTimeout(timeout ->
+                {
+                    RequestCommand requestCommand = UIDRequest.builder().build();
+                    requestCommand.setName(name);
+                    requestCommand.setPhase(ChaosConstant.PHASE_STATUS);
+                    requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
+                    requestCommand.setScope(activityTaskDTO.getExperimentDimension().name().toLowerCase());
+                    CompletableFuture<ResponseCommand> completableFuture = chaosInvokerStrategyContext.invoke(requestCommand);
+
+                    completableFuture.handleAsync((r, e) -> {
+                        if (e != null) {
+                            future.completeExceptionally(e);
+                        } else {
+                            StatusResponseCommand statusResponseCommand = (StatusResponseCommand) r;
+                            log.info("子任务运行中，检查 CRD 状态，任务ID: {}, 子任务ID: {}, PHASE: {},  是否成功: {}, 失败原因: {}",
+                                    activityTaskDTO.getExperimentTaskId(),
+                                    activityTaskDTO.getActivityTaskId(),
+                                    statusResponseCommand.getPhase(),
+                                    statusResponseCommand.isSuccess(),
+                                    statusResponseCommand.getError());
+
+                            if (statusResponseCommand.isSuccess()) {
+                                future.complete(null);
+                                return null;
+                            }
+                            String error = statusResponseCommand.getError();
+                            if (StrUtil.isNotEmpty(error)) {
+                                future.completeExceptionally(new BizException(error));
+                            } else {
+                                if (activityTaskDTO.getPhase().equals(ChaosConstant.PHASE_ATTACK)) {
+                                    if ("Running".equals(statusResponseCommand.getPhase())) {
+                                        future.complete(null);
+                                    } else {
+                                        checkStatus(context, future, name);
+                                    }
+                                } else {
+                                    if ("Destroyed".equals(statusResponseCommand.getPhase())) {
+                                        future.complete(null);
+                                    } else {
+                                        checkStatus(context, future, name);
+                                    }
+                                }
+                            }
+                        }
+                        return null;
+                    }, context.executor());
+                },
+                3000,
+                TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public Long activityTaskId() {
-        return activityTaskId;
+    public CompletableFuture<Void> future() {
+        return completableFuture;
     }
 
     @Override

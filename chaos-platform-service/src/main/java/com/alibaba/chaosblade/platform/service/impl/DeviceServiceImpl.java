@@ -30,17 +30,19 @@ import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
-import com.alibaba.chaosblade.platform.dao.mapper.DeviceNodeMapper;
+import com.alibaba.chaosblade.platform.dao.mapper.DevicePodMapper;
 import com.alibaba.chaosblade.platform.dao.model.*;
 import com.alibaba.chaosblade.platform.dao.page.PageUtils;
 import com.alibaba.chaosblade.platform.dao.repository.*;
 import com.alibaba.chaosblade.platform.service.DeviceService;
 import com.alibaba.chaosblade.platform.service.model.device.*;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsResponse;
+import com.alibaba.chaosblade.platform.service.probes.ProbesInstallSuccessEvent;
 import com.alibaba.chaosblade.platform.service.probes.heartbeats.Heartbeats;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,9 +67,6 @@ public class DeviceServiceImpl implements DeviceService {
     private DeviceNodeRepository deviceNodeRepository;
 
     @Autowired
-    private DeviceNodeMapper deviceNodeMapper;
-
-    @Autowired
     private DevicePodRepository devicePodRepository;
 
     @Autowired
@@ -86,7 +85,13 @@ public class DeviceServiceImpl implements DeviceService {
     private ToolsRepository toolsRepository;
 
     @Autowired
+    private DevicePodMapper devicePodMapper;
+
+    @Autowired
     private Heartbeats heartbeats;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     @Transactional
@@ -130,6 +135,9 @@ public class DeviceServiceImpl implements DeviceService {
                         .cpuCore(deviceRegisterRequest.getCpuCore())
                         .status(DeviceStatus.ONLINE.getStatus())
                         .memorySize(deviceRegisterRequest.getMemorySize() == null ? null : deviceRegisterRequest.getMemorySize().intValue())
+                        .lastOnlineTime(DateUtil.date())
+                        .lastPingTime(DateUtil.date())
+                        .connectTime(DateUtil.date())
                         .uptime(deviceRegisterRequest.getUptime())
                         .installMode(deviceRegisterRequest.getInstallMode())
                         .type(DeviceType.HOST.getCode())
@@ -152,16 +160,32 @@ public class DeviceServiceImpl implements DeviceService {
                             return deviceDO.getId();
                         });
 
-
-                long id = Long.parseLong(deviceRegisterRequest.getAgentId());
-                probesRepository.updateByPrimaryKey(id,
-                        ProbesDO.builder()
-                                .deviceId(deviceId)
-                                .hostname(deviceRegisterRequest.getHostName())
-                                .status(DeviceStatus.ONLINE.getStatus())
-                                .version(deviceRegisterRequest.getAgentVersion())
-                                .build());
-
+                try {
+                    long id = Long.parseLong(deviceRegisterRequest.getAgentId());
+                    probesRepository.updateByPrimaryKey(id,
+                            ProbesDO.builder()
+                                    .deviceId(deviceId)
+                                    .hostname(deviceRegisterRequest.getHostName())
+                                    .status(DeviceStatus.ONLINE.getStatus())
+                                    .version(deviceRegisterRequest.getAgentVersion())
+                                    .build());
+                } catch (NumberFormatException e) {
+                    ProbesDO probes = ProbesDO.builder()
+                            .ip(deviceRegisterRequest.getIp())
+                            .deviceId(deviceId)
+                            .agentType(AgentType.HOST.getCode())
+                            .status(DeviceStatus.ONLINE.getStatus())
+                            .hostname(deviceRegisterRequest.getHostName())
+                            .version(deviceRegisterRequest.getAgentVersion())
+                            .lastOnlineTime(DateUtil.date())
+                            .lastPingTime(DateUtil.date())
+                            .installMode((byte) installModel.getCode())
+                            .ip(deviceRegisterRequest.getIp())
+                            .build();
+                    probesRepository.insert(probes);
+                    heartbeats.addHeartbeats(probes);
+                }
+                applicationContext.publishEvent(new ProbesInstallSuccessEvent(deviceId));
                 break;
             case K8S:
             case K8S_HELM:
@@ -244,8 +268,8 @@ public class DeviceServiceImpl implements DeviceService {
                 .pods(deviceRepository.selectHostCount(DeviceDO.builder()
                         .type(DeviceType.POD.getCode())
                         .build()))
-                .cluster(Optional.ofNullable(deviceNodeMapper.selectCount(QueryWrapperBuilder.<DeviceNodeDO>build()
-                        .groupBy("cluster_id"))).orElse(0))
+                .namespaces(devicePodMapper.selectList(QueryWrapperBuilder.<DevicePodDO>build()
+                        .groupBy("namespace")).size())
                 .containers(devicePodRepository.selectList(DevicePodDO.builder().build()).stream().flatMap(devicePodDO ->
                         Optional.ofNullable(devicePodDO.getContainers()).map(
                                 containers -> {
@@ -261,14 +285,23 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public List<DeviceNodeResponse> getMachinesForNode(DevicePodsRequest deviceNodeRequest) {
+    public List<DeviceNodeResponse> getMachinesForNode(DeviceNodeRequest deviceNodeRequest) {
+
+        List<Long> deviceIds = deviceRepository.selectMachines(DeviceDO.builder().status(deviceNodeRequest.getStatus())
+                    .type(DeviceType.NODE.getCode())
+                    .build()).stream().map(DeviceDO::getId).collect(Collectors.toList());
 
         PageUtils.startPage(deviceNodeRequest);
+
+        if (CollUtil.isEmpty(deviceIds)) {
+            return Collections.emptyList();
+        }
+
         List<DeviceNodeDO> deviceNodeDOS = deviceNodeRepository.selectList(DeviceNodeDO.builder()
                 .clusterName(deviceNodeRequest.getClusterName())
-                .nodeName(deviceNodeRequest.getNodeName())
-                .build()
-        );
+                .nodeName(deviceNodeRequest.getNode())
+                .build(), deviceIds);
+
         if (CollUtil.isEmpty(deviceNodeDOS)) {
             return Collections.emptyList();
         }
@@ -302,24 +335,36 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public List<DevicePodResponse> getMachinesForPod(DevicePodRequest devicePodRequest) {
 
+        List<Long> deviceIds = deviceRepository.selectMachines(DeviceDO.builder().status(devicePodRequest.getStatus())
+                .type(DeviceType.POD.getCode())
+                .build()).stream().map(DeviceDO::getId).collect(Collectors.toList());
+
         List<DeviceNodeDO> deviceNodeDOS = deviceNodeRepository.selectList(DeviceNodeDO.builder()
                 .clusterName(devicePodRequest.getClusterName())
-                .nodeName(devicePodRequest.getNodeName())
+                .nodeName(devicePodRequest.getNode())
                 .build()
         );
-        Map<Long, DeviceNodeDO> nodeMap = deviceNodeDOS.stream().collect(Collectors.toMap(DeviceNodeDO::getId, v -> v));
 
         PageUtils.startPage(devicePodRequest);
+
+        if (CollUtil.isEmpty(deviceIds) || CollUtil.isEmpty(deviceNodeDOS)) {
+            return Collections.emptyList();
+        }
+
+        Map<Long, DeviceNodeDO> nodeMap = deviceNodeDOS.stream().collect(Collectors.toMap(DeviceNodeDO::getId, v -> v));
         List<DevicePodDO> devicePodDOS = devicePodRepository.selectList(DevicePodDO.builder()
                 .namespace(devicePodRequest.getNamespace())
-                .podName(devicePodRequest.getPodName())
-                .podIp(devicePodRequest.getPodId())
-                .build());
+                .podName(devicePodRequest.getPod())
+                .podIp(devicePodRequest.getIp())
+                .build(), deviceIds, deviceNodeDOS.stream().map(DeviceNodeDO::getId).collect(Collectors.toList())
+        );
+        if (CollUtil.isEmpty(devicePodDOS)) {
+            return Collections.emptyList();
+        }
 
         Map<Long, DeviceDO> deviceDOMap = deviceRepository.selectBatchIds(devicePodDOS.stream().map(DevicePodDO::getDeviceId)
                 .collect(Collectors.toList()))
                 .stream().collect(Collectors.toMap(DeviceDO::getId, u -> u));
-
 
         return devicePodDOS.stream().map(devicePodDO ->
                 {
@@ -341,7 +386,7 @@ public class DeviceServiceImpl implements DeviceService {
                             .setContainers(containers)
                             .setPodName(devicePodDO.getPodName())
                             .setPodIp(devicePodDO.getPodIp())
-                            .setDeviceId(devicePodDO.getId())
+                            .setDeviceId(devicePodDO.getDeviceId())
                             .setStatus(deviceDOMap.get(devicePodDO.getDeviceId()).getStatus())
                             .setChaosed(deviceDOMap.get(devicePodDO.getDeviceId()).getIsExperimented())
                             .setCreateTime(deviceDOMap.get(devicePodDO.getDeviceId()).getGmtCreate())

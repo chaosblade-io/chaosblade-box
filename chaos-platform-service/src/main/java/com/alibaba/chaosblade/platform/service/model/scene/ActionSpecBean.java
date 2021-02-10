@@ -31,6 +31,7 @@ public class ActionSpecBean {
     private List<FlagSpecBean> flags;
     private String example;
     private String[] programs;
+    private String[] categories;
 
     public String getAction() {
         return action;
@@ -94,5 +95,13 @@ public class ActionSpecBean {
 
     public void setPrograms(String[] programs) {
         this.programs = programs;
+    }
+
+    public String[] getCategories() {
+        return categories;
+    }
+
+    public void setCategories(String[] categories) {
+        this.categories = categories;
     }
 }

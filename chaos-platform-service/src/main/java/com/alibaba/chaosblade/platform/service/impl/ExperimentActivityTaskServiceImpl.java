@@ -18,21 +18,20 @@ package com.alibaba.chaosblade.platform.service.impl;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
+import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.enums.ResultStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
+import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.platform.cmmon.executor.ExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.executor.ThreadPoolExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
-import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
-import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskDO;
-import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
-import com.alibaba.chaosblade.platform.dao.model.MetricTaskDO;
-import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
-import com.alibaba.chaosblade.platform.dao.repository.ExperimentTaskRepository;
-import com.alibaba.chaosblade.platform.dao.repository.MetricTaskRepository;
+import com.alibaba.chaosblade.platform.dao.model.*;
+import com.alibaba.chaosblade.platform.dao.repository.*;
 import com.alibaba.chaosblade.platform.metric.MetricChartLine;
 import com.alibaba.chaosblade.platform.metric.MetricChartLineRequest;
 import com.alibaba.chaosblade.platform.metric.MetricService;
@@ -87,6 +86,15 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
     @Autowired
     private DeviceRepository deviceRepository;
 
+    @Autowired
+    private DeviceNodeRepository deviceNodeRepository;
+
+    @Autowired
+    private DevicePodRepository devicePodRepository;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
+
     private ExecutorService executorService;
 
     @Override
@@ -114,6 +122,8 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
     @Override
     public void executeActivityTasks(List<ExperimentActivityTaskDO> experimentActivityTasks, ExperimentTaskDO experimentTaskDO) {
         DefaultActivityTaskExecutePipeline pipeline = applicationContext.getBean(DefaultActivityTaskExecutePipeline.class);
+        ExperimentDO experimentDO = experimentRepository.selectById(experimentTaskDO.getExperimentId())
+                .orElseThrow(() -> new BizException(ExceptionMessageEnum.EXPERIMENT_NOT_FOUNT));
 
         for (ExperimentActivityTaskDO experimentActivityTask : experimentActivityTasks) {
 
@@ -130,6 +140,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
             activityTaskDTO.setPreActivityTaskId(experimentActivityTask.getPreActivityTaskId());
             activityTaskDTO.setNextActivityTaskId(experimentActivityTask.getNextActivityTaskId());
             activityTaskDTO.setPhase(experimentActivityTask.getPhase());
+            activityTaskDTO.setExperimentDimension(EnumUtil.fromString(ExperimentDimension.class, experimentDO.getDimension().toUpperCase()));
 
             pipeline.addList((ActivityTask) applicationContext.getBean(experimentActivityTask.getPhase(), activityTaskDTO));
             if (activityTaskDTO.getManualChecked()) {
@@ -195,6 +206,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                         .build();
                 if (e != null) {
                     logger.error("演练结束，任务ID：{}, 恢复失败: {}", activityTaskDTO.getExperimentTaskId(), e.getMessage());
+                    log.error(e.getMessage(), e);
                     taskDO.setResultStatus(ResultStatus.FAILED.getValue());
                     taskDO.setErrorMessage(e.getMessage());
                 } else {
@@ -204,13 +216,48 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                 experimentTaskRepository.updateByPrimaryKey(activityTaskDTO.getExperimentTaskId(), taskDO);
 
                 for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
-                    // update device last experiment
-                    deviceRepository.updateByPrimaryKey(deviceMeta.getDeviceId(),
-                            DeviceDO.builder().lastExperimentTime(DateUtil.date())
-                                    .lastTaskId(activityTaskDTO.getExperimentTaskId())
-                                    .lastTaskStatus(taskDO.getResultStatus())
-                                    .build()
-                    );
+                    if (deviceMeta.getDeviceType() == null) {
+                        break;
+                    } else {
+                        DeviceType deviceType = DeviceType.transByCode(deviceMeta.getDeviceType());
+                        switch (deviceType) {
+                            case HOST:
+                                // update device last experiment
+                                deviceRepository.updateByPrimaryKey(deviceMeta.getDeviceId(),
+                                        DeviceDO.builder()
+                                                .isExperimented(true)
+                                                .lastExperimentTime(DateUtil.date())
+                                                .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                                .lastTaskStatus(taskDO.getResultStatus())
+                                                .build()
+                                );
+                                break;
+                            case NODE:
+                                deviceNodeRepository.selectByNodeName(deviceMeta.getNodeName()).ifPresent(node ->
+                                        deviceRepository.updateByPrimaryKey(node.getDeviceId(),
+                                                DeviceDO.builder().lastExperimentTime(DateUtil.date())
+                                                        .isExperimented(true)
+                                                        .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                                        .lastTaskStatus(taskDO.getResultStatus())
+                                                        .build()
+                                        ));
+                                break;
+                            case POD:
+                                devicePodRepository.selectByNameAndNamespace(deviceMeta.getNamespace(), deviceMeta.getPodName())
+                                        .ifPresent(pod ->
+                                                deviceRepository.updateByPrimaryKey(pod.getDeviceId(),
+                                                        DeviceDO.builder().lastExperimentTime(DateUtil.date())
+                                                                .isExperimented(true)
+                                                                .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                                                .lastTaskStatus(taskDO.getResultStatus())
+                                                                .build()
+                                                )
+                                        );
+                                break;
+
+                        }
+                    }
+
                 }
             }
         });

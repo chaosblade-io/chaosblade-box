@@ -1,10 +1,7 @@
 package com.alibaba.chaosblade.platform.http;
 
+import com.alibaba.chaosblade.platform.http.model.reuest.*;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
-import com.alibaba.chaosblade.platform.http.model.reuest.ModelRequest;
-import com.alibaba.chaosblade.platform.http.model.reuest.PrepareCommandRequest;
-import com.alibaba.chaosblade.platform.http.model.reuest.StatusCommandRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +28,7 @@ public class ChaosInvokerTest {
 
     @Test
     public void pingTest() throws Throwable {
-        HttpChannelRequest request = new HttpChannelRequest();
+        PingHttpRequest request = new PingHttpRequest();
         request.setRequestURL("/ping");
         request.setHost("192.168.1.1");
         request.setPort(chaosAgentPort);

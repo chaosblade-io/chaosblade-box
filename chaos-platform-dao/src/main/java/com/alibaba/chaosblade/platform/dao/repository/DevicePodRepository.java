@@ -16,9 +16,11 @@
 
 package com.alibaba.chaosblade.platform.dao.repository;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.DevicePodMapper;
+import com.alibaba.chaosblade.platform.dao.model.DeviceNodeDO;
 import com.alibaba.chaosblade.platform.dao.model.DevicePodDO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,45 @@ public class DevicePodRepository implements IRepository<Long, DevicePodDO> {
         return devicePodMapper.selectList(queryWrapper);
     }
 
-    public Optional<DevicePodDO> selectByNameAndNamespace(String namespace, String podName) {
+    public List<DevicePodDO> selectList(DevicePodDO devicePodDO, List<Long> deviceIds) {
+        QueryWrapper<DevicePodDO> queryWrapper = QueryWrapperBuilder.build();
+        if (StrUtil.isNotBlank(devicePodDO.getNamespace())) {
+            queryWrapper.lambda().like(DevicePodDO::getNamespace, devicePodDO.getNamespace());
+        }
+        if (StrUtil.isNotBlank(devicePodDO.getPodName())) {
+            queryWrapper.lambda().like(DevicePodDO::getPodName, devicePodDO.getPodName());
+        }
+        if (StrUtil.isNotBlank(devicePodDO.getPodIp())) {
+            queryWrapper.lambda().like(DevicePodDO::getPodIp, devicePodDO.getPodIp());
+        }
+        if (CollUtil.isNotEmpty(deviceIds)) {
+            queryWrapper.lambda().in(DevicePodDO::getDeviceId, deviceIds);
+        }
+        return devicePodMapper.selectList(queryWrapper);
+    }
+
+    public List<DevicePodDO> selectList(DevicePodDO devicePodDO, List<Long> deviceIds, List<Long> nodeIds) {
+        QueryWrapper<DevicePodDO> queryWrapper = QueryWrapperBuilder.build();
+        if (StrUtil.isNotBlank(devicePodDO.getNamespace())) {
+            queryWrapper.lambda().like(DevicePodDO::getNamespace, devicePodDO.getNamespace());
+        }
+        if (StrUtil.isNotBlank(devicePodDO.getPodName())) {
+            queryWrapper.lambda().like(DevicePodDO::getPodName, devicePodDO.getPodName());
+        }
+        if (StrUtil.isNotBlank(devicePodDO.getPodIp())) {
+            queryWrapper.lambda().like(DevicePodDO::getPodIp, devicePodDO.getPodIp());
+        }
+        if (CollUtil.isNotEmpty(deviceIds)) {
+            queryWrapper.lambda().in(DevicePodDO::getDeviceId, deviceIds);
+        }
+        if (CollUtil.isNotEmpty(nodeIds)) {
+            queryWrapper.lambda().in(DevicePodDO::getNodeId, nodeIds);
+        }
+        return devicePodMapper.selectList(queryWrapper);
+    }
+
+    public Optional<DevicePodDO> selectByNameAndNamespace(String namespace,
+                                                          String podName) {
         QueryWrapper<DevicePodDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(DevicePodDO::getPodName, podName);
         queryWrapper.lambda().eq(DevicePodDO::getNamespace, namespace);

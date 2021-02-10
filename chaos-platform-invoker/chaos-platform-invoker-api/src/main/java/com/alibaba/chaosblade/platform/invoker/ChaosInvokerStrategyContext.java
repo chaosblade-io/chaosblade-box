@@ -16,9 +16,10 @@
 
 package com.alibaba.chaosblade.platform.invoker;
 
-import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.EnumUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
@@ -36,13 +37,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ChaosInvokerStrategyContext implements ChaosInvoker<RequestCommand, ResponseCommand>, BeanPostProcessor {
 
-    private Map<ChaosInvokerStrategy, ChaosInvoker> strategies = new ConcurrentHashMap<>();
+    private Map<ChaosInvokerStrategy, ChaosInvoker<RequestCommand, ResponseCommand>> strategies = new ConcurrentHashMap<>();
 
     @Override
     public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
         if (o instanceof ChaosInvoker) {
             ChaosInvokerStrategy strategy = o.getClass().getAnnotation(ChaosInvokerStrategy.class);
-            if(strategy != null) {
+            if (strategy != null) {
                 strategies.put(strategy, (ChaosInvoker) o);
             }
         }
@@ -52,41 +53,32 @@ public class ChaosInvokerStrategyContext implements ChaosInvoker<RequestCommand,
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
         String original = SceneCodeParseUtil.getOriginal(requestCommand.getSceneCode());
-        String phase = requestCommand.getPhase();
         String scope = requestCommand.getScope();
+        String phase = requestCommand.getPhase();
 
         ChaosInvoker<RequestCommand, ResponseCommand> invoker = null;
         for (ChaosInvokerStrategy strategy : strategies.keySet()) {
-            if (invoker != null) {
-                break;
-            }
             if (strategy.value().getName().equals(original)) {
-                invoker = strategies.get(strategy);
-                if (invoker != null && ArrayUtil.isNotEmpty(strategy.phase())) {
-                    if (!ChaosConstant.PHASE_ALL.equals(strategy.phase()[0])){
-                        invoker = null;
+                for (DeviceType deviceType : strategy.deviceType()) {
+                    ExperimentDimension dimension = EnumUtil.fromString(ExperimentDimension.class, scope.toUpperCase());
+                    if (deviceType == dimension.getDeviceType()) {
                         for (String s : strategy.phase()) {
-                            if (s.equals(phase)) {
+                            if (s.equals(ChaosConstant.PHASE_ALL) || s.equals(phase)) {
                                 invoker = strategies.get(strategy);
                                 break;
                             }
                         }
-                    }
-                }
-                if (invoker != null && ArrayUtil.isNotEmpty(strategy.deviceType())) {
-                    invoker = null;
-                    for (DeviceType deviceType : strategy.deviceType()) {
-                        if (deviceType.name().equalsIgnoreCase(scope)) {
-                            invoker = strategies.get(strategy);
+                        if (invoker != null) {
                             break;
                         }
                     }
                 }
+                if (invoker != null) {
+                    break;
+                }
             }
         }
-
         Preconditions.checkNotNull(invoker, ExceptionMessageEnum.INVOKER_NOT_EXISTS);
-
         return invoker.invoke(requestCommand);
     }
 }

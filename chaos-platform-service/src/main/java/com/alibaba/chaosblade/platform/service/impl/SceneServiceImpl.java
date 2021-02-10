@@ -18,8 +18,10 @@ package com.alibaba.chaosblade.platform.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.enums.SceneStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
@@ -33,13 +35,22 @@ import com.alibaba.chaosblade.platform.dao.repository.SceneParamRepository;
 import com.alibaba.chaosblade.platform.dao.repository.SceneRepository;
 import com.alibaba.chaosblade.platform.service.SceneParamService;
 import com.alibaba.chaosblade.platform.service.SceneService;
+import com.alibaba.chaosblade.platform.service.ToolsService;
+import com.alibaba.chaosblade.platform.service.model.device.KubernetesDevice;
 import com.alibaba.chaosblade.platform.service.model.scene.*;
 import com.alibaba.chaosblade.platform.service.model.scene.Action;
 import com.alibaba.chaosblade.platform.service.model.scene.Scene;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneImportRequest;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneImportResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.param.Component;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamRequest;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
@@ -49,11 +60,13 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant.DEFAULT_TOOLS;
+
 /**
  * @author yefei
  */
 @Service
-public class SceneServiceImpl implements SceneService {
+public class SceneServiceImpl implements SceneService, InitializingBean {
 
     @Autowired
     private SceneRepository sceneRepository;
@@ -66,6 +79,75 @@ public class SceneServiceImpl implements SceneService {
 
     @Autowired
     private SceneParamService sceneParamService;
+
+    @Autowired
+    private ToolsService toolsService;
+
+    @Value("${chaos.scene.import}")
+    private boolean autoImport;
+
+    @Override
+    public void afterPropertiesSet() {
+        if (autoImport) {
+            ToolsOverview toolsOverview = toolsService.toolsOverview(DEFAULT_TOOLS);
+            ToolsVersion toolsVersion = toolsService.toolsVersion(toolsOverview.getName(), toolsOverview.getLatest());
+            List<String> scenarioFiles = toolsVersion.getScenarioFiles();
+            for (String scenarioFile : scenarioFiles) {
+                PluginSpecBean pluginSpecBean = toolsService.toolsScene(toolsOverview.getName(), toolsOverview.getLatest(), scenarioFile);
+                List<Scene> scenes = pluginSpecBean.getItems().stream().map(
+                        item -> Scene.builder().actions(
+                                item.getActions().stream().map(
+                                        actionSpecBean -> Action.builder()
+                                                .name(actionSpecBean.getAction())
+                                                .desc(actionSpecBean.getLongDesc())
+                                                .flags(actionSpecBean.getFlags() == null ? CollUtil.newArrayList() : actionSpecBean.getFlags().stream().map(
+                                                        flagSpecBean -> Flag.builder()
+                                                                .name(flagSpecBean.getName())
+                                                                .desc(flagSpecBean.getDesc())
+                                                                .defaultValue(flagSpecBean.isNoArgs() ? "true" : null)
+                                                                .required(flagSpecBean.isRequired())
+                                                                .build()
+                                                ).collect(Collectors.toList()))
+                                                .matchers(actionSpecBean.getMatchers() == null ? CollUtil.newArrayList() : actionSpecBean.getMatchers().stream().map(
+                                                        matcherSpecBean -> Matcher.builder()
+                                                                .name(matcherSpecBean.getName())
+                                                                .desc(matcherSpecBean.getDesc())
+                                                                .defaultValue(matcherSpecBean.isNoArgs() ? "true" : null)
+                                                                .required(matcherSpecBean.isRequired())
+                                                                .build()
+                                                ).collect(Collectors.toList()))
+                                                .categories(CollUtil.newArrayList(actionSpecBean.getCategories()))
+                                                .build()
+                                ).collect(Collectors.toList())
+                        ).prepare(
+                                item.getPrepare() == null ? null :
+                                        Prepare.builder().required(item.getPrepare().isRequired())
+                                                .flags(item.getPrepare().getFlags().stream().map(
+                                                        flagSpecBean -> Flag.builder()
+                                                                .name(flagSpecBean.getName())
+                                                                .desc(flagSpecBean.getDesc())
+                                                                .defaultValue(flagSpecBean.isNoArgs() ? "true" : null)
+                                                                .required(flagSpecBean.isRequired())
+                                                                .build()
+                                                ).collect(Collectors.toList()))
+                                                .build()
+                        ).target(item.getTarget())
+                                .scope(item.getScope())
+                                .build()
+                ).collect(Collectors.toList());
+
+                try {
+                    importScenarios(SceneImportRequest.builder()
+                            .name(toolsOverview.getName())
+                            .version(toolsOverview.getLatest())
+                            .active(true)
+                            .scenarios(scenes).build());
+                } catch (BizException e) {
+                    // ignore
+                }
+            }
+        }
+    }
 
     @Override
     @Transactional
@@ -138,8 +220,18 @@ public class SceneServiceImpl implements SceneService {
                         .description(action.getDesc())
                         .preSceneId(prepareId)
                         .version(version)
+                        .supportScope("[\"" + scenario.getScope() + "\"]")
                         .original(source)
                         .build();
+
+                if (sceneImportRequest.isActive()) {
+                    sceneDO.setStatus(SceneStatus.ACTIVE.getCode());
+                }
+                if (CollUtil.isNotEmpty(action.getCategories())) {
+                    List<Long> categories = sceneCategoryRepository.selectListByCodes(action.getCategories()).stream()
+                            .map(SceneCategoryDO::getId).collect(Collectors.toList());
+                    sceneDO.setCategories(JsonUtils.writeValueAsString(categories));
+                }
                 sceneRepository.insert(sceneDO);
                 count++;
 
@@ -278,7 +370,9 @@ public class SceneServiceImpl implements SceneService {
                         ).orElse(Collections.emptyList())
                 )
                 .parameters(
-                        sceneParamService.selectSceneParamBySceneId(scene.getId())
+                        sceneParamService.selectSceneParamBySceneId(scene.getId()).stream().map(
+                                sceneParamResponse -> sceneParamCover(sceneParamResponse, sceneRequest)
+                        ).collect(Collectors.toList())
                 )
                 .count(Optional.ofNullable(scene.getUseCount()).orElse(0))
                 .build())
@@ -304,7 +398,7 @@ public class SceneServiceImpl implements SceneService {
                         SceneParamDO.builder()
                                 .paramName(parameter.getParamName())
                                 .defaultValue(parameter.getDescription())
-                                .component(parameter.getComponent())
+                                .component(JsonUtils.writeValueAsString(parameter.getComponent()))
                                 .build()
                 );
             }
@@ -325,7 +419,8 @@ public class SceneServiceImpl implements SceneService {
                         .description(scene.getDescription())
                         .status(scene.getStatus())
                         .version(scene.getVersion())
-                        .supportScopeTypes(Optional.ofNullable(scene.getSupportScope()).map(s -> JsonUtils.readValue(List.class, s)).orElse(Collections.emptyList()))
+                        .supportScopeTypes(Optional.ofNullable(scene.getSupportScope()).map(s -> JsonUtils.readValue(List.class, s))
+                                .orElse(Collections.emptyList()))
                         .createTime(scene.getGmtCreate())
                         .modifyTime(scene.getGmtModified())
                         .categories(
@@ -341,12 +436,65 @@ public class SceneServiceImpl implements SceneService {
                         )
                         .requiredJavaAgent(scene.getRequiredJavaAgent())
                         .parameters(
-                                sceneParamService.selectSceneParamBySceneId(scene.getId())
+                                sceneParamService.selectSceneParamBySceneId(scene.getId()).stream().map(
+                                        sceneParamResponse -> sceneParamCover(sceneParamResponse, sceneRequest)
+                                ).collect(Collectors.toList())
                         )
                         .count(Optional.ofNullable(scene.getUseCount()).orElse(0))
                         .preScenarioId(scene.getPreSceneId())
                         .build()
         ).orElseThrow(() -> new BizException(ExceptionMessageEnum.SCENE_IS_NULL));
+    }
+
+    // todo
+    private SceneParamResponse sceneParamCover(SceneParamResponse sceneParamResponse, SceneRequest sceneRequest) {
+        if (StrUtil.isBlank(sceneRequest.getDimension())) {
+            return sceneParamResponse;
+        }
+        ExperimentDimension dimension = EnumUtil.fromString(ExperimentDimension.class, sceneRequest.getDimension().toUpperCase());
+        switch (dimension) {
+            case CONTAINER:
+                if ("container-names".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getContainerName).distinct()
+                            .collect(Collectors.joining(",")));
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
+            case POD:
+                if ("namespace".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getNamespace).findFirst().get());
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
+                if ("names".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getPodName)
+                            .collect(Collectors.joining(",")));
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
+                break;
+            case NODE:
+                if ("names".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getNodeName)
+                            .collect(Collectors.joining(",")));
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
+                break;
+        }
+        return sceneParamResponse;
     }
 
     @Override

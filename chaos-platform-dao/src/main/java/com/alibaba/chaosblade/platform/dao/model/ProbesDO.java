@@ -70,4 +70,6 @@ public class ProbesDO extends BaseDO {
 
     private Date lastOnlineTime;
 
+    private Boolean deployBlade;
+
 }

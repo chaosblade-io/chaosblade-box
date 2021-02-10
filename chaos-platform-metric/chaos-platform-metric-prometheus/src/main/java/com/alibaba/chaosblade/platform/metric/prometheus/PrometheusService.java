@@ -139,6 +139,9 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                                 if (metric.contains(deviceMeta.getIp())) {
                                     return true;
                                 }
+                                if (metric.contains(deviceMeta.getHostname())) {
+                                    return true;
+                                }
                                 String value = ipToInstance.get(deviceMeta.getIp());
                                 if (value != null) {
                                     return metric.contains(value);
@@ -154,8 +157,7 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                     } else {
                         future.complete(Collections.emptyList());
                     }
-                } catch (
-                        IOException e) {
+                } catch (IOException e) {
                     future.completeExceptionally(e);
                 }
             }

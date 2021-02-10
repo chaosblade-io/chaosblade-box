@@ -71,17 +71,5 @@ public class JschUtils {
     }
 
 
-    public static void uploadFile(String host, String user, int port, String privateKey, byte[] passphrase, String src, String dest) throws Exception {
-        Session session = JschUtil.getSession(host, port, user, privateKey, passphrase);
-        Channel channel = null;
-        try {
-            channel = session.openChannel("sftp");
-            ChannelSftp sftp = (ChannelSftp) channel;
-            sftp.connect();
-            sftp.put(src, dest);
-        } finally {
-            session.disconnect();
-            channel.disconnect();
-        }
-    }
+
 }

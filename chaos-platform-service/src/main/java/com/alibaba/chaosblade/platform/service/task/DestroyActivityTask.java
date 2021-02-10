@@ -18,6 +18,7 @@ package com.alibaba.chaosblade.platform.service.task;
 
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
@@ -35,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT;
 
@@ -72,13 +75,14 @@ public class DestroyActivityTask extends AbstractActivityTask<HttpChannelRequest
 
     @Override
     public void complete(ActivityTaskExecuteContext context, Throwable throwable) {
-        execute(context);
+        handler(context);
     }
 
     @Override
     public HttpChannelRequest requestCommand(DeviceMeta deviceMeta) {
         String sceneCode = activityTaskDTO.getSceneCode();
         if (SceneCodeParseUtil.isRevoke(sceneCode)) {
+            // todo npe
             ExperimentActivityTaskRecordDO experimentActivityTaskRecord = experimentActivityTaskRecordRepository.selectOneByPhase(
                     activityTaskDTO.getExperimentTaskId(),
                     deviceMeta.getIp(),
@@ -94,19 +98,35 @@ public class DestroyActivityTask extends AbstractActivityTask<HttpChannelRequest
                 return null;
             }
         } else {
-            ExperimentActivityTaskRecordDO experimentActivityTaskRecord = experimentActivityTaskRecordRepository.selectOneByPhase(
-                    activityTaskDTO.getExperimentTaskId(),
-                    deviceMeta.getIp(),
-                    ChaosConstant.PHASE_ATTACK
-            ).get();
+            Optional<ExperimentActivityTaskRecordDO> taskRecordDO;
+            ExperimentDimension experimentDimension = activityTaskDTO.getExperimentDimension();
+            if (experimentDimension == ExperimentDimension.NODE
+                    || experimentDimension == ExperimentDimension.POD
+                    || experimentDimension == ExperimentDimension.CONTAINER) {
+                taskRecordDO = experimentActivityTaskRecordRepository.selectOneByPhase(
+                        activityTaskDTO.getExperimentTaskId(),
+                        null,
+                        ChaosConstant.PHASE_ATTACK
+                );
+            } else {
+                taskRecordDO = experimentActivityTaskRecordRepository.selectOneByPhase(
+                        activityTaskDTO.getExperimentTaskId(),
+                        deviceMeta.getIp(),
+                        ChaosConstant.PHASE_ATTACK
+                );
+            }
 
-            if (experimentActivityTaskRecord.getSuccess()) {
+            Boolean aBoolean = taskRecordDO.map(ExperimentActivityTaskRecordDO::getSuccess).orElse(false);
+
+            if (aBoolean) {
                 DestroyCommandRequest destroyCommandRequest = new DestroyCommandRequest();
                 destroyCommandRequest.setArguments(activityTaskDTO.getArguments());
-                destroyCommandRequest.setUid(experimentActivityTaskRecord.getResult());
+                destroyCommandRequest.setUid(taskRecordDO.get().getResult());
+                destroyCommandRequest.setName(taskRecordDO.get().getResult());
                 return destroyCommandRequest;
             } else {
                 DestroyWithoutUidRequest destroyWithoutUidRequest = new DestroyWithoutUidRequest();
+                destroyWithoutUidRequest.setScope(experimentDimension.name().toLowerCase());
                 destroyWithoutUidRequest.setTarget(activityTaskDTO.getTarget());
                 destroyWithoutUidRequest.setAction(activityTaskDTO.getAction());
                 destroyWithoutUidRequest.setArguments(activityTaskDTO.getArguments());

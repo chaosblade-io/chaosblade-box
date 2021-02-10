@@ -49,7 +49,7 @@ public interface DeviceService {
      * @param deviceNodeRequest
      * @return
      */
-    List<DeviceNodeResponse> getMachinesForNode(DevicePodsRequest deviceNodeRequest);
+    List<DeviceNodeResponse> getMachinesForNode(DeviceNodeRequest deviceNodeRequest);
 
     /**
      *

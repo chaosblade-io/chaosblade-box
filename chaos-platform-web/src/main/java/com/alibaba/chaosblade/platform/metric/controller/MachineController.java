@@ -45,7 +45,7 @@ public class MachineController {
 
     @PostMapping("/GetMachinesForNodePageable")
     public List<DeviceNodeResponse> getMachinesForNode(
-            @RequestBody DevicePodsRequest deviceNodeRequest) {
+            @RequestBody DeviceNodeRequest deviceNodeRequest) {
         return deviceService.getMachinesForNode(deviceNodeRequest);
     }
 

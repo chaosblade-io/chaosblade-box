@@ -58,7 +58,7 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
     @Autowired
     private TimerFactory timerFactory;
 
-    private static AtomicReferenceFieldUpdater<DefaultActivityTaskExecuteContext, TaskNode> atomicReferenceFieldUpdater
+    private final static AtomicReferenceFieldUpdater<DefaultActivityTaskExecuteContext, TaskNode> atomicReferenceFieldUpdater
             = AtomicReferenceFieldUpdater.newUpdater(DefaultActivityTaskExecuteContext.class, TaskNode.class, "currentTask");
 
     public DefaultActivityTaskExecuteContext(ActivityTaskExecutePipeline activityTaskExecutePipeline) {
@@ -128,7 +128,7 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                     CompletableFuture.allOf(ArrayUtil.toArray(futures, CompletableFuture.class)).handleAsync((r, e) -> {
                         experimentTaskCompleteListener.notify(this, activityTaskDTO, e);
                         return null;
-                    });
+                    }, executor);
                 }
             }
 
@@ -153,8 +153,12 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
     }
 
     private void executeActivityTask(ActivityTask activityTask) {
-        if (activityTask.preHandler(DefaultActivityTaskExecuteContext.this)) {
-            activityTask.execute(DefaultActivityTaskExecuteContext.this);
+        try {
+            if (activityTask.preHandler(DefaultActivityTaskExecuteContext.this)) {
+                activityTask.handler(DefaultActivityTaskExecuteContext.this);
+            }
+        } catch (Exception e) {
+            activityTask.postHandler(this, e);
         }
     }
 

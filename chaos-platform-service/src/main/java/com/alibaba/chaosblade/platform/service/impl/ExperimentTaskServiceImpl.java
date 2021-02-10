@@ -158,7 +158,7 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
         if (RunStatus.STOPPING.getValue() == experimentTaskDO.getRunStatus()) {
             throw new BizException(EXPERIMENT_TASK_STOPPING);
         }
-        if (RunStatus.FINISHED.getValue() == experimentTaskDO.getRunStatus()) {
+        if (RunStatus.FINISHED.getValue() == experimentTaskDO.getRunStatus() && ResultStatus.SUCCESS.getValue() == experimentTaskDO.getResultStatus()) {
             throw new BizException(EXPERIMENT_TASK_END);
         }
 
@@ -257,7 +257,8 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
 
     @Override
     public ExperimentTaskResponse failRetryExperiment(ExperimentTaskRequest experimentRequest) {
-        return queryTaskInfo(experimentRequest);
+        stopExperimentTask(experimentRequest.getTask().getTaskId());
+        return null;
     }
 
 }

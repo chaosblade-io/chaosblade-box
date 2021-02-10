@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @Data
 @Accessors(chain = true)
-public class ModelRequest extends HttpChannelRequest implements ChaosBladeRequest {
+public class ModelRequest extends HttpChannelRequest {
 
     public final static String SUB_COMMAND = "create";
 

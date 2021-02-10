@@ -30,6 +30,7 @@
                 </when>
             </choose>
         </where>
+        order by a.gmt_modified desc
     </select>
 
     <select id="selectPreparesCount" resultType="integer">

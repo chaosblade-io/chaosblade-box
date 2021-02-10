@@ -17,16 +17,19 @@
 package com.alibaba.chaosblade.platform.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.dao.model.SceneParamDO;
 import com.alibaba.chaosblade.platform.dao.repository.SceneParamRepository;
 import com.alibaba.chaosblade.platform.service.SceneParamService;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamRequest;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.param.Component;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamRequest;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -76,7 +79,9 @@ public class SceneParamServiceImpl implements SceneParamService {
                 .defaultValue(sceneParamDO.getDefaultValue())
                 .description(sceneParamDO.getDescription())
                 .required(sceneParamDO.getIsRequired())
-                .component(sceneParamDO.getComponent())
+                .component(Optional.ofNullable(sceneParamDO.getComponent())
+                        .map(component -> JsonUtils.readValue(Component.class, component))
+                        .orElse(null))
                 .build()
         ).collect(Collectors.toList());
     }

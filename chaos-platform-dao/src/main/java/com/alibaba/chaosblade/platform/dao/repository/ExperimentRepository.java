@@ -57,6 +57,7 @@ public class ExperimentRepository implements IRepository<Long, ExperimentDO> {
         if (StrUtil.isNotBlank(experimentDO.getName())) {
             queryWrapper.lambda().like(ExperimentDO::getName, experimentDO.getName());
         }
+        queryWrapper.orderByDesc("gmt_modified");
         return experimentMapper.selectList(queryWrapper);
     }
 

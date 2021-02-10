@@ -17,8 +17,8 @@
 package com.alibaba.chaosblade.platform.metric.controller;
 
 import com.alibaba.chaosblade.platform.service.SceneParamService;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamRequest;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamRequest;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

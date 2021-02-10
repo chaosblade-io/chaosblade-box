@@ -32,18 +32,27 @@ import com.alibaba.chaosblade.platform.dao.model.ProbesDO;
 import com.alibaba.chaosblade.platform.dao.page.PageUtils;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ProbesRepository;
+import com.alibaba.chaosblade.platform.service.ToolsService;
+import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
 import com.alibaba.chaosblade.platform.service.probes.heartbeats.Heartbeats;
 import com.alibaba.chaosblade.platform.service.probes.model.InstallProbesRequest;
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesRequest;
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesResponse;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus.UNINSTALLING;
@@ -54,7 +63,7 @@ import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEn
  * @author yefei
  */
 @Service
-public class ProbesServiceImpl implements ProbesService {
+public class ProbesServiceImpl implements ProbesService, InitializingBean {
 
     @Autowired
     private DeviceRepository deviceRepository;
@@ -68,9 +77,35 @@ public class ProbesServiceImpl implements ProbesService {
     @Value("${server.port}")
     private String serverPort;
 
-
     @Value("${chaos.agent.release}")
     private String release;
+
+    @Autowired
+    private ToolsService toolsService;
+
+    private ExecutorService executorService;
+
+    @Override
+    public void afterPropertiesSet() {
+        executorService = new ThreadPoolExecutor(
+                0,
+                512,
+                120L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                new ThreadFactory() {
+                    final AtomicInteger atomicInteger = new AtomicInteger();
+
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        Thread thread = new Thread(r);
+                        thread.setDaemon(false);
+                        thread.setName("PROBES-INSTALL-THREAD-" + atomicInteger.getAndIncrement());
+                        return thread;
+                    }
+                }
+        );
+    }
 
     @Override
     public List<ProbesResponse> getAnsibleHosts() {
@@ -199,7 +234,7 @@ public class ProbesServiceImpl implements ProbesService {
             probesRequest.setCommand(String.format("-t %s -r %s %s", entryPoint, release, probesRequest.getCommand()));
 
             List<ProbesDO> probesDOS = probesRepository.selectByStatus(probesRequest.getHost(),
-                    DeviceStatus.ONLINE.getStatus());
+                    CollUtil.newArrayList(DeviceStatus.ONLINE.getStatus()));
 
             if (CollUtil.isNotEmpty(probesDOS)) {
                 continue;
@@ -208,19 +243,23 @@ public class ProbesServiceImpl implements ProbesService {
             Long id = probesRepository.selectByHost(probesRequest.getHost()).map(ProbesDO::getId)
                     .orElseGet(() -> probesRepository.insert((ProbesDO.builder()
                             .ip(probesRequest.getHost())
+                            .deployBlade(installProbesRequest.isDeployBlade())
                             .agentType(AgentType.HOST.getCode())
                             .status(DeviceStatus.INSTALLING.getStatus())
                             .build())));
             probesRequest.setProbeId(id);
 
-            AnsibleResponse response = AnsibleUtil.deployAgent(probesRequest.getHost(), id, probesRequest.getCommand());
-            if (!response.getChanged()) {
-                probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
-                        .ip(probesRequest.getHost())
-                        .status(DeviceStatus.INSTALL_FAIL.getStatus())
-                        .errorMessage(response.getMsg())
-                        .build());
-            }
+            executorService.execute(() -> {
+                AnsibleResponse response = AnsibleUtil.deployAgent(probesRequest.getHost(), id, probesRequest.getCommand());
+                if (!response.getChanged()) {
+                    probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
+                            .ip(probesRequest.getHost())
+                            .status(DeviceStatus.INSTALL_FAIL.getStatus())
+                            .errorMessage(response.getMsg())
+                            .build());
+                }
+            });
+
         }
 
         return probesRepository.selectByIds(probes.stream().map(ProbesRequest::getProbeId).collect(Collectors.toList()))
@@ -242,25 +281,52 @@ public class ProbesServiceImpl implements ProbesService {
                 }).collect(Collectors.toList());
     }
 
+    @EventListener
+    public void listenProbesInstallSuccess(ProbesInstallSuccessEvent event) {
+        executorService.execute(() -> {
+            Long deviceId = (Long) event.getSource();
+            Optional<ProbesDO> probesDO = probesRepository.selectByDeviceId(deviceId);
+            probesDO.ifPresent(probes -> {
+                if (probes.getDeployBlade()) {
+                    ToolsOverview toolsOverview = toolsService.toolsOverview(ChaosConstant.DEFAULT_TOOLS);
+                    ToolsVersion toolsVersion = toolsService.toolsVersion(toolsOverview.getName(), toolsOverview.getLatest());
+
+                    ToolsRequest toolsRequest = ToolsRequest.builder()
+                            .machineId(deviceId)
+                            .name(toolsOverview.getName())
+                            .version(toolsOverview.getLatest())
+                            .url(toolsVersion.getDownloadUrl().get(0).getLinux_x86_64()).build();
+
+                    try {
+                        toolsService.deployChaostoolsToHost(toolsRequest);
+                    } catch (BizException e) {
+                        probesRepository.updateByDeviceId(deviceId, ProbesDO.builder()
+                                .errorMessage(e.getData().toString())
+                                .build());
+                    }
+                }
+            });
+        });
+    }
+
     @Override
     public List<ProbesResponse> queryProbesInstallation(ProbesRequest probesRequest) {
 
         return probesRepository.selectByIds(CollUtil.newArrayList(probesRequest.getProbeIds()))
-                .stream().map(probesDO -> {
-                    ProbesResponse probesResponse = ProbesResponse.builder()
-                            .probeId(probesDO.getId())
-                            .deviceId(probesDO.getDeviceId())
-                            .hostname(probesDO.getHostname())
-                            .ip(probesDO.getIp())
-                            .createTime(probesDO.getGmtCreate())
-                            .modifyTime(probesDO.getGmtModified())
-                            .status(probesDO.getStatus())
-                            .error(probesDO.getErrorMessage())
-                            .version(probesDO.getVersion())
-                            .agentType(probesDO.getAgentType())
-                            .build();
-                    return probesResponse;
-                }).collect(Collectors.toList());
+                .stream().map(probesDO ->
+                        ProbesResponse.builder()
+                                .probeId(probesDO.getId())
+                                .deviceId(probesDO.getDeviceId())
+                                .hostname(probesDO.getHostname())
+                                .ip(probesDO.getIp())
+                                .createTime(probesDO.getGmtCreate())
+                                .modifyTime(probesDO.getGmtModified())
+                                .status(probesDO.getStatus())
+                                .error(probesDO.getErrorMessage())
+                                .version(probesDO.getVersion())
+                                .agentType(probesDO.getAgentType())
+                                .build()
+                ).collect(Collectors.toList());
     }
 
     @Override

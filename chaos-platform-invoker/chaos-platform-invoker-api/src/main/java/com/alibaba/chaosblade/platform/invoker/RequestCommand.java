@@ -26,6 +26,8 @@ import java.util.Map;
 @Data
 public class RequestCommand {
 
+    private String name;
+
     private String scope;
 
     private String sceneCode;

@@ -17,9 +17,12 @@
 package com.alibaba.chaosblade.platform.service;
 
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
-import com.alibaba.chaosblade.platform.service.model.tools.ToolsListResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.PluginSpecBean;
+import com.alibaba.chaosblade.platform.service.model.scene.SceneImportRequest;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
 
 /**
  * @author yefei
@@ -53,4 +56,26 @@ public interface ToolsService {
      * @return
      */
     DeviceResponse upgradeChaostoolsToHost(ToolsRequest toolsRequest);
+
+
+    /**
+     *
+     * @return
+     */
+    ToolsOverview toolsOverview(String toolsName);
+
+    /**
+     *
+     * @return
+     */
+    ToolsVersion toolsVersion(String toolsName, String version);
+
+    /**
+     *
+     * @param toolsName
+     * @param version
+     * @param sceneName
+     * @return
+     */
+    PluginSpecBean toolsScene(String toolsName, String version, String sceneName);
 }

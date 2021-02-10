@@ -24,7 +24,7 @@ import lombok.Data;
  * @author yefei
  */
 @Data
-public class StatusCommandRequest extends HttpChannelRequest implements ChaosBladeRequest  {
+public class StatusCommandRequest extends HttpChannelRequest {
 
     private String uid;
 

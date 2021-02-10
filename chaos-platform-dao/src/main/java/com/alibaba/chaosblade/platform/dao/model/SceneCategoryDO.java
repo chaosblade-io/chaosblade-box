@@ -37,6 +37,8 @@ public class SceneCategoryDO extends BaseDO {
 
     private String name;
 
+    private String categoryCode;
+
     private Long parentId;
 
     private int level;

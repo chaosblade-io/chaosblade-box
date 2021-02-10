@@ -28,9 +28,7 @@ import java.util.Map;
  * @author yefei
  */
 @Data
-public class DestroyWithoutUidRequest extends ModelRequest implements ChaosBladeRequest  {
-
-    private String uid;
+public class DestroyWithoutUidRequest extends ModelRequest {
 
     @Override
     public String buildCommand() {

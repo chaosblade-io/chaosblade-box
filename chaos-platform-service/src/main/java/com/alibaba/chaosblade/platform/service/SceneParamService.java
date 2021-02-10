@@ -16,8 +16,8 @@
 
 package com.alibaba.chaosblade.platform.service;
 
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamRequest;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamRequest;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 
 import java.util.List;
 

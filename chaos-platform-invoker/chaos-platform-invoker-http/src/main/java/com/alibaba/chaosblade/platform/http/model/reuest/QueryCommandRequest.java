@@ -21,7 +21,7 @@ import com.alibaba.chaosblade.platform.http.constant.Blade;
 /**
  * @author yefei
  */
-public class QueryCommandRequest extends HttpChannelRequest implements ChaosBladeRequest {
+public class QueryCommandRequest extends HttpChannelRequest {
 
     private String target;
 

@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.service.collect;
 
+import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
@@ -26,6 +27,8 @@ import com.alibaba.chaosblade.platform.collector.model.Container;
 import com.alibaba.chaosblade.platform.collector.model.Node;
 import com.alibaba.chaosblade.platform.collector.model.Pod;
 import com.alibaba.chaosblade.platform.collector.model.Query;
+import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
+import com.alibaba.chaosblade.platform.dao.mapper.DeviceMapper;
 import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
 import com.alibaba.chaosblade.platform.dao.model.DeviceNodeDO;
 import com.alibaba.chaosblade.platform.dao.model.DevicePodDO;
@@ -34,8 +37,10 @@ import com.alibaba.chaosblade.platform.dao.repository.DevicePodRepository;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.service.model.device.ContainerBO;
 import com.alibaba.chaosblade.platform.service.task.TimerFactory;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -43,6 +48,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -51,10 +58,13 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class CollectorTimer implements BeanPostProcessor {
+public class CollectorTimer implements BeanPostProcessor, InitializingBean {
 
     @Autowired
     private TimerFactory timerFactory;
+
+    @Autowired
+    private DeviceMapper deviceMapper;
 
     @Autowired
     private DeviceRepository deviceRepository;
@@ -71,6 +81,16 @@ public class CollectorTimer implements BeanPostProcessor {
     @Value("${chaos.collector.enable}")
     private boolean enableCollect;
 
+    @Value("${chaos.collector.period}")
+    private Integer period;
+
+    private NodeCollector nodeCollector;
+
+    public void dryRun() throws Exception {
+        CompletableFuture<List<Node>> future = nodeCollector.collect(Query.builder().build());
+        log.info("collector dry run, node size: {}", future.get().size());
+    }
+
     @Override
     public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
         if (o instanceof Collector && enableCollect) {
@@ -78,7 +98,8 @@ public class CollectorTimer implements BeanPostProcessor {
             CollectorType collectorType = EnumUtil.fromString(CollectorType.class, this.collectorType.toUpperCase());
             if (strategy.value() == collectorType) {
                 if (o instanceof NodeCollector) {
-                    nodeCollect((NodeCollector) o);
+                    nodeCollector = (NodeCollector) o;
+                    nodeCollect(nodeCollector);
                 }
                 if (o instanceof PodCollector) {
                     podCollect((PodCollector) o);
@@ -95,29 +116,41 @@ public class CollectorTimer implements BeanPostProcessor {
         timerFactory.getTimer().newTimeout(timeout -> {
             try {
                 CompletableFuture<List<Node>> future = collector.collect(Query.builder().build());
-                future.handle((r, e) -> {
+                QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
+                queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.NODE.getCode());
+                deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
+
+                future.handle((nodes, e) -> {
                     if (e != null) {
                         log.error("collect node fail!", e);
                         return null;
                     }
-                    r.forEach(node -> {
-                        Long aLong = deviceRepository.selectOneByUnique(DeviceType.NODE.getCode(), node.getName())
-                                .map(DeviceDO::getId)
+                    nodes.forEach(node -> {
+                        DeviceDO deviceDO = deviceRepository.selectOneByUnique(DeviceType.NODE.getCode(), node.getName())
                                 .orElseGet(() -> {
-                                    Long deviceId = deviceRepository.insert(DeviceDO.builder()
+                                    DeviceDO aDo = DeviceDO.builder()
                                             .hostname(node.getName())
+                                            .ip(node.getIp())
+                                            .status(DeviceStatus.ONLINE.getStatus())
+                                            .lastOnlineTime(DateUtil.date())
                                             .type(DeviceType.NODE.getCode())
-                                            .build());
+                                            .build();
+                                    Long deviceId = deviceRepository.insert(aDo);
                                     deviceNodeRepository.insert(DeviceNodeDO.builder()
                                             .deviceId(deviceId)
+                                            .nodeIp(node.getIp())
                                             .nodeName(node.getName())
                                             .build());
-                                    return deviceId;
+                                    return aDo;
                                 });
-                        deviceRepository.updateByPrimaryKey(aLong, DeviceDO.builder()
-                                .status(DeviceStatus.ONLINE.getStatus())
-                                .lastOnlineTime(DateUtil.date())
-                                .build());
+
+                        if (deviceDO.getStatus() == DeviceStatus.OFFLINE.getStatus()) {
+                            deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                                    .ip(node.getIp())
+                                    .status(DeviceStatus.ONLINE.getStatus())
+                                    .lastOnlineTime(DateUtil.date())
+                                    .build());
+                        }
 
                     });
                     return null;
@@ -126,7 +159,7 @@ public class CollectorTimer implements BeanPostProcessor {
                 log.error(e.getMessage(), e);
             }
             nodeCollect(collector);
-        }, 10, TimeUnit.SECONDS);
+        }, period, TimeUnit.SECONDS);
     }
 
     private void podCollect(PodCollector collector) {
@@ -136,12 +169,17 @@ public class CollectorTimer implements BeanPostProcessor {
                 for (DeviceNodeDO node : nodes) {
                     CompletableFuture<List<Pod>> future = collector.collect(Query.builder()
                             .nodeName(node.getNodeName()).build());
-                    future.handle((r, e) -> {
+
+                    QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
+                    queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.POD.getCode());
+                    deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
+
+                    future.handle((pods, e) -> {
                         if (e != null) {
                             log.error("collect pod fail!", e);
                             return null;
                         }
-                        r.forEach(pod -> {
+                        pods.forEach(pod -> {
                             Long deviceId = devicePodRepository.selectByNameAndNamespace(pod.getNamespace(), pod.getName())
                                     .map(DevicePodDO::getDeviceId)
                                     .orElseGet(() -> {
@@ -149,6 +187,8 @@ public class CollectorTimer implements BeanPostProcessor {
                                         Long id = deviceRepository.insert(DeviceDO.builder()
                                                 .hostname(pod.getName())
                                                 .ip(pod.getIp())
+                                                .status(DeviceStatus.ONLINE.getStatus())
+                                                .lastOnlineTime(DateUtil.date())
                                                 .type(DeviceType.POD.getCode())
                                                 .build());
 
@@ -162,11 +202,12 @@ public class CollectorTimer implements BeanPostProcessor {
                                         return id;
                                     });
 
-                            deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
-                                    .status(DeviceStatus.ONLINE.getStatus())
-                                    .lastOnlineTime(DateUtil.date())
-                                    .build());
-
+                            if (deviceMapper.selectById(deviceId).getStatus() == DeviceStatus.OFFLINE.getStatus()) {
+                                deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
+                                        .status(DeviceStatus.ONLINE.getStatus())
+                                        .lastOnlineTime(DateUtil.date())
+                                        .build());
+                            }
                         });
                         return null;
                     });
@@ -176,7 +217,7 @@ public class CollectorTimer implements BeanPostProcessor {
                 log.error(e.getMessage(), e);
             }
             podCollect(collector);
-        }, 10, TimeUnit.SECONDS);
+        }, period, TimeUnit.SECONDS);
     }
 
     private void containerCollect(ContainerCollector collector) {
@@ -207,6 +248,34 @@ public class CollectorTimer implements BeanPostProcessor {
                 log.error(e.getMessage(), e);
             }
             containerCollect(collector);
-        }, 10, TimeUnit.SECONDS);
+        }, period, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            deviceRepository.selectMachines(DeviceDO.builder()
+                    .type(DeviceType.NODE.getCode())
+                    .status(DeviceStatus.ONLINE.getStatus())
+                    .build())
+                    .stream()
+                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, -1).after(deviceDO.getLastOnlineTime()))
+                    .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                            .status(DeviceStatus.OFFLINE.getStatus())
+                            .build()));
+
+            deviceRepository.selectMachines(DeviceDO.builder()
+                    .type(DeviceType.POD.getCode())
+                    .status(DeviceStatus.ONLINE.getStatus())
+                    .build())
+                    .stream()
+                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, -1).after(deviceDO.getLastOnlineTime()))
+                    .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                            .status(DeviceStatus.OFFLINE.getStatus())
+                            .build()));
+
+        }, 30, 30, TimeUnit.SECONDS);
     }
 }

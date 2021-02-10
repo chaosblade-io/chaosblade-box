@@ -42,7 +42,7 @@ public final class PrepareActivityTask extends AbstractActivityTask<PrepareComma
 
     @Override
     public void complete(ActivityTaskExecuteContext activityTaskExecuteContext, Throwable throwable) {
-        execute(activityTaskExecuteContext);
+        handler(activityTaskExecuteContext);
     }
 
     @Override

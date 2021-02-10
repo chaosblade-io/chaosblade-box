@@ -46,7 +46,6 @@ public class ProbesRepository implements IRepository<Long, ProbesDO> {
         if (StrUtil.isNotBlank(probesDO.getIp())) {
             queryWrapper.lambda().in(ProbesDO::getIp, probesDO.getIp());
         }
-
         if (probesDO.getStatus() != null) {
             queryWrapper.lambda().in(ProbesDO::getStatus, probesDO.getStatus());
         }
@@ -67,20 +66,26 @@ public class ProbesRepository implements IRepository<Long, ProbesDO> {
 
     public Optional<ProbesDO> selectByHost(String host) {
         QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
-        queryWrapper.lambda().eq(ProbesDO::getIp, host);
+        queryWrapper.lambda().eq(ProbesDO::getAgentType, host);
         return Optional.ofNullable(probesMapper.selectOne(queryWrapper));
     }
 
-    public List<ProbesDO> selectByStatus(String host, byte... status) {
+    public Optional<ProbesDO> selectByDeviceId(Long deviceId) {
+        QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(ProbesDO::getDeviceId, deviceId);
+        return Optional.ofNullable(probesMapper.selectOne(queryWrapper));
+    }
+
+    public List<ProbesDO> selectByStatus(String host, Collection<Byte> status) {
         QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(ProbesDO::getIp, host);
         queryWrapper.lambda().in(ProbesDO::getStatus, status);
         return probesMapper.selectList(queryWrapper);
     }
 
-    public List<ProbesDO> selectByType(byte... type) {
+    public List<ProbesDO> selectByType(Collection<Byte> types) {
         QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
-        queryWrapper.lambda().in(ProbesDO::getAgentType, type);
+        queryWrapper.lambda().in(ProbesDO::getAgentType, types);
         return probesMapper.selectList(queryWrapper);
     }
 
@@ -109,6 +114,12 @@ public class ProbesRepository implements IRepository<Long, ProbesDO> {
         QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(ProbesDO::getIp, host);
 
+        return probesMapper.update(probesDO, queryWrapper) == 1;
+    }
+
+    public boolean updateByDeviceId(Long deviceId, ProbesDO probesDO) {
+        QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(ProbesDO::getDeviceId, deviceId);
         return probesMapper.update(probesDO, queryWrapper) == 1;
     }
 

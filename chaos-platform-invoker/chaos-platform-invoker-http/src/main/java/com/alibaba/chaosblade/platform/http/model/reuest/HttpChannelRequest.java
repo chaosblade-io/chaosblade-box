@@ -27,7 +27,7 @@ import java.util.Map;
  * @author yefei
  */
 @Data
-public class HttpChannelRequest extends RequestCommand {
+public abstract class HttpChannelRequest extends RequestCommand {
 
     private static final String FROM_HEADER = "FR";
     private static final String CLIENT = "C";
@@ -104,5 +104,10 @@ public class HttpChannelRequest extends RequestCommand {
             return this;
         }
     }
+
+    /**
+     * @return
+     */
+    public abstract String buildCommand();
 
 }
