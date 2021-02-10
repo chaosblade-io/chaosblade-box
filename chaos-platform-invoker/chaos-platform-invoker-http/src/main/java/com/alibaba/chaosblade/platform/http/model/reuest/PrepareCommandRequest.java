@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Changjun Xiao
  */
 @Data
-public class PrepareCommandRequest extends HttpChannelRequest implements ChaosBladeRequest {
+public class PrepareCommandRequest extends HttpChannelRequest {
 
     /**
      * jvm

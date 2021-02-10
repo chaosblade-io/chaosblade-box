@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.service.model.scene;
 
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import lombok.Builder;
 import lombok.Data;
 

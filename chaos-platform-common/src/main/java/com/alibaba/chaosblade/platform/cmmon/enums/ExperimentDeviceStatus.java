@@ -19,29 +19,28 @@ package com.alibaba.chaosblade.platform.cmmon.enums;
 import java.util.Arrays;
 
 /**
- * 演练机器的状态
  *
  * @author yefei
  */
 public enum ExperimentDeviceStatus {
 
     /**
-     * 运行成功
+     * READY
      */
     READY((byte) 0),
 
     /**
-     * 运行失败
+     * RUNNING
      */
     RUNNING((byte) 1),
 
     /**
-     * 任务异常中断
+     * ERROR
      */
     ERROR((byte) 2),
 
     /**
-     * 任务被终止
+     * SUCCESS
      */
     SUCCESS((byte) 3);
 

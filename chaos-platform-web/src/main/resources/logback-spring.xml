@@ -28,6 +28,22 @@
         </encoder>
     </appender>
 
+    <appender name="trace" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logging.dir}/trace_%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <maxHistory>5</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS},%-5level,%logger{72} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
     <root level="info">
         <appender-ref ref="console"/>
         <appender-ref ref="common"/>
@@ -36,6 +52,10 @@
     <logger name="com.alibaba.chaosblade.platform" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="common"/>
+    </logger>
+
+    <logger name="com.alibaba.chaosblade.platform.metric.advice.TraceAdvice" additivity="false">
+        <appender-ref ref="trace"/>
     </logger>
 
 </configuration>

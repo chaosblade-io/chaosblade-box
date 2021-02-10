@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author yefei
@@ -65,7 +66,9 @@ public class AttackActivityTask extends AbstractActivityTask<ModelRequest> imple
     @Override
     public void postHandler(ActivityTaskExecuteContext context, Throwable throwable) {
         List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTaskDTO.getExperimentTaskId());
-        long count = records.stream().filter(r -> r.getPhase().equals(ChaosConstant.PHASE_ATTACK) && r.getSuccess()).count();
+        long count = records.stream().filter(r ->
+                r.getPhase().equals(ChaosConstant.PHASE_ATTACK)
+                        && Optional.ofNullable(r.getSuccess()).orElse(false)).count();
 
         // update activity task
         experimentActivityTaskRepository.updateByPrimaryKey(activityTaskDTO.getActivityTaskId(),
@@ -101,7 +104,7 @@ public class AttackActivityTask extends AbstractActivityTask<ModelRequest> imple
     @Override
     public void complete(ActivityTaskExecuteContext activityTaskExecuteContext, Throwable throwable) {
         if (throwable == null) {
-            execute(activityTaskExecuteContext);
+            handler(activityTaskExecuteContext);
         } else {
             log.error("子任务运行失败，上一个阶段运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: {} ",
                     activityTaskDTO.getExperimentTaskId(),

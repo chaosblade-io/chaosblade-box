@@ -16,12 +16,14 @@
 
 package com.alibaba.chaosblade.platform.service.model.scene;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * @author yefei
  */
 @Data
+@Builder
 public class Flag {
 
     private String name;

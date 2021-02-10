@@ -16,6 +16,9 @@
 
 package com.alibaba.chaosblade.platform.service.impl;
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.chaosblade.platform.cmmon.ansible.AnsibleResponse;
 import com.alibaba.chaosblade.platform.cmmon.ansible.AnsibleUtil;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
@@ -28,10 +31,20 @@ import com.alibaba.chaosblade.platform.service.DeviceService;
 import com.alibaba.chaosblade.platform.service.ToolsService;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceRequest;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.PluginSpecBean;
+import com.alibaba.chaosblade.platform.service.model.scene.SceneImportRequest;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;
+import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.beans.IntrospectionException;
 
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.*;
 
@@ -121,5 +134,46 @@ public class ToolsServiceImpl implements ToolsService {
             throw new BizException(CHAOS_TOOLS_UPDATE_FAIL, response.getMsg());
         }
         return deviceService.getMachinesById(DeviceRequest.builder().deviceId(toolsRequest.getMachineId()).build());
+    }
+
+    @Override
+    public ToolsOverview toolsOverview(String toolsName) {
+        HttpRequest request = HttpUtil.createGet(
+                String.format("https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/%s/overview.yaml", toolsName));
+        HttpResponse execute = request.execute();
+        Representer representer = new Representer();
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+        return new Yaml(representer).loadAs(execute.bodyStream(), ToolsOverview.class);
+    }
+
+    @Override
+    public ToolsVersion toolsVersion(String toolsName, String version) {
+
+        HttpRequest request = HttpUtil.createGet(
+                String.format("https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/%s/%s/version.yaml", toolsName, version));
+        HttpResponse execute = request.execute();
+        Representer representer = new Representer();
+        representer.setPropertyUtils(new PropertyUtils() {
+            @Override
+            public Property getProperty(Class<? extends Object> type, String name) {
+                if (name.indexOf('-') > -1) {
+                    name = name.replace('-', '_');
+                }
+                return super.getProperty(type, name);
+            }
+        });
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+
+        return new Yaml(representer).loadAs(execute.bodyStream(), ToolsVersion.class);
+    }
+
+    @Override
+    public PluginSpecBean toolsScene(String toolsName, String version, String sceneFileName) {
+        HttpRequest request = HttpUtil.createGet(
+                String.format("https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/%s/%s/%s", toolsName, version, sceneFileName));
+        HttpResponse execute = request.execute();
+        Representer representer = new Representer();
+        representer.getPropertyUtils().setSkipMissingProperties(true);
+        return new Yaml(representer).loadAs(execute.bodyStream(), PluginSpecBean.class);
     }
 }

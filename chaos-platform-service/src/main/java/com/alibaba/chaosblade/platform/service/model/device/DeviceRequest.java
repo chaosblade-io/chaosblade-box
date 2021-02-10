@@ -44,6 +44,14 @@ public class DeviceRequest extends PageQuery {
 
     private String ip;
 
+    private String nodeName;
+
+    private String namespace;
+
+    private String podName;
+
+    private String containerName;
+
     private Byte status;
 
     private Boolean chaosed;

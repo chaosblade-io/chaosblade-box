@@ -26,7 +26,7 @@ import lombok.Data;
 @Builder
 public class KubernetesStatisticsResponse {
 
-    private long cluster;
+    private long namespaces;
 
     private long nodes;
 

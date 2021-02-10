@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.service.model.scene;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
  * @author yefei
  */
 @Data
+@Builder
 public class Prepare {
 
     private String type;

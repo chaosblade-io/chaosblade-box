@@ -114,8 +114,8 @@ create table t_chaos_device_node
     gmt_modified datetime     not null comment 'modified time',
     gmt_create   datetime     not null comment 'create time',
     device_id    bigint       not null,
-    cluster_id   varchar(256) not null comment 'cluster id',
-    cluster_name varchar(256) not null comment 'cluster name',
+    cluster_id   varchar(256) null comment 'cluster id',
+    cluster_name varchar(256) null comment 'cluster name',
     node_name    varchar(256) not null comment 'node name',
     node_ip      varchar(128) null comment 'node ip',
     node_version varchar(128) null comment 'node version'
@@ -235,7 +235,7 @@ create table t_chaos_experiment_activity_task_record
     error_message      longtext         null comment 'error message',
     result             longtext         null comment 'result',
     device_id          bigint unsigned  null comment 'device id',
-    hostname           varchar(100)     null comment 'hostname',
+    hostname           longtext         null comment 'hostname',
     ip                 varchar(64)      null comment 'ip',
     scene_code         varchar(256)     null comment 'scene code',
     gmt_start          datetime         null comment 'start time',
@@ -337,7 +337,8 @@ create table t_chaos_probes
     status           tinyint(3)       null comment 'status',
     error_message    longtext         null comment 'error message',
     last_ping_time   datetime         null comment 'last ping time',
-    last_online_time datetime         null comment 'last ping result time'
+    last_online_time datetime         null comment 'last ping result time',
+    deploy_blade     tinyint(1) default 1 comment 'deploy blade'
 )
     comment 'probes' DEFAULT CHARSET = utf8;
 
@@ -371,6 +372,7 @@ create table t_chaos_scene_category
     gmt_create    datetime         not null comment 'create time',
     gmt_modified  datetime         not null comment 'modified time',
     name          varchar(300)     not null comment 'category name',
+    category_code varchar(128) comment 'category code',
     parent_id     bigint unsigned  null comment 'parent id',
     level         tinyint unsigned not null comment 'level',
     support_scope longtext         null comment 'support scope'
@@ -455,37 +457,28 @@ INSERT INTO chaosblade.t_chaos_metric_category (id, gmt_create, gmt_modified, na
 VALUES (2, now(), now(), 'Prometheus 监控', null, 0, null, 'metric.prometheus',
         '[{"name":"url", "desc":"prometheus url", "type":"text", "required": true},{"name":"query", "desc":"prometheus query", "type":"text", "required": true}, {"name":"rule", "desc":"rule", "type":"text"}]');
 
-
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606260205703169, now(), now(), '系统资源', null, 1, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606329818566658, now(), now(), 'CPU资源', 1216606260205703169, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606392489857026, now(), now(), '内存资源', 1216606260205703169, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606480226308098, now(), now(), '磁盘资源', 1216606260205703169, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606670115033089, now(), now(), 'JAVA应用', null, 1, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606744870113281, now(), now(), '延迟', 1216606670115033089, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606820073984002, now(), now(), '抛异常', 1216606670115033089, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216606920988938241, now(), now(), '自定义故障', 1216606670115033089, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216669321109118978, now(), now(), '篡改数据', 1216606670115033089, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1216672245176541185, now(), now(), '网络资源', 1216606260205703169, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1217020049010950145, now(), now(), '应用进程', 1216606260205703169, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1217022989201276929, now(), now(), '资源占用', 1216606670115033089, 2, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1217023924078092289, now(), now(), 'CPU资源', 1217022989201276929, 3, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1217023981502308353, now(), now(), '内存资源', 1217022989201276929, 3, '["host","kubernetes"]');
-INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, parent_id, level, support_scope)
-VALUES (1217716899703644162, now(), now(), '容器资源', 1216606260205703169, 2, '["host","kubernetes"]');
+INSERT INTO chaosblade.t_chaos_scene_category (id, gmt_create, gmt_modified, name, category_code, parent_id, level,
+                                               support_scope)
+values (1216606260205703169, now(), now(), '系统资源', 'system', null, 1, '["host","kubernetes"]')
+     , (1216606329818566658, now(), now(), 'CPU资源', 'system_cpu', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216606392489857026, now(), now(), '内存资源', 'system_mem', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216606480226308098, now(), now(), '磁盘资源', 'system_disk', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216606480226308099, now(), now(), '脚本资源', 'system_script', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216606480226308100, now(), now(), '文件资源', 'system_file', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216606480226308101, now(), now(), '内核资源', 'system_kernel', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216672245176541185, now(), now(), '网络资源', 'system_network', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1217020049010950145, now(), now(), '应用进程', 'system_process', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1217716899703644162, now(), now(), '容器资源', 'system_container', 1216606260205703169, 2, '["host","kubernetes"]')
+     , (1216606670115033089, now(), now(), 'JAVA应用', 'java', null, 1, '["host","kubernetes"]')
+     , (1216606744870113281, now(), now(), '延迟', 'java_delay', 1216606670115033089, 2, '["host","kubernetes"]')
+     , (1216606820073984002, now(), now(), '抛异常', 'java_exception', 1216606670115033089, 2, '["host","kubernetes"]')
+     , (1216606920988938241, now(), now(), '自定义故障', 'java_custom', 1216606670115033089, 2, '["host","kubernetes"]')
+     , (1216669321109118978, now(), now(), '篡改数据', 'java_data_tamper', 1216606670115033089, 2, '["host","kubernetes"]')
+     , (1217022989201276929, now(), now(), '资源占用', 'java_resource', 1216606670115033089, 2, '["host","kubernetes"]')
+     , (1217023924078092289, now(), now(), 'CPU资源', 'java_resource_cpu', 1217022989201276929, 3,
+        '["host","kubernetes"]')
+     , (1217023981502308353, now(), now(), '内存资源', 'java_resource_mem', 1217022989201276929, 3,
+        '["host","kubernetes"]');
 
 
 

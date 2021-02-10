@@ -18,6 +18,8 @@ package com.alibaba.chaosblade.platform.service.model.scene;
 
 import com.alibaba.chaosblade.platform.cmmon.jackson.JsonToStringDeserializer;
 import com.alibaba.chaosblade.platform.dao.page.PageQuery;
+import com.alibaba.chaosblade.platform.service.model.device.KubernetesDevice;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamRequest;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,5 +62,9 @@ public class SceneRequest extends PageQuery {
     private String scopeType;
 
     private List<SceneParamRequest> parameters;
+
+    private String dimension;
+
+    private List<KubernetesDevice> machines;
 
 }

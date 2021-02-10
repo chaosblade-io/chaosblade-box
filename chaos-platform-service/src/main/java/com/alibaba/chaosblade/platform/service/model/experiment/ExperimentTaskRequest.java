@@ -25,4 +25,7 @@ import lombok.Data;
 public class ExperimentTaskRequest {
 
     private Long taskId;
+
+    private ExperimentTaskRequest task;
+
 }

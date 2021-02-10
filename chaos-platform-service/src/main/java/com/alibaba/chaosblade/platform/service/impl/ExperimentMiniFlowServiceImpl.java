@@ -62,7 +62,7 @@ public class ExperimentMiniFlowServiceImpl implements ExperimentMiniFlowService 
                 .orElse(null);
 
         if (experimentMiniFlowGroupDO == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         String host = experimentMiniFlowGroupDO.getHosts();
         return JsonUtils.readValue(new TypeReference<List<DeviceMeta>>() {

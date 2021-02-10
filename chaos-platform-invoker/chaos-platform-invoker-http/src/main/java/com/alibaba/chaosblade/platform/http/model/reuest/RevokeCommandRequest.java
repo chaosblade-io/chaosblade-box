@@ -23,7 +23,7 @@ import lombok.Data;
  * @author yefei
  */
 @Data
-public class RevokeCommandRequest extends HttpChannelRequest implements ChaosBladeRequest  {
+public class RevokeCommandRequest extends HttpChannelRequest {
 
     private String uid;
 

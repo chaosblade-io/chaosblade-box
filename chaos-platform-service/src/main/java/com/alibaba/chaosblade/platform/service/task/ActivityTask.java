@@ -16,7 +16,10 @@
 
 package com.alibaba.chaosblade.platform.service.task;
 
+import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
+import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
+import sun.misc.Request;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,13 +27,6 @@ import java.util.concurrent.CompletableFuture;
  * @author yefei
  */
 public interface ActivityTask {
-
-    /**
-     * unique activity task id
-     *
-     * @return
-     */
-    Long activityTaskId();
 
     /**
      * @return
@@ -52,7 +48,7 @@ public interface ActivityTask {
     /**
      * @param context
      */
-    void execute(ActivityTaskExecuteContext context);
+    void handler(ActivityTaskExecuteContext context);
 
     /**
      *

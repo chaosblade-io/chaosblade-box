@@ -21,10 +21,22 @@ package com.alibaba.chaosblade.platform.cmmon.enums;
  */
 public enum ExperimentDimension {
 
-    HOST,
-    NODE,
-    POD,
-    CONTAINER,
-    APPLICATION
+    HOST(DeviceType.HOST),
+    NODE(DeviceType.NODE),
+    POD(DeviceType.POD),
+    CONTAINER(DeviceType.POD),
+    APPLICATION;
 
+    private DeviceType deviceType;
+
+    ExperimentDimension() {
+    }
+
+    ExperimentDimension(DeviceType deviceType) {
+        this.deviceType = deviceType;
+    }
+
+    public DeviceType getDeviceType() {
+        return deviceType;
+    }
 }

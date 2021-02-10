@@ -27,6 +27,7 @@ import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
+import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.ExperimentMapper;
@@ -46,7 +47,7 @@ import com.alibaba.chaosblade.platform.service.model.experiment.*;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ExperimentActivity;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricModel;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneParamResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneRequest;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.prepare.JavaAgentPrepare;
@@ -55,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +64,15 @@ import java.util.stream.Collectors;
 
 import static com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant.CHAOS_DEFAULT_NA;
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.DEVICE_NOT_FOUNT;
+import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_DEVICE_IS_NULL;
 
 /**
  * @author yefei
  */
 @Service
 public class ExperimentServiceImpl implements ExperimentService {
+
+    public final static String K8S_EXP_NAMES = "names";
 
     @Autowired
     private ExperimentMapper experimentMapper;
@@ -107,18 +112,11 @@ public class ExperimentServiceImpl implements ExperimentService {
         ExperimentDO experimentDO = ExperimentDO.builder()
                 .name(createExperimentRequest.getExperimentName())
                 .metric(createExperimentRequest.getMetrics())
+                .dimension(createExperimentRequest.getDimension())
                 .build();
         Long experimentId = experimentRepository.insert(experimentDO);
 
-        // default mini flow group
-        List<DeviceRequest> machines = createExperimentRequest.getMachines();
-        List<DeviceMeta> deviceMetas = machines.stream().map(machine -> deviceRepository.selectById(machine.getDeviceId()).map(deviceDO ->
-                        DeviceMeta.builder().deviceId(deviceDO.getId())
-                                .deviceType(deviceDO.getType())
-                                .hostname(deviceDO.getHostname())
-                                .ip(deviceDO.getIp()).build()
-                ).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT))
-        ).collect(Collectors.toList());
+        List<DeviceMeta> deviceMetas = getDeviceMetas(createExperimentRequest);
 
         Long flowGroupId = experimentMiniFlowGroupRepository.insert(ExperimentMiniFlowGroupDO.builder()
                 .groupName(CHAOS_DEFAULT_NA)
@@ -133,16 +131,56 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .build());
 
         createExperimentRequest.setExperimentId(experimentId);
-        experimentPhase(createExperimentRequest, deviceMetas, flowId);
+        experimentPhase(createExperimentRequest, flowId);
 
         return ExperimentResponse.builder()
                 .experimentId(experimentDO.getId())
                 .build();
     }
 
-    private void experimentPhase(CreateExperimentRequest createExperimentRequest,
-                                 List<DeviceMeta> deviceMetas,
-                                 Long flowId) {
+    private List<DeviceMeta> getDeviceMetas(CreateExperimentRequest createExperimentRequest) {
+        ExperimentDimension dimension = EnumUtil.fromString(ExperimentDimension.class, createExperimentRequest.getDimension().toUpperCase());
+        List<DeviceMeta> deviceMetas = new ArrayList<>();
+        switch (dimension) {
+            case HOST:
+                Preconditions.checkArgument(CollUtil.isEmpty(createExperimentRequest.getMachines()), EXPERIMENT_DEVICE_IS_NULL);
+                // default mini flow group
+                List<DeviceRequest> machines = createExperimentRequest.getMachines();
+                return machines.stream().map(machine -> deviceRepository.selectById(machine.getDeviceId()).map(deviceDO ->
+                                DeviceMeta.builder().deviceId(deviceDO.getId())
+                                        .deviceType(deviceDO.getType())
+                                        .hostname(deviceDO.getHostname())
+                                        .ip(deviceDO.getIp()).build()
+                        ).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT))
+                ).collect(Collectors.toList());
+            case NODE:
+            case POD:
+            case CONTAINER:
+                if (CollUtil.isNotEmpty(createExperimentRequest.getMachines())) {
+                    return createExperimentRequest.getMachines().stream().filter(
+                            machine -> !StrUtil.isAllBlank(machine.getNodeName(), machine.getPodName(), machine.getContainerName())
+                    ).map(machine ->
+                            DeviceMeta.builder().deviceId(machine.getDeviceId())
+                                    .deviceType(dimension.getDeviceType().getCode())
+                                    .nodeName(machine.getNodeName())
+                                    .namespace(machine.getNamespace())
+                                    .podName(machine.getPodName())
+                                    .containerName(machine.getContainerName())
+                                    .build()
+                    ).collect(Collectors.toList());
+                }
+                Map<String, String> parameters = createExperimentRequest.getParameters();
+                String names = parameters.get(K8S_EXP_NAMES);
+                return StrUtil.split(names, ',').stream().map(
+                        hostname -> DeviceMeta.builder().deviceType(dimension.getDeviceType().getCode()).hostname(hostname).build()
+                ).collect(Collectors.toList());
+            case APPLICATION:
+                // todo
+        }
+        return deviceMetas;
+    }
+
+    private void experimentPhase(CreateExperimentRequest createExperimentRequest, Long flowId) {
 
         Long experimentId = createExperimentRequest.getExperimentId();
 
@@ -170,16 +208,6 @@ public class ExperimentServiceImpl implements ExperimentService {
                     .build());
         }
 
-        ExperimentDimension dimension = EnumUtil.fromString(ExperimentDimension.class, createExperimentRequest.getDimension().toUpperCase());
-        switch (dimension) {
-            case HOST:
-                break;
-            case POD:
-            case NODE:
-            case CONTAINER:
-                Map<String, String> parameters = createExperimentRequest.getParameters();
-                parameters.put("names", deviceMetas.stream().map(DeviceMeta::getHostname).collect(Collectors.joining()));
-        }
         List<MetricModel> metricModels = JsonUtils.readValue(new TypeReference<List<MetricModel>>() {
         }, createExperimentRequest.getMetrics());
 
@@ -276,7 +304,6 @@ public class ExperimentServiceImpl implements ExperimentService {
 
         List<ExperimentActivity> experimentActivities = experimentActivityService.selectAttackByExperimentId(experimentDO.getId());
 
-
         experimentResponse.setScenarios(experimentActivities.stream().map(experimentActivity ->
                 {
                     ActivityTaskDTO activityTaskDTO = JsonUtils.readValue(ActivityTaskDTO.class, experimentActivity.getActivityDefinition());
@@ -304,23 +331,15 @@ public class ExperimentServiceImpl implements ExperimentService {
 
         ExperimentDO experimentDO = ExperimentDO.builder()
                 .name(createExperimentRequest.getExperimentName())
+                .dimension(createExperimentRequest.getDimension())
                 .metric(createExperimentRequest.getMetrics())
                 .build();
 
         experimentRepository.updateByPrimaryKey(experimentId, experimentDO);
 
-        // default mini flow group
-        List<DeviceRequest> machines = createExperimentRequest.getMachines();
-        List<DeviceMeta> deviceMetas = machines.stream().map(machine -> deviceRepository.selectById(machine.getDeviceId()).map(deviceDO ->
-                        DeviceMeta.builder().deviceId(deviceDO.getId())
-                                .deviceType(deviceDO.getType())
-                                .hostname(deviceDO.getHostname())
-                                .ip(deviceDO.getIp()).build()
-                ).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT))
-        ).collect(Collectors.toList());
+        List<DeviceMeta> deviceMetas = getDeviceMetas(createExperimentRequest);
 
-
-        experimentMiniFlowGroupRepository.updateByPrimaryKey(experimentId, ExperimentMiniFlowGroupDO.builder()
+        experimentMiniFlowGroupRepository.updateByExperimentId(experimentId, ExperimentMiniFlowGroupDO.builder()
                 .hosts(JsonUtils.writeValueAsString(deviceMetas))
                 .build());
 
@@ -337,7 +356,7 @@ public class ExperimentServiceImpl implements ExperimentService {
 
         experimentActivityRepository.deleteExperimentId(experimentId);
 
-        experimentPhase(createExperimentRequest, deviceMetas, flowId);
+        experimentPhase(createExperimentRequest, flowId);
 
         return ExperimentResponse.builder()
                 .experimentId(experimentDO.getId())
@@ -354,7 +373,6 @@ public class ExperimentServiceImpl implements ExperimentService {
     public void finishExperiment(ExperimentTaskRequest experimentTaskRequest) {
         experimentTaskService.stopExperimentTask(experimentTaskRequest.getTaskId());
     }
-
 
     @Override
     public List<ExperimentResponse> getExperimentsPageable(ExperimentRequest experimentRequest) {

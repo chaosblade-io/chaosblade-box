@@ -42,7 +42,7 @@ public class ActivityTaskExecuteContextTest {
         activityTaskDTO.setPhase(ChaosConstant.PHASE_PREPARE);
 
         ArrayList<DeviceMeta> scopes = CollUtil.newArrayList(
-                new DeviceMeta(4L, (byte) 0, "leaf", "192.168.0.1")
+                //new DeviceMeta(4L, (byte) 0, "leaf", "192.168.0.1")
         );
         activityTaskDTO.setDeviceMetas(scopes);
 

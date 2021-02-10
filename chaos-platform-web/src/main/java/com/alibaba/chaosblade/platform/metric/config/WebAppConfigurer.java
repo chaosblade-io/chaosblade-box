@@ -33,7 +33,7 @@ public class WebAppConfigurer implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new AttachRequestIdInterceptor())
-                .addPathPatterns("/api")
+                .addPathPatterns("/api/**")
                 .excludePathPatterns("/favicon.ico")
                 .excludePathPatterns("/*.html")
                 .excludePathPatterns("/webjars/**");

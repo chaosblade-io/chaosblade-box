@@ -18,6 +18,7 @@ package com.alibaba.chaosblade.platform.service.model.experiment.activity;
 
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
@@ -64,6 +65,8 @@ public class ActivityTaskDTO {
     private Long waitOfAfter;
 
     private Map<String, String> arguments;
+
+    private ExperimentDimension experimentDimension;
 
     private List<DeviceMeta> deviceMetas;
 

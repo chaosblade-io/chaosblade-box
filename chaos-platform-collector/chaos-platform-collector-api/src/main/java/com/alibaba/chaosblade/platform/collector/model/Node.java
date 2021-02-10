@@ -28,6 +28,8 @@ public class Node {
 
     private String name;
 
+    private String ip;
+
     private String namespace;
 
     private String kernelVersion;

@@ -4,7 +4,7 @@ logging:
   level:
     root: info
     org.springframework: info
-    com.alibaba.chaosblade.platform: info
+    com.alibaba.chaosblade.platform: debug
 
 spring:
   application:
@@ -34,18 +34,22 @@ server:
   port: 8080
 
 mybatis-plus:
-  map-underscore-to-camel-case: true
+  configuration:
+    map-underscore-to-camel-case: true
 
 chaos:
+  scene:
+    import: true
   collector:
-    enable: false
-    type: prometheus
+    enable: true
+    type: kube_api
+    period: 30
     prometheus:
       api:
   metric:
     aliyun:
   agent:
     port: 19527
-    release: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/demo/chaosagent
+    release: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagent
 
 

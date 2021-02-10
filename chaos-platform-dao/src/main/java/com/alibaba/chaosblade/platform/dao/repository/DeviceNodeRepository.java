@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.dao.repository;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.DeviceNodeMapper;
@@ -59,9 +60,20 @@ public class DeviceNodeRepository implements IRepository<Long, DeviceNodeDO> {
         return deviceNodeMapper.updateById(deviceNodeDO) == 1;
     }
 
-    public long selectCount() {
-        return deviceNodeMapper.selectCount(new QueryWrapper<>());
+    public List<DeviceNodeDO> selectList(DeviceNodeDO deviceNodeDO, List<Long> deviceIds) {
+        QueryWrapper<DeviceNodeDO> queryWrapper = QueryWrapperBuilder.build();
+        if (StrUtil.isNotBlank(deviceNodeDO.getClusterName())) {
+            queryWrapper.lambda().like(DeviceNodeDO::getClusterName, deviceNodeDO.getClusterName());
+        }
+        if (StrUtil.isNotBlank(deviceNodeDO.getNodeName())) {
+            queryWrapper.lambda().like(DeviceNodeDO::getNodeName, deviceNodeDO.getNodeName());
+        }
+        if (CollUtil.isNotEmpty(deviceIds)) {
+            queryWrapper.lambda().in(DeviceNodeDO::getDeviceId, deviceIds);
+        }
+        return deviceNodeMapper.selectList(queryWrapper);
     }
+
 
     public List<DeviceNodeDO> selectList(DeviceNodeDO deviceNodeDO) {
         QueryWrapper<DeviceNodeDO> queryWrapper = QueryWrapperBuilder.build();
@@ -73,5 +85,4 @@ public class DeviceNodeRepository implements IRepository<Long, DeviceNodeDO> {
         }
         return deviceNodeMapper.selectList(queryWrapper);
     }
-
 }

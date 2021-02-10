@@ -16,12 +16,14 @@
 
 package com.alibaba.chaosblade.platform.service.model.tools;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * @author yefei
  */
 @Data
+@Builder
 public class ToolsRequest {
 
     private Long machineId;

@@ -25,14 +25,12 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * 场景管理
  *
  * @author yefei
  */
 public interface SceneService {
 
     /**
-     * 导入场景
      * @param inputStream
      */
     void inputScene(InputStream inputStream);

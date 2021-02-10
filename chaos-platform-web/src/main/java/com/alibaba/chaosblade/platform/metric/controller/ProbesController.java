@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.metric.controller;
 
+import com.alibaba.chaosblade.platform.service.collect.CollectorTimer;
 import com.alibaba.chaosblade.platform.service.probes.ProbesService;
 import com.alibaba.chaosblade.platform.service.probes.model.InstallProbesRequest;
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesRequest;
@@ -41,6 +42,9 @@ public class ProbesController {
 
     @Value("${chaos.collector.enable}")
     private boolean enableCollect;
+
+    @Autowired
+    private CollectorTimer collectorTimer;
 
     @PostMapping("/GetAnsibleHosts")
     public List<ProbesResponse> getMachinesForHost() {
@@ -84,7 +88,8 @@ public class ProbesController {
     }
 
     @PostMapping("/QueryCollectStatus")
-    public boolean queryCollectStatus() {
+    public boolean queryCollectStatus() throws Exception {
+        collectorTimer.dryRun();
         return enableCollect;
     }
 

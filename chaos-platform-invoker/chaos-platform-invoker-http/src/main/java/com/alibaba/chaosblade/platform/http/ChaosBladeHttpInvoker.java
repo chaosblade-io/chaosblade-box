@@ -24,7 +24,6 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvoker;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.http.constant.Header;
-import com.alibaba.chaosblade.platform.http.model.reuest.ChaosBladeRequest;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -73,9 +72,7 @@ public class ChaosBladeHttpInvoker implements ChaosInvoker<HttpChannelRequest, R
     @Override
     public CompletableFuture<ResponseCommand> invoke(HttpChannelRequest requestCommand) {
         requestCommand.addParam(Header.TIMESTAMP_KEY, String.valueOf(System.nanoTime() / 1000));
-        if (requestCommand instanceof ChaosBladeRequest) {
-            requestCommand.addParam(CMD, ((ChaosBladeRequest) requestCommand).buildCommand());
-        }
+        requestCommand.addParam(CMD, requestCommand.buildCommand());
 
         String domain = requestCommand.getHost() + ":" + requestCommand.getPort();
 
@@ -103,7 +100,7 @@ public class ChaosBladeHttpInvoker implements ChaosInvoker<HttpChannelRequest, R
             public void completed(HttpResponse httpResponse) {
                 HttpEntity entity = httpResponse.getEntity();
                 try {
-                    ResponseCommand v = (ResponseCommand) JsonUtils.readValue(classGeneric,  EntityUtils.toByteArray(entity));
+                    ResponseCommand v = (ResponseCommand) JsonUtils.readValue(classGeneric, EntityUtils.toByteArray(entity));
                     completableFuture.complete(v);
                 } catch (IOException e) {
                     completableFuture.completeExceptionally(e);

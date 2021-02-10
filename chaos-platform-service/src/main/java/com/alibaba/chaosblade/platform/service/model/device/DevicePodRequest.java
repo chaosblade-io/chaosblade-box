@@ -29,11 +29,13 @@ public class DevicePodRequest extends PageQuery {
 
     private String clusterName;
 
-    private String nodeName;
+    private String node;
 
-    private String podName;
+    private String pod;
 
-    private String podId;
+    private String ip;
+
+    private Byte status;
 
     private String containerName;
 

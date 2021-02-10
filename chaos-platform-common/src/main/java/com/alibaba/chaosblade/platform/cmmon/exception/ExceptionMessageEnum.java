@@ -59,7 +59,7 @@ public enum ExceptionMessageEnum {
     FLOW_GROUP_NOT_EXISTS(6700, "流程组不存在"),
 
     // INVOKER
-    INVOKER_NOT_EXISTS(7000, "流程组不存在")
+    INVOKER_NOT_EXISTS(7000, "不存在对应的执行器")
     ;
 
     public Integer code;

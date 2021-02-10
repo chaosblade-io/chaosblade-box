@@ -23,7 +23,7 @@ import lombok.Data;
  * @author yefei
  */
 @Data
-public class DestroyCommandRequest extends HttpChannelRequest implements ChaosBladeRequest  {
+public class DestroyCommandRequest extends HttpChannelRequest {
 
     private String uid;
 

@@ -23,7 +23,7 @@
 
     <groupId>com.alibaba.chaosblade</groupId>
     <artifactId>chaos-platform</artifactId>
-    <version>0.0.1-alpha</version>
+    <version>0.0.2-alpha</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
@@ -58,8 +58,13 @@
                 <artifactId>chaos-platform-invoker-http</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!--- chaos-invoker -->
 
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-invoker-blade-kubeapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--- chaos-invoker -->
 
             <!-- chaos metric -->
             <dependency>
@@ -103,6 +108,12 @@
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <artifactId>chaos-platform-collector-prometheus</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-collector-kubeapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- chaos collector -->
@@ -158,6 +169,12 @@
                 <version>0.1.54</version>
             </dependency>
 
+            <dependency>
+                <artifactId>client-java</artifactId>
+                <groupId>io.kubernetes</groupId>
+                <version>9.0.2</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -188,6 +205,9 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
+                <mysql.url></mysql.url>
+                <mysql.username></mysql.username>
+                <mysql.password></mysql.password>
             </properties>
         </profile>
     </profiles>

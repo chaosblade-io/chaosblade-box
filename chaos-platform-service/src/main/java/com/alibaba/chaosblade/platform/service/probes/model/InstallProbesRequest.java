@@ -31,4 +31,7 @@ public class InstallProbesRequest {
     private String probeType;
 
     private List<ProbesRequest> probes;
+
+    private boolean deployBlade;
+
 }
