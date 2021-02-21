@@ -136,10 +136,13 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                             }
 
                             metricChartLineRequest.getDevices().stream().filter(deviceMeta -> {
-                                if (metric.contains(deviceMeta.getIp())) {
-                                    return true;
-                                }
-                                if (metric.contains(deviceMeta.getHostname())) {
+                                if (StrUtil.contains(metric, deviceMeta.getIp()) ||
+                                        StrUtil.contains(metric, deviceMeta.getHostname()) ||
+                                        StrUtil.contains(metric, deviceMeta.getNamespace()) ||
+                                        StrUtil.contains(metric, deviceMeta.getNodeName()) ||
+                                        StrUtil.contains(metric, deviceMeta.getPodName()) ||
+                                        StrUtil.contains(metric, deviceMeta.getContainerName())
+                                ) {
                                     return true;
                                 }
                                 String value = ipToInstance.get(deviceMeta.getIp());

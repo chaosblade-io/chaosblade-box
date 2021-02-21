@@ -16,6 +16,8 @@
 
 package com.alibaba.chaosblade.platform.invoker;
 
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 
@@ -39,11 +41,16 @@ public @interface ChaosInvokerStrategy {
     /**
      * @return
      */
-    String[] phase() default ChaosConstant.PHASE_ALL;
+    String[] phase() default StrUtil.EMPTY;
+
+    /**
+     * @return
+     */
+    DeviceType[] deviceType();
 
     /**
      *
      * @return
      */
-    DeviceType[] deviceType();
+    String sceneCode() default StrUtil.EMPTY;
 }

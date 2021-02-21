@@ -4,7 +4,7 @@ logging:
   level:
     root: info
     org.springframework: info
-    com.alibaba.chaosblade.platform: debug
+    com.alibaba.chaosblade.platform: info
 
 spring:
   application:

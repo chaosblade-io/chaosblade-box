@@ -45,6 +45,4 @@ public interface Blade {
      * 查询混沌实验所需参数
      */
     String QUERY = "query";
-
-    String SPEC_FILE = "chaosblade.spec-cloud.yaml";
 }

@@ -62,18 +62,12 @@ public class KubeApiStatusChaosInvoker implements ChaosInvoker<RequestCommand, S
                     new ApiCallback() {
                         @Override
                         public void onFailure(ApiException e, int statusCode, Map responseHeaders) {
-                            if (statusCode == 404) {
-                                StatusResponseCommand statusResponseCommand = new StatusResponseCommand();
-                                statusResponseCommand.setSuccess(true);
-                                completableFuture.complete(statusResponseCommand);
-                            } else {
-                                StatusResponseCommand responseCommand = new StatusResponseCommand();
-                                responseCommand.setSuccess(false);
-                                responseCommand.setCode(String.valueOf(statusCode));
-                                responseCommand.setResult(e.getMessage());
-                                responseCommand.setError(e.getResponseBody());
-                                completableFuture.complete(responseCommand);
-                            }
+                            StatusResponseCommand responseCommand = new StatusResponseCommand();
+                            responseCommand.setSuccess(false);
+                            responseCommand.setCode(String.valueOf(statusCode));
+                            responseCommand.setResult(e.getMessage());
+                            responseCommand.setError(e.getResponseBody());
+                            completableFuture.complete(responseCommand);
                         }
 
                         @Override

@@ -48,7 +48,7 @@ public class BladeDeleteTest {
                 Constants.GROUP,
                 Constants.VERSION,
                 Constants.PLURAL,
-                "aeb2459264e04859b1fee66a19b3a273",
+                "b585e989506e48738318ffaf177d998f",
                 10,
                 false,
                 null,

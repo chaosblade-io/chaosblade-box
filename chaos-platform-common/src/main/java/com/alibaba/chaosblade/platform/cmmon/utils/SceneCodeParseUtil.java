@@ -17,7 +17,8 @@
 package com.alibaba.chaosblade.platform.cmmon.utils;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
+
+import static com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant.CHAOS_DESTROY_SUFFIX;
 
 /**
  * @author yefei
@@ -34,8 +35,8 @@ public class SceneCodeParseUtil {
         return split[2];
     }
 
-    public static Boolean isRevoke(String sceneCode) {
-        return sceneCode.startsWith("chaosblade.revoke");
+    public static Boolean isRecover(String sceneCode) {
+        return sceneCode.endsWith(CHAOS_DESTROY_SUFFIX);
     }
 
     public static String getTarget(String sceneCode) {

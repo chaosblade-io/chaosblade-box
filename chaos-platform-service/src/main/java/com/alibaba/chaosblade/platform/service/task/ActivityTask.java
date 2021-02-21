@@ -16,45 +16,46 @@
 
 package com.alibaba.chaosblade.platform.service.task;
 
-import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
-import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
-import sun.misc.Request;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author yefei
  */
-public interface ActivityTask {
+public class ActivityTask {
 
-    /**
-     * @return
-     */
-    CompletableFuture<Void> future();
+    private final ActivityTaskDTO activityTaskDTO;
 
-    /**
-     * @return
-     */
-    ActivityTaskDTO activityTaskDTO();
+    private final CompletableFuture<Void> completableFuture;
 
-    /**
-     *
-     * @param context
-     * @return
-     */
-    boolean preHandler(ActivityTaskExecuteContext context);
+    private final AtomicBoolean isExecuted = new AtomicBoolean();
 
-    /**
-     * @param context
-     */
-    void handler(ActivityTaskExecuteContext context);
+    private ActivityTaskExecutePipeline activityTaskExecutePipeline;
 
-    /**
-     *
-     * @param context
-     * @return
-     */
-    void postHandler(ActivityTaskExecuteContext context, Throwable throwable);
+    public ActivityTask(ActivityTaskDTO activityTaskDTO) {
+        this.activityTaskDTO = activityTaskDTO;
+        this.completableFuture = new CompletableFuture<>();
+    }
 
+    public CompletableFuture<Void> future() {
+        return completableFuture;
+    }
+
+    public ActivityTaskDTO activityTaskDTO() {
+        return activityTaskDTO;
+    }
+
+    public boolean canExecuted() {
+        return isExecuted.compareAndSet(false, true);
+    }
+
+    public ActivityTaskExecutePipeline getActivityTaskExecutePipeline() {
+        return activityTaskExecutePipeline;
+    }
+
+    public void setActivityTaskExecutePipeline(ActivityTaskExecutePipeline activityTaskExecutePipeline) {
+        this.activityTaskExecutePipeline = activityTaskExecutePipeline;
+    }
 }

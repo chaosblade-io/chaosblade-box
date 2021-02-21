@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.platform.http.model.reuest;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +27,9 @@ import java.util.Map;
 /**
  * @author yefei
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public abstract class HttpChannelRequest extends RequestCommand {
+public class HttpChannelRequest extends RequestCommand {
 
     private static final String FROM_HEADER = "FR";
     private static final String CLIENT = "C";
@@ -104,10 +106,5 @@ public abstract class HttpChannelRequest extends RequestCommand {
             return this;
         }
     }
-
-    /**
-     * @return
-     */
-    public abstract String buildCommand();
 
 }

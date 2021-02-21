@@ -205,9 +205,6 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
-                <mysql.url></mysql.url>
-                <mysql.username></mysql.username>
-                <mysql.password></mysql.password>
             </properties>
         </profile>
     </profiles>

@@ -28,7 +28,6 @@ import java.util.concurrent.Executor;
 public interface ActivityTaskExecuteContext {
 
     /**
-     *
      * @return
      */
     Logger getContextLogger();
@@ -36,7 +35,12 @@ public interface ActivityTaskExecuteContext {
     /**
      *
      */
-    void fireExecute();
+    void fireExecute(ActivityTaskExecutePipeline activityTaskExecutePipeline);
+
+    /**
+     *
+     */
+    void executeActivityTask(ActivityTask activityTask);
 
     /**
      * @return
@@ -44,23 +48,16 @@ public interface ActivityTaskExecuteContext {
     Executor executor();
 
     /**
-     *
-     * @return
+     * @param experimentTaskStartListener
      */
-    TaskNode<ActivityTask> currentTask();
+    void addExperimentTaskStartListener(ActivityTaskExecutePipeline activityTaskExecutePipeline,
+                                        ExperimentTaskStartListener experimentTaskStartListener);
+
 
     /**
-     * @return
+     * @param experimentTaskCompleteListener
      */
-    ActivityTaskExecutePipeline pipeline();
+    void addExperimentTaskCompleteListener(ActivityTaskExecutePipeline activityTaskExecutePipeline,
+                                           ExperimentTaskCompleteListener experimentTaskCompleteListener);
 
-    /**
-     *
-     */
-    void addExperimentTaskStartListener(ExperimentTaskStartListener experimentTaskStartListener);
-
-    /**
-     *
-     */
-    void addExperimentTaskCompleteListener(ExperimentTaskCompleteListener experimentTaskCompleteListener);
 }

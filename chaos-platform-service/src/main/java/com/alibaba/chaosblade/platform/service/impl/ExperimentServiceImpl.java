@@ -47,9 +47,9 @@ import com.alibaba.chaosblade.platform.service.model.experiment.*;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ExperimentActivity;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricModel;
-import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneRequest;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneResponse;
+import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.prepare.JavaAgentPrepare;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,8 +71,6 @@ import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEn
  */
 @Service
 public class ExperimentServiceImpl implements ExperimentService {
-
-    public final static String K8S_EXP_NAMES = "names";
 
     @Autowired
     private ExperimentMapper experimentMapper;
@@ -156,23 +154,16 @@ public class ExperimentServiceImpl implements ExperimentService {
             case NODE:
             case POD:
             case CONTAINER:
-                if (CollUtil.isNotEmpty(createExperimentRequest.getMachines())) {
-                    return createExperimentRequest.getMachines().stream().filter(
-                            machine -> !StrUtil.isAllBlank(machine.getNodeName(), machine.getPodName(), machine.getContainerName())
-                    ).map(machine ->
-                            DeviceMeta.builder().deviceId(machine.getDeviceId())
-                                    .deviceType(dimension.getDeviceType().getCode())
-                                    .nodeName(machine.getNodeName())
-                                    .namespace(machine.getNamespace())
-                                    .podName(machine.getPodName())
-                                    .containerName(machine.getContainerName())
-                                    .build()
-                    ).collect(Collectors.toList());
-                }
-                Map<String, String> parameters = createExperimentRequest.getParameters();
-                String names = parameters.get(K8S_EXP_NAMES);
-                return StrUtil.split(names, ',').stream().map(
-                        hostname -> DeviceMeta.builder().deviceType(dimension.getDeviceType().getCode()).hostname(hostname).build()
+                return createExperimentRequest.getMachines().stream().filter(
+                        machine -> !StrUtil.isAllBlank(machine.getNodeName(), machine.getPodName(), machine.getContainerName())
+                ).map(machine ->
+                        DeviceMeta.builder().deviceId(machine.getDeviceId())
+                                .deviceType(dimension.getDeviceType().getCode())
+                                .nodeName(machine.getNodeName())
+                                .namespace(machine.getNamespace())
+                                .podName(machine.getPodName())
+                                .containerName(machine.getContainerName())
+                                .build()
                 ).collect(Collectors.toList());
             case APPLICATION:
                 // todo
@@ -200,6 +191,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                     .build();
 
             experimentActivityRepository.insert(ExperimentActivityDO.builder()
+                    .activityName(pre.getCode())
                     .experimentId(experimentId)
                     .flowId(flowId)
                     .phase(ChaosConstant.PHASE_PREPARE)
@@ -253,7 +245,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .flowId(flowId)
                 .phase(ChaosConstant.PHASE_RECOVER)
                 .sceneCode(scenario.getCode() + ChaosConstant.CHAOS_DESTROY_SUFFIX)
-                .activityName(scenario.getName())
+                .activityName(scenario.getCode() + ChaosConstant.CHAOS_DESTROY_SUFFIX)
                 .activityDefinition(JsonUtils.writeValueAsString(activityTaskDTORecover))
                 .build());
     }

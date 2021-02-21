@@ -17,84 +17,72 @@
 package com.alibaba.chaosblade.platform.service.task;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
+import com.alibaba.chaosblade.platform.cmmon.executor.ExecutorFactory;
+import com.alibaba.chaosblade.platform.cmmon.executor.ThreadPoolExecutorFactory;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskCompleteListener;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskStartListener;
+import com.alibaba.chaosblade.platform.service.task.stateless.ActivityTaskHandlerStrategyContext;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author yefei
  */
 @Slf4j
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @TaskLogRecord
-public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteContext {
+public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteContext, InitializingBean {
 
-    private final ActivityTaskExecutePipeline activityTaskExecutePipeline;
+    private Executor executor;
 
-    private final Executor executor;
-
-    private volatile TaskNode<ActivityTask> currentTask;
-
-    private ExperimentTaskStartListener experimentTaskStartListener;
-
-    private ExperimentTaskCompleteListener experimentTaskCompleteListener;
+    @Autowired
+    private ActivityTaskHandlerStrategyContext activityTaskHandlerStrategyContext;
 
     @Autowired
     private TimerFactory timerFactory;
 
-    private final static AtomicReferenceFieldUpdater<DefaultActivityTaskExecuteContext, TaskNode> atomicReferenceFieldUpdater
-            = AtomicReferenceFieldUpdater.newUpdater(DefaultActivityTaskExecuteContext.class, TaskNode.class, "currentTask");
+    private final Map<ActivityTaskExecutePipeline, ExperimentTaskStartListener> taskStartListenerMap = new ConcurrentHashMap<>();
 
-    public DefaultActivityTaskExecuteContext(ActivityTaskExecutePipeline activityTaskExecutePipeline) {
-        this(activityTaskExecutePipeline, Executors.newCachedThreadPool());
-    }
+    private final Map<ActivityTaskExecutePipeline, ExperimentTaskCompleteListener> taskCompleteListenerMap = new ConcurrentHashMap<>();
 
-    public DefaultActivityTaskExecuteContext(ActivityTaskExecutePipeline activityTaskExecutePipeline,
-                                             Executor executor) {
-        this.activityTaskExecutePipeline = activityTaskExecutePipeline;
-        this.executor = executor;
+    @Override
+    public void afterPropertiesSet() {
+        ExecutorFactory executorFactory = new ThreadPoolExecutorFactory();
+        executor = executorFactory.createExecutorService(new ThreadFactory() {
+
+            final AtomicInteger atomicInteger = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setDaemon(false);
+                thread.setName("EXPERIMENT-TASK-THREAD-" + atomicInteger.getAndIncrement());
+                return thread;
+            }
+        });
     }
 
     @Override
-    public void fireExecute() {
-        TaskNode<ActivityTask> internalTask = null;
+    public void fireExecute(ActivityTaskExecutePipeline activityTaskExecutePipeline) {
+        TaskNode<ActivityTask> internalTask = activityTaskExecutePipeline.getCurrentTask();
+        if (internalTask == null) {
+            return;
+        }
         try {
-            if (currentTask == null) {
-                internalTask = activityTaskExecutePipeline.head();
-                if (atomicReferenceFieldUpdater.compareAndSet(this, null, internalTask)) {
-                    if (currentTask == null) {
-                        return;
-                    }
-                    if (experimentTaskStartListener != null) {
-                        experimentTaskStartListener.notify(this, currentTask.getTask().activityTaskDTO());
-                    }
-                } else {
-                    fireExecute();
-                }
-            } else {
-                internalTask = currentTask.next();
-                if (!atomicReferenceFieldUpdater.compareAndSet(this, currentTask, internalTask)) {
-                    fireExecute();
-                }
-                if (currentTask == null) {
-                    return;
-                }
+            if (internalTask == activityTaskExecutePipeline.head() &&
+                    taskStartListenerMap.get(activityTaskExecutePipeline) != null) {
+                ExperimentTaskStartListener experimentTaskStartListener = taskStartListenerMap.get(activityTaskExecutePipeline);
+                experimentTaskStartListener.notify(this, internalTask.getTask().activityTaskDTO());
             }
 
             if (internalTask.prev() != null && !internalTask.prev().getTask().activityTaskDTO().getPhase()
@@ -104,32 +92,28 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
 
             final ActivityTask activityTask = internalTask.getTask();
 
-            List<CompletableFuture> futures = CollUtil.newArrayList();
+            List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
             for (TaskNode<ActivityTask> node = internalTask; node != null; node = node.prev()) {
                 CompletableFuture<Void> future = node.getTask().future();
                 futures.add(future);
             }
 
             final TaskNode<ActivityTask> next = internalTask.next();
-            if (next != null && next.getTask() instanceof PreviousPhaseActivityTaskListener) {
-                final ActivityTask nextTask = next.getTask();
-
-                CompletableFuture.allOf(ArrayUtil.toArray(futures, CompletableFuture.class)).handle((r, e) -> {
-                    if (nextTask.preHandler(DefaultActivityTaskExecuteContext.this)) {
-                        ((PreviousPhaseActivityTaskListener) nextTask).complete(DefaultActivityTaskExecuteContext.this, e);
-                    }
+            if (next != null) {
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handle((r, e) -> {
+                    executeActivityTask(next.getTask());
                     return null;
                 });
             }
 
-            if (internalTask == activityTaskExecutePipeline.tail()) {
-                if (experimentTaskCompleteListener != null) {
-                    ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
-                    CompletableFuture.allOf(ArrayUtil.toArray(futures, CompletableFuture.class)).handleAsync((r, e) -> {
-                        experimentTaskCompleteListener.notify(this, activityTaskDTO, e);
-                        return null;
-                    }, executor);
-                }
+            if (internalTask == activityTaskExecutePipeline.tail()
+                    && taskCompleteListenerMap.get(activityTaskExecutePipeline) != null) {
+                ExperimentTaskCompleteListener experimentTaskCompleteListener = taskCompleteListenerMap.get(activityTaskExecutePipeline);
+                ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handleAsync((r, e) -> {
+                    experimentTaskCompleteListener.notify(this, activityTaskDTO, e);
+                    return null;
+                }, executor);
             }
 
             Long waitOfBefore = activityTask.activityTaskDTO().getWaitOfBefore();
@@ -139,37 +123,55 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                         activityTask.activityTaskDTO().getActivityTaskId(),
                         waitOfBefore);
                 timerFactory.getTimer().newTimeout(timeout ->
-                                executor.execute(() -> executeActivityTask(activityTask)),
+                                executor.execute(() -> {
+                                    try {
+                                        executeActivityTask(activityTask);
+                                    } catch (Throwable throwable) {
+                                        activityTaskHandlerStrategyContext.postHandle(
+                                                internalTask.getTask(),
+                                                throwable);
+                                    }
+                                }),
                         waitOfBefore,
                         TimeUnit.MILLISECONDS);
             } else {
-                executor.execute(() -> executeActivityTask(activityTask));
+                executor.execute(() -> {
+                    try {
+                        executeActivityTask(activityTask);
+                    } catch (Throwable throwable) {
+                        activityTaskHandlerStrategyContext.postHandle(
+                                internalTask.getTask(),
+                                throwable);
+                    }
+                });
             }
         } catch (Throwable throwable) {
-            if (internalTask != null) {
-                internalTask.getTask().postHandler(this, throwable);
-            }
+            activityTaskHandlerStrategyContext.postHandle(
+                    internalTask.getTask(),
+                    throwable);
         }
     }
 
-    private void executeActivityTask(ActivityTask activityTask) {
+    @Override
+    public void executeActivityTask(ActivityTask activityTask) {
         try {
-            if (activityTask.preHandler(DefaultActivityTaskExecuteContext.this)) {
-                activityTask.handler(DefaultActivityTaskExecuteContext.this);
+            boolean b = activityTaskHandlerStrategyContext.preHandle(activityTask);
+            if (b) {
+                activityTaskHandlerStrategyContext.handle(activityTask);
             }
         } catch (Exception e) {
-            activityTask.postHandler(this, e);
+            activityTaskHandlerStrategyContext.postHandle(activityTask, e);
         }
     }
 
     @Override
-    public TaskNode<ActivityTask> currentTask() {
-        return currentTask;
+    public void addExperimentTaskStartListener(ActivityTaskExecutePipeline activityTaskExecutePipeline, ExperimentTaskStartListener experimentTaskStartListener) {
+        taskStartListenerMap.put(activityTaskExecutePipeline, experimentTaskStartListener);
     }
 
     @Override
-    public ActivityTaskExecutePipeline pipeline() {
-        return activityTaskExecutePipeline;
+    public void addExperimentTaskCompleteListener(ActivityTaskExecutePipeline activityTaskExecutePipeline, ExperimentTaskCompleteListener experimentTaskCompleteListener) {
+        taskCompleteListenerMap.put(activityTaskExecutePipeline, experimentTaskCompleteListener);
     }
 
     @Override
@@ -182,14 +184,4 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
         return log;
     }
 
-    @Override
-    public void addExperimentTaskStartListener(ExperimentTaskStartListener experimentTaskStartListener) {
-        this.experimentTaskStartListener = experimentTaskStartListener;
-
-    }
-
-    @Override
-    public void addExperimentTaskCompleteListener(ExperimentTaskCompleteListener experimentTaskCompleteListener) {
-        this.experimentTaskCompleteListener = experimentTaskCompleteListener;
-    }
 }
