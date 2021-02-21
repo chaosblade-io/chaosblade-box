@@ -34,6 +34,8 @@ public class RequestCommand {
 
     private String phase;
 
+    private String type;
+
     private Map<String, String> arguments;
 
     private Long timeout;

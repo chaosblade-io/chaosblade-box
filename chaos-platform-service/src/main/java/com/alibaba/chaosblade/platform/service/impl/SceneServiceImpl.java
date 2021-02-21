@@ -130,6 +130,7 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
                                                                 .required(flagSpecBean.isRequired())
                                                                 .build()
                                                 ).collect(Collectors.toList()))
+                                                .type(item.getPrepare().getType())
                                                 .build()
                         ).target(item.getTarget())
                                 .scope(item.getScope())

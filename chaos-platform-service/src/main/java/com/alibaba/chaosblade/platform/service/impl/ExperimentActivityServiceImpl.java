@@ -44,12 +44,15 @@ public class ExperimentActivityServiceImpl implements ExperimentActivityService 
     }
 
     private ExperimentActivity setNext(List<ExperimentActivityDO> activityDOS, ExperimentActivity last, int i) {
-        ExperimentActivity experimentActivity = covert(activityDOS.get(i));
+        if (i == 0) {
+            return last;
+        }
+        ExperimentActivity experimentActivity = covert(activityDOS.get(--i));
         experimentActivity.setNextActivity(last);
         if (i == 0) {
             return experimentActivity;
         }
-        return setNext(activityDOS, experimentActivity, --i);
+        return setNext(activityDOS, experimentActivity, i);
     }
 
     public ExperimentActivity covert(ExperimentActivityDO experimentActivity) {

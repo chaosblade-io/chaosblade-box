@@ -27,12 +27,9 @@ import com.alibaba.chaosblade.platform.cmmon.enums.ResultStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
-import com.alibaba.chaosblade.platform.cmmon.executor.ExecutorFactory;
-import com.alibaba.chaosblade.platform.cmmon.executor.ThreadPoolExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.dao.model.*;
 import com.alibaba.chaosblade.platform.dao.repository.*;
-import com.alibaba.chaosblade.platform.metric.MetricChartLine;
 import com.alibaba.chaosblade.platform.metric.MetricChartLineRequest;
 import com.alibaba.chaosblade.platform.metric.MetricService;
 import com.alibaba.chaosblade.platform.service.ExperimentActivityTaskService;
@@ -43,16 +40,11 @@ import com.alibaba.chaosblade.platform.service.task.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.alibaba.chaosblade.platform.cmmon.enums.RunStatus.FINISHED;
@@ -63,13 +55,10 @@ import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEn
  */
 @Slf4j
 @Service
-public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTaskService, InitializingBean {
+public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTaskService {
 
     @Autowired
     private ExperimentTaskRepository experimentTaskRepository;
-
-    @Autowired
-    private ApplicationContext applicationContext;
 
     @Autowired
     private ExperimentMiniFlowService experimentMiniFlowService;
@@ -95,24 +84,8 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
     @Autowired
     private ExperimentRepository experimentRepository;
 
-    private ExecutorService executorService;
-
-    @Override
-    public void afterPropertiesSet() {
-        ExecutorFactory executorFactory = new ThreadPoolExecutorFactory();
-        executorService = executorFactory.createExecutorService(new ThreadFactory() {
-
-            final AtomicInteger atomicInteger = new AtomicInteger();
-
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r);
-                thread.setDaemon(false);
-                thread.setName("EXPERIMENT-TASK-THREAD-" + atomicInteger.getAndIncrement());
-                return thread;
-            }
-        });
-    }
+    @Autowired
+    private ActivityTaskExecuteContext activityTaskExecuteContext;
 
     @Override
     public void manualChecked(Long activityTaskId) {
@@ -121,7 +94,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
 
     @Override
     public void executeActivityTasks(List<ExperimentActivityTaskDO> experimentActivityTasks, ExperimentTaskDO experimentTaskDO) {
-        DefaultActivityTaskExecutePipeline pipeline = applicationContext.getBean(DefaultActivityTaskExecutePipeline.class);
+        ActivityTaskExecutePipeline pipeline = new ActivityTaskExecutePipeline();
         ExperimentDO experimentDO = experimentRepository.selectById(experimentTaskDO.getExperimentId())
                 .orElseThrow(() -> new BizException(ExceptionMessageEnum.EXPERIMENT_NOT_FOUNT));
 
@@ -142,16 +115,15 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
             activityTaskDTO.setPhase(experimentActivityTask.getPhase());
             activityTaskDTO.setExperimentDimension(EnumUtil.fromString(ExperimentDimension.class, experimentDO.getDimension().toUpperCase()));
 
-            pipeline.addList((ActivityTask) applicationContext.getBean(experimentActivityTask.getPhase(), activityTaskDTO));
+            pipeline.addLast(new ActivityTask(activityTaskDTO));
             if (activityTaskDTO.getManualChecked()) {
                 // todo
                 break;
             }
         }
-        DefaultActivityTaskExecuteContext executeContext = applicationContext.getBean(DefaultActivityTaskExecuteContext.class, pipeline, executorService);
 
         // experiment before notify
-        executeContext.addExperimentTaskStartListener((context, activityTaskDTO) -> {
+        activityTaskExecuteContext.addExperimentTaskStartListener(pipeline, (context, activityTaskDTO) -> {
 
             Logger logger = context.getContextLogger();
             ExperimentTaskDO experimentTask = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
@@ -187,7 +159,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
         });
 
         // experiment after notify
-        executeContext.addExperimentTaskCompleteListener((context, activityTaskDTO, e) -> {
+        activityTaskExecuteContext.addExperimentTaskCompleteListener(pipeline, (context, activityTaskDTO, e) -> {
             Logger logger = context.getContextLogger();
             if (activityTaskDTO.isAttackPhase()) {
                 ExperimentTaskDO experimentTask = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
@@ -263,7 +235,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
         });
 
         // fire experiment
-        executeContext.fireExecute();
+        activityTaskExecuteContext.fireExecute(pipeline);
     }
 
     private void metric(ActivityTaskExecuteContext context, MetricModel metricModel, ActivityTaskDTO activityTaskDTO) {

@@ -46,7 +46,7 @@ public class TimerFactory implements InitializingBean, DisposableBean {
     public void afterPropertiesSet() {
         timer = new HashedWheelTimer(new ThreadFactory() {
 
-            AtomicInteger atomicInteger = new AtomicInteger();
+            final AtomicInteger atomicInteger = new AtomicInteger();
 
             @Override
             public Thread newThread(Runnable r) {

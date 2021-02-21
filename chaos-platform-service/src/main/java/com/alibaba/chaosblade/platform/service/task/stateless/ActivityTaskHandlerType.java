@@ -16,26 +16,21 @@
 
 package com.alibaba.chaosblade.platform.service.task.stateless;
 
-import com.alibaba.chaosblade.platform.service.task.ActivityTask;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author yefei
  */
-public interface ActivityTaskHandler {
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ActivityTaskHandlerType {
 
-    /**
-     * @param activityTask
-     */
-    boolean preHandle(ActivityTask activityTask);
+    String[] value();
 
-    /**
-     * @param activityTask
-     */
-    void handle(ActivityTask activityTask);
-
-    /**
-     * @param activityTask
-     */
-    void postHandle(ActivityTask activityTask, Throwable e);
-
+    ExperimentDimension[] dimension() default ExperimentDimension.HOST;
 }

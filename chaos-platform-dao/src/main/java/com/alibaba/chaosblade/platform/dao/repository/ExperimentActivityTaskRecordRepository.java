@@ -16,7 +16,6 @@
 
 package com.alibaba.chaosblade.platform.dao.repository;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.platform.dao.mapper.ExperimentActivityTaskRecordMapper;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
@@ -38,17 +37,14 @@ public class ExperimentActivityTaskRecordRepository implements IRepository<Long,
 
     @Override
     public Optional<ExperimentActivityTaskRecordDO> selectById(Long aLong) {
-        return Optional.empty();
+        return Optional.ofNullable(experimentActivityTaskRecordMapper.selectById(aLong));
     }
 
-    public Optional<ExperimentActivityTaskRecordDO> selectOneByPhase(Long experimentTaskId, String ip, String phase) {
+    public List<ExperimentActivityTaskRecordDO> selectBySceneCode(Long experimentTaskId, String sceneCode) {
         QueryWrapper<ExperimentActivityTaskRecordDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(ExperimentActivityTaskRecordDO::getExperimentTaskId, experimentTaskId);
-        if (StrUtil.isNotBlank(ip)) {
-            queryWrapper.lambda().eq(ExperimentActivityTaskRecordDO::getIp, ip);
-        }
-        queryWrapper.lambda().eq(ExperimentActivityTaskRecordDO::getPhase, phase);
-        return Optional.ofNullable(experimentActivityTaskRecordMapper.selectOne(queryWrapper));
+        queryWrapper.lambda().eq(ExperimentActivityTaskRecordDO::getSceneCode, sceneCode);
+        return experimentActivityTaskRecordMapper.selectList(queryWrapper);
     }
 
     @Override

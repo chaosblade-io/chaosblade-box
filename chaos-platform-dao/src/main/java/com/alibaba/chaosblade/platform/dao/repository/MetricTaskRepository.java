@@ -62,7 +62,9 @@ public class MetricTaskRepository extends ServiceImpl<MetricTaskMapper, MetricTa
     ) {
         QueryWrapper<MetricTaskDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(MetricTaskDO::getTaskId, taskId);
-        queryWrapper.lambda().eq(MetricTaskDO::getDeviceId, deviceId);
+        if (deviceId != null) {
+            queryWrapper.lambda().eq(MetricTaskDO::getDeviceId, deviceId);
+        }
         queryWrapper.lambda().eq(MetricTaskDO::getCategoryCode, category);
         if (StrUtil.isNotBlank(startTime)) {
             queryWrapper.lambda().ge(MetricTaskDO::getDate, startTime);

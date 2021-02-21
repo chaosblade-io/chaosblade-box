@@ -257,7 +257,24 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
 
     @Override
     public ExperimentTaskResponse failRetryExperiment(ExperimentTaskRequest experimentRequest) {
-        stopExperimentTask(experimentRequest.getTask().getTaskId());
+        Long taskId = experimentRequest.getTask().getTaskId();
+        ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectById(taskId).orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
+        if (experimentTaskDO.getRunStatus() == RunStatus.RUNNING.getValue()) {
+            List<ExperimentActivityTaskDO> experimentActivityTasks = experimentActivityTaskRepository
+                    .selectByTaskId(experimentTaskDO.getId());
+            experimentTaskRepository.updateByPrimaryKey(taskId,
+                    ExperimentTaskDO.builder().runStatus(RunStatus.READY.getValue()).resultStatus(null).build());
+
+            experimentActivityTasks.forEach(experimentActivityTaskDO -> {
+                experimentActivityTaskRepository.updateByPrimaryKey(experimentActivityTaskDO.getId(),
+                        ExperimentActivityTaskDO.builder().runStatus(RunStatus.READY.getValue()).build());
+            });
+            experimentActivityTaskService.executeActivityTasks(experimentActivityTasks, experimentTaskDO);
+        } else if (experimentTaskDO.getRunStatus() == RunStatus.FINISHED.getValue()){
+            stopExperimentTask(taskId);
+        } else {
+            throw new BizException("Un support operation");
+        }
         return null;
     }
 

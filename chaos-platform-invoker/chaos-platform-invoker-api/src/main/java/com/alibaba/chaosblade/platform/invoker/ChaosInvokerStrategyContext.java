@@ -16,7 +16,10 @@
 
 package com.alibaba.chaosblade.platform.invoker;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
@@ -58,10 +61,20 @@ public class ChaosInvokerStrategyContext implements ChaosInvoker<RequestCommand,
 
         ChaosInvoker<RequestCommand, ResponseCommand> invoker = null;
         for (ChaosInvokerStrategy strategy : strategies.keySet()) {
+            if (StrUtil.isNotBlank(strategy.sceneCode()) && requestCommand.getSceneCode().startsWith(strategy.sceneCode())) {
+                invoker = strategies.get(strategy);
+                break;
+            }
             if (strategy.value().getName().equals(original)) {
+                if (ArrayUtil.isEmpty(strategy.deviceType())) {
+                    continue;
+                }
                 for (DeviceType deviceType : strategy.deviceType()) {
                     ExperimentDimension dimension = EnumUtil.fromString(ExperimentDimension.class, scope.toUpperCase());
                     if (deviceType == dimension.getDeviceType()) {
+                        if (ArrayUtil.isEmpty(strategy.phase())) {
+                            continue;
+                        }
                         for (String s : strategy.phase()) {
                             if (s.equals(ChaosConstant.PHASE_ALL) || s.equals(phase)) {
                                 invoker = strategies.get(strategy);

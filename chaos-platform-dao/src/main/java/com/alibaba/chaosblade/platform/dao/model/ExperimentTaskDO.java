@@ -18,6 +18,8 @@ package com.alibaba.chaosblade.platform.dao.model;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,6 +58,7 @@ public class ExperimentTaskDO extends BaseDO {
 
     private Byte runStatus;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Byte resultStatus;
 
     private Date gmtStart;
