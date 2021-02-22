@@ -57,10 +57,10 @@ public class JschUtils {
         return IoUtil.read(in, "UTF-8");
     }
 
-    public static String start(String host, String user, String password, int port, String version, String platFormHost) throws Exception {
+    public static String exec(String host, String user, String password, int port, String command) throws Exception {
         Session session = JschUtil.getSession(host, port, user, password);
         ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-        channelExec.setCommand(String.format("sh -c 'nohup /opt/chaos-agent/chaosAgent --transport.endpoint=%s > chaos-agent.log 2>&1 &'", version, platFormHost));
+        channelExec.setCommand(String.format("/bin/sh -c '%s'", command));
         channelExec.connect();
         InputStream errStream = channelExec.getErrStream();
         if (errStream.available() > 0) {
@@ -69,7 +69,5 @@ public class JschUtils {
         InputStream in = channelExec.getInputStream();
         return IoUtil.read(in, "UTF-8");
     }
-
-
 
 }

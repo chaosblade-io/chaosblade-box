@@ -16,9 +16,7 @@
 
 package com.alibaba.chaosblade.platform.invoker;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 
 import java.lang.annotation.ElementType;

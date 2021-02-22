@@ -34,7 +34,6 @@ import com.alibaba.chaosblade.platform.metric.MetricChartLineRequest;
 import com.alibaba.chaosblade.platform.metric.MetricService;
 import com.alibaba.chaosblade.platform.service.ExperimentActivityTaskService;
 import com.alibaba.chaosblade.platform.service.ExperimentMiniFlowService;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricModel;
 import com.alibaba.chaosblade.platform.service.task.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -103,91 +102,91 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
             List<DeviceMeta> deviceMetas = experimentMiniFlowService.selectExperimentDeviceByFlowId(experimentActivityTask.getFlowId());
             String activityDefinition = experimentActivityTask.getRunParam();
 
-            ActivityTaskDTO activityTaskDTO = JsonUtils.readValue(ActivityTaskDTO.class, activityDefinition);
+            ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, activityDefinition);
 
-            activityTaskDTO.setDeviceMetas(deviceMetas);
-            activityTaskDTO.setFlowId(experimentActivityTask.getFlowId());
-            activityTaskDTO.setExperimentTaskId(experimentActivityTask.getExperimentTaskId());
-            activityTaskDTO.setActivityId(experimentActivityTask.getActivityId());
-            activityTaskDTO.setActivityTaskId(experimentActivityTask.getId());
-            activityTaskDTO.setPreActivityTaskId(experimentActivityTask.getPreActivityTaskId());
-            activityTaskDTO.setNextActivityTaskId(experimentActivityTask.getNextActivityTaskId());
-            activityTaskDTO.setPhase(experimentActivityTask.getPhase());
-            activityTaskDTO.setExperimentDimension(EnumUtil.fromString(ExperimentDimension.class, experimentDO.getDimension().toUpperCase()));
+            activityTask.setDeviceMetas(deviceMetas);
+            activityTask.setFlowId(experimentActivityTask.getFlowId());
+            activityTask.setExperimentTaskId(experimentActivityTask.getExperimentTaskId());
+            activityTask.setActivityId(experimentActivityTask.getActivityId());
+            activityTask.setActivityTaskId(experimentActivityTask.getId());
+            activityTask.setPreActivityTaskId(experimentActivityTask.getPreActivityTaskId());
+            activityTask.setNextActivityTaskId(experimentActivityTask.getNextActivityTaskId());
+            activityTask.setPhase(experimentActivityTask.getPhase());
+            activityTask.setExperimentDimension(EnumUtil.fromString(ExperimentDimension.class, experimentDO.getDimension().toUpperCase()));
 
-            pipeline.addLast(new ActivityTask(activityTaskDTO));
-            if (activityTaskDTO.getManualChecked()) {
+            pipeline.addLast(activityTask);
+            if (activityTask.getManualChecked()) {
                 // todo
                 break;
             }
         }
 
         // experiment before notify
-        activityTaskExecuteContext.addExperimentTaskStartListener(pipeline, (context, activityTaskDTO) -> {
+        activityTaskExecuteContext.addExperimentTaskStartListener(pipeline, (context, activityTask) -> {
 
             Logger logger = context.getContextLogger();
-            ExperimentTaskDO experimentTask = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
+            ExperimentTaskDO experimentTask = experimentTaskRepository.selectById(activityTask.getExperimentTaskId())
                     .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
 
             if (experimentTask.getRunStatus().equals(RunStatus.READY.getValue())) {
-                logger.info("开始执行演练, 任务ID：{}", activityTaskDTO.getExperimentTaskId());
+                logger.info("开始执行演练, 任务ID：{}", activityTask.getExperimentTaskId());
                 experimentTaskRepository.updateByPrimaryKey(experimentTaskDO.getId(), ExperimentTaskDO.builder()
                         .gmtStart(DateUtil.date())
                         .runStatus(RunStatus.RUNNING.getValue())
                         .build());
 
-                for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
+                for (DeviceMeta deviceMeta : activityTask.getDeviceMetas()) {
                     // update device last experiment
                     deviceRepository.updateByPrimaryKey(deviceMeta.getDeviceId(),
                             DeviceDO.builder().lastExperimentTime(DateUtil.date())
                                     .isExperimented(true)
-                                    .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                    .lastTaskId(activityTask.getExperimentTaskId())
                                     .build()
                     );
                 }
 
                 String metric = experimentTaskDO.getMetric();
                 if (StrUtil.isNotBlank(metric)) {
-                    logger.info("开始接入监控, 任务ID：{}", activityTaskDTO.getExperimentTaskId());
+                    logger.info("开始接入监控, 任务ID：{}", activityTask.getExperimentTaskId());
                     List<MetricModel> metricModels = JsonUtils.readValue(new TypeReference<List<MetricModel>>() {
                     }, metric);
-                    metricModels.forEach(metricModel -> metric(context, metricModel, activityTaskDTO));
+                    metricModels.forEach(metricModel -> metric(context, metricModel, activityTask));
                 } else {
-                    logger.info("未接入监控, 任务ID：{}", activityTaskDTO.getExperimentTaskId());
+                    logger.info("未接入监控, 任务ID：{}", activityTask.getExperimentTaskId());
                 }
             }
         });
 
         // experiment after notify
-        activityTaskExecuteContext.addExperimentTaskCompleteListener(pipeline, (context, activityTaskDTO, e) -> {
+        activityTaskExecuteContext.addExperimentTaskCompleteListener(pipeline, (context, activityTask, e) -> {
             Logger logger = context.getContextLogger();
-            if (activityTaskDTO.isAttackPhase()) {
-                ExperimentTaskDO experimentTask = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
+            if (activityTask.isAttackPhase()) {
+                ExperimentTaskDO experimentTask = experimentTaskRepository.selectById(activityTask.getExperimentTaskId())
                         .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
                 if (experimentTask.getResultStatus() == null) {
-                    experimentTaskRepository.updateByPrimaryKey(activityTaskDTO.getExperimentTaskId(), ExperimentTaskDO.builder()
+                    experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), ExperimentTaskDO.builder()
                             .resultStatus(ResultStatus.FAILED.getValue())
                             .errorMessage(e.getMessage())
                             .build());
                 }
             }
-            if (activityTaskDTO.isRecoverPhase()) {
+            if (activityTask.isRecoverPhase()) {
                 ExperimentTaskDO taskDO = ExperimentTaskDO.builder()
                         .runStatus(FINISHED.getValue())
                         .gmtEnd(DateUtil.date())
                         .build();
                 if (e != null) {
-                    logger.error("演练结束，任务ID：{}, 恢复失败: {}", activityTaskDTO.getExperimentTaskId(), e.getMessage());
+                    logger.error("演练结束，任务ID：{}, 恢复失败: {}", activityTask.getExperimentTaskId(), e.getMessage());
                     log.error(e.getMessage(), e);
                     taskDO.setResultStatus(ResultStatus.FAILED.getValue());
                     taskDO.setErrorMessage(e.getMessage());
                 } else {
-                    logger.info("演练结束，任务ID：{}, 恢复成功", activityTaskDTO.getExperimentTaskId());
+                    logger.info("演练结束，任务ID：{}, 恢复成功", activityTask.getExperimentTaskId());
                     taskDO.setResultStatus(ResultStatus.SUCCESS.getValue());
                 }
-                experimentTaskRepository.updateByPrimaryKey(activityTaskDTO.getExperimentTaskId(), taskDO);
+                experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), taskDO);
 
-                for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
+                for (DeviceMeta deviceMeta : activityTask.getDeviceMetas()) {
                     if (deviceMeta.getDeviceType() == null) {
                         break;
                     } else {
@@ -199,7 +198,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                                         DeviceDO.builder()
                                                 .isExperimented(true)
                                                 .lastExperimentTime(DateUtil.date())
-                                                .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                                .lastTaskId(activityTask.getExperimentTaskId())
                                                 .lastTaskStatus(taskDO.getResultStatus())
                                                 .build()
                                 );
@@ -209,7 +208,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                                         deviceRepository.updateByPrimaryKey(node.getDeviceId(),
                                                 DeviceDO.builder().lastExperimentTime(DateUtil.date())
                                                         .isExperimented(true)
-                                                        .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                                        .lastTaskId(activityTask.getExperimentTaskId())
                                                         .lastTaskStatus(taskDO.getResultStatus())
                                                         .build()
                                         ));
@@ -220,7 +219,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                                                 deviceRepository.updateByPrimaryKey(pod.getDeviceId(),
                                                         DeviceDO.builder().lastExperimentTime(DateUtil.date())
                                                                 .isExperimented(true)
-                                                                .lastTaskId(activityTaskDTO.getExperimentTaskId())
+                                                                .lastTaskId(activityTask.getExperimentTaskId())
                                                                 .lastTaskStatus(taskDO.getResultStatus())
                                                                 .build()
                                                 )
@@ -238,12 +237,12 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
         activityTaskExecuteContext.fireExecute(pipeline);
     }
 
-    private void metric(ActivityTaskExecuteContext context, MetricModel metricModel, ActivityTaskDTO activityTaskDTO) {
+    private void metric(ActivityTaskExecuteContext context, MetricModel metricModel, ActivityTask activityTask) {
         Logger logger = context.getContextLogger();
         timerFactory.getTimer().newTimeout(timeout -> {
 
             metricService.selectChartLine(MetricChartLineRequest.builder()
-                    .devices(activityTaskDTO.getDeviceMetas())
+                    .devices(activityTask.getDeviceMetas())
                     .startTime(DateUtil.date())
                     .endTime(DateUtil.date().offset(DateField.SECOND, +10))
                     .categoryCode(metricModel.getCode())
@@ -252,8 +251,8 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                     .handleAsync((r, e) -> {
                         if (e != null) {
                             logger.error("获取监控数据失败, 任务ID：{}, 机器信息：{}, 异常: {}",
-                                    activityTaskDTO.getExperimentTaskId(),
-                                    JsonUtils.writeValueAsString(activityTaskDTO.getDeviceMetas()),
+                                    activityTask.getExperimentTaskId(),
+                                    JsonUtils.writeValueAsString(activityTask.getDeviceMetas()),
                                     e.getMessage());
                         } else {
                             metricTaskRepository.saveBatch(
@@ -266,7 +265,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                                                     .categoryCode(metricModel.getCode())
                                                     .date(metricChartLine.getTime())
                                                     .value(metricChartLine.getValue())
-                                                    .taskId(activityTaskDTO.getExperimentTaskId())
+                                                    .taskId(activityTask.getExperimentTaskId())
                                                     .metric(v.getMetric())
                                                     .build()
                                     )).collect(Collectors.toList()));
@@ -275,12 +274,12 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                     }, context.executor());
 
 
-            Byte status = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
+            Byte status = experimentTaskRepository.selectById(activityTask.getExperimentTaskId())
                     .map(ExperimentTaskDO::getRunStatus)
                     .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
             RunStatus runStatus = RunStatus.parse(status);
             if (runStatus != FINISHED) {
-                metric(context, metricModel, activityTaskDTO);
+                metric(context, metricModel, activityTask);
             }
         }, 10, TimeUnit.SECONDS);
     }

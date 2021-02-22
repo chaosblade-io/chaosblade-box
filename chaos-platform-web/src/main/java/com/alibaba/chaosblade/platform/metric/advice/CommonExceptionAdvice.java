@@ -71,10 +71,14 @@ public class CommonExceptionAdvice {
      */
     @ExceptionHandler({BizException.class})
     @ResponseBody
-    public Response resolveBizException(BizException ex) {
+    public Response<Object> resolveBizException(BizException ex) {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         String requestId = String.valueOf(requestAttributes.getAttribute(WebConstants.REQUEST_ID, RequestAttributes.SCOPE_REQUEST));
-        Response response = Response.ofFail(ex.getMessage());
+        String message = ex.getMessage();
+        if (ex.getData() != null) {
+            message = message + ":" + ex.getData();
+        }
+        Response<Object> response = Response.ofFail(message);
         if (ex.getCode() != null) {
             response.setCode(ex.getCode());
         }

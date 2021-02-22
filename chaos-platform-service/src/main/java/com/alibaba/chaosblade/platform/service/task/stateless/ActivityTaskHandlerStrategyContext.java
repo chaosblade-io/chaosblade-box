@@ -20,7 +20,6 @@ import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -75,14 +74,14 @@ public class ActivityTaskHandlerStrategyContext implements ActivityTaskHandler, 
     }
 
     private ActivityTaskHandler select(ActivityTask activityTask) {
-        ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
+
         for (ActivityTaskHandlerType activityTaskType : map.keySet()) {
             for (ExperimentDimension experimentDimension : activityTaskType.dimension()) {
-                if (experimentDimension == activityTaskDTO.getExperimentDimension()) {
+                if (experimentDimension == activityTask.getExperimentDimension()) {
                     String[] value = activityTaskType.value();
                     if (ArrayUtil.isNotEmpty(value)) {
                         for (String s : value) {
-                            if (s.equalsIgnoreCase(activityTaskDTO.getPhase())) {
+                            if (s.equalsIgnoreCase(activityTask.getPhase())) {
                                 return map.get(activityTaskType);
                             }
                         }

@@ -17,10 +17,8 @@
 package com.alibaba.chaosblade.platform.service.task;
 
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
@@ -84,9 +82,9 @@ public class ActivityTaskExecutePipeline {
 
     public void addLast(ActivityTask activityTask) {
         if (experimentTaskId == null) {
-            experimentTaskId = activityTask.activityTaskDTO().getExperimentTaskId();
+            experimentTaskId = activityTask.getExperimentTaskId();
         }
-        Long activityTaskId = activityTask.activityTaskDTO().getActivityTaskId();
+        Long activityTaskId = activityTask.getActivityTaskId();
         if (activityTaskId == null) {
             throw new BizException("add activity task, task id is null");
         }

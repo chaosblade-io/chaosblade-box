@@ -16,7 +16,7 @@
 
 package com.alibaba.chaosblade.platform.service.task.listener;
 
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
+import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
 
 /**
@@ -27,5 +27,5 @@ public interface ExperimentTaskStartListener {
     /**
      *
      */
-    void notify(ActivityTaskExecuteContext activityTaskExecuteContext, ActivityTaskDTO activityTaskDTO);
+    void notify(ActivityTaskExecuteContext activityTaskExecuteContext, ActivityTask activityTask);
 }

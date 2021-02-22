@@ -20,7 +20,6 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.platform.cmmon.executor.ExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.executor.ThreadPoolExecutorFactory;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskCompleteListener;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskStartListener;
 import com.alibaba.chaosblade.platform.service.task.stateless.ActivityTaskHandlerStrategyContext;
@@ -82,11 +81,11 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
             if (internalTask == activityTaskExecutePipeline.head() &&
                     taskStartListenerMap.get(activityTaskExecutePipeline) != null) {
                 ExperimentTaskStartListener experimentTaskStartListener = taskStartListenerMap.get(activityTaskExecutePipeline);
-                experimentTaskStartListener.notify(this, internalTask.getTask().activityTaskDTO());
+                experimentTaskStartListener.notify(this, internalTask.getTask());
             }
 
-            if (internalTask.prev() != null && !internalTask.prev().getTask().activityTaskDTO().getPhase()
-                    .equals(internalTask.getTask().activityTaskDTO().getPhase())) {
+            if (internalTask.prev() != null && !internalTask.prev().getTask().getPhase()
+                    .equals(internalTask.getTask().getPhase())) {
                 return;
             }
 
@@ -109,18 +108,17 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
             if (internalTask == activityTaskExecutePipeline.tail()
                     && taskCompleteListenerMap.get(activityTaskExecutePipeline) != null) {
                 ExperimentTaskCompleteListener experimentTaskCompleteListener = taskCompleteListenerMap.get(activityTaskExecutePipeline);
-                ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handleAsync((r, e) -> {
-                    experimentTaskCompleteListener.notify(this, activityTaskDTO, e);
+                    experimentTaskCompleteListener.notify(this, activityTask, e);
                     return null;
                 }, executor);
             }
 
-            Long waitOfBefore = activityTask.activityTaskDTO().getWaitOfBefore();
+            Long waitOfBefore = activityTask.getWaitOfBefore();
             if (waitOfBefore != null) {
                 log.info("演练阶段执行前等待, 任务ID：{}, 子任务ID: {} 等待时间：{} 毫秒",
-                        activityTask.activityTaskDTO().getExperimentTaskId(),
-                        activityTask.activityTaskDTO().getActivityTaskId(),
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getActivityTaskId(),
                         waitOfBefore);
                 timerFactory.getTimer().newTimeout(timeout ->
                                 executor.execute(() -> {

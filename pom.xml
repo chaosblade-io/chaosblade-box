@@ -12,6 +12,7 @@
         <module>chaos-platform-invoker</module>
         <module>chaos-platform-metric</module>
         <module>chaos-platform-collector</module>
+        <module>chaos-platform-toolsmgr</module>
     </modules>
 
     <parent>
@@ -117,6 +118,38 @@
                 <version>${project.version}</version>
             </dependency>
             <!-- chaos collector -->
+
+            <!-- chaos toolsmgr -->
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-toolsmgr</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-toolsmgr-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-toolsmgr-ssh</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-toolsmgr-ansible</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-toolsmgr-puppet</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- chaos toolsmgr -->
 
             <dependency>
                 <groupId>com.baomidou</groupId>

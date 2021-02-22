@@ -49,6 +49,21 @@
             <artifactId>chaos-platform-collector-kubeapi</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-toolsmgr-ssh</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-toolsmgr-ansible</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-toolsmgr-puppet</artifactId>
+        </dependency>
+
     </dependencies>
 
 

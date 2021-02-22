@@ -16,35 +16,88 @@
 
 package com.alibaba.chaosblade.platform.service.task;
 
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
+import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
+import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
+import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author yefei
  */
+@Data
+@Builder
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+@EqualsAndHashCode(exclude = "activityTaskId")
 public class ActivityTask {
 
-    private final ActivityTaskDTO activityTaskDTO;
+    private Long flowId;
 
+    private Long experimentTaskId;
+
+    private Long activityId;
+
+    private Long activityTaskId;
+
+    private Long preActivityTaskId;
+
+    private Long nextActivityTaskId;
+
+    private Long sceneId;
+
+    private String sceneCode;
+
+    private String phase;
+
+    private String target;
+
+    private String action;
+
+    private Boolean manualChecked;
+
+    private Long waitOfBefore;
+
+    private Long waitOfAfter;
+
+    private Map<String, String> arguments;
+
+    private ExperimentDimension experimentDimension;
+
+    private List<DeviceMeta> deviceMetas;
+
+    public boolean isRecoverPhase() {
+        return ChaosConstant.PHASE_RECOVER.equals(phase);
+    }
+
+    public boolean isAttackPhase() {
+        return ChaosConstant.PHASE_ATTACK.equals(phase);
+    }
+
+    @JsonIgnore
     private final CompletableFuture<Void> completableFuture;
 
+    @JsonIgnore
     private final AtomicBoolean isExecuted = new AtomicBoolean();
 
+    @JsonIgnore
     private ActivityTaskExecutePipeline activityTaskExecutePipeline;
 
-    public ActivityTask(ActivityTaskDTO activityTaskDTO) {
-        this.activityTaskDTO = activityTaskDTO;
+    public ActivityTask() {
         this.completableFuture = new CompletableFuture<>();
     }
 
     public CompletableFuture<Void> future() {
         return completableFuture;
-    }
-
-    public ActivityTaskDTO activityTaskDTO() {
-        return activityTaskDTO;
     }
 
     public boolean canExecuted() {

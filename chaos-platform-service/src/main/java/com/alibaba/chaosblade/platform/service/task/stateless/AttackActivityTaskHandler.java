@@ -26,7 +26,6 @@ import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
 import com.alibaba.chaosblade.platform.dao.repository.SceneRepository;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,21 +50,21 @@ public class AttackActivityTaskHandler extends DefaultActivityTaskPhaseHandler {
     public boolean preHandle(ActivityTask activityTask) {
         boolean b = super.preHandle(activityTask);
         if (b) {
-            sceneRepository.incrementUseCount(activityTask.activityTaskDTO().getSceneId());
+            sceneRepository.incrementUseCount(activityTask.getSceneId());
         }
         return b;
     }
 
     @Override
     public void postHandle(ActivityTask activityTask, Throwable e) {
-        final ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
-        List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTaskDTO.getExperimentTaskId());
+        final
+        List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTask.getExperimentTaskId());
         long count = records.stream().filter(r ->
                 r.getPhase().equals(ChaosConstant.PHASE_ATTACK)
                         && Optional.ofNullable(r.getSuccess()).orElse(false)).count();
 
         // update activity task
-        experimentActivityTaskRepository.updateByPrimaryKey(activityTaskDTO.getActivityTaskId(),
+        experimentActivityTaskRepository.updateByPrimaryKey(activityTask.getActivityTaskId(),
                 ExperimentActivityTaskDO.builder()
                         .runStatus(RunStatus.FINISHED.getValue())
                         .resultStatus(count > 0 ? ResultStatus.SUCCESS.getValue() : ResultStatus.FAILED.getValue())
@@ -74,22 +73,22 @@ public class AttackActivityTaskHandler extends DefaultActivityTaskPhaseHandler {
                         .build());
 
         if (count > 0) {
-            experimentTaskRepository.updateByPrimaryKey(activityTaskDTO.getExperimentTaskId(), ExperimentTaskDO.builder()
+            experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), ExperimentTaskDO.builder()
                     .resultStatus(ResultStatus.SUCCESS.getValue())
                     .build());
         }
         if (e == null) {
             log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getPhase(),
-                    activityTaskDTO.getActivityTaskId()
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getPhase(),
+                    activityTask.getActivityTaskId()
             );
             activityTask.future().complete(null);
         } else {
             log.error("子任务运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: ",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getPhase(),
-                    activityTaskDTO.getActivityTaskId(),
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getPhase(),
+                    activityTask.getActivityTaskId(),
                     e
             );
             activityTask.future().completeExceptionally(e);
