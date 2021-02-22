@@ -48,12 +48,12 @@ public class Response<T> implements Serializable {
         return response;
     }
 
-    public static Response<?> ofFail(String message) {
+    public static <T> Response<T> ofFail(String message) {
         return ofFail(message, null);
     }
 
-    public static Response<?> ofFail(String message, Integer code) {
-        Response<?> response = new Response();
+    public static <T> Response<T> ofFail(String message, Integer code) {
+        Response<T> response = new Response();
         if (code == null) {
             response.setCode(SYSTEM_ERROR_CODE);
         } else {

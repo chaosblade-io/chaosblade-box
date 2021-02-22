@@ -14,32 +14,34 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.cmmon.ansible;
+package com.alibaba.chaosblade.platform.toolsmgr.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
  * @author yefei
  */
-@Builder
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AnsibleResponse {
+@AllArgsConstructor
+public class Request {
 
-    private List<String> host;
+    private String channel;
 
-    private Boolean changed;
+    private String host;
 
-    private String msg;
+    private String commandOptions;
 
-    private String fullResult;
+    private Long probesId;
+
+    private String toolsName;
+
+    private String toolsVersion;
+
+    private String toolsUrl;
 
 }

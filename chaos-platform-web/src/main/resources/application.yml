@@ -51,5 +51,8 @@ chaos:
   agent:
     port: 19527
     release: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagent
+  ctl:
+    agent: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagentctl.sh
+    tools: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaostoolsctl.sh
 
 

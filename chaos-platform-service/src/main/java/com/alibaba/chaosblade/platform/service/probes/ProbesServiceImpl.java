@@ -19,8 +19,7 @@ package com.alibaba.chaosblade.platform.service.probes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.chaosblade.platform.cmmon.ansible.AnsibleResponse;
-import com.alibaba.chaosblade.platform.cmmon.ansible.AnsibleUtil;
+import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.AgentType;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
@@ -33,7 +32,6 @@ import com.alibaba.chaosblade.platform.dao.page.PageUtils;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ProbesRepository;
 import com.alibaba.chaosblade.platform.service.ToolsService;
-import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
@@ -41,6 +39,10 @@ import com.alibaba.chaosblade.platform.service.probes.heartbeats.Heartbeats;
 import com.alibaba.chaosblade.platform.service.probes.model.InstallProbesRequest;
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesRequest;
 import com.alibaba.chaosblade.platform.service.probes.model.ProbesResponse;
+import com.alibaba.chaosblade.platform.toolsmgr.api.ChannelType;
+import com.alibaba.chaosblade.platform.toolsmgr.api.ChaosToolsMgrStrategyContext;
+import com.alibaba.chaosblade.platform.toolsmgr.api.Request;
+import com.alibaba.chaosblade.platform.toolsmgr.api.Response;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,6 +87,9 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
 
     private ExecutorService executorService;
 
+    @Autowired
+    private ChaosToolsMgrStrategyContext chaosToolsMgrStrategyContext;
+
     @Override
     public void afterPropertiesSet() {
         executorService = new ThreadPoolExecutor(
@@ -109,7 +114,11 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
 
     @Override
     public List<ProbesResponse> getAnsibleHosts() {
-        List<String> hosts = AnsibleUtil.getHosts().getHost();
+
+        Response<List<DeviceMeta>> listHosts = chaosToolsMgrStrategyContext.listHosts(Request.builder()
+                .channel(ChannelType.ANSIBLE.name()).build());
+
+        List<String> hosts = listHosts.getResult().stream().map(DeviceMeta::getIp).collect(Collectors.toList());
 
         List<ProbesDO> probesDOS = probesRepository.selectByHosts(hosts);
         Map<String, ProbesDO> map = probesDOS.stream().collect(Collectors.toMap(ProbesDO::getIp, u -> u));
@@ -231,7 +240,7 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
 
         List<ProbesRequest> probes = installProbesRequest.getProbes();
         for (ProbesRequest probesRequest : probes) {
-            probesRequest.setCommand(String.format("-t %s -r %s %s", entryPoint, release, probesRequest.getCommand()));
+            probesRequest.setCommandOptions(String.format("-t %s -r %s %s", entryPoint, release, probesRequest.getCommandOptions()));
 
             List<ProbesDO> probesDOS = probesRepository.selectByStatus(probesRequest.getHost(),
                     CollUtil.newArrayList(DeviceStatus.ONLINE.getStatus()));
@@ -250,12 +259,18 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
             probesRequest.setProbeId(id);
 
             executorService.execute(() -> {
-                AnsibleResponse response = AnsibleUtil.deployAgent(probesRequest.getHost(), id, probesRequest.getCommand());
-                if (!response.getChanged()) {
+
+                Response<String> deployAgent = chaosToolsMgrStrategyContext.deployAgent(Request.builder()
+                        .host(probesRequest.getHost())
+                        .probesId(id)
+                        .commandOptions(probesRequest.getCommandOptions())
+                        .channel(ChannelType.ANSIBLE.name()).build());
+
+                if (!deployAgent.isSuccess()) {
                     probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
                             .ip(probesRequest.getHost())
                             .status(DeviceStatus.INSTALL_FAIL.getStatus())
-                            .errorMessage(response.getMsg())
+                            .errorMessage(deployAgent.getMessage())
                             .build());
                 }
             });
@@ -339,15 +354,18 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
                 .status(UNINSTALLING.getStatus())
                 .build());
 
-        AnsibleResponse response = AnsibleUtil.unDeployAgent(probesDO.getIp());
-        if (!response.getChanged()) {
+        Response<String> deployAgent = chaosToolsMgrStrategyContext.unDeployAgent(Request.builder()
+                .host(probesDO.getIp())
+                .channel(ChannelType.ANSIBLE.name()).build());
+
+        if (!deployAgent.isSuccess()) {
             ProbesDO probes = ProbesDO.builder()
                     .status(UNINSTALL_FAIL.getStatus())
-                    .errorMessage(response.getMsg())
+                    .errorMessage(deployAgent.getMessage())
                     .build();
             probesRepository.updateByPrimaryKey(probesDO.getId(), probes);
 
-            throw new BizException(PROBES_UNINSTALL_FAIL, response.getMsg());
+            throw new BizException(PROBES_UNINSTALL_FAIL, deployAgent.getMessage());
         } else {
             deviceRepository.updateByPrimaryKey(probesDO.getDeviceId(), DeviceDO.builder()
                     .status(DeviceStatus.WAIT_INSTALL.getStatus()).build());

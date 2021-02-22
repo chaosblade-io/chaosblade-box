@@ -53,5 +53,5 @@ public class ProbesRequest extends PageQuery {
 
     private String groupName;
 
-    private String command;
+    private String commandOptions;
 }

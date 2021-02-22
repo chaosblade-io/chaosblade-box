@@ -44,13 +44,13 @@ import com.alibaba.chaosblade.platform.service.SceneService;
 import com.alibaba.chaosblade.platform.service.model.MachineResponse;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceRequest;
 import com.alibaba.chaosblade.platform.service.model.experiment.*;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ExperimentActivity;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricModel;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneRequest;
 import com.alibaba.chaosblade.platform.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.prepare.JavaAgentPrepare;
+import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -183,7 +183,7 @@ public class ExperimentServiceImpl implements ExperimentService {
             Map<String, String> parameters = createExperimentRequest.getParameters();
             Map<String, String> preParameters = MapUtil.filter(parameters, JavaAgentPrepare.PID, JavaAgentPrepare.PROCESS);
 
-            ActivityTaskDTO activityTaskPrepare = ActivityTaskDTO.builder()
+            ActivityTask activityTaskPrepare = ActivityTask.builder()
                     .manualChecked(false)
                     .sceneId(pre.getScenarioId())
                     .sceneCode(pre.getCode())
@@ -204,7 +204,7 @@ public class ExperimentServiceImpl implements ExperimentService {
         }, createExperimentRequest.getMetrics());
 
         // attack
-        ActivityTaskDTO activityTaskDTO = ActivityTaskDTO.builder()
+        ActivityTask activityTask = ActivityTask.builder()
                 .manualChecked(true)
                 .sceneId(scenario.getScenarioId())
                 .sceneCode(scenario.getCode())
@@ -214,7 +214,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .build();
 
         if (CollUtil.isNotEmpty(metricModels)) {
-            activityTaskDTO.setWaitOfBefore(30000L);
+            activityTask.setWaitOfBefore(30000L);
         }
 
         experimentActivityRepository.insert(ExperimentActivityDO.builder()
@@ -223,11 +223,11 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .phase(ChaosConstant.PHASE_ATTACK)
                 .sceneCode(scenario.getCode())
                 .activityName(scenario.getName())
-                .activityDefinition(JsonUtils.writeValueAsString(activityTaskDTO))
+                .activityDefinition(JsonUtils.writeValueAsString(activityTask))
                 .build());
 
         // recover
-        ActivityTaskDTO activityTaskDTORecover = ActivityTaskDTO.builder()
+        ActivityTask activityTaskRecover = ActivityTask.builder()
                 .manualChecked(true)
                 .sceneId(scenario.getScenarioId())
                 .sceneCode(scenario.getCode() + ChaosConstant.CHAOS_DESTROY_SUFFIX)
@@ -237,7 +237,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .build();
 
         if (CollUtil.isNotEmpty(metricModels)) {
-            activityTaskDTORecover.setWaitOfAfter(30000L);
+            activityTaskRecover.setWaitOfAfter(30000L);
         }
 
         experimentActivityRepository.insert(ExperimentActivityDO.builder()
@@ -246,7 +246,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .phase(ChaosConstant.PHASE_RECOVER)
                 .sceneCode(scenario.getCode() + ChaosConstant.CHAOS_DESTROY_SUFFIX)
                 .activityName(scenario.getCode() + ChaosConstant.CHAOS_DESTROY_SUFFIX)
-                .activityDefinition(JsonUtils.writeValueAsString(activityTaskDTORecover))
+                .activityDefinition(JsonUtils.writeValueAsString(activityTaskRecover))
                 .build());
     }
 
@@ -298,17 +298,17 @@ public class ExperimentServiceImpl implements ExperimentService {
 
         experimentResponse.setScenarios(experimentActivities.stream().map(experimentActivity ->
                 {
-                    ActivityTaskDTO activityTaskDTO = JsonUtils.readValue(ActivityTaskDTO.class, experimentActivity.getActivityDefinition());
-                    SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTaskDTO.getSceneId()).build());
+                    ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
+                    SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
                     return SceneResponse.builder()
                             .code(experimentActivity.getSceneCode())
                             .name(experimentActivity.getActivityName())
-                            .scenarioId(activityTaskDTO.getSceneId())
+                            .scenarioId(activityTask.getSceneId())
                             .categories(scenario.getCategories())
                             .parameters(scenario.getParameters().stream().map(
                                     sceneParamResponse -> SceneParamResponse.builder()
                                             .name(sceneParamResponse.getParamName())
-                                            .value(activityTaskDTO.getArguments().get(sceneParamResponse.getParamName()))
+                                            .value(activityTask.getArguments().get(sceneParamResponse.getParamName()))
                                             .build()).collect(Collectors.toList()))
                             .build();
                 }
@@ -413,16 +413,16 @@ public class ExperimentServiceImpl implements ExperimentService {
 
             experimentResponse.setScenarios(experimentActivities.stream().map(experimentActivity ->
                     {
-                        ActivityTaskDTO activityTaskDTO = JsonUtils.readValue(ActivityTaskDTO.class, experimentActivity.getActivityDefinition());
+                        ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
                         return SceneResponse.builder()
                                 .code(experimentActivity.getSceneCode())
                                 .name(experimentActivity.getActivityName())
-                                .scenarioId(activityTaskDTO.getSceneId())
+                                .scenarioId(activityTask.getSceneId())
                                 .categories(
-                                        sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTaskDTO.getSceneId()).build())
+                                        sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build())
                                                 .getCategories()
                                 )
-                                .parameters(activityTaskDTO.getArguments()
+                                .parameters(activityTask.getArguments()
                                         .entrySet().stream().map(entry -> SceneParamResponse.builder()
                                                 .name(entry.getKey())
                                                 .value(entry.getValue())

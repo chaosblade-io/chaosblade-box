@@ -33,7 +33,6 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.platform.service.task.TimerFactory;
@@ -82,33 +81,31 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
             return;
         }
 
-        final ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
-
-        String sceneCode = activityTaskDTO.getSceneCode();
+          String sceneCode = activityTask.getSceneCode();
         List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectBySceneCode(
-                activityTaskDTO.getExperimentTaskId(),
+                activityTask.getExperimentTaskId(),
                 sceneCode.replace(".stop", "")
         );
 
         List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
         for (ExperimentActivityTaskRecordDO recordDO : records) {
             final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
-                    .experimentTaskId(activityTaskDTO.getExperimentTaskId())
-                    .flowId(activityTaskDTO.getFlowId())
+                    .experimentTaskId(activityTask.getExperimentTaskId())
+                    .flowId(activityTask.getFlowId())
                     .hostname(recordDO.getHostname())
-                    .activityTaskId(activityTaskDTO.getActivityTaskId())
-                    .sceneCode(activityTaskDTO.getSceneCode())
+                    .activityTaskId(activityTask.getActivityTaskId())
+                    .sceneCode(activityTask.getSceneCode())
                     .gmtStart(DateUtil.date())
-                    .phase(activityTaskDTO.getPhase())
+                    .phase(activityTask.getPhase())
                     .build();
             experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
 
-            ExperimentDimension experimentDimension = activityTaskDTO.getExperimentDimension();
+            ExperimentDimension experimentDimension = activityTask.getExperimentDimension();
             RequestCommand requestCommand = new RequestCommand();
             requestCommand.setScope(experimentDimension.name().toLowerCase());
-            requestCommand.setPhase(activityTaskDTO.getPhase());
-            requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
-            requestCommand.setArguments(activityTaskDTO.getArguments());
+            requestCommand.setPhase(activityTask.getPhase());
+            requestCommand.setSceneCode(activityTask.getSceneCode());
+            requestCommand.setArguments(activityTask.getArguments());
             requestCommand.setName(recordDO.getResult());
 
             CompletableFuture<Void> future = new CompletableFuture<>();
@@ -152,11 +149,11 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
         }, activityTaskExecuteContext.executor());
 
         // 执行后等待, 同步执行后续所有任务
-        Long waitOfAfter = activityTaskDTO.getWaitOfAfter();
+        Long waitOfAfter = activityTask.getWaitOfAfter();
         if (waitOfAfter != null) {
             log.info("演练阶段完成后等待, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getActivityTaskId(),
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getActivityTaskId(),
                     waitOfAfter);
 
             timerFactory.getTimer().newTimeout(timeout ->
@@ -176,14 +173,14 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
     }
 
     private void checkStatus(CompletableFuture<Void> future, ActivityTask activityTask, String name) {
-        ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
+
         timerFactory.getTimer().newTimeout(timeout ->
                 {
                     RequestCommand requestCommand = UIDRequest.builder().build();
                     requestCommand.setName(name);
                     requestCommand.setPhase(ChaosConstant.PHASE_STATUS);
-                    requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
-                    requestCommand.setScope(activityTaskDTO.getExperimentDimension().name().toLowerCase());
+                    requestCommand.setSceneCode(activityTask.getSceneCode());
+                    requestCommand.setScope(activityTask.getExperimentDimension().name().toLowerCase());
                     CompletableFuture<ResponseCommand> completableFuture = chaosInvokerStrategyContext.invoke(requestCommand);
 
                     completableFuture.handleAsync((r, e) -> {
@@ -192,15 +189,15 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
                         } else {
                             StatusResponseCommand statusResponseCommand = (StatusResponseCommand) r;
                             log.info("子任务运行中，检查 CRD 状态，任务ID: {}, 子任务ID: {}, PHASE: {},  是否成功: {}, 失败原因: {}",
-                                    activityTaskDTO.getExperimentTaskId(),
-                                    activityTaskDTO.getActivityTaskId(),
+                                    activityTask.getExperimentTaskId(),
+                                    activityTask.getActivityTaskId(),
                                     statusResponseCommand.getPhase(),
                                     statusResponseCommand.isSuccess(),
                                     statusResponseCommand.getError());
 
                             String error = statusResponseCommand.getError();
 
-                            if (activityTaskDTO.getPhase().equals(ChaosConstant.PHASE_ATTACK)) {
+                            if (activityTask.getPhase().equals(ChaosConstant.PHASE_ATTACK)) {
                                 if (StrUtil.isNotEmpty(error)) {
                                     future.completeExceptionally(new BizException(error));
                                 } else {

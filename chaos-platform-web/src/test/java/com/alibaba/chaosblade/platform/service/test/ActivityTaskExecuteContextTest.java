@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.metric.ChaosPlatformApplication;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecutePipeline;
@@ -35,7 +34,7 @@ public class ActivityTaskExecuteContextTest {
         deviceMeta.setIp("192.168.0.1");
 
         // prepare
-        ActivityTaskDTO prepare = new ActivityTaskDTO();
+        ActivityTask prepare = new ActivityTask();
         prepare.setSceneCode("chaosblade.prepare.jvm");
         prepare.setActivityId(0L);
         prepare.setPhase(ChaosConstant.PHASE_PREPARE);
@@ -46,7 +45,7 @@ public class ActivityTaskExecuteContextTest {
         prepare.setDeviceMetas(deviceMetas);
 
         // attack
-        ActivityTaskDTO attack = new ActivityTaskDTO();
+        ActivityTask attack = new ActivityTask();
         prepare.setSceneCode("chaosblade.dubbo.delay");
         attack.setActivityId(0L);
         HashMap<String, String> attackFlags = new HashMap<String, String>();
@@ -61,8 +60,8 @@ public class ActivityTaskExecuteContextTest {
 
         // add task
         ActivityTaskExecutePipeline pipeline = new ActivityTaskExecutePipeline();
-        pipeline.addLast(new ActivityTask(prepare));
-        pipeline.addLast(new ActivityTask(attack));
+        pipeline.addLast(prepare);
+        pipeline.addLast(attack);
 
         activityTaskExecuteContext.fireExecute(pipeline);
         TimeUnit.SECONDS.sleep(1000000);

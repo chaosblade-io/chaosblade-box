@@ -19,8 +19,6 @@ package com.alibaba.chaosblade.platform.service.impl;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import com.alibaba.chaosblade.platform.cmmon.ansible.AnsibleResponse;
-import com.alibaba.chaosblade.platform.cmmon.ansible.AnsibleUtil;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
@@ -32,19 +30,20 @@ import com.alibaba.chaosblade.platform.service.ToolsService;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceRequest;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
 import com.alibaba.chaosblade.platform.service.model.scene.PluginSpecBean;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneImportRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
+import com.alibaba.chaosblade.platform.toolsmgr.api.ChannelType;
+import com.alibaba.chaosblade.platform.toolsmgr.api.ChaosToolsMgrStrategyContext;
+import com.alibaba.chaosblade.platform.toolsmgr.api.Request;
+import com.alibaba.chaosblade.platform.toolsmgr.api.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.beans.IntrospectionException;
 
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.*;
 
@@ -62,6 +61,9 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Autowired
     private DeviceService deviceService;
+
+    @Autowired
+    private ChaosToolsMgrStrategyContext chaosToolsMgrStrategyContext;
 
     @Override
     public ToolsStatisticsResponse getChaostoolsDeployedStatistics(ToolsRequest toolsRequest) {
@@ -82,12 +84,13 @@ public class ToolsServiceImpl implements ToolsService {
             throw new BizException(ExceptionMessageEnum.CHAOS_TOOLS_EXISTS, toolsRequest.getName() + ":" + toolsRequest.getVersion());
         }
 
-        AnsibleResponse response = AnsibleUtil.deployTools(deviceDO.getIp(),
-                toolsRequest.getName(),
-                toolsRequest.getVersion(),
-                toolsRequest.getUrl());
+        Response<String> deployTools = chaosToolsMgrStrategyContext.deployTools(Request.builder().host(deviceDO.getIp())
+                .toolsName(toolsRequest.getName())
+                .toolsVersion(toolsRequest.getVersion())
+                .channel(ChannelType.ANSIBLE.name())
+                .toolsUrl(toolsRequest.getUrl()).build());
 
-        if (response.getChanged()) {
+        if (deployTools.isSuccess()) {
             toolsRepository.insert(ToolsDO.builder()
                     .deviceId(toolsRequest.getMachineId())
                     .deviceType(deviceDO.getType())
@@ -96,7 +99,7 @@ public class ToolsServiceImpl implements ToolsService {
                     .url(toolsRequest.getUrl())
                     .build());
         } else {
-            throw new BizException(CHAOS_TOOLS_INSTALL_FAIL, response.getMsg());
+            throw new BizException(CHAOS_TOOLS_INSTALL_FAIL, deployTools.getMessage());
         }
         return deviceService.getMachinesById(DeviceRequest.builder().deviceId(toolsRequest.getMachineId()).build());
     }
@@ -105,11 +108,16 @@ public class ToolsServiceImpl implements ToolsService {
     public DeviceResponse undeployChaostoolsForHost(ToolsRequest toolsRequest) {
 
         DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException("机器不存在"));
-        AnsibleResponse response = AnsibleUtil.unDeployTools(deviceDO.getIp(), toolsRequest.getName());
-        if (response.getChanged()) {
+
+        Response<String> deployTools = chaosToolsMgrStrategyContext.unDeployTools(
+                Request.builder().host(deviceDO.getIp())
+                        .channel(ChannelType.ANSIBLE.name())
+                        .toolsName(toolsRequest.getName()).build());
+
+        if (deployTools.isSuccess()) {
             toolsRepository.deleteByMachineIdAndName(toolsRequest.getMachineId(), toolsRequest.getName());
         } else {
-            throw new BizException(CHAOS_TOOLS_UNINSTALL_FAIL, response.getMsg());
+            throw new BizException(CHAOS_TOOLS_UNINSTALL_FAIL, deployTools.getMessage());
         }
         return deviceService.getMachinesById(DeviceRequest.builder().deviceId(toolsRequest.getMachineId()).build());
     }
@@ -117,11 +125,14 @@ public class ToolsServiceImpl implements ToolsService {
     @Override
     public DeviceResponse upgradeChaostoolsToHost(ToolsRequest toolsRequest) {
         DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException("机器不存在"));
-        AnsibleResponse response = AnsibleUtil.deployTools(deviceDO.getIp(),
-                toolsRequest.getName(),
-                toolsRequest.getVersion(),
-                toolsRequest.getUrl());
-        if (response.getChanged()) {
+
+        Response<String> deployTools = chaosToolsMgrStrategyContext.deployTools(Request.builder().host(deviceDO.getIp())
+                .toolsName(toolsRequest.getName())
+                .toolsVersion(toolsRequest.getVersion())
+                .channel(ChannelType.ANSIBLE.name())
+                .toolsUrl(toolsRequest.getUrl()).build());
+
+        if (deployTools.isSuccess()) {
             toolsRepository.deleteByMachineIdAndName(toolsRequest.getMachineId(), toolsRequest.getName());
             toolsRepository.insert(ToolsDO.builder()
                     .deviceId(toolsRequest.getMachineId())
@@ -131,7 +142,7 @@ public class ToolsServiceImpl implements ToolsService {
                     .url(toolsRequest.getUrl())
                     .build());
         } else {
-            throw new BizException(CHAOS_TOOLS_UPDATE_FAIL, response.getMsg());
+            throw new BizException(CHAOS_TOOLS_UPDATE_FAIL, deployTools.getMessage());
         }
         return deviceService.getMachinesById(DeviceRequest.builder().deviceId(toolsRequest.getMachineId()).build());
     }

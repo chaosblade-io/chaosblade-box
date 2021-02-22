@@ -23,6 +23,10 @@ import cn.hutool.core.util.StrUtil;
  */
 public class SystemPropertiesUtils {
 
+    public static String getPropertiesFileEncoding() {
+        return System.getProperty("file.encoding");
+    }
+
     public static String getPropertiesValue(String key) {
         if (StrUtil.isBlank(key)) {
             throw new RuntimeException("key not be null!");

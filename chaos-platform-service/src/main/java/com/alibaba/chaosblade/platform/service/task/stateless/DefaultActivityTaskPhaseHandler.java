@@ -36,7 +36,6 @@ import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
-import com.alibaba.chaosblade.platform.service.model.experiment.activity.ActivityTaskDTO;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.platform.service.task.TimerFactory;
@@ -84,51 +83,50 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
     @Override
     public boolean preHandle(ActivityTask activityTask) {
-        final ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
         // check status
-        Byte status = experimentTaskRepository.selectById(activityTaskDTO.getExperimentTaskId())
+        Byte status = experimentTaskRepository.selectById(activityTask.getExperimentTaskId())
                 .map(ExperimentTaskDO::getRunStatus)
                 .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
         RunStatus runStatus = RunStatus.parse(status);
 
-        log.info("检查任务状态，任务ID: {}，任务状态: {} ", activityTaskDTO.getExperimentTaskId(), runStatus.name());
+        log.info("检查任务状态，任务ID: {}，任务状态: {} ", activityTask.getExperimentTaskId(), runStatus.name());
         if (runStatus == RunStatus.READY || runStatus == RunStatus.RUNNING) {
 
-            ExperimentActivityTaskDO activityTaskDO = experimentActivityTaskRepository.selectById(activityTaskDTO.getActivityTaskId())
+            ExperimentActivityTaskDO activityTaskDO = experimentActivityTaskRepository.selectById(activityTask.getActivityTaskId())
                     .orElseThrow(() -> new BizException("子任务不存在"));
             RunStatus subRunStatus = RunStatus.parse(activityTaskDO.getRunStatus());
             log.info("检查子任务状态，子任务ID: {}，任务状态: {} ", activityTaskDO.getExperimentTaskId(), subRunStatus.name());
             if (subRunStatus == RunStatus.READY) {
                 log.info("开始运行子运行，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                        activityTaskDTO.getExperimentTaskId(),
-                        activityTaskDTO.getPhase(),
-                        activityTaskDTO.getActivityTaskId()
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getPhase(),
+                        activityTask.getActivityTaskId()
                 );
 
                 // update activity task status -> RUNNING
-                experimentActivityTaskRepository.updateByPrimaryKey(activityTaskDTO.getActivityTaskId(), ExperimentActivityTaskDO.builder()
-                        .phase(activityTaskDTO.getPhase())
+                experimentActivityTaskRepository.updateByPrimaryKey(activityTask.getActivityTaskId(), ExperimentActivityTaskDO.builder()
+                        .phase(activityTask.getPhase())
                         .runStatus(RunStatus.RUNNING.getValue())
                         .gmtStart(DateUtil.date())
                         .build());
 
-                experimentTaskRepository.updateByPrimaryKey(activityTaskDTO.getExperimentTaskId(), ExperimentTaskDO.builder()
-                        .activityTaskId(activityTaskDTO.getActivityId())
-                        .activityId(activityTaskDTO.getActivityId())
+                experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), ExperimentTaskDO.builder()
+                        .activityTaskId(activityTask.getActivityId())
+                        .activityId(activityTask.getActivityId())
                         .build());
 
                 return true;
             } else {
                 log.warn("子运行状态不可运行，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                        activityTaskDTO.getExperimentTaskId(),
-                        activityTaskDTO.getPhase(),
-                        activityTaskDTO.getActivityTaskId()
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getPhase(),
+                        activityTask.getActivityTaskId()
                 );
             }
         } else {
             log.warn("当前任务状态不可运行，任务ID: {}，阶段：{}, 状态：{} ",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getPhase(),
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getPhase(),
                     runStatus.name());
         }
         return false;
@@ -140,34 +138,34 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
         if (!activityTask.canExecuted()) {
             return;
         }
-        final ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
+        final
 
         List<CompletableFuture<ResponseCommand>> futures = CollUtil.newArrayList();
 
-        for (DeviceMeta deviceMeta : activityTaskDTO.getDeviceMetas()) {
+        for (DeviceMeta deviceMeta : activityTask.getDeviceMetas()) {
 
             final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
                     .ip(deviceMeta.getIp())
                     .deviceId(deviceMeta.getDeviceId())
                     .hostname(deviceMeta.getHostname())
-                    .experimentTaskId(activityTaskDTO.getExperimentTaskId())
-                    .flowId(activityTaskDTO.getFlowId())
-                    .activityTaskId(activityTaskDTO.getActivityTaskId())
-                    .sceneCode(activityTaskDTO.getSceneCode())
+                    .experimentTaskId(activityTask.getExperimentTaskId())
+                    .flowId(activityTask.getFlowId())
+                    .activityTaskId(activityTask.getActivityTaskId())
+                    .sceneCode(activityTask.getSceneCode())
                     .gmtStart(DateUtil.date())
-                    .phase(activityTaskDTO.getPhase())
+                    .phase(activityTask.getPhase())
                     .build();
             experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
 
-            ExperimentDimension experimentDimension = activityTaskDTO.getExperimentDimension();
+            ExperimentDimension experimentDimension = activityTask.getExperimentDimension();
             HttpChannelRequest requestCommand = new HttpChannelRequest();
             requestCommand.setScope(experimentDimension.name().toLowerCase());
-            requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
-            requestCommand.setArguments(activityTaskDTO.getArguments());
+            requestCommand.setSceneCode(activityTask.getSceneCode());
+            requestCommand.setArguments(activityTask.getArguments());
             requestCommand.setHost(deviceMeta.getIp());
             requestCommand.setPort(chaosAgentPort);
-            requestCommand.setPhase(activityTaskDTO.getPhase());
-            requestCommand.setSceneCode(activityTaskDTO.getSceneCode());
+            requestCommand.setPhase(activityTask.getPhase());
+            requestCommand.setSceneCode(activityTask.getSceneCode());
 
             CompletableFuture<ResponseCommand> invoke = chaosInvokerStrategyContext.invoke(requestCommand);
             futures.add(invoke.handleAsync((result, e) -> {
@@ -191,9 +189,9 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
                 }
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
                 log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
-                        activityTaskDTO.getExperimentTaskId(),
-                        activityTaskDTO.getPhase(),
-                        activityTaskDTO.getActivityTaskId(),
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getPhase(),
+                        activityTask.getActivityTaskId(),
                         deviceMeta.getHostname() + "-" + deviceMeta.getIp(),
                         record.getSuccess(),
                         record.getErrorMessage());
@@ -213,11 +211,11 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
         }, activityTaskExecuteContext.executor());
 
         // 执行后等待, 同步执行后续所有任务
-        Long waitOfAfter = activityTaskDTO.getWaitOfAfter();
+        Long waitOfAfter = activityTask.getWaitOfAfter();
         if (waitOfAfter != null) {
             log.info("演练阶段完成后等待, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getActivityTaskId(),
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getActivityTaskId(),
                     waitOfAfter);
 
             timerFactory.getTimer().newTimeout(timeout ->
@@ -233,16 +231,15 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
     @Override
     public void postHandle(ActivityTask activityTask, Throwable e) {
-        final ActivityTaskDTO activityTaskDTO = activityTask.activityTaskDTO();
         final CompletableFuture<Void> future = activityTask.future();
 
-        List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTaskDTO.getExperimentTaskId());
+        List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTask.getExperimentTaskId());
         long count = records.stream().filter(r ->
                 r.getPhase().equals(ChaosConstant.PHASE_ATTACK)
                         && Optional.ofNullable(r.getSuccess()).orElse(false)).count();
 
         // update activity task
-        experimentActivityTaskRepository.updateByPrimaryKey(activityTaskDTO.getActivityTaskId(),
+        experimentActivityTaskRepository.updateByPrimaryKey(activityTask.getActivityTaskId(),
                 ExperimentActivityTaskDO.builder()
                         .runStatus(RunStatus.FINISHED.getValue())
                         .resultStatus(count > 0 ? ResultStatus.SUCCESS.getValue() : ResultStatus.FAILED.getValue())
@@ -252,22 +249,22 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
         if (e == null) {
             log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getPhase(),
-                    activityTaskDTO.getActivityTaskId());
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getPhase(),
+                    activityTask.getActivityTaskId());
         } else {
             log.error("子任务运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: ",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getPhase(),
-                    activityTaskDTO.getActivityTaskId(),
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getPhase(),
+                    activityTask.getActivityTaskId(),
                     e);
         }
 
-        Long waitOfAfter = activityTaskDTO.getWaitOfAfter();
+        Long waitOfAfter = activityTask.getWaitOfAfter();
         if (waitOfAfter != null) {
             log.info("演练阶段完成后等待通知, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTaskDTO.getExperimentTaskId(),
-                    activityTaskDTO.getActivityTaskId(),
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getActivityTaskId(),
                     waitOfAfter);
 
             timerFactory.getTimer().newTimeout(timeout ->
