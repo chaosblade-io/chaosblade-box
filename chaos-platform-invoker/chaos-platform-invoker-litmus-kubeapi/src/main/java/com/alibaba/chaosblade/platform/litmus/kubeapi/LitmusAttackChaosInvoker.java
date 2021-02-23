@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.blade.kubeapi;
+package com.alibaba.chaosblade.platform.litmus.kubeapi;
 
 import cn.hutool.core.util.IdUtil;
-import com.alibaba.chaosblade.platform.blade.kubeapi.crd.ChaosBlade;
-import com.alibaba.chaosblade.platform.blade.kubeapi.crd.ChaosBladeSpec;
-import com.alibaba.chaosblade.platform.blade.kubeapi.crd.ExperimentSpec;
-import com.alibaba.chaosblade.platform.blade.kubeapi.crd.FlagSpec;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
-import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
-import com.alibaba.chaosblade.platform.invoker.ChaosInvoker;
-import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
-import com.alibaba.chaosblade.platform.invoker.RequestCommand;
-import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
+import com.alibaba.chaosblade.platform.invoker.*;
+import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.ChaosExperimentDefinitionEnv;
+import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine.*;
 import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -43,11 +37,14 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yefei
- * @create 2021-02-19 10:03
  */
-@ChaosInvokerStrategy(deviceType = {DeviceType.NODE, DeviceType.POD}, phase = ChaosConstant.PHASE_ATTACK)
+@ChaosInvokerStrategy(value = ChaosTools.LITMUS_CHAOS,
+        deviceType = {
+                DeviceType.NODE, DeviceType.POD
+        },
+        phase = ChaosConstant.PHASE_ATTACK)
 @Component
-public class KubeApiAttackChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
+public class LitmusAttackChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
 
     private ApiClient client;
 
@@ -57,25 +54,33 @@ public class KubeApiAttackChaosInvoker implements ChaosInvoker<RequestCommand, R
 
         V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
         v1ObjectMeta.setName(IdUtil.fastSimpleUUID());
-        ChaosBlade chaosBladeRequest = ChaosBlade.builder()
+        ChaosEngine chaosEngine = ChaosEngine.builder()
                 .apiVersion(Constants.API_VERSION)
-                .kind(Constants.KIND)
+                .kind(Constants.CHAOS_ENGINE)
                 .metadata(v1ObjectMeta)
-                .spec(ChaosBladeSpec.builder()
-                        .experiments(new ExperimentSpec[]{
-                                ExperimentSpec.builder()
-                                        .scope(requestCommand.getScope())
-                                        .target(SceneCodeParseUtil.getTarget(requestCommand.getSceneCode()).split("-")[1])
-                                        .action(SceneCodeParseUtil.getAction(requestCommand.getSceneCode()))
-                                        .matchers(
-                                                requestCommand.getArguments().keySet().stream()
-                                                        .map(key -> FlagSpec.builder()
-                                                                .name(key)
-                                                                .value(new String[]{requestCommand.getArguments().get(key)})
-                                                                .build()
-                                                        ).toArray(FlagSpec[]::new))
-                                        .build()
-                        }).build()).build();
+                .spec(ChaosEngineSpec.builder()
+                        .appinfo(ChaosEngineSpecAppinfo.builder().build())
+                        .chaosServiceAccount("")
+                        .engineState("active")
+                        .monitoring(false)
+                        .annotationCheck(false)
+                        .jobCleanUpPolicy("delete")
+                        .experiments(new ChaosEngineSpecExperiment[]{
+                                ChaosEngineSpecExperiment.builder()
+                                        .name(requestCommand.getSceneCode())
+                                        .spec(ChaosEngineSpecExperimentSpec.builder()
+                                                .components(ChaosEngineSpecExperimentSpecComponents.builder()
+                                                        .env(requestCommand.getArguments().keySet().stream()
+                                                                .map(key -> ChaosExperimentDefinitionEnv.builder()
+                                                                        .name(key)
+                                                                        .value(requestCommand.getArguments().get(key))
+                                                                        .build()
+                                                                ).toArray(ChaosExperimentDefinitionEnv[]::new))
+                                                        .build()
+                                                )
+                                                .build())
+                                        .build()})
+                        .build()).build();
 
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
         try {
@@ -83,7 +88,7 @@ public class KubeApiAttackChaosInvoker implements ChaosInvoker<RequestCommand, R
                     Constants.GROUP,
                     Constants.VERSION,
                     Constants.PLURAL,
-                    JsonUtils.writeValueAsBytes(chaosBladeRequest),
+                    JsonUtils.writeValueAsBytes(chaosEngine),
                     "ture",
                     null,
                     null,

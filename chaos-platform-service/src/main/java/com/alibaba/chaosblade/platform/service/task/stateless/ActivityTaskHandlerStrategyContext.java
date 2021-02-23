@@ -19,7 +19,7 @@ package com.alibaba.chaosblade.platform.service.task.stateless;
 import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;

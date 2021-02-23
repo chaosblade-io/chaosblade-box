@@ -21,10 +21,11 @@ import lombok.Data;
 
 /**
  * @author yefei
- * @create 2021-02-19 12:45
  */
 @Data
 public class StatusResponseCommand extends ResponseCommand {
+
+    private String name;
 
     private String phase;
 

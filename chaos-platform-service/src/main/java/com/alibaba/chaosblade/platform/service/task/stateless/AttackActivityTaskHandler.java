@@ -25,7 +25,7 @@ import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
 import com.alibaba.chaosblade.platform.dao.repository.SceneRepository;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ public class AttackActivityTaskHandler extends DefaultActivityTaskPhaseHandler {
 
     @Override
     public void postHandle(ActivityTask activityTask, Throwable e) {
-        final
+
         List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTask.getExperimentTaskId());
         long count = records.stream().filter(r ->
                 r.getPhase().equals(ChaosConstant.PHASE_ATTACK)
@@ -77,22 +77,8 @@ public class AttackActivityTaskHandler extends DefaultActivityTaskPhaseHandler {
                     .resultStatus(ResultStatus.SUCCESS.getValue())
                     .build());
         }
-        if (e == null) {
-            log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getPhase(),
-                    activityTask.getActivityTaskId()
-            );
-            activityTask.future().complete(null);
-        } else {
-            log.error("子任务运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: ",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getPhase(),
-                    activityTask.getActivityTaskId(),
-                    e
-            );
-            activityTask.future().completeExceptionally(e);
-        }
+
+        super.postHandle(activityTask, e);
     }
 
 }

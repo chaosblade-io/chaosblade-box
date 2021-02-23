@@ -21,10 +21,9 @@ import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.chaosblade.platform.blade.kubeapi.crd.ChaosBlade;
 import com.alibaba.chaosblade.platform.blade.kubeapi.crd.ExperimentStatus;
 import com.alibaba.chaosblade.platform.blade.kubeapi.model.StatusResponseCommand;
-import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
-import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvoker;
-import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import io.kubernetes.client.openapi.ApiCallback;
@@ -33,23 +32,31 @@ import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
 import io.kubernetes.client.util.Config;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yefei
- * @create 2021-02-19 10:03
  */
-@ChaosInvokerStrategy(deviceType = {DeviceType.NODE, DeviceType.POD}, phase = ChaosConstant.PHASE_STATUS)
-@Component
-public class KubeApiStatusChaosInvoker implements ChaosInvoker<RequestCommand, StatusResponseCommand>, InitializingBean {
+public abstract class AbstractChaosBladeChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
 
-    private ApiClient client;
+    protected ApiClient client;
+
+    protected Timer timer;
 
     @Override
-    public CompletableFuture<StatusResponseCommand> invoke(RequestCommand requestCommand) {
+    public void afterPropertiesSet() throws Exception {
+        client = Config.defaultClient();
+
+        timer = new HashedWheelTimer(r -> {
+            Thread thread = new Thread(r);
+            thread.setName("timer-check-chaoblade-status");
+            return thread;
+        });
+    }
+
+    protected CompletableFuture<StatusResponseCommand> checkStatus(RequestCommand requestCommand) {
         CustomObjectsApi apiInstance = new CustomObjectsApi(client);
 
         CompletableFuture<StatusResponseCommand> completableFuture = new CompletableFuture<>();
@@ -107,10 +114,5 @@ public class KubeApiStatusChaosInvoker implements ChaosInvoker<RequestCommand, S
             completableFuture.complete(responseCommand);
         }
         return completableFuture;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        client = Config.defaultClient();
     }
 }

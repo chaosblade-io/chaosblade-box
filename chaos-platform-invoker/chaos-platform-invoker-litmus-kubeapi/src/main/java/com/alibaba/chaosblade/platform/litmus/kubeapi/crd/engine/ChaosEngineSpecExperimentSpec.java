@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.service.logback;
+package com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yefei
  */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface TaskLogRecord {
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ChaosEngineSpecExperimentSpec {
 
+    private ChaosEngineSpecExperimentSpecComponents components;
 }

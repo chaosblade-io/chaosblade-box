@@ -29,7 +29,7 @@ import com.alibaba.chaosblade.platform.service.DeviceService;
 import com.alibaba.chaosblade.platform.service.ToolsService;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceRequest;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
-import com.alibaba.chaosblade.platform.service.model.scene.PluginSpecBean;
+import com.alibaba.chaosblade.platform.cmmon.model.chaos.PluginSpecBean;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;

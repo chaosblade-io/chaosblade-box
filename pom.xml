@@ -65,6 +65,12 @@
                 <artifactId>chaos-platform-invoker-blade-kubeapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-invoker-litmus-kubeapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!--- chaos-invoker -->
 
             <!-- chaos metric -->

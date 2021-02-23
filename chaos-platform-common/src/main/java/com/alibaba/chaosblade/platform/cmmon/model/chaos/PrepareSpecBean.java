@@ -14,40 +14,28 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.service.model.scene;
+package com.alibaba.chaosblade.platform.cmmon.model.chaos;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 /**
  * @author Changjun Xiao
  */
-public class PluginSpecBean {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class PrepareSpecBean {
 
-    private String version;
-    private String kind;
-    private List<ModelSpecBean> items;
+    private String type;
 
-    public String getVersion() {
-        return version;
-    }
+    private List<FlagSpecBean> flags;
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+    private boolean required;
 
-    public String getKind() {
-        return kind;
-    }
-
-    public void setKind(String kind) {
-        this.kind = kind;
-    }
-
-    public List<ModelSpecBean> getItems() {
-        return items;
-    }
-
-    public void setItems(List<ModelSpecBean> items) {
-        this.items = items;
-    }
 }

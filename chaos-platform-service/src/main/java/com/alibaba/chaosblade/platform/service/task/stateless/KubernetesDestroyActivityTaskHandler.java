@@ -19,8 +19,7 @@ package com.alibaba.chaosblade.platform.service.task.stateless;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.platform.blade.kubeapi.model.StatusResponseCommand;
-import com.alibaba.chaosblade.platform.blade.kubeapi.model.UIDRequest;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
@@ -31,8 +30,6 @@ import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRepo
 import com.alibaba.chaosblade.platform.dao.repository.ExperimentTaskRepository;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
-import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.platform.service.task.TimerFactory;
@@ -42,7 +39,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author yefei
@@ -81,7 +77,7 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
             return;
         }
 
-          String sceneCode = activityTask.getSceneCode();
+        String sceneCode = activityTask.getSceneCode();
         List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectBySceneCode(
                 activityTask.getExperimentTaskId(),
                 sceneCode.replace(".stop", "")
@@ -108,126 +104,49 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
             requestCommand.setArguments(activityTask.getArguments());
             requestCommand.setName(recordDO.getResult());
 
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            futures.add(future);
-            chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
+            futures.add(chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
                 ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
                 if (e != null) {
                     record.setSuccess(false);
                     record.setErrorMessage(e.getMessage());
                 } else {
-                    record.setResult(result.getResult());
+                    record.setSuccess(result.isSuccess());
                     record.setCode(result.getCode());
-                    record.setErrorMessage(record.getErrorMessage());
-                    checkStatus(future, activityTask, result.getResult());
+                    record.setResult(result.getResult());
+                    record.setErrorMessage(result.getError());
+
+                    if (!result.isSuccess()) {
+                        if (StrUtil.isNotBlank(result.getError())) {
+                            e = new BizException(result.getError());
+                        } else {
+                            e = new BizException(result.getResult());
+                        }
+                    }
                 }
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
+                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getPhase(),
+                        activityTask.getActivityTaskId(),
+                        recordDO.getHostname(),
+                        record.getSuccess(),
+                        record.getErrorMessage());
+
                 if (e != null) {
-                    future.completeExceptionally(e);
                     AnyThrow.throwUnchecked(e);
                 }
                 return null;
-            }, activityTaskExecuteContext.executor());
-
-            future.handleAsync((result, e) -> {
-                ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
-                if (e != null) {
-                    record.setSuccess(false);
-                    record.setErrorMessage(e.getMessage());
-                } else {
-                    record.setSuccess(true);
-                }
-                experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
-                return null;
-            }, activityTaskExecuteContext.executor());
+            }, activityTaskExecuteContext.executor()));
         }
 
         CompletableFuture<Void> future = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
         future.handleAsync((r, e) -> {
             postHandle(activityTask, e);
             return null;
         }, activityTaskExecuteContext.executor());
 
-        // 执行后等待, 同步执行后续所有任务
-        Long waitOfAfter = activityTask.getWaitOfAfter();
-        if (waitOfAfter != null) {
-            log.info("演练阶段完成后等待, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getActivityTaskId(),
-                    waitOfAfter);
-
-            timerFactory.getTimer().newTimeout(timeout ->
-                            future.thenRunAsync(
-                                    () -> activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline()),
-                                    activityTaskExecuteContext.executor()),
-                    waitOfAfter,
-                    TimeUnit.MILLISECONDS);
-        } else {
-            activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline());
-        }
-    }
-
-    @Override
-    public void postHandle(ActivityTask activityTask, Throwable e) {
-        super.postHandle(activityTask, e);
-    }
-
-    private void checkStatus(CompletableFuture<Void> future, ActivityTask activityTask, String name) {
-
-        timerFactory.getTimer().newTimeout(timeout ->
-                {
-                    RequestCommand requestCommand = UIDRequest.builder().build();
-                    requestCommand.setName(name);
-                    requestCommand.setPhase(ChaosConstant.PHASE_STATUS);
-                    requestCommand.setSceneCode(activityTask.getSceneCode());
-                    requestCommand.setScope(activityTask.getExperimentDimension().name().toLowerCase());
-                    CompletableFuture<ResponseCommand> completableFuture = chaosInvokerStrategyContext.invoke(requestCommand);
-
-                    completableFuture.handleAsync((r, e) -> {
-                        if (e != null) {
-                            future.completeExceptionally(e);
-                        } else {
-                            StatusResponseCommand statusResponseCommand = (StatusResponseCommand) r;
-                            log.info("子任务运行中，检查 CRD 状态，任务ID: {}, 子任务ID: {}, PHASE: {},  是否成功: {}, 失败原因: {}",
-                                    activityTask.getExperimentTaskId(),
-                                    activityTask.getActivityTaskId(),
-                                    statusResponseCommand.getPhase(),
-                                    statusResponseCommand.isSuccess(),
-                                    statusResponseCommand.getError());
-
-                            String error = statusResponseCommand.getError();
-
-                            if (activityTask.getPhase().equals(ChaosConstant.PHASE_ATTACK)) {
-                                if (StrUtil.isNotEmpty(error)) {
-                                    future.completeExceptionally(new BizException(error));
-                                } else {
-                                    if ("Running".equals(statusResponseCommand.getPhase())) {
-                                        future.complete(null);
-                                    } else {
-                                        checkStatus(future, activityTask, name);
-                                    }
-                                }
-                            } else {
-                                if ("404".equals(statusResponseCommand.getCode())) {
-                                    future.complete(null);
-                                    return null;
-                                }
-                                if (StrUtil.isNotEmpty(error)) {
-                                    future.completeExceptionally(new BizException(error));
-                                    return null;
-                                }
-                                if ("Destroyed".equals(statusResponseCommand.getPhase())) {
-                                    future.complete(null);
-                                } else {
-                                    checkStatus(future, activityTask, name);
-                                }
-                            }
-                        }
-                        return null;
-                    }, activityTaskExecuteContext.executor());
-                },
-                3000,
-                TimeUnit.MILLISECONDS);
+        activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline());
     }
 
 }

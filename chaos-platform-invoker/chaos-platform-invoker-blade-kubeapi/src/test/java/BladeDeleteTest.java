@@ -31,7 +31,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yefei
- * @create 2021-02-19 11:44
  */
 public class BladeDeleteTest {
 

@@ -19,7 +19,7 @@ package com.alibaba.chaosblade.platform.service.task;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.platform.cmmon.executor.ExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.executor.ThreadPoolExecutorFactory;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskCompleteListener;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskStartListener;
 import com.alibaba.chaosblade.platform.service.task.stateless.ActivityTaskHandlerStrategyContext;
@@ -84,65 +84,17 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                 experimentTaskStartListener.notify(this, internalTask.getTask());
             }
 
-            if (internalTask.prev() != null && !internalTask.prev().getTask().getPhase()
-                    .equals(internalTask.getTask().getPhase())) {
-                return;
-            }
+            ActivityTask activityTask = internalTask.getTask();
 
-            final ActivityTask activityTask = internalTask.getTask();
-
-            List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
-            for (TaskNode<ActivityTask> node = internalTask; node != null; node = node.prev()) {
-                CompletableFuture<Void> future = node.getTask().future();
-                futures.add(future);
+            if (internalTask.prev() != null) {
+                String prePhase = internalTask.prev().getTask().getPhase();
+                String nextPhase = internalTask.getTask().getPhase();
+                if (!prePhase.equals(nextPhase)) {
+                    log.info("演练阶段 {} -> {}, 任务ID: {}", prePhase, nextPhase, activityTask.getExperimentTaskId());
+                    return;
+                }
             }
-
-            final TaskNode<ActivityTask> next = internalTask.next();
-            if (next != null) {
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handle((r, e) -> {
-                    executeActivityTask(next.getTask());
-                    return null;
-                });
-            }
-
-            if (internalTask == activityTaskExecutePipeline.tail()
-                    && taskCompleteListenerMap.get(activityTaskExecutePipeline) != null) {
-                ExperimentTaskCompleteListener experimentTaskCompleteListener = taskCompleteListenerMap.get(activityTaskExecutePipeline);
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handleAsync((r, e) -> {
-                    experimentTaskCompleteListener.notify(this, activityTask, e);
-                    return null;
-                }, executor);
-            }
-
-            Long waitOfBefore = activityTask.getWaitOfBefore();
-            if (waitOfBefore != null) {
-                log.info("演练阶段执行前等待, 任务ID：{}, 子任务ID: {} 等待时间：{} 毫秒",
-                        activityTask.getExperimentTaskId(),
-                        activityTask.getActivityTaskId(),
-                        waitOfBefore);
-                timerFactory.getTimer().newTimeout(timeout ->
-                                executor.execute(() -> {
-                                    try {
-                                        executeActivityTask(activityTask);
-                                    } catch (Throwable throwable) {
-                                        activityTaskHandlerStrategyContext.postHandle(
-                                                internalTask.getTask(),
-                                                throwable);
-                                    }
-                                }),
-                        waitOfBefore,
-                        TimeUnit.MILLISECONDS);
-            } else {
-                executor.execute(() -> {
-                    try {
-                        executeActivityTask(activityTask);
-                    } catch (Throwable throwable) {
-                        activityTaskHandlerStrategyContext.postHandle(
-                                internalTask.getTask(),
-                                throwable);
-                    }
-                });
-            }
+            executeActivityTask(activityTaskExecutePipeline, internalTask);
         } catch (Throwable throwable) {
             activityTaskHandlerStrategyContext.postHandle(
                     internalTask.getTask(),
@@ -150,8 +102,65 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
         }
     }
 
-    @Override
-    public void executeActivityTask(ActivityTask activityTask) {
+    private void executeActivityTask(ActivityTaskExecutePipeline activityTaskExecutePipeline, TaskNode<ActivityTask> internalTask) {
+
+        List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
+        for (TaskNode<ActivityTask> node = internalTask; node != null; node = node.prev()) {
+            CompletableFuture<Void> future = node.getTask().future();
+            futures.add(future);
+        }
+
+        TaskNode<ActivityTask> next = internalTask.next();
+        if (next != null) {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handle((r, e) -> {
+                executeActivityTask0(next.getTask());
+                return null;
+            });
+        }
+
+        ActivityTask activityTask = internalTask.getTask();
+
+        if (internalTask == activityTaskExecutePipeline.tail()
+                && taskCompleteListenerMap.get(activityTaskExecutePipeline) != null) {
+            ExperimentTaskCompleteListener experimentTaskCompleteListener = taskCompleteListenerMap.get(activityTaskExecutePipeline);
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handleAsync((r, e) -> {
+                experimentTaskCompleteListener.notify(this, activityTask, e);
+                return null;
+            }, executor);
+        }
+
+        Long waitOfBefore = activityTask.getWaitOfBefore();
+        if (waitOfBefore != null) {
+            log.info("演练阶段执行前等待, 任务ID：{}, 子任务ID: {} 等待时间：{} 毫秒",
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getActivityTaskId(),
+                    waitOfBefore);
+            timerFactory.getTimer().newTimeout(timeout ->
+                            executor.execute(() -> {
+                                try {
+                                    executeActivityTask0(activityTask);
+                                } catch (Throwable throwable) {
+                                    activityTaskHandlerStrategyContext.postHandle(
+                                            internalTask.getTask(),
+                                            throwable);
+                                }
+                            }),
+                    waitOfBefore,
+                    TimeUnit.MILLISECONDS);
+        } else {
+            executor.execute(() -> {
+                try {
+                    executeActivityTask0(activityTask);
+                } catch (Throwable throwable) {
+                    activityTaskHandlerStrategyContext.postHandle(
+                            internalTask.getTask(),
+                            throwable);
+                }
+            });
+        }
+    }
+
+    public void executeActivityTask0(ActivityTask activityTask) {
         try {
             boolean b = activityTaskHandlerStrategyContext.preHandle(activityTask);
             if (b) {
