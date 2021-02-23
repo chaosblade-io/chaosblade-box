@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.invoker;
+package com.alibaba.chaosblade.platform.cmmon.model.chaos;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * @author yefei
+ * @author Changjun Xiao
  */
-public enum InvokerOriginal {
-
-    CHAOS_BLADE("chaosblade"),
-    LITMUS_CHAOS("litmus"),
-    ;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class MatcherSpecBean {
 
     private String name;
 
-    InvokerOriginal(String name) {
-        this.name = name;
-    }
+    private String desc;
 
-    public String getName() {
-        return name;
-    }
+    private boolean noArgs;
+
+    private boolean required;
+
 }

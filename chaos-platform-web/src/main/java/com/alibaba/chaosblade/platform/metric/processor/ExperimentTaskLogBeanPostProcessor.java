@@ -18,7 +18,7 @@ package com.alibaba.chaosblade.platform.metric.processor;
 
 import ch.qos.logback.classic.LoggerContext;
 import com.alibaba.chaosblade.platform.service.logback.DBLoggerAppender;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;

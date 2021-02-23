@@ -18,7 +18,6 @@ package com.alibaba.chaosblade.platform.blade.kubeapi;
 
 /**
  * @author yefei
- * @create 2021-02-19 11:23
  */
 public class Constants {
 

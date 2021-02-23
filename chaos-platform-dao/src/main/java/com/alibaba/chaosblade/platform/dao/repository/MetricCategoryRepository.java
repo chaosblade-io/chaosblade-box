@@ -27,7 +27,6 @@ import java.util.Optional;
 
 /**
  * @author yefei
- * @create 2021-01-31 20:52
  */
 @Repository
 public class MetricCategoryRepository implements IRepository<Long, MetricCategoryDO> {

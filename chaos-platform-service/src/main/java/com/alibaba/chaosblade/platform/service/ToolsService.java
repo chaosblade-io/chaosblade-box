@@ -17,8 +17,7 @@
 package com.alibaba.chaosblade.platform.service;
 
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
-import com.alibaba.chaosblade.platform.service.model.scene.PluginSpecBean;
-import com.alibaba.chaosblade.platform.service.model.scene.SceneImportRequest;
+import com.alibaba.chaosblade.platform.cmmon.model.chaos.PluginSpecBean;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;
@@ -56,7 +55,6 @@ public interface ToolsService {
      * @return
      */
     DeviceResponse upgradeChaostoolsToHost(ToolsRequest toolsRequest);
-
 
     /**
      *

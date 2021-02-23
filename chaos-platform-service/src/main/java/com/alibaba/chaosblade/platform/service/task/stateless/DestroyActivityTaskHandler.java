@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.platform.service.task.stateless;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
@@ -28,14 +29,12 @@ import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT;
 
@@ -50,8 +49,6 @@ public class DestroyActivityTaskHandler extends DefaultActivityTaskPhaseHandler 
 
     @Override
     public boolean preHandle(ActivityTask activityTask) {
-
-        final
         // check status
         Byte status = experimentTaskRepository.selectById(activityTask.getExperimentTaskId())
                 .map(ExperimentTaskDO::getRunStatus)
@@ -148,22 +145,6 @@ public class DestroyActivityTaskHandler extends DefaultActivityTaskPhaseHandler 
             return null;
         }, activityTaskExecuteContext.executor());
 
-        // 执行后等待, 同步执行后续所有任务
-        Long waitOfAfter = activityTask.getWaitOfAfter();
-        if (waitOfAfter != null) {
-            log.info("演练阶段完成后等待, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getActivityTaskId(),
-                    waitOfAfter);
-
-            timerFactory.getTimer().newTimeout(timeout ->
-                            future.thenRunAsync(
-                                    () -> activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline()),
-                                    activityTaskExecuteContext.executor()),
-                    waitOfAfter,
-                    TimeUnit.MILLISECONDS);
-        } else {
-            activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline());
-        }
+        activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline());
     }
 }

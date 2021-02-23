@@ -23,8 +23,6 @@ public class ChaosConstant {
 
     public final static String DEFAULT_TOOLS = "chaosblade";
 
-    public final static String CHAOS = "chaos";
-
     public final static String DOT = ".";
     public final static String COLON = ":";
 
@@ -34,7 +32,6 @@ public class ChaosConstant {
     public final static String PHASE_ALL = "ALL";
     public final static String PHASE_PREPARE = "PREPARE";
     public final static String PHASE_ATTACK = "ATTACK";
-    public final static String PHASE_STATUS = "STATUS";
     public final static String PHASE_RECOVER = "RECOVER";
 
     public static final String CHAOS_ADDRESS_KEY  = "chaos.address";

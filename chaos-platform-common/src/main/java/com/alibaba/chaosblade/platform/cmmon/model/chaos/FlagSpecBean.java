@@ -14,48 +14,31 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.service.model.scene;
+package com.alibaba.chaosblade.platform.cmmon.model.chaos;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Changjun Xiao
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class FlagSpecBean {
 
     private String name;
+
     private String desc;
+
     private boolean noArgs;
+
     private boolean required;
 
-    public String getName() {
-        return name;
-    }
+    private String defaultValue;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    public boolean isNoArgs() {
-        return noArgs;
-    }
-
-    public void setNoArgs(boolean noArgs) {
-        this.noArgs = noArgs;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
 }
