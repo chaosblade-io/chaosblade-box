@@ -34,7 +34,7 @@ public @interface ChaosInvokerStrategy {
     /**
      * @return
      */
-    InvokerOriginal value() default InvokerOriginal.CHAOS_BLADE;
+    ChaosTools value() default ChaosTools.CHAOS_BLADE;
 
     /**
      * @return

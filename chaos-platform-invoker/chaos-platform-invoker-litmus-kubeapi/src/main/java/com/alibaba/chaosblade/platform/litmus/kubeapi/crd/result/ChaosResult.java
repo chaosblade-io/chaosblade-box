@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.blade.kubeapi.model;
-
-import com.alibaba.chaosblade.platform.invoker.RequestCommand;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+package com.alibaba.chaosblade.platform.litmus.kubeapi.crd.result;
 
 /**
  * @author yefei
  */
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class UIDRequest extends RequestCommand {
-
-    private String uid;
+public class ChaosResult {
 }

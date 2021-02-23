@@ -13,10 +13,12 @@
     <artifactId>chaos-platform-invoker-api</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>com.alibaba.chaosblade</groupId>
             <artifactId>chaos-platform-common</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

@@ -14,39 +14,41 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.service.model.scene;
+package com.alibaba.chaosblade.platform.cmmon.model.chaos;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 /**
  * @author Changjun Xiao
  */
-public class PrepareSpecBean {
-    private String type;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ActionSpecBean {
+
+    private String action;
+
+    private String[] aliases;
+
+    private String shortDesc;
+
+    private String longDesc;
+
+    private List<MatcherSpecBean> matchers;
+
     private List<FlagSpecBean> flags;
-    private boolean required;
 
-    public String getType() {
-        return type;
-    }
+    private String example;
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    private String[] programs;
 
-    public List<FlagSpecBean> getFlags() {
-        return flags;
-    }
+    private String[] categories;
 
-    public void setFlags(List<FlagSpecBean> flags) {
-        this.flags = flags;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
 }

@@ -16,7 +16,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yefei
- * @create 2021-02-19 10:07
  */
 public class BladeStatusTest {
 

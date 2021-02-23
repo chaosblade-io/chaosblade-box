@@ -38,11 +38,6 @@ public interface ActivityTaskExecuteContext {
     void fireExecute(ActivityTaskExecutePipeline activityTaskExecutePipeline);
 
     /**
-     *
-     */
-    void executeActivityTask(ActivityTask activityTask);
-
-    /**
      * @return
      */
     Executor executor();

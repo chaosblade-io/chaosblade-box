@@ -8,6 +8,7 @@
         <groupId>com.alibaba.chaosblade</groupId>
         <version>0.0.2-alpha</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>chaos-platform-invoker</artifactId>
@@ -17,6 +18,7 @@
         <module>chaos-platform-invoker-api</module>
         <module>chaos-platform-invoker-http</module>
         <module>chaos-platform-invoker-blade-kubeapi</module>
+        <module>chaos-platform-invoker-litmus-kubeapi</module>
     </modules>
 
 </project>

@@ -20,9 +20,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.DeviceMeta;
+import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
-import com.alibaba.chaosblade.platform.cmmon.enums.ResultStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.RunStatus;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.utils.AnyThrow;
@@ -35,7 +35,6 @@ import com.alibaba.chaosblade.platform.dao.repository.ExperimentTaskRepository;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.service.logback.TaskLogRecord;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.platform.service.task.TimerFactory;
@@ -45,7 +44,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -138,7 +136,6 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
         if (!activityTask.canExecuted()) {
             return;
         }
-        final
 
         List<CompletableFuture<ResponseCommand>> futures = CollUtil.newArrayList();
 
@@ -231,57 +228,31 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
     @Override
     public void postHandle(ActivityTask activityTask, Throwable e) {
-        final CompletableFuture<Void> future = activityTask.future();
 
-        List<ExperimentActivityTaskRecordDO> records = experimentActivityTaskRecordRepository.selectExperimentTaskId(activityTask.getExperimentTaskId());
-        long count = records.stream().filter(r ->
-                r.getPhase().equals(ChaosConstant.PHASE_ATTACK)
-                        && Optional.ofNullable(r.getSuccess()).orElse(false)).count();
-
-        // update activity task
-        experimentActivityTaskRepository.updateByPrimaryKey(activityTask.getActivityTaskId(),
-                ExperimentActivityTaskDO.builder()
-                        .runStatus(RunStatus.FINISHED.getValue())
-                        .resultStatus(count > 0 ? ResultStatus.SUCCESS.getValue() : ResultStatus.FAILED.getValue())
-                        .errorMessage(e != null ? e.getMessage() : StrUtil.EMPTY)
-                        .gmtEnd(DateUtil.date())
-                        .build());
-
-        if (e == null) {
-            log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getPhase(),
-                    activityTask.getActivityTaskId());
-        } else {
+        if (e != null) {
             log.error("子任务运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: ",
                     activityTask.getExperimentTaskId(),
                     activityTask.getPhase(),
                     activityTask.getActivityTaskId(),
                     e);
-        }
-
-        Long waitOfAfter = activityTask.getWaitOfAfter();
-        if (waitOfAfter != null) {
-            log.info("演练阶段完成后等待通知, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getActivityTaskId(),
-                    waitOfAfter);
-
-            timerFactory.getTimer().newTimeout(timeout ->
-                    {
-                        if (e != null) {
-                            future.completeExceptionally(e);
-                        } else {
-                            future.complete(null);
-                        }
-                    },
-                    waitOfAfter,
-                    TimeUnit.MILLISECONDS);
+            activityTask.future().completeExceptionally(e);
         } else {
-            if (e != null) {
-                future.completeExceptionally(e);
+            log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
+                    activityTask.getExperimentTaskId(),
+                    activityTask.getPhase(),
+                    activityTask.getActivityTaskId());
+
+            Long waitOfAfter = activityTask.getWaitOfAfter();
+            if (waitOfAfter != null) {
+                log.info("演练阶段完成后等待通知, 任务ID：{}, 子任务ID: {} 等待时间：{} 毫秒",
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getActivityTaskId(),
+                        waitOfAfter);
+                timerFactory.getTimer().newTimeout(timeout -> activityTask.future().complete(null),
+                        waitOfAfter,
+                        TimeUnit.MILLISECONDS);
             } else {
-                future.complete(null);
+                activityTask.future().complete(null);
             }
         }
     }
