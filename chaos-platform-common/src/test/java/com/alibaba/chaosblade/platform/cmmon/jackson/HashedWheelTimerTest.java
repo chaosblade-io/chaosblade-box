@@ -2,8 +2,10 @@ package com.alibaba.chaosblade.platform.cmmon.jackson;
 
 import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -12,10 +14,17 @@ import java.util.concurrent.TimeUnit;
 public class HashedWheelTimerTest {
 
     @Test
-    public void simpleTest() throws Exception {
+    public void delayTest() throws Exception {
         Timer timer = new HashedWheelTimer();
-        timer.newTimeout(timeout -> System.out.println("hello"), 3, TimeUnit.SECONDS);
+        long millis = System.currentTimeMillis();
 
-        Thread.currentThread().join();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        int delay = 3000;
+        timer.newTimeout(timeout -> {
+            System.out.println("hello");
+            Assert.assertTrue(System.currentTimeMillis() - millis > delay);
+            countDownLatch.countDown();
+        }, delay, TimeUnit.MILLISECONDS);
+        countDownLatch.await();
     }
 }

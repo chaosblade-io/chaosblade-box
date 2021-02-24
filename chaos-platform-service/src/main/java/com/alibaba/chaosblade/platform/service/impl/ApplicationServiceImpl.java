@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.chaosblade.platform.dao.model.ApplicationDO;
 import com.alibaba.chaosblade.platform.dao.model.ApplicationDeviceDO;
@@ -136,6 +137,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         Map<Long, DeviceDO> deviceDOMap = deviceDOS.stream().collect(Collectors.toMap(DeviceDO::getId, v -> v));
 
         PageUtils.startPage(applicationRequest);
+        if (CollUtil.isEmpty(deviceDOMap)) {
+            return Collections.emptyList();
+        }
+
         List<ApplicationDeviceDO> applicationDeviceDOS = applicationDeviceRepository.selectByDeviceIds(deviceDOMap.keySet());
         if (CollectionUtil.isEmpty(applicationDeviceDOS)) {
             return Collections.emptyList();
