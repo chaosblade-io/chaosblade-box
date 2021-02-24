@@ -24,7 +24,7 @@
 
     <groupId>com.alibaba.chaosblade</groupId>
     <artifactId>chaos-platform</artifactId>
-    <version>0.0.2-alpha</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
