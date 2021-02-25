@@ -23,6 +23,7 @@ import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
+import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRecordRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRepository;
@@ -73,11 +74,11 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
             return;
         }
 
-        String hosts = activityTask.getArguments().get("names");
+        String hostname = JsonUtils.writeValueAsString(activityTask.getDeviceMetas());
         final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
                 .experimentTaskId(activityTask.getExperimentTaskId())
                 .flowId(activityTask.getFlowId())
-                .hostname(hosts)
+                .hostname(hostname)
                 .activityTaskId(activityTask.getActivityTaskId())
                 .sceneCode(activityTask.getSceneCode())
                 .gmtStart(DateUtil.date())
@@ -93,35 +94,39 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
         requestCommand.setArguments(activityTask.getArguments());
 
         chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
-            ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
-            StatusResponseCommand st = (StatusResponseCommand) result;
-            if (e != null) {
-                record.setSuccess(false);
-                record.setErrorMessage(e.getMessage());
-            } else {
-                record.setSuccess(result.isSuccess());
-                record.setCode(result.getCode());
-                record.setResult(st.getName());
-                record.setErrorMessage(result.getError());
+            try {
+                ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
+                StatusResponseCommand st = (StatusResponseCommand) result;
+                if (e != null) {
+                    record.setSuccess(false);
+                    record.setErrorMessage(e.getMessage());
+                } else {
+                    record.setSuccess(result.isSuccess());
+                    record.setCode(result.getCode());
+                    record.setResult(st.getName());
+                    record.setErrorMessage(result.getError());
 
-                if (!result.isSuccess()) {
-                    if (StrUtil.isNotBlank(result.getError())) {
-                        e = new BizException(result.getError());
-                    } else {
-                        e = new BizException(result.getResult());
+                    if (!result.isSuccess()) {
+                        if (StrUtil.isNotBlank(result.getError())) {
+                            e = new BizException(result.getError());
+                        } else {
+                            e = new BizException(result.getResult());
+                        }
                     }
                 }
+                experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
+                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
+                        activityTask.getExperimentTaskId(),
+                        activityTask.getPhase(),
+                        activityTask.getActivityTaskId(),
+                        hostname,
+                        record.getSuccess(),
+                        record.getErrorMessage());
+            } catch (Exception exception) {
+                postHandle(activityTask, e);
+            } finally {
+                postHandle(activityTask, e);
             }
-            experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
-            log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getPhase(),
-                    activityTask.getActivityTaskId(),
-                    hosts,
-                    record.getSuccess(),
-                    record.getErrorMessage());
-
-            postHandle(activityTask, e);
             return null;
         }, activityTaskExecuteContext.executor());
 

@@ -36,6 +36,8 @@ public class RequestCommand {
 
     private String type;
 
+    private String namespace;
+
     private Map<String, String> arguments;
 
     private Long timeout;

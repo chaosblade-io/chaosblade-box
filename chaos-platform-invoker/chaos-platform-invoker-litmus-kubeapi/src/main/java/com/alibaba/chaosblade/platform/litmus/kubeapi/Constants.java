@@ -29,5 +29,7 @@ public class Constants {
 
     public final static String VERSION = "v1alpha1";
 
-    public final static String PLURAL = "litmuschaos";
+    public final static String ENGINE_PLURAL = "chaosengines";
+
+    public final static String EXPERIMENT_PLURAL = "chaosexperiments";
 }

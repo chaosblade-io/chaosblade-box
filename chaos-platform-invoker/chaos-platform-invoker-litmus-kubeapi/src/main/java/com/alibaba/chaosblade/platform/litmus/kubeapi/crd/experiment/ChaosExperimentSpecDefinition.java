@@ -29,6 +29,8 @@ public class ChaosExperimentSpecDefinition {
 
     private String scope;
 
+    private ChaosExperimentSpecDefinitionPermissions[] permissions;
+
     private String image;
 
     private String imagePullPolicy;

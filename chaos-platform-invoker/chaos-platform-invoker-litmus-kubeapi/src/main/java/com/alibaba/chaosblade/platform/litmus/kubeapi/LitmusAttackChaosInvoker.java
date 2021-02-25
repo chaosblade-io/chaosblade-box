@@ -16,24 +16,33 @@
 
 package com.alibaba.chaosblade.platform.litmus.kubeapi;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
-import com.alibaba.chaosblade.platform.invoker.*;
+import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
+import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
+import com.alibaba.chaosblade.platform.invoker.ChaosTools;
+import com.alibaba.chaosblade.platform.invoker.RequestCommand;
+import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.ChaosExperimentDefinitionEnv;
 import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine.*;
+import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.experiment.ChaosExperiment;
 import io.kubernetes.client.openapi.ApiCallback;
-import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.util.Config;
-import org.springframework.beans.factory.InitializingBean;
+import io.kubernetes.client.openapi.apis.RbacAuthorizationV1Api;
+import io.kubernetes.client.openapi.models.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @author yefei
@@ -44,30 +53,148 @@ import java.util.concurrent.CompletableFuture;
         },
         phase = ChaosConstant.PHASE_ATTACK)
 @Component
-public class LitmusAttackChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
+public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
 
-    private ApiClient client;
+    private String preExperiment(RequestCommand requestCommand) {
+        CompletableFuture<ResponseCommand> future = new CompletableFuture<>();
+        String serviceAccount = requestCommand.getSceneCode() + SA_SUFFIX;
+        ChaosExperiment chaosExperiment = experimentMap.get(requestCommand.getSceneCode());
+
+        try {
+            CustomObjectsApi customObjectsApi = new CustomObjectsApi(client);
+            customObjectsApi.createNamespacedCustomObject(
+                    Constants.GROUP,
+                    Constants.VERSION,
+                    requestCommand.getNamespace(),
+                    Constants.EXPERIMENT_PLURAL,
+                    JsonUtils.writeValueAsBytes(chaosExperiment),
+                    "true",
+                    null,
+                    null
+            );
+        } catch (ApiException e) {
+            if (e.getCode() == 409) {
+                // ignore
+            } else {
+                future.complete(ResponseCommand.builder()
+                        .code(String.valueOf(e.getCode()))
+                        .error(e.getMessage())
+                        .result(e.getResponseBody())
+                        .success(false).build());
+            }
+        }
+        try {
+            CoreV1Api apiInstance = new CoreV1Api(client);
+            // todo
+            V1ServiceAccount v1ServiceAccount = new V1ServiceAccount();
+            v1ServiceAccount.metadata(new V1ObjectMeta().name(serviceAccount).namespace(requestCommand.getNamespace()));
+            apiInstance.createNamespacedServiceAccount(
+                    requestCommand.getNamespace(),
+                    v1ServiceAccount,
+                    "true",
+                    null,
+                    null
+            );
+
+        } catch (ApiException e) {
+            if (e.getCode() == 409) {
+                // ignore
+            } else {
+                future.complete(ResponseCommand.builder()
+                        .code(String.valueOf(e.getCode()))
+                        .error(e.getMessage())
+                        .result(e.getResponseBody())
+                        .success(false).build());
+            }
+        }
+        RbacAuthorizationV1Api rbacAuthorizationV1Api = new RbacAuthorizationV1Api(client);
+        try {
+            // role
+            V1ClusterRole v1ClusterRole = new V1ClusterRole();
+
+            v1ClusterRole.metadata(new V1ObjectMeta()
+                    .name(serviceAccount)
+                    .namespace(requestCommand.getNamespace())
+            );
+            List<V1PolicyRule> policyRules = Arrays.stream(chaosExperiment.getSpec().getDefinition().getPermissions())
+                    .map(permission ->
+                            new V1PolicyRule()
+                                    .apiGroups(Arrays.asList(permission.getApiGroups()))
+                                    .resources(Arrays.asList(permission.getResources()))
+                                    .verbs(Arrays.asList(permission.getVerbs()))
+                    ).collect(Collectors.toList());
+
+            v1ClusterRole.setRules(policyRules);
+            rbacAuthorizationV1Api.createClusterRole(v1ClusterRole, "true", null, null);
+        } catch (ApiException e) {
+            if (e.getCode() == 409) {
+                // ignore
+            } else {
+                future.complete(ResponseCommand.builder()
+                        .code(String.valueOf(e.getCode()))
+                        .error(e.getMessage())
+                        .result(e.getResponseBody())
+                        .success(false).build());
+            }
+        }
+        try {
+            // role binding
+            V1ClusterRoleBinding v1RoleBinding = new V1ClusterRoleBinding();
+            v1RoleBinding.metadata(new V1ObjectMeta()
+                    .namespace(requestCommand.getNamespace())
+                    .name(serviceAccount))
+                    .roleRef(new V1RoleRef().apiGroup("rbac.authorization.k8s.io").kind("ClusterRole").name(serviceAccount))
+                    .setSubjects(CollUtil.newArrayList(new V1Subject()
+                            .kind("ServiceAccount").name(serviceAccount).namespace(requestCommand.getNamespace())));
+
+            rbacAuthorizationV1Api.createClusterRoleBinding(v1RoleBinding, "true", null, null);
+        } catch (ApiException e) {
+            if (e.getCode() == 409) {
+                // ignore
+            } else {
+                future.complete(ResponseCommand.builder()
+                        .code(String.valueOf(e.getCode()))
+                        .error(e.getMessage())
+                        .result(e.getResponseBody())
+                        .success(false).build());
+            }
+        }
+        return serviceAccount;
+    }
 
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
+        CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
+
+        String serviceAccount = preExperiment(requestCommand);
         CustomObjectsApi apiInstance = new CustomObjectsApi(client);
 
         V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
         v1ObjectMeta.setName(IdUtil.fastSimpleUUID());
+
+        String experimentName;
+        String target = SceneCodeParseUtil.getTarget(requestCommand.getSceneCode());
+        String action = SceneCodeParseUtil.getAction(requestCommand.getSceneCode());
+        String[] split = StrUtil.split(target, "-");
+        if (split[0].equals(split[1])) {
+            experimentName = split[0] + "-" + action;
+        } else {
+            experimentName = target + "-" + action;
+        }
+
         ChaosEngine chaosEngine = ChaosEngine.builder()
                 .apiVersion(Constants.API_VERSION)
                 .kind(Constants.CHAOS_ENGINE)
                 .metadata(v1ObjectMeta)
                 .spec(ChaosEngineSpec.builder()
-                        .appinfo(ChaosEngineSpecAppinfo.builder().build())
-                        .chaosServiceAccount("")
+                        .chaosServiceAccount(serviceAccount)
                         .engineState("active")
                         .monitoring(false)
-                        .annotationCheck(false)
+                        .annotationCheck("false")
                         .jobCleanUpPolicy("delete")
                         .experiments(new ChaosEngineSpecExperiment[]{
                                 ChaosEngineSpecExperiment.builder()
-                                        .name(requestCommand.getSceneCode())
+                                        .name(experimentName)
                                         .spec(ChaosEngineSpecExperimentSpec.builder()
                                                 .components(ChaosEngineSpecExperimentSpecComponents.builder()
                                                         .env(requestCommand.getArguments().keySet().stream()
@@ -82,13 +209,13 @@ public class LitmusAttackChaosInvoker implements ChaosInvoker<RequestCommand, Re
                                         .build()})
                         .build()).build();
 
-        CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
         try {
-            apiInstance.createClusterCustomObjectAsync(
+            apiInstance.createNamespacedCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
-                    Constants.PLURAL,
-                    JsonUtils.writeValueAsBytes(chaosEngine),
+                    requestCommand.getNamespace(),
+                    Constants.ENGINE_PLURAL,
+                    chaosEngine,
                     "ture",
                     null,
                     null,
@@ -125,20 +252,17 @@ public class LitmusAttackChaosInvoker implements ChaosInvoker<RequestCommand, Re
                         }
                     }
             );
-        } catch (ApiException e) {
+        } catch (ApiException apiException) {
             ResponseCommand responseCommand = ResponseCommand.builder()
                     .success(false)
-                    .code(String.valueOf(e.getCode()))
-                    .result(e.getMessage())
-                    .error(e.getResponseBody())
+                    .code(String.valueOf(apiException.getCode()))
+                    .result(apiException.getMessage())
+                    .error(apiException.getResponseBody())
                     .build();
             completableFuture.complete(responseCommand);
         }
+
         return completableFuture;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        client = Config.defaultClient();
-    }
 }
