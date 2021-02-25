@@ -14,36 +14,12 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine;
+package com.alibaba.chaosblade.platform.litmus.kubeapi;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * @author yefei
- */
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ChaosEngineSpec {
-
-    private ChaosEngineSpecAppinfo appinfo;
-
-    private String annotationCheck;
-
-    private String engineState;
-
-    private String auxiliaryAppInfo;
-
-    private String chaosServiceAccount;
-
-    private boolean monitoring;
-
-    private String jobCleanUpPolicy;
-
-    private ChaosEngineSpecExperiment[] experiments;
-
+@Configuration
+@ComponentScan("com.alibaba.chaosblade.platform.litmus.kubeapi")
+public class Config {
 }

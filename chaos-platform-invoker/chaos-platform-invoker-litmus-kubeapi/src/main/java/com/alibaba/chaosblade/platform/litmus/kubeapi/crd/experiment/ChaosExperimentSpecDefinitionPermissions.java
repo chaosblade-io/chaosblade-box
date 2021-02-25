@@ -14,36 +14,20 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine;
+package com.alibaba.chaosblade.platform.litmus.kubeapi.crd.experiment;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author yefei
  */
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ChaosEngineSpec {
+public class ChaosExperimentSpecDefinitionPermissions {
 
-    private ChaosEngineSpecAppinfo appinfo;
+    private String[] apiGroups;
 
-    private String annotationCheck;
+    private String[] resources;
 
-    private String engineState;
-
-    private String auxiliaryAppInfo;
-
-    private String chaosServiceAccount;
-
-    private boolean monitoring;
-
-    private String jobCleanUpPolicy;
-
-    private ChaosEngineSpecExperiment[] experiments;
+    private String[] verbs;
 
 }

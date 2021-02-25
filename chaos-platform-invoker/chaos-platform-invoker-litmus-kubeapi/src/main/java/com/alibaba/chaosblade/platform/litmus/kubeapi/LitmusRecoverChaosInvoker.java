@@ -16,15 +16,20 @@
 
 package com.alibaba.chaosblade.platform.litmus.kubeapi;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
-import com.alibaba.chaosblade.platform.invoker.*;
+import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
+import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
+import com.alibaba.chaosblade.platform.invoker.ChaosTools;
+import com.alibaba.chaosblade.platform.invoker.RequestCommand;
+import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import io.kubernetes.client.openapi.ApiCallback;
-import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
-import io.kubernetes.client.util.Config;
-import org.springframework.beans.factory.InitializingBean;
+import io.kubernetes.client.openapi.apis.RbacAuthorizationV1Api;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -33,15 +38,14 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author yefei
  */
+@Slf4j
 @ChaosInvokerStrategy(value = ChaosTools.LITMUS_CHAOS,
         deviceType = {
                 DeviceType.NODE, DeviceType.POD
         },
         phase = ChaosConstant.PHASE_RECOVER)
 @Component
-public class LitmusRecoverChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
-
-    private ApiClient client;
+public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
 
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
@@ -49,10 +53,11 @@ public class LitmusRecoverChaosInvoker implements ChaosInvoker<RequestCommand, R
 
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
         try {
-            apiInstance.deleteClusterCustomObjectAsync(
+            apiInstance.deleteNamespacedCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
-                    Constants.PLURAL,
+                    requestCommand.getNamespace(),
+                    Constants.ENGINE_PLURAL,
                     requestCommand.getName(),
                     10,
                     false,
@@ -62,19 +67,20 @@ public class LitmusRecoverChaosInvoker implements ChaosInvoker<RequestCommand, R
                     new ApiCallback() {
                         @Override
                         public void onFailure(ApiException e, int statusCode, Map responseHeaders) {
+                            ResponseCommand responseCommand;
                             if (statusCode == 404) {
-                                ResponseCommand responseCommand = ResponseCommand.builder().success(true)
+                                responseCommand = ResponseCommand.builder().success(true)
                                         .result(requestCommand.getName()).build();
-                                completableFuture.complete( responseCommand);
+                                clean(requestCommand);
                             } else {
-                                ResponseCommand responseCommand = ResponseCommand.builder()
+                                responseCommand = ResponseCommand.builder()
                                         .success(false)
                                         .code(String.valueOf(statusCode))
                                         .result(e.getMessage())
                                         .error(e.getResponseBody())
                                         .build();
-                                completableFuture.complete(responseCommand);
                             }
+                            completableFuture.complete(responseCommand);
                         }
 
                         @Override
@@ -82,17 +88,18 @@ public class LitmusRecoverChaosInvoker implements ChaosInvoker<RequestCommand, R
                             ResponseCommand responseCommand = ResponseCommand.builder().success(true)
                                     .code(String.valueOf(statusCode))
                                     .result(requestCommand.getName()).build();
+                            clean(requestCommand);
                             completableFuture.complete(responseCommand);
                         }
 
                         @Override
                         public void onUploadProgress(long bytesWritten, long contentLength, boolean done) {
-
+                            log.warn("onUploadProgress");
                         }
 
                         @Override
                         public void onDownloadProgress(long bytesRead, long contentLength, boolean done) {
-
+                            log.warn("onDownloadProgress");
                         }
                     }
             );
@@ -108,8 +115,69 @@ public class LitmusRecoverChaosInvoker implements ChaosInvoker<RequestCommand, R
         return completableFuture;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        client = Config.defaultClient();
+    private void clean(RequestCommand requestCommand) {
+        String serviceAccount = requestCommand.getSceneCode() + SA_SUFFIX;
+
+        String experimentName;
+        String target = SceneCodeParseUtil.getTarget(requestCommand.getSceneCode());
+        String action = SceneCodeParseUtil.getAction(requestCommand.getSceneCode());
+        String[] split = StrUtil.split(target, "-");
+        if (split[0].equals(split[1])) {
+            experimentName = split[0] + "-" + action;
+        } else {
+            experimentName = target + "-" + action;
+        }
+
+        try {
+            // delete experiment
+            CustomObjectsApi customObjectsApi = new CustomObjectsApi(client);
+            customObjectsApi.deleteNamespacedCustomObject(
+                    Constants.GROUP,
+                    Constants.VERSION,
+                    requestCommand.getNamespace(),
+                    Constants.EXPERIMENT_PLURAL,
+                    experimentName,
+                    10,
+                    null,
+                    null,
+                    null,
+                    null);
+
+        } catch (ApiException e) {
+            log.warn("delete experiments:[{}] fail", requestCommand.getSceneCode(), e);
+        }
+        try {
+            // delete sa
+            CoreV1Api apiInstance = new CoreV1Api(client);
+            apiInstance.deleteNamespacedServiceAccount(
+                    serviceAccount,
+                    requestCommand.getNamespace(),
+                    "true",
+                    null,
+                    10,
+                    null,
+                    null,
+                    null
+            );
+        } catch (ApiException e) {
+            log.warn("delete service account:[{}] fail", serviceAccount, e);
+        }
+        RbacAuthorizationV1Api rbacAuthorizationV1Api = new RbacAuthorizationV1Api(client);
+        try {
+            // delete role
+            rbacAuthorizationV1Api.deleteClusterRole(serviceAccount, "true",
+                    null, 10,
+                    null, null, null);
+        } catch (ApiException e) {
+            log.warn("delete role:[{}] fail", serviceAccount, e);
+        }
+        try {
+            // delete role binding
+            rbacAuthorizationV1Api.deleteClusterRoleBinding(serviceAccount, "true",
+                    null, 10, null, null, null);
+        } catch (ApiException e) {
+            log.warn("delete role binding :[{}] fail", serviceAccount, e);
+        }
     }
+
 }
