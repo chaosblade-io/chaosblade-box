@@ -37,7 +37,6 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
-import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,9 +65,6 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
     @Autowired
     protected ExperimentTaskRepository experimentTaskRepository;
-
-    @Autowired
-    protected TimerFactory timerFactory;
 
     @Value("${chaos.agent.port}")
     protected int chaosAgentPort;
@@ -215,7 +211,7 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
                     activityTask.getActivityTaskId(),
                     waitOfAfter);
 
-            timerFactory.getTimer().newTimeout(timeout ->
+            activityTaskExecuteContext.timer().newTimeout(timeout ->
                             future.thenRunAsync(
                                     () -> activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline()),
                                     activityTaskExecuteContext.executor()),
@@ -248,7 +244,7 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
                         activityTask.getExperimentTaskId(),
                         activityTask.getActivityTaskId(),
                         waitOfAfter);
-                timerFactory.getTimer().newTimeout(timeout -> activityTask.future().complete(null),
+                activityTaskExecuteContext.timer().newTimeout(timeout -> activityTask.future().complete(null),
                         waitOfAfter,
                         TimeUnit.MILLISECONDS);
             } else {

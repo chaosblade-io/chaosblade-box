@@ -16,7 +16,7 @@
 
 package com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine;
 
-import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.ChaosExperimentDefinitionEnv;
+import com.alibaba.chaosblade.platform.scenario.litmus.model.experiments.ChaosExperimentDefinitionEnv;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

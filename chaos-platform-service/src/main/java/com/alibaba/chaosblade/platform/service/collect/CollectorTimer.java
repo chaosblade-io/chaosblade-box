@@ -22,6 +22,8 @@ import cn.hutool.core.util.EnumUtil;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.collector.*;
 import com.alibaba.chaosblade.platform.collector.model.Container;
 import com.alibaba.chaosblade.platform.collector.model.Node;
@@ -36,7 +38,6 @@ import com.alibaba.chaosblade.platform.dao.repository.DeviceNodeRepository;
 import com.alibaba.chaosblade.platform.dao.repository.DevicePodRepository;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.service.model.device.ContainerBO;
-import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -47,10 +48,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,8 +58,7 @@ import java.util.stream.Collectors;
 @Component
 public class CollectorTimer implements BeanPostProcessor, InitializingBean {
 
-    @Autowired
-    private TimerFactory timerFactory;
+    private Timer timer;
 
     @Autowired
     private DeviceMapper deviceMapper;
@@ -113,7 +110,7 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
     }
 
     private void nodeCollect(NodeCollector collector) {
-        timerFactory.getTimer().newTimeout(timeout -> {
+        timer.newTimeout(timeout -> {
             try {
                 CompletableFuture<List<Node>> future = collector.collect(Query.builder().build());
                 QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
@@ -163,7 +160,7 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
     }
 
     private void podCollect(PodCollector collector) {
-        timerFactory.getTimer().newTimeout(timeout -> {
+        timer.newTimeout(timeout -> {
             try {
                 List<DeviceNodeDO> nodes = deviceNodeRepository.selectList(DeviceNodeDO.builder().build());
                 for (DeviceNodeDO node : nodes) {
@@ -221,7 +218,7 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
     }
 
     private void containerCollect(ContainerCollector collector) {
-        timerFactory.getTimer().newTimeout(timeout -> {
+        timer.newTimeout(timeout -> {
             try {
                 List<DevicePodDO> devicePods = devicePodRepository.selectList(DevicePodDO.builder().build());
                 for (DevicePodDO devicePod : devicePods) {
@@ -277,5 +274,11 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
                             .build()));
 
         }, 30, 30, TimeUnit.SECONDS);
+
+        timer = new HashedWheelTimer(r -> {
+            Thread thread = new Thread(r);
+            thread.setName("collector timer");
+            return thread;
+        });
     }
 }

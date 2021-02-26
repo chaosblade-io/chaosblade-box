@@ -24,12 +24,12 @@ import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
-import com.alibaba.chaosblade.platform.invoker.ChaosTools;
+import com.alibaba.chaosblade.platform.cmmon.enums.ChaosTools;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.ChaosExperimentDefinitionEnv;
 import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.engine.*;
-import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.experiment.ChaosExperiment;
+import com.alibaba.chaosblade.platform.scenario.litmus.model.ChaosExperiment;
+import com.alibaba.chaosblade.platform.scenario.litmus.model.experiments.ChaosExperimentDefinitionEnv;
 import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
@@ -164,6 +164,10 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
 
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
+        if (StrUtil.isBlank(requestCommand.getNamespace())) {
+            requestCommand.setNamespace("default");
+        }
+
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
 
         String serviceAccount = preExperiment(requestCommand);

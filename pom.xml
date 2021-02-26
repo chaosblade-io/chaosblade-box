@@ -13,6 +13,7 @@
         <module>chaos-platform-metric</module>
         <module>chaos-platform-collector</module>
         <module>chaos-platform-toolsmgr</module>
+        <module>chaos-platform-scenario</module>
     </modules>
 
     <parent>
@@ -156,6 +157,26 @@
                 <version>${project.version}</version>
             </dependency>
             <!-- chaos toolsmgr -->
+
+            <!-- chaos scenario -->
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-scenario-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-scenario-litmus</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaos-platform-scenario-blade</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- chaos scenario -->
 
             <dependency>
                 <groupId>com.baomidou</groupId>

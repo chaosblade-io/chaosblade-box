@@ -18,10 +18,10 @@ package com.alibaba.chaosblade.platform.service;
 
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
 import com.alibaba.chaosblade.platform.cmmon.model.chaos.PluginSpecBean;
-import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
+import com.alibaba.chaosblade.platform.scenario.api.model.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;
-import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
+import com.alibaba.chaosblade.platform.scenario.api.model.ToolsVersion;
 
 /**
  * @author yefei

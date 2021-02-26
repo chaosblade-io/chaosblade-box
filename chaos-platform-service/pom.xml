@@ -69,6 +69,16 @@
             <artifactId>chaos-platform-toolsmgr-puppet</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-scenario-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-scenario-blade</artifactId>
+        </dependency>
+
     </dependencies>
 
 

@@ -46,7 +46,7 @@ public class LitmusPodDelChaosInvokerTest {
     @Test
     public void testRecover() throws Exception {
         RequestCommand requestCommand = new RequestCommand();
-        requestCommand.setSceneCode("litmuschaos.pod-pod.delete");
+        requestCommand.setSceneCode("litmuschaos.pod-pod.delete.stop");
         requestCommand.setName("034bf0bdc3d442ae8b075bc1510da755");
         requestCommand.setNamespace("default");
         CompletableFuture<ResponseCommand> future = litmusRecoverChaosInvoker.invoke(requestCommand);

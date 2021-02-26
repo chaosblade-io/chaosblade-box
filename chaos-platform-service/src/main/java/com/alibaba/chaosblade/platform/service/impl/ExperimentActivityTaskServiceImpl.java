@@ -63,9 +63,6 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
     private ExperimentMiniFlowService experimentMiniFlowService;
 
     @Autowired
-    private TimerFactory timerFactory;
-
-    @Autowired
     private MetricService metricService;
 
     @Autowired
@@ -239,7 +236,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
 
     private void metric(ActivityTaskExecuteContext context, MetricModel metricModel, ActivityTask activityTask) {
         Logger logger = context.getContextLogger();
-        timerFactory.getTimer().newTimeout(timeout -> {
+        context.timer().newTimeout(timeout -> {
 
             metricService.selectChartLine(MetricChartLineRequest.builder()
                     .devices(activityTask.getDeviceMetas())

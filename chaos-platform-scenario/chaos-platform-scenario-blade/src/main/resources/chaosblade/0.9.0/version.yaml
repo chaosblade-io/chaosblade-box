@@ -1,0 +1,11 @@
+version: "0.9.0"
+releaseUrl: "https://github.com/chaosblade-io/chaosblade/releases/tag/v0.9.0"
+downloadUrl:
+  - linux-x86_64: "https://chaosblade.oss-cn-hangzhou.aliyuncs.com/agent/github/0.9.0/chaosblade-0.9.0-linux-amd64.tar.gz"
+    linux-amd64: "https://chaosblade.oss-cn-hangzhou.aliyuncs.com/agent/github/0.9.0/chaosblade-0.9.0-linux-arm64.tar.gz"
+changelog: "这是 changelog"
+scenarioFiles:
+  - chaosblade-os-spec-0.9.0.yaml
+  - chaosblade-jvm-spec-0.9.0.yaml
+  - chaosblade-docker-spec-0.9.0.yaml
+  - chaosblade-k8s-spec-0.9.0.yaml

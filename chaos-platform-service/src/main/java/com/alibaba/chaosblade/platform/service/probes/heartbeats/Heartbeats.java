@@ -19,6 +19,8 @@ package com.alibaba.chaosblade.platform.service.probes.heartbeats;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
 import com.alibaba.chaosblade.platform.dao.model.ProbesDO;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
@@ -26,17 +28,13 @@ import com.alibaba.chaosblade.platform.dao.repository.ProbesRepository;
 import com.alibaba.chaosblade.platform.http.ChaosBladePingHttpInvoker;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author yefei
@@ -56,13 +54,12 @@ public class Heartbeats implements InitializingBean {
     @Value("${chaos.agent.port}")
     private int chaosAgentPort;
 
-    @Autowired
-    private TimerFactory timerFactory;
+    private Timer timer;
 
     private ExecutorService executorService;
 
     public void addHeartbeats(ProbesDO probesDO) {
-        timerFactory.getTimer().newTimeout(timeout -> {
+        timer.newTimeout(timeout -> {
             executorService.execute(() -> {
 
                 HttpChannelRequest request = new HttpChannelRequest();
@@ -136,6 +133,12 @@ public class Heartbeats implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+
+        timer = new HashedWheelTimer(r -> {
+            Thread thread = new Thread(r);
+            thread.setName("Heartbeats");
+            return thread;
+        });
 
         executorService = Executors.newCachedThreadPool(r -> {
             Thread thread = new Thread(r);

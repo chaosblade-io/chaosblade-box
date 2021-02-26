@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.platform.service.task;
 
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskCompleteListener;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskStartListener;
 import org.slf4j.Logger;
@@ -41,6 +42,12 @@ public interface ActivityTaskExecuteContext {
      * @return
      */
     Executor executor();
+
+    /**
+     *
+     * @return
+     */
+    Timer timer();
 
     /**
      * @param experimentTaskStartListener

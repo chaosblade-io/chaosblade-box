@@ -35,7 +35,6 @@ import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentReques
 import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentTaskResponse;
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ExperimentActivity;
-import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.*;
@@ -78,9 +76,6 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
 
     @Autowired
     private ExperimentActivityTaskRecordRepository experimentActivityTaskRecordRepository;
-
-    @Autowired
-    private TimerFactory timerFactory;
 
     @Override
     @Transactional
@@ -119,10 +114,11 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
         experimentActivityTaskService.executeActivityTasks(experimentActivityTasks, experimentTaskDO);
 
         if (experimentDO.getDuration() != null) {
-            timerFactory.getTimer().newTimeout(timeout -> {
-                // recover experiment todo
-
-            }, experimentDO.getDuration(), TimeUnit.SECONDS);
+            // recover experiment todo
+//            timerFactory.getTimer().newTimeout(timeout -> {
+//
+//
+//            }, experimentDO.getDuration(), TimeUnit.SECONDS);
         }
         return ExperimentTaskResponse.builder().taskId(experimentTaskDO.getId()).build();
     }

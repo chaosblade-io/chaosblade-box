@@ -1,0 +1,7 @@
+version: "1.13.0"
+releaseUrl: "https://github.com/litmuschaos/litmus/releases/tag/1.13.0"
+downloadUrl:
+  - linux-x86_64: ""
+    linux-amd64: ""
+changelog: "litmuschaos"
+scenarioFiles:

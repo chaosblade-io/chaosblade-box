@@ -152,6 +152,8 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
                             future.completeExceptionally(e);
                         } else {
                             statusResponseCommand.setName(name);
+                            statusResponseCommand.setResult(name);
+
                             log.info("子任务运行中，检查 CRD 状态，NAME: {}, PHASE: {},  是否成功: {}, 失败原因: {}",
                                     requestCommand.getName(),
                                     statusResponseCommand.getPhase(),

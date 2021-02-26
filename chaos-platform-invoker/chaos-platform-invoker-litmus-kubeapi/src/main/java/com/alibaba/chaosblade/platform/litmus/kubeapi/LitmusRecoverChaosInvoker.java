@@ -21,7 +21,7 @@ import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.SceneCodeParseUtil;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
-import com.alibaba.chaosblade.platform.invoker.ChaosTools;
+import com.alibaba.chaosblade.platform.cmmon.enums.ChaosTools;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import io.kubernetes.client.openapi.ApiCallback;
@@ -49,6 +49,10 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
 
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
+        if (StrUtil.isBlank(requestCommand.getNamespace())) {
+            requestCommand.setNamespace("default");
+        }
+
         CustomObjectsApi apiInstance = new CustomObjectsApi(client);
 
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
@@ -116,7 +120,7 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
     }
 
     private void clean(RequestCommand requestCommand) {
-        String serviceAccount = requestCommand.getSceneCode() + SA_SUFFIX;
+        String serviceAccount = requestCommand.getSceneCode().replace(ChaosConstant.CHAOS_DESTROY_SUFFIX, "") + SA_SUFFIX;
 
         String experimentName;
         String target = SceneCodeParseUtil.getTarget(requestCommand.getSceneCode());
