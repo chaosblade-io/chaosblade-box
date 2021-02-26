@@ -20,6 +20,8 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.platform.cmmon.executor.ExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.executor.ThreadPoolExecutorFactory;
 import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
+import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskCompleteListener;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskStartListener;
 import com.alibaba.chaosblade.platform.service.task.stateless.ActivityTaskHandlerStrategyContext;
@@ -44,11 +46,10 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
 
     private Executor executor;
 
-    @Autowired
-    private ActivityTaskHandlerStrategyContext activityTaskHandlerStrategyContext;
+    protected Timer timer;
 
     @Autowired
-    private TimerFactory timerFactory;
+    private ActivityTaskHandlerStrategyContext activityTaskHandlerStrategyContext;
 
     private final Map<ActivityTaskExecutePipeline, ExperimentTaskStartListener> taskStartListenerMap = new ConcurrentHashMap<>();
 
@@ -68,6 +69,12 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                 thread.setName("EXPERIMENT-TASK-THREAD-" + atomicInteger.getAndIncrement());
                 return thread;
             }
+        });
+
+        timer = new HashedWheelTimer(r -> {
+            Thread thread = new Thread(r);
+            thread.setName("EXPERIMENT-TASK-THREAD-TIMER");
+            return thread;
         });
     }
 
@@ -135,7 +142,7 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                     activityTask.getExperimentTaskId(),
                     activityTask.getActivityTaskId(),
                     waitOfBefore);
-            timerFactory.getTimer().newTimeout(timeout ->
+            timer.newTimeout(timeout ->
                             executor.execute(() -> {
                                 try {
                                     executeActivityTask0(activityTask);
@@ -184,6 +191,11 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
     @Override
     public Executor executor() {
         return executor;
+    }
+
+    @Override
+    public Timer timer() {
+        return timer;
     }
 
     @Override

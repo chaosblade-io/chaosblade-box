@@ -39,6 +39,11 @@
             <artifactId>chaos-platform-invoker-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-scenario-litmus</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

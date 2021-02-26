@@ -32,7 +32,6 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
-import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,9 +60,6 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
 
     @Autowired
     protected ExperimentTaskRepository experimentTaskRepository;
-
-    @Autowired
-    protected TimerFactory timerFactory;
 
     @Autowired
     private ChaosInvokerStrategyContext chaosInvokerStrategyContext;

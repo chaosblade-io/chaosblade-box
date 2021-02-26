@@ -22,10 +22,10 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvoker;
-import com.alibaba.chaosblade.platform.invoker.ChaosTools;
+import com.alibaba.chaosblade.platform.cmmon.enums.ChaosTools;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import com.alibaba.chaosblade.platform.litmus.kubeapi.crd.experiment.ChaosExperiment;
+import com.alibaba.chaosblade.platform.scenario.litmus.model.ChaosExperiment;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
@@ -68,6 +68,7 @@ public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<Request
             // pod-delete
             // k8s-pod-delete
             // node-cpu-hog
+            // kafka-broker-disk-failure // todo
             String name = chaosExperiment.getMetadata().getName();
 
             String[] split = StrUtil.split(name, "-");

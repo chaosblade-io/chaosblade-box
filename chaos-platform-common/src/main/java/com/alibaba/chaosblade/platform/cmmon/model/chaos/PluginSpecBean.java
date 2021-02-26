@@ -36,5 +36,7 @@ public class PluginSpecBean {
 
     private String kind;
 
+    private String type;
+
     private List<ModelSpecBean> items;
 }

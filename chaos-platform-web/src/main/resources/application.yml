@@ -40,6 +40,15 @@ mybatis-plus:
 chaos:
   scene:
     import: true
+    market: #https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/
+    originals:
+      litmus:
+        - name: generic
+          version: 1.13.0
+          url: https://hub.litmuschaos.io/api/chaos/1.13.0?file=charts/generic/experiments.yaml
+        #- name: kafka
+        #  version: 1.13.0
+        #  url: https://hub.litmuschaos.io/api/chaos/1.13.0?file=charts/kafka/experiments.yaml
   collector:
     enable: true
     type: kube_api
@@ -54,5 +63,6 @@ chaos:
   ctl:
     agent: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagentctl.sh
     tools: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaostoolsctl.sh
+
 
 

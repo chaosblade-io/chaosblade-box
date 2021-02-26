@@ -18,7 +18,6 @@ package com.alibaba.chaosblade.platform.service.task.stateless;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.platform.blade.kubeapi.model.StatusResponseCommand;
 import com.alibaba.chaosblade.platform.cmmon.TaskLogRecord;
 import com.alibaba.chaosblade.platform.cmmon.constants.ChaosConstant;
 import com.alibaba.chaosblade.platform.cmmon.enums.ExperimentDimension;
@@ -32,7 +31,6 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
-import com.alibaba.chaosblade.platform.service.task.TimerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,9 +56,6 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
 
     @Autowired
     protected ExperimentTaskRepository experimentTaskRepository;
-
-    @Autowired
-    protected TimerFactory timerFactory;
 
     @Autowired
     private ChaosInvokerStrategyContext chaosInvokerStrategyContext;
@@ -96,14 +91,13 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
         chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
             try {
                 ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
-                StatusResponseCommand st = (StatusResponseCommand) result;
                 if (e != null) {
                     record.setSuccess(false);
                     record.setErrorMessage(e.getMessage());
                 } else {
                     record.setSuccess(result.isSuccess());
                     record.setCode(result.getCode());
-                    record.setResult(st.getName());
+                    record.setResult(result.getResult());
                     record.setErrorMessage(result.getError());
 
                     if (!result.isSuccess()) {
@@ -123,7 +117,7 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
                         record.getSuccess(),
                         record.getErrorMessage());
             } catch (Exception exception) {
-                postHandle(activityTask, e);
+                e = exception;
             } finally {
                 postHandle(activityTask, e);
             }

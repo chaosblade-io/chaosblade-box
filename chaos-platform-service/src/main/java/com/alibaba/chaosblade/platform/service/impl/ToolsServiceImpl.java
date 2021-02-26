@@ -16,24 +16,23 @@
 
 package com.alibaba.chaosblade.platform.service.impl;
 
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum;
+import com.alibaba.chaosblade.platform.cmmon.model.chaos.PluginSpecBean;
 import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
 import com.alibaba.chaosblade.platform.dao.model.ToolsDO;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ToolsRepository;
+import com.alibaba.chaosblade.platform.scenario.api.ScenarioRequest;
+import com.alibaba.chaosblade.platform.scenario.api.ScenarioYamlProviderStrategy;
+import com.alibaba.chaosblade.platform.scenario.api.model.ToolsOverview;
+import com.alibaba.chaosblade.platform.scenario.api.model.ToolsVersion;
 import com.alibaba.chaosblade.platform.service.DeviceService;
 import com.alibaba.chaosblade.platform.service.ToolsService;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceRequest;
 import com.alibaba.chaosblade.platform.service.model.device.DeviceResponse;
-import com.alibaba.chaosblade.platform.cmmon.model.chaos.PluginSpecBean;
-import com.alibaba.chaosblade.platform.service.model.tools.ToolsOverview;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.platform.service.model.tools.ToolsStatisticsResponse;
-import com.alibaba.chaosblade.platform.service.model.tools.ToolsVersion;
 import com.alibaba.chaosblade.platform.toolsmgr.api.ChannelType;
 import com.alibaba.chaosblade.platform.toolsmgr.api.ChaosToolsMgrStrategyContext;
 import com.alibaba.chaosblade.platform.toolsmgr.api.Request;
@@ -64,6 +63,9 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Autowired
     private ChaosToolsMgrStrategyContext chaosToolsMgrStrategyContext;
+
+    @Autowired
+    private ScenarioYamlProviderStrategy scenarioYamlProviderStrategy;
 
     @Override
     public ToolsStatisticsResponse getChaostoolsDeployedStatistics(ToolsRequest toolsRequest) {
@@ -149,20 +151,17 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Override
     public ToolsOverview toolsOverview(String toolsName) {
-        HttpRequest request = HttpUtil.createGet(
-                String.format("https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/%s/overview.yaml", toolsName));
-        HttpResponse execute = request.execute();
         Representer representer = new Representer();
+        String overview = scenarioYamlProviderStrategy.overview(ScenarioRequest.builder()
+                .chaosTools(toolsName)
+                .build());
         representer.getPropertyUtils().setSkipMissingProperties(true);
-        return new Yaml(representer).loadAs(execute.bodyStream(), ToolsOverview.class);
+        return new Yaml(representer).loadAs(overview, ToolsOverview.class);
     }
 
     @Override
     public ToolsVersion toolsVersion(String toolsName, String version) {
 
-        HttpRequest request = HttpUtil.createGet(
-                String.format("https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/%s/%s/version.yaml", toolsName, version));
-        HttpResponse execute = request.execute();
         Representer representer = new Representer();
         representer.setPropertyUtils(new PropertyUtils() {
             @Override
@@ -175,16 +174,24 @@ public class ToolsServiceImpl implements ToolsService {
         });
         representer.getPropertyUtils().setSkipMissingProperties(true);
 
-        return new Yaml(representer).loadAs(execute.bodyStream(), ToolsVersion.class);
+        String versionYaml = scenarioYamlProviderStrategy.versionYaml(ScenarioRequest.builder()
+                .chaosTools(toolsName)
+                .version(version)
+                .build());
+
+        return new Yaml(representer).loadAs(versionYaml, ToolsVersion.class);
     }
 
     @Override
     public PluginSpecBean toolsScene(String toolsName, String version, String sceneFileName) {
-        HttpRequest request = HttpUtil.createGet(
-                String.format("https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/%s/%s/%s", toolsName, version, sceneFileName));
-        HttpResponse execute = request.execute();
         Representer representer = new Representer();
         representer.getPropertyUtils().setSkipMissingProperties(true);
-        return new Yaml(representer).loadAs(execute.bodyStream(), PluginSpecBean.class);
+
+        String versionYaml = scenarioYamlProviderStrategy.specYaml(ScenarioRequest.builder()
+                .chaosTools(toolsName)
+                .version(version)
+                .spec(sceneFileName)
+                .build());
+        return new Yaml(representer).loadAs(versionYaml, PluginSpecBean.class);
     }
 }

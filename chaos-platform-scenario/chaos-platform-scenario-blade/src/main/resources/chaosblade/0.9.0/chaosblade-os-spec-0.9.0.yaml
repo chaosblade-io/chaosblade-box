@@ -1,0 +1,2307 @@
+version: v1
+kind: plugin
+items:
+- target: cpu
+  shortDesc: Cpu experiment
+  longDesc: Cpu experiment, for example full load
+  actions:
+  - action: fullload
+    aliases: [fl, load]
+    shortDesc: cpu load
+    longDesc: Create chaos engineering experiments with CPU load
+    flags:
+    - name: cpu-count
+      desc: Cpu count
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: cpu-list
+      desc: CPUs in which to allow burning (0-3 or 1,3)
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: cpu-percent
+      desc: percent of burn CPU (0-100)
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: climb-time
+      desc: durations(s) to climb
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Create a CPU full load experiment
+      blade create cpu load
+
+      #Specifies two random kernel's full load
+      blade create cpu load --cpu-percent 60 --cpu-count 2
+
+      # Specifies that the kernel is full load with index 0, 3, and that the kernel's index starts at 0
+      blade create cpu load --cpu-list 0,3
+
+      # Specify the kernel full load of indexes 1-3
+      blade create cpu load --cpu-list 1-3
+
+      # Specified percentage load
+      blade create cpu load --cpu-percent 60
+    programs:
+    - chaos_burncpu
+    categories:
+    - system_cpu
+  scope: host
+- target: mem
+  shortDesc: Mem experiment
+  longDesc: Mem experiment, for example load
+  actions:
+  - action: load
+    shortDesc: mem load
+    longDesc: Create chaos engineering experiments with memory load
+    flags:
+    - name: mem-percent
+      desc: percent of burn Memory (0-100)
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: reserve
+      desc: reserve to burn Memory, unit is MB. If the mem-percent flag exist, use
+        mem-percent first.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: rate
+      desc: burn memory rate, unit is M/S, only support for ram mode.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: mode
+      desc: burn memory mode, cache or ram.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: include-buffer-cache
+      desc: Ram mode mem-percent is include buffer/cache
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # The execution memory footprint is 50%
+      blade create mem load --mode ram --mem-percent 50
+
+      # The execution memory footprint is 50%, cache model
+      blade create mem load --mode cache --mem-percent 50
+
+      # The execution memory footprint is 50%, usage contains buffer/cache
+      blade create mem load --mode ram --mem-percent 50 --include-buffer-cache
+
+      # The execution memory footprint is 50% for 200 seconds
+      blade create mem load --mode ram --mem-percent 50 --timeout 200
+
+      # 200M memory is reserved
+      blade create mem load --mode ram --reserve 200 --rate 100
+    programs:
+    - chaos_burnmem
+    categories:
+    - system_mem
+  scope: host
+- target: process
+  shortDesc: Process experiment
+  longDesc: Process experiment, for example, kill process
+  actions:
+  - action: kill
+    aliases: [k]
+    shortDesc: Kill process
+    longDesc: Kill process by process id or process name
+    matchers:
+    - name: process
+      desc: Process name
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: process-cmd
+      desc: Process name in command
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: count
+      desc: Limit count, 0 means unlimited
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: local-port
+      desc: 'Local service ports. Separate multiple ports with commas (,) or connector
+        representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: signal
+      desc: Killing process signal, such as 9,15
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exclude-process
+      desc: Exclude process
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: ignore-not-found
+      desc: Ignore process that cannot be found
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Kill the process that contains the SimpleHTTPServer keyword
+      blade create process kill --process SimpleHTTPServer
+
+      # Kill the Java process
+      blade create process kill --process-cmd java
+
+      # Specifies the semaphore and local port to kill the process
+      blade c process kill --local-port 8080 --signal 15
+
+      # Return success even if the process not found
+      blade c process kill --process demo --ignore-not-found
+    programs:
+    - chaos_killprocess
+    categories:
+    - system_process
+  - action: stop
+    aliases: [f]
+    shortDesc: process fake death
+    longDesc: process fake death by process id or process name
+    matchers:
+    - name: process
+      desc: Process name
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: process-cmd
+      desc: Process name in command
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: ignore-not-found
+      desc: Ignore process that cannot be found
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Pause the process that contains the "SimpleHTTPServer" keyword
+      blade create process stop --process SimpleHTTPServer
+
+      # Pause the Java process
+      blade create process stop --process-cmd java
+
+      # Return success even if the process not found
+      blade create process stop --process demo --ignore-not-found
+    programs:
+    - chaos_stopprocess
+    categories:
+    - system_process
+  scope: host
+- target: network
+  shortDesc: Network experiment
+  longDesc: Network experiment
+  actions:
+  - action: delay
+    shortDesc: Delay experiment
+    longDesc: Delay experiment
+    matchers:
+    - name: local-port
+      desc: 'Ports for local service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: remote-port
+      desc: 'Ports for remote service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exclude-port
+      desc: 'Exclude local ports. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 22,8000. This flag
+        is invalid when --local-port or --remote-port is specified'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-ip
+      desc: destination ip. Support for using mask to specify the ip range such as
+        92.168.1.0/24 or comma separated multiple ips, for example 10.0.0.1,11.0.0.1.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ignore-peer-port
+      desc: ignore excluding all ports communicating with this port, generally used
+        when the ss command does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: interface
+      desc: Network interface, for example, eth0
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: exclude-ip
+      desc: Exclude ips. Support for using mask to specify the ip range such as 92.168.1.0/24
+        or comma separated multiple ips, for example 10.0.0.1,11.0.0.1
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: force
+      desc: Forcibly overwrites the original rules
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: time
+      desc: Delay time, ms
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: offset
+      desc: Delay offset time, ms
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Access to native 8080 and 8081 ports is delayed by 3 seconds, and the delay time fluctuates by 1 second
+      blade create network delay --time 3000 --offset 1000 --interface eth0 --local-port 8080,8081
+
+      # Local access to external 14.215.177.39 machine (ping www.baidu.com obtained IP) port 80 delay of 3 seconds
+      blade create network delay --time 3000 --interface eth0 --remote-port 80 --destination-ip 14.215.177.39
+
+      # Do a 5 second delay for the entire network card eth0, excluding ports 22 and 8000 to 8080
+      blade create network delay --time 5000 --interface eth0 --exclude-port 22,8000-8080
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  - action: drop
+    shortDesc: Drop experiment
+    longDesc: Drop network data
+    matchers:
+    - name: source-ip
+      desc: The source ip address of packet
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-ip
+      desc: The destination ip address of packet
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: source-port
+      desc: The source port of packet
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-port
+      desc: The destination port of packet
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: string-pattern
+      desc: The string that is contained in the packet
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: network-traffic
+      desc: The direction of network traffic
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2
+
+      # Block incoming connection from the source ip 10.10.10.10
+      blade create network drop --source-ip 10.10.10.10 --network-traffic in
+
+      # Block incoming connection to the destination ip 10.10.10.10
+      blade create network drop --destination-ip 10.10.10.10 --network-traffic in
+
+      # Block incoming connection from the port 80
+      blade create network drop --source-port 80 --network-traffic in
+
+      # Block incoming connection to the port 80 and 81
+      blade create network drop --destination-port 80,81 --network-traffic in
+
+      # Block outgoing connection to the port 80
+      blade create network drop --destination-port 80 --network-traffic out
+
+      # Block outgoing connection to the specific domain
+      blade create network drop --string-pattern baidu.com --network-traffic out
+
+      # Block outgoing connection to the specific domain on port 80
+      blade create network drop --destination-port 80 --string-pattern baidu.com --network-traffic out
+    programs:
+    - chaos_dropnetwork
+    categories:
+    - system_network
+  - action: dns
+    shortDesc: Dns experiment
+    longDesc: Dns experiment
+    flags:
+    - name: domain
+      desc: Domain name
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: ip
+      desc: Domain ip
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # The domain name www.baidu.com is not accessible
+      blade create network dns --domain www.baidu.com --ip 10.0.0.0
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  - action: loss
+    shortDesc: Loss network package
+    longDesc: Loss network package
+    matchers:
+    - name: local-port
+      desc: 'Ports for local service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: remote-port
+      desc: 'Ports for remote service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exclude-port
+      desc: 'Exclude local ports. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 22,8000. This flag
+        is invalid when --local-port or --remote-port is specified'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-ip
+      desc: destination ip. Support for using mask to specify the ip range such as
+        92.168.1.0/24 or comma separated multiple ips, for example 10.0.0.1,11.0.0.1.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ignore-peer-port
+      desc: ignore excluding all ports communicating with this port, generally used
+        when the ss command does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: interface
+      desc: Network interface, for example, eth0
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: exclude-ip
+      desc: Exclude ips. Support for using mask to specify the ip range such as 92.168.1.0/24
+        or comma separated multiple ips, for example 10.0.0.1,11.0.0.1
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: force
+      desc: Forcibly overwrites the original rules
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: percent
+      desc: loss percent, [0, 100]
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Access to native 8080 and 8081 ports lost 70% of packets
+      blade create network loss --percent 70 --interface eth0 --local-port 8080,8081
+
+      # The machine accesses external 14.215.177.39 machine (ping www.baidu.com) 80 port packet loss rate 100%
+      blade create network loss --percent 100 --interface eth0 --remote-port 80 --destination-ip 14.215.177.39
+
+      # Do 60% packet loss for the entire network card Eth0, excluding ports 22 and 8000 to 8080
+      blade create network loss --percent 60 --interface eth0 --exclude-port 22,8000-8080
+
+      # Realize the whole network card is not accessible, not accessible time 20 seconds. After executing the following command, the current network is disconnected and restored in 20 seconds. Remember!! Don't forget -timeout parameter
+      blade create network loss --percent 100 --interface eth0 --timeout 20
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  - action: duplicate
+    shortDesc: Duplicate experiment
+    longDesc: Duplicate experiment
+    matchers:
+    - name: local-port
+      desc: 'Ports for local service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: remote-port
+      desc: 'Ports for remote service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exclude-port
+      desc: 'Exclude local ports. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 22,8000. This flag
+        is invalid when --local-port or --remote-port is specified'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-ip
+      desc: destination ip. Support for using mask to specify the ip range such as
+        92.168.1.0/24 or comma separated multiple ips, for example 10.0.0.1,11.0.0.1.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ignore-peer-port
+      desc: ignore excluding all ports communicating with this port, generally used
+        when the ss command does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: interface
+      desc: Network interface, for example, eth0
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: exclude-ip
+      desc: Exclude ips. Support for using mask to specify the ip range such as 92.168.1.0/24
+        or comma separated multiple ips, for example 10.0.0.1,11.0.0.1
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: force
+      desc: Forcibly overwrites the original rules
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: percent
+      desc: Duplication percent, must be positive integer without %, for example,
+        --percent 50
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Specify the network card eth0 and repeat the packet by 10%
+      blade create network duplicate --percent=10 --interface=eth0
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  - action: corrupt
+    shortDesc: Corrupt experiment
+    longDesc: Corrupt experiment
+    matchers:
+    - name: local-port
+      desc: 'Ports for local service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: remote-port
+      desc: 'Ports for remote service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exclude-port
+      desc: 'Exclude local ports. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 22,8000. This flag
+        is invalid when --local-port or --remote-port is specified'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-ip
+      desc: destination ip. Support for using mask to specify the ip range such as
+        92.168.1.0/24 or comma separated multiple ips, for example 10.0.0.1,11.0.0.1.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ignore-peer-port
+      desc: ignore excluding all ports communicating with this port, generally used
+        when the ss command does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: interface
+      desc: Network interface, for example, eth0
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: exclude-ip
+      desc: Exclude ips. Support for using mask to specify the ip range such as 92.168.1.0/24
+        or comma separated multiple ips, for example 10.0.0.1,11.0.0.1
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: force
+      desc: Forcibly overwrites the original rules
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: percent
+      desc: Corruption percent, must be positive integer without %, for example, --percent
+        50
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Access to the specified IP request packet is corrupted, 80% of the time
+      blade create network corrupt --percent 80 --destination-ip 180.101.49.12 --interface eth0
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  - action: reorder
+    shortDesc: Reorder experiment
+    longDesc: Reorder experiment
+    matchers:
+    - name: local-port
+      desc: 'Ports for local service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: remote-port
+      desc: 'Ports for remote service. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 80,8000-8080'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exclude-port
+      desc: 'Exclude local ports. Support for configuring multiple ports, separated
+        by commas or connector representing ranges, for example: 22,8000. This flag
+        is invalid when --local-port or --remote-port is specified'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: destination-ip
+      desc: destination ip. Support for using mask to specify the ip range such as
+        92.168.1.0/24 or comma separated multiple ips, for example 10.0.0.1,11.0.0.1.
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ignore-peer-port
+      desc: ignore excluding all ports communicating with this port, generally used
+        when the ss command does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: interface
+      desc: Network interface, for example, eth0
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: exclude-ip
+      desc: Exclude ips. Support for using mask to specify the ip range such as 92.168.1.0/24
+        or comma separated multiple ips, for example 10.0.0.1,11.0.0.1
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: force
+      desc: Forcibly overwrites the original rules
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: percent
+      desc: Packets are sent immediately percentage, must be positive integer without
+        %, for example, --percent 50
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: correlation
+      desc: Correlation on previous packet, value is between 0 and 100
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: gap
+      desc: Packet gap, must be positive integer
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: time
+      desc: Delay time, must be positive integer, unit is millisecond, default value
+        is 10
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |-
+      # Access the specified IP request packet disorder
+      blade c network reorder --correlation 80 --percent 50 --gap 2 --time 500 --interface eth0 --destination-ip 180.101.49.12
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  - action: occupy
+    shortDesc: Occupy the specify port
+    longDesc: Occupy the specify port, if the port is used, it will return fail, except
+      add --force flag
+    matchers:
+    - name: port
+      desc: The port occupied
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: force
+      desc: Force kill the process which is using the port
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      #Specify port 8080 occupancy
+      blade c network occupy --port 8080 --force
+
+      # The machine accesses external 14.215.177.39 machine (ping www.baidu.com) 80 port packet loss rate 100%
+      blade create network loss --percent 100 --interface eth0 --remote-port 80 --destination-ip 14.215.177.39
+    programs:
+    - chaos_tcnetwork
+    categories:
+    - system_network
+  scope: host
+- target: disk
+  shortDesc: Disk experiment
+  longDesc: Disk experiment contains fill disk or burn io
+  actions:
+  - action: fill
+    shortDesc: Fill the specified directory path
+    longDesc: Fill the specified directory path. If the path is not directory or does
+      not exist, an error message will be returned.
+    matchers:
+    - name: path
+      desc: The path of directory where the disk is populated, default value is /
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: size
+      desc: Disk fill size, unit is MB. The value is a positive integer without unit,
+        for example, --size 1024
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: percent
+      desc: Total percentage of disk occupied by the specified path. If size and the
+        flag exist, use this flag first. The value must be positive integer without
+        %
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: reserve
+      desc: 'Disk reserve size, unit is MB. The value is a positive integer without
+        unit. If size, percent and reserve flags exist, the priority is as follows:
+        percent > reserve > size'
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: retain-handle
+      desc: Whether to retain the big file handle, default value is false.
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Perform a disk fill of 40G to achieve a full disk (34G available)
+      blade create disk fill --path /home --size 40000
+
+      # Performs populating the disk by percentage, and retains the file handle that populates the disk
+      Command: "blade c disk fill --path /home --percent 80 --retain-handle
+
+      # Perform a fixed-size experimental scenario
+      blade c disk fill --path /home --reserve 1024
+    programs:
+    - chaos_filldisk
+    categories:
+    - system_disk
+  - action: burn
+    shortDesc: Increase disk read and write io load
+    longDesc: Increase disk read and write io load
+    matchers:
+    - name: read
+      desc: Burn io by read, it will create a 600M for reading and delete it when
+        destroy it
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: write
+      desc: Burn io by write, it will create a file by value of the size flag, for
+        example the size default value is 10, then it will create a 10M*100=1000M
+        file for writing, and delete it when destroy
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    flags:
+    - name: size
+      desc: Block size, MB, default is 10
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: path
+      desc: The path of directory where the disk is burning, default value is /
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # The data of rkB/s, wkB/s and % Util were mainly observed. Perform disk read IO high-load scenarios
+      blade create disk burn --read --path /home
+
+      # Perform disk write IO high-load scenarios
+      blade create disk burn --write --path /home
+
+      # Read and write IO load scenarios are performed at the same time. Path is not specified. The default is /
+      blade create disk burn --read --write
+    programs:
+    - chaos_burnio
+    categories:
+    - system_disk
+  scope: host
+- target: script
+  shortDesc: Script chaos experiment
+  longDesc: Script chaos experiment
+  actions:
+  - action: delay
+    shortDesc: Script executed delay
+    longDesc: Sleep in script
+    flags:
+    - name: time
+      desc: sleep time, unit is millisecond
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: file
+      desc: Script file full path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: function-name
+      desc: function name in shell
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Add commands to the script "start0() { sleep 10.000000 ...}"
+      blade create script delay --time 10000 --file test.sh --function-name start0
+    categories:
+    - system_script
+  - action: exit
+    shortDesc: Exit script
+    longDesc: Exit script with specify message and code
+    flags:
+    - name: exit-code
+      desc: Exit code
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: exit-message
+      desc: Exit message
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: file
+      desc: Script file full path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: true
+    - name: function-name
+      desc: function name in shell
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Add commands to the script "start0() { echo this-is-error-message; exit 1; ... }"
+      blade create script exit --exit-code 1 --exit-message this-is-error-message --file test.sh --function-name start0
+    categories:
+    - system_script
+  scope: host
+- target: file
+  shortDesc: File experiment
+  longDesc: File experiment contains file content append, permission modification
+    so on
+  actions:
+  - action: append
+    shortDesc: File content append
+    longDesc: 'File content append. '
+    matchers:
+    - name: filepath
+      desc: file path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: content
+      desc: append content
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: count
+      desc: the number of append count, default 1
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: interval
+      desc: append interval, default 1s
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: escape
+      desc: symbols to escape, use --escape, at this --count is invalid
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: enable-base64
+      desc: append content enable base64 encoding
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2
+
+      # Appends the content "HELLO WORLD" to the /home/logs/nginx.log file
+      blade create file append --filepath=/home/logs/nginx.log --content="HELL WORLD"
+
+      # Appends the content "HELLO WORLD" to the /home/logs/nginx.log file, interval 10 seconds
+      blade create file append --filepath=/home/logs/nginx.log --content="HELL WORLD" --interval 10
+
+      # Appends the content "HELLO WORLD" to the /home/logs/nginx.log file, enable base64 encoding
+      blade create file append --filepath=/home/logs/nginx.log --content=SEVMTE8gV09STEQ=
+
+      # mock interface timeout exception
+      blade create file append --filepath=/home/logs/nginx.log --content="@{DATE:+%Y-%m-%d %H:%M:%S} ERROR invoke getUser timeout [@{RANDOM:100-200}]ms abc  mock exception"
+    programs:
+    - chaos_appendfile
+    categories:
+    - system_file
+  - action: chmod
+    shortDesc: File permission modification.
+    longDesc: File perçmission modification.
+    matchers:
+    - name: filepath
+      desc: file path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: mark
+      desc: --mark 777
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2
+
+      # Modify /home/logs/nginx.log file permissions to 777
+      blade create file chmod --filepath /home/logs/nginx.log --mark=777
+    programs:
+    - chaos_chmodfile
+    categories:
+    - system_file
+  - action: add
+    shortDesc: File or path add
+    longDesc: File or path add
+    matchers:
+    - name: filepath
+      desc: file path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: directory
+      desc: use --directory flag, --filepath is directory
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: content
+      desc: --content, add file content
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: enable-base64
+      desc: --content use base64 encoding
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: auto-create-dir
+      desc: automatically creates a directory that does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2
+
+      # Create a file named nginx.log in the /home directory
+      blade create file add --filepath /home/nginx.log
+
+      # Create a file named nginx.log in the /home directory with the contents of HELLO WORLD
+      blade create file add --filepath /home/nginx.log --content "HELLO WORLD"
+
+      # Create a file named nginx.log in the /temp directory and automatically create directories that don't exist
+      blade create file add --filepath /temp/nginx.log --auto-create-dir
+
+      # Create a directory named /nginx in the /temp directory and automatically create directories that don't exist
+      blade create file add --directory --filepath /temp/nginx --auto-create-dir
+    programs:
+    - chaos_addfile
+    categories:
+    - system_file
+  - action: delete
+    shortDesc: File delete
+    longDesc: File delete
+    matchers:
+    - name: filepath
+      desc: file path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: force
+      desc: use --force flag can't be restored
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2
+
+      # Delete the file /home/logs/nginx.log
+      blade create file delete --filepath /home/logs/nginx.log
+
+      # Force delete the file /home/logs/nginx.log unrecoverable
+      blade create file delete --filepath /home/logs/nginx.log --force
+    programs:
+    - chaos_deletefile
+    categories:
+    - system_file
+  - action: move
+    shortDesc: File move
+    longDesc: File move
+    matchers:
+    - name: filepath
+      desc: file path
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: target
+      desc: target folder
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: force
+      desc: use --force flag overwrite target file
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: auto-create-dir
+      desc: automatically creates a directory that does not exist
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2
+
+      # Move the file /home/logs/nginx.log to /tmp
+      blade create file move --filepath /home/logs/nginx.log --target /tmp
+
+      # Force Move the file /home/logs/nginx.log to /temp
+      blade create file move --filepath /home/logs/nginx.log --target /tmp --force
+
+      # Move the file /home/logs/nginx.log to /temp/ and automatically create directories that don't exist
+      blade create file move --filepath /home/logs/nginx.log --target /temp --auto-create-dir
+    programs:
+    - chaos_movefile
+    categories:
+    - system_file
+  scope: host
+- target: strace
+  shortDesc: strace experiment
+  longDesc: strace experiment contains syscall delay or syscall error
+  actions:
+  - action: delay
+    shortDesc: Delay the syscall of the target pid
+    longDesc: Delay syscall of the specified process, if the process exists
+    matchers:
+    - name: pid
+      desc: The Pid of the target process
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: syscall-name
+      desc: The target syscall which will be injected
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: time
+      desc: 'sleep time, the unit of time can be specified: s,ms,us,ns'
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: delay-loc
+      desc: if the flag is enter, the fault will be injected before the syscall is
+        executed. if the flag is exit, the fault will be injected after the syscall
+        is executed
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: first
+      desc: if the flag is set, the fault will be injected to the first met syscall
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: end
+      desc: if the flag is set, the fault will be injected to the last met syscall
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: step
+      desc: the fault will be injected intervally
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Create a strace 10s delay experiment to the process
+      blade create strace delay --pid 1 --syscall-name mmap --time 10s --delay-loc enter --first=1
+    programs:
+    - chaos_stracedelay
+    categories:
+    - system_kernel
+  - action: error
+    shortDesc: change the syscall's return value of the target pid
+    longDesc: change the syscall's return value of the specified process, if the process
+      exists
+    matchers:
+    - name: pid
+      desc: The Pid of the target process
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    flags:
+    - name: syscall-name
+      desc: The target syscall which will be injected
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: return-value
+      desc: the return-value the syscall will return
+      noArgs: false
+      required: true
+      requiredWhenDestroyed: false
+    - name: first
+      desc: if the flag is true, the fault will be injected to the first met syscall
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: end
+      desc: if the flag is true, the fault will be injected to the last met syscall
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: step
+      desc: the fault will be injected intervally
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: channel
+      desc: Select the channel for execution, and you can now select SSH
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-host
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-port
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-user
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key
+      desc: Use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: ssh-key-passphrase
+      desc: Use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: blade-release
+      desc: Blade release package，use this flag when the channel is ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: override-blade-release
+      desc: Override blade release，use this flag when the channel is ssh
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: install-path
+      desc: install path default /opt/chaosblade，use this flag when the channel is
+        ssh
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    - name: timeout
+      desc: set timeout for experiment
+      noArgs: false
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Create a strace error experiment to the process
+      blade create strace error --pid 1 --syscall-name mmap --return-value XX --delay-loc enter --first=1
+    programs:
+    - chaos_straceerror
+    categories:
+    - system_kernel
+  scope: host

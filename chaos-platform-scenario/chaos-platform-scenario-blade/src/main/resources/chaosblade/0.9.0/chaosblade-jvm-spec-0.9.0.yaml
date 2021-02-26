@@ -1,0 +1,2446 @@
+items:
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment for mysql client connection port=3306 INSERT statement
+      blade create mysql delay --time 2000 --sqltype select --port 3306
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Mysql delay experiment
+    matchers:
+    - desc: The sql type, for example, select, update and so on.
+      name: sqltype
+      noArgs: false
+      required: false
+    - desc: The database name which used
+      name: database
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The database port which used
+      name: port
+      noArgs: false
+      required: false
+    - desc: The database host
+      name: host
+      noArgs: false
+      required: false
+    - desc: The first table name in sql.
+      name: table
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws customer exception experiment for mysql client connection port=3306 INSERT statement
+      blade create mysql throwCustomException --exception java.lang.Exception
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Mysql throws customer exception experiment
+    matchers:
+    - desc: The sql type, for example, select, update and so on.
+      name: sqltype
+      noArgs: false
+      required: false
+    - desc: The database name which used
+      name: database
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The database port which used
+      name: port
+      noArgs: false
+      required: false
+    - desc: The database host
+      name: host
+      noArgs: false
+      required: false
+    - desc: The first table name in sql.
+      name: table
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: Mysql experiment contains delay and exception by table name and so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: mysql experiment
+  target: mysql
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 3s experiment on the RocketMq when topic=xx consumerGroup=xx
+      blade create rocketmq delay --time=3000 --topic=xx --consumerGroup=xx
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: RocketMq delay experiment
+    matchers:
+    - desc: Message producer group
+      name: producerGroup
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: Message topic
+      name: topic
+      noArgs: false
+      required: true
+    - desc: Message consumer group
+      name: consumerGroup
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throw custom exception experiment on the RocketMq when topic=xx consumerGroup=xx
+      blade create rocketmq throwCustomException --exception java.lang.Exception --topic=xx --consumerGroup=xx
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: RocketMq throws custom exception experiment
+    matchers:
+    - desc: Message producer group
+      name: producerGroup
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: Message topic
+      name: topic
+      noArgs: false
+      required: true
+    - desc: Message consumer group
+      name: consumerGroup
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: Rocketmq experiment,can make message send or pull delay and exception,default
+    if you not set [producerGroup,consumerGroup],will effect both send and pull message,if
+    you only set producerGroup for specific group,will only effect on sendMessage,if
+    you only set consumerGroup,will only effect pullMessage for specific group
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: Rocketmq experiment,can make message send or pull delay and exception
+  target: rocketmq
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Invoke com.alibaba.demo.HelloService.hello() service, do delay 3 seconds experiment
+      blade create dubbo delay --time 3000 --service com.alibaba.demo.HelloService --methodname hello --consumer
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Dubbo interface to do delay experiments, support provider and consumer
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The consumer or provider application name
+      name: appname
+      noArgs: false
+      required: false
+    - desc: To tag provider experiment
+      name: provider
+      noArgs: true
+      required: false
+    - desc: The service interface
+      name: service
+      noArgs: false
+      required: false
+    - desc: the service version
+      name: version
+      noArgs: false
+      required: false
+    - desc: To tag consumer role experiment.
+      name: consumer
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: false
+    - desc: The service group
+      name: group
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Invoke com.alibaba.demo.HelloService.hello() service, do throws customer exception
+      blade create dubbo throwCustomException --exception java.lang.Exception --service com.alibaba.demo.HelloService --methodname hello --consumer
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Dubbo interface to do throws custom exception experiments, support provider
+      and consumer
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The consumer or provider application name
+      name: appname
+      noArgs: false
+      required: false
+    - desc: To tag provider experiment
+      name: provider
+      noArgs: true
+      required: false
+    - desc: The service interface
+      name: service
+      noArgs: false
+      required: false
+    - desc: the service version
+      name: version
+      noArgs: false
+      required: false
+    - desc: To tag consumer role experiment.
+      name: consumer
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: false
+    - desc: The service group
+      name: group
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  - action: threadpoolfull
+    aliases:
+    - tpf
+    categories:
+    - java_resource_cpu
+    example: |-
+      # Do a full load experiment on the Dubbo provider thread pool
+      blade c dubbo threadpoolfull --provider
+    flags:
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Do a full load experiment on the Dubbo provider thread pool
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: To tag provider experiment
+      name: provider
+      noArgs: true
+      required: false
+    programs:
+    - java
+    shortDesc: Thread pool full
+  example: null
+  longDesc: Dubbo experiment for testing service delay and exception.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: Experiment with the Dubbo
+  target: dubbo
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Delay when the producer sends the message
+      blade create kafka delay --time 3000 --producer
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Kafka delay experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: ''
+      name: producer
+      noArgs: true
+      required: false
+    - desc: ''
+      name: topic
+      noArgs: false
+      required: false
+    - desc: ''
+      name: consumer
+      noArgs: true
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Throw exception when the producer sends the message
+      blade create kafka throwCustomException --exception java.lang.Exception --exception-message mock-beans-exception --producer
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Kafka throws custom exception experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: ''
+      name: producer
+      noArgs: true
+      required: false
+    - desc: ''
+      name: topic
+      noArgs: false
+      required: false
+    - desc: ''
+      name: consumer
+      noArgs: true
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: kafka experiment for testing service delay and exception.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: kafka experiment
+  target: kafka
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment for hbase client connection INSERT statement
+      blade create hbase delay --table table1
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: hbase delay experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The hbase table which used
+      name: table
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws customer exception experiment for mysql client connection port=3306 INSERT statement
+      blade create hbase throwCustomException --exception java.lang.Exception --table table2
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: hbase throws customer exception experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The hbase table which used
+      name: table
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: hbase experiment contains delay and exception by table name and so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: hbase experiment!
+  target: hbase
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment on Lettuce `hset key name lina` command
+      blade create lettuce delay --cmd hset --key name --time 2000
+
+      #Do a delay 2s experiment on Jedis `key name lina` command
+      blade create lettuce delay --key name --time 2000
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Lettuce client delay experiments
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: cmd matcher
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: key matcher
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws custom exception experiment on Lettuce `key name lina` command
+      blade create lettuce throwCustomException --exception java.lang.Exception --key name
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Lettuce client throws custom exception experiments
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: cmd matcher
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: key matcher
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  - action: update
+    aliases: []
+    categories:
+    - java_data_tamper
+    example: |-
+      # Do a update value experiment on Lettuce `key name lina` command
+      blade create lettuce update --value "i'm hacker" --key name
+    flags:
+    - desc: value set
+      name: value
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: update action spec
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: cmd matcher
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: key matcher
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: update action spec
+  example: null
+  longDesc: redis client lettuce experiment
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: redis client lettuce experiment
+  target: lettuce
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 3s experiment on tars interface
+      blade create tars delay --time 3000 --client --servantname app.server.obj --functionname hello
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Tars delay experiment
+    matchers:
+    - desc: to tag servant role experiment
+      name: servant
+      noArgs: true
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The name of function to be invoked
+      name: functionname
+      noArgs: false
+      required: false
+    - desc: to tag the client role experiment
+      name: client
+      noArgs: true
+      required: false
+    - desc: The name of servant
+      name: servantname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throw custom exception experiment on tars interface
+      blade c tars throwCustomException --exception org.springframework.beans.BeansException --exception-message mock-beans-exception --client --servantname=app.server.obj
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Tars throws custom exception experiment
+    matchers:
+    - desc: to tag servant role experiment
+      name: servant
+      noArgs: true
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The name of function to be invoked
+      name: functionname
+      noArgs: false
+      required: false
+    - desc: to tag the client role experiment
+      name: client
+      noArgs: true
+      required: false
+    - desc: The name of servant
+      name: servantname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: Tars experiment for testing service delay and exception.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: tars experiment
+  target: tars
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment on Redisson `hset key name lina` command
+      blade create redisson delay --cmd hset --key name --time 2000
+
+      #Do a delay 2s experiment on Redisson `key name lina` command
+      blade create redisson delay --key name --time 2000
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Redisson commands delay experiments
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The cmd type, for example, set, hget,zadd and so on.
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: The key which command used
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws custom exception experiment on Redisson `key name lina` command
+      blade create redisson throwCustomException --exception java.lang.Exception --key name
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Redisson commands throws custom exception experiments
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The cmd type, for example, set, hget,zadd and so on.
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: The key which command used
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: redisson experiment contains delay and exception by command and so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: redisson experiment
+  target: redisson
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment for ElasticSearch client
+      blade create es delay --index index1,index2
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: ElasticSearch delay experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: 'The elasticsearch index which used,many index : index1,index2'
+      name: index
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws customer exception experiment for ElasticSearch client
+      blade create es throwCustomException --exception java.lang.Exception --index index2
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: ElasticSearch throws customer exception experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: 'The elasticsearch index which used,many index : index1,index2'
+      name: index
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: ElasticSearch experiment contains delay and exception by table name and
+    so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: ElasticSearch experiment!
+  target: es
+- actions:
+  - action: connectionpoolfull
+    aliases:
+    - cpf
+    categories:
+    - java_resource_cpu
+    example: |-
+      # Do a full load experiment on the Druid database connection pool
+      blade create druid connectionpoolfull
+    flags:
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Connection pool full
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: Connection pool full
+  example: null
+  longDesc: Experiment with the Druid database connection pool, For example `blade
+    create druid connectionpoolfull`
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: Experiment with the Druid
+  target: druid
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Delay when the producer sends the message
+      blade create rabbitmq delay --time 3000 --producer
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: RabbitMq delay experiment
+    matchers:
+    - desc: ''
+      name: routingkey
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: ''
+      name: producer
+      noArgs: true
+      required: false
+    - desc: ''
+      name: topic
+      noArgs: false
+      required: false
+    - desc: ''
+      name: exchange
+      noArgs: false
+      required: false
+    - desc: ''
+      name: consumer
+      noArgs: true
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Throw exception when the producer sends the message
+      blade create rabbitmq throwCustomException --exception java.lang.Exception --exception-message mock-beans-exception --producer
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: RabbitMq throws custom exception experiment
+    matchers:
+    - desc: ''
+      name: routingkey
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: ''
+      name: producer
+      noArgs: true
+      required: false
+    - desc: ''
+      name: topic
+      noArgs: false
+      required: false
+    - desc: ''
+      name: exchange
+      noArgs: false
+      required: false
+    - desc: ''
+      name: consumer
+      noArgs: true
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: rabbitmq experiment for testing service delay and exception.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: rabbitmq experiment
+  target: rabbitmq
+- actions:
+  - action: CodeCacheFilling
+    aliases:
+    - ccf
+    categories:
+    - java_resource_mem
+    example: |-
+      # Inject code cache full fault
+      blade c jvm CodeCacheFilling --process tomcat
+    flags:
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Filling code cache until JIT compiler turn off.
+    matchers: []
+    programs:
+    - java
+    shortDesc: Fill up code cache.
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Inject a 4-second delay failure on the sayHello method
+      blade create jvm delay --time 4000 --classname=com.example.controller.DubboController --methodname=sayHello
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: The Java method delays the experiment
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The class name with package
+      name: classname
+      noArgs: false
+      required: true
+    - desc: Specify the method after event
+      name: after
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Inject a custom exception failure on the com.example.controller.DubboController.hello() method, effect the two requests
+      blade create jvm throwCustomException --exception java.lang.Exception --classname com.example.controller.DubboController --methodname sayHello --effect-count 2
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Throw custom exception with --exception option
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The class name with package
+      name: classname
+      noArgs: false
+      required: true
+    - desc: Specify the method after event
+      name: after
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: throw custom exception
+  - action: cpufullload
+    aliases:
+    - cfl
+    categories:
+    - java_resource_cpu
+    example: |-
+      # Specifies full load of all kernel
+      blade c jvm cfl --process tomcat
+
+      # Specifies full load of two kernel
+      blade c jvm cfl --cpu-count 2 --process tomcat
+    flags:
+    - desc: Binding cpu core count
+      name: cpu-count
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Process occupied cpu full load
+    matchers: []
+    programs:
+    - java
+    shortDesc: Process occupied cpu full load
+  - action: throwDeclaredException
+    aliases:
+    - tde
+    categories:
+    - java_custom
+    - java_exception
+    example: |-
+      # Throw the first declared exception of method, effect the two requests
+      blade create jvm throwDeclaredException --classname com.example.controller.DubboController --methodname sayHello --effect-count 2
+    flags:
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Throw the first declared exception of method
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The class name with package
+      name: classname
+      noArgs: false
+      required: true
+    - desc: Specify the method after event
+      name: after
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: Throw the first declared exception of method
+  - action: return
+    aliases: []
+    categories:
+    - java_data_tamper
+    example: |-
+      # Inject a tamper return value failure on the com.example.controller.DubboController.hello() method
+      blade create jvm return --value hello-chaosblade --classname com.example.controller.DubboController --methodname hello
+    flags:
+    - desc: Value returned, only support primitive type value. If you want return
+        null, set --value null
+      name: value
+      noArgs: false
+      required: true
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Return the specify value
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The class name with package
+      name: classname
+      noArgs: false
+      required: true
+    - desc: Specify the method after event
+      name: after
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: Return the specify value
+  - action: script
+    aliases: []
+    categories:
+    - java_custom
+    example: |-
+      # Using script-Content to specify walk-through script content, without adding a script-type parameter, it defaults to a Java script and calls the Java engine parser.
+      blade c jvm script --classname com.example.controller.DubboController --methodname call --script-content aW1wb3J0IGphdmEudXRpbC5NYXA7CgppbXBvcnQgY29tLmV4YW1wbGUuY29udHJvbGxlci5DdXN0b21FeGNlcHRpb247CgovKioKICogQGF1dGhvciBDaGFuZ2p1biBYaWFvCiAqLwpwdWJsaWMgY2xhc3MgRXhjZXB0aW9uU2NyaXB0IHsKICAgIHB1YmxpYyBPYmplY3QgcnVuKE1hcDxTdHJpbmcsIE9iamVjdD4gcGFyYW1zKSB0aHJvd3MgQ3VzdG9tRXhjZXB0aW9uIHsKICAgICAgICBwYXJhbXMucHV0KCIxIiwgMTExTCk7CiAgICAgICAgLy9yZXR1cm4gIk1vY2sgVmFsdWUiOwogICAgICAgIC8vdGhyb3cgbmV3IEN1c3RvbUV4Y2VwdGlvbigiaGVsbG8iKTsKICAgICAgICByZXR1cm4gbnVsbDsKICAgIH0KfQo=  --script-name exception
+
+      # Use the script-file parameter to specify the file experiment
+      blade c jvm script --classname com.example.controller.DubboController --methodname call --script-file /tmp/ExceptionScript.java --script-name exception
+
+      # The groovy script experiment scenario is executed with the same parameters as above, but the --script-type Groovy parameter must be added
+      blade c jvm script --classname com.example.controller.DubboController --methodname call --script-file /tmp/GroovyScript.groovy --script-name exception --script-type groovy
+
+      # Load external jar file
+      blade c jvm script --classname com.example.controller.DubboController --methodname call --external-jar file:/temp/chaosblade-extends.jar --script-content xxx
+    flags:
+    - desc: The Script file full path
+      name: script-file
+      noArgs: false
+      required: false
+    - desc: The script file type, java or groovy, default value is java
+      name: script-type
+      noArgs: false
+      required: false
+    - desc: The script contents
+      name: script-content
+      noArgs: false
+      required: false
+    - desc: The script name for label, unnecessary
+      name: script-name
+      noArgs: false
+      required: false
+    - desc: add external jar file
+      name: external-jar
+      noArgs: false
+      required: false
+    - desc: add external jar file from path
+      name: external-jar-path
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Dynamically execute custom scripts
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The class name with package
+      name: classname
+      noArgs: false
+      required: true
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: Specify the method after event
+      name: after
+      noArgs: true
+      required: false
+    - desc: The method name
+      name: methodname
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: Dynamically execute custom scripts
+  - action: threadfull
+    aliases:
+    - tfl
+    categories:
+    - java_resource_cpu
+    example: |-
+      # Specifies that the application thread is soaring and the status wait
+      blade create jvm threadfull --wait --thread-count 20
+
+      #Specifies that the application thread is soaring and running status
+      blade create jvm threadfull --running --thread-count 20
+    flags:
+    - desc: thread count
+      name: thread-count
+      noArgs: false
+      required: true
+    - desc: To tag threads running experiment.
+      name: running
+      noArgs: true
+      required: false
+    - desc: To tag threads wait experiment.
+      name: wait
+      noArgs: true
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Specifies that the application thread is soaring
+    matchers: []
+    programs:
+    - java
+    shortDesc: Specifies that the application thread is soaring
+  - action: OutOfMemoryError
+    aliases:
+    - oom
+    - outofmemoryerror
+    categories:
+    - java_resource_cpu
+    example: |-
+      # The Heap area is filled with memory.
+      blade c jvm oom --area HEAP --wild-mode true
+
+      # The Metaspace area is filled with memory. Note that after executing this experiment, the application needs to be restarted ！！！
+      blade c jvm oom --area NOHEAP --wild-mode true
+    flags:
+    - desc: Jvm memory area you want to cause OutOfMemoryError,the options:[HEAP,
+        NOHEAP, OFFHEAP]
+      name: area
+      noArgs: false
+      required: true
+    - desc: Decide oom happen mode in wild-mode or not,default is false,if true,will
+        quickly generate oom error,and the memory  will not release until stop,if
+        false,the oom error will not generate at once,and if oom happens frequently,the  memory
+        will release each once
+      name: wild-mode
+      noArgs: false
+      required: false
+    - desc: Time between to oom error,the time unit is millis,default is 500 ms,only
+        used when wilde-mode not true
+      name: interval
+      noArgs: false
+      required: false
+    - desc: Each block size when fill memory,only used for Heap OffHeap Area,Unit:MB
+      name: block
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: JVM out of memory
+    matchers: []
+    programs:
+    - java
+    shortDesc: JVM out of memory
+  example: null
+  longDesc: Experiment with the JVM, and you can specify classes, method injection
+    delays, return values, exception failure scenarios, or write Groovy and Java scripts
+    to implement complex scenarios.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: Experiment with the JVM
+  target: jvm
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment for mongodb client insert operations
+      blade create mongodb delay --time 2000 --sqltype insert
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: MongoDB delay experiment
+    matchers:
+    - desc: The sql type, for example, insert, update and so on.
+      name: sqltype
+      noArgs: false
+      required: false
+    - desc: The database name which used
+      name: database
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The first collection name in sql.
+      name: collection
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws customer exception experiment for mongodb client insert operations
+      blade create mongodb throwCustomException --exception java.lang.Exception --sqltype insert
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: MongoDB throws customer exception experiment
+    matchers:
+    - desc: The sql type, for example, insert, update and so on.
+      name: sqltype
+      noArgs: false
+      required: false
+    - desc: The database name which used
+      name: database
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The first collection name in sql.
+      name: collection
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: MongoDB experiment contains delay and exception by Collection name and
+    so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: MongoDB experiment
+  target: mongodb
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment for Postgrelsql client INSERT statement
+      blade create psql delay --sqltype insert --time 4000
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Postgrelsql delay experiment
+    matchers:
+    - desc: The sql type, for example, select, update and so on.
+      name: sqltype
+      noArgs: false
+      required: false
+    - desc: The database name which used
+      name: database
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The database port which used
+      name: port
+      noArgs: false
+      required: false
+    - desc: The database host
+      name: host
+      noArgs: false
+      required: false
+    - desc: The first table name in sql.
+      name: table
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws custom exception experiment for Postgrelsql client INSERT statement
+      blade create psql throwCustomException --sqltype insert --exception java.lang.Exception
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Postgrelsql throws custom exception experiment
+    matchers:
+    - desc: The sql type, for example, select, update and so on.
+      name: sqltype
+      noArgs: false
+      required: false
+    - desc: The database name which used
+      name: database
+      noArgs: false
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The database port which used
+      name: port
+      noArgs: false
+      required: false
+    - desc: The database host
+      name: host
+      noArgs: false
+      required: false
+    - desc: The first table name in sql.
+      name: table
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: Postgrelsql experiment contains delay and exception by table name and
+    so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: Postgrelsql experiment
+  target: psql
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Request to http://localhost:8080/dubbodemo/servlet/path?name=bob delays 3s, effect two requests
+      blade c servlet delay --time 3000 --requestpath /dubbodemo/servlet/path --effect-count 2
+
+      # The request parameter is name=family, the delay is 2 seconds, the delay time floats up and down for 1 second, the impact range is 50% of the request, and the debug log is turned on to troubleshoot the problem
+      blade c servlet delay --time 2000 --offset 1000 --querystring name=family --effect-percent 50 --debug
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Servlet delay experiment, support servlet springMVC webX
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The name of the HTTP method with which this request was made, for example,
+        GET, POST, or PUT.
+      name: method
+      noArgs: false
+      required: false
+    - desc: The query string that is contained in the request URL after the path.
+      name: querystring
+      noArgs: false
+      required: false
+    - desc: equal RequestUri without ContextPath
+      name: requestpath
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Request to http://localhost:8080/dubbodemo/hello throws custom exception, effect three requests
+      blade c servlet throwCustomException --exception org.springframework.beans.BeansException --exception-message mock-beans-exception --requestpath /hello --effect-count 3
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Servlet throw custom exception experiment, support servlet springMVC
+      webX
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The name of the HTTP method with which this request was made, for example,
+        GET, POST, or PUT.
+      name: method
+      noArgs: false
+      required: false
+    - desc: The query string that is contained in the request URL after the path.
+      name: querystring
+      noArgs: false
+      required: false
+    - desc: equal RequestUri without ContextPath
+      name: requestpath
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: Java servlet experiment, support path, query string, request method matcher
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: java servlet experiment
+  target: servlet
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 3s experiment with HTTP request URI = https://www.taobao.com for HttpClient4
+      blade create http delay --httpclient4 --uri https://www.taobao.com --time 3000
+
+      # Do a delay 3s experiment with HTTP request URI = https://www.taobao.com for HttpClient3
+      blade create http delay --httpclient3 --uri https://www.taobao.com --time 3000
+
+      # Do a delay 3s experiment with HTTP request URI = https://www.taobao.com for RestTemplate
+      blade create http delay --rest --uri https://www.taobao.com --time 3000
+
+      #Do a delay 3s experiment with HTTP request URI = https://www.taobao.com for OkHttp3
+      blade create http delay --okhttp3 --uri https://www.taobao.com --time 3000
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: HTTP client delay experiment
+    matchers:
+    - desc: To tag httpclient4 experiment.
+      name: httpclient4
+      noArgs: true
+      required: false
+    - desc: To tag restTemplate experiment.
+      name: rest
+      noArgs: true
+      required: false
+    - desc: To tag httpclient3 experiment.
+      name: httpclient3
+      noArgs: true
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: To tag okhttp3 experiment.
+      name: okhttp3
+      noArgs: true
+      required: false
+    - desc: url
+      name: uri
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws custom exception with HTTP request URI = https://www.taobao.com/ for HttpClient4
+      blade c http throwCustomException --httpclient4 --exception=java.lang.Exception --exception-message=customException --uri=https://www.taobao.com/
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: HTTP client throws custom exception experiment
+    matchers:
+    - desc: To tag httpclient4 experiment.
+      name: httpclient4
+      noArgs: true
+      required: false
+    - desc: To tag restTemplate experiment.
+      name: rest
+      noArgs: true
+      required: false
+    - desc: To tag httpclient3 experiment.
+      name: httpclient3
+      noArgs: true
+      required: false
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: To tag okhttp3 experiment.
+      name: okhttp3
+      noArgs: true
+      required: false
+    - desc: url
+      name: uri
+      noArgs: false
+      required: true
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: http experiment for testing service delay and exception.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: http experiment
+  target: http
+- actions:
+  - action: delay
+    aliases: []
+    categories:
+    - java_delay
+    example: |-
+      # Do a delay 2s experiment on Jedis `hset key name lina` command
+      blade create jedis delay --cmd hset --key name --time 2000
+
+      #Do a delay 2s experiment on Jedis `key name lina` command
+      blade create jedis delay --key name --time 2000
+    flags:
+    - desc: delay time
+      name: time
+      noArgs: false
+      required: true
+    - desc: delay offset for the time
+      name: offset
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Jedis commands delay experiments
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The cmd type, for example, set, hget,zadd and so on.
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: The key which command used
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: delay time
+  - action: throwCustomException
+    aliases:
+    - tce
+    categories:
+    - java_custom
+    example: |-
+      # Do a throws custom exception experiment on Jedis `key name lina` command
+      blade create jedis throwCustomException --exception java.lang.Exception --key name
+    flags:
+    - desc: Exception class inherit java.lang.Exception
+      name: exception
+      noArgs: false
+      required: true
+    - desc: Specify exception message for exception experiment, default value is chaosblade-mock-exception
+      name: exception-message
+      noArgs: false
+      required: false
+    - desc: Application process name
+      name: process
+      noArgs: false
+      required: false
+    - desc: The process id
+      name: pid
+      noArgs: false
+      required: false
+    longDesc: Jedis commands throws custom exception experiments
+    matchers:
+    - desc: The count of chaos experiment in effect
+      name: effect-count
+      noArgs: false
+      required: false
+    - desc: The percent of chaos experiment in effect
+      name: effect-percent
+      noArgs: false
+      required: false
+    - desc: The cmd type, for example, set, hget,zadd and so on.
+      name: cmd
+      noArgs: false
+      required: false
+    - desc: The key which command used
+      name: key
+      noArgs: false
+      required: false
+    programs:
+    - java
+    shortDesc: throw custom exception
+  example: null
+  longDesc: jedis experiment contains delay and exception by command and so on.
+  prepare:
+    flags:
+    - desc: Java application process
+      name: process
+      noArgs: false
+      required: false
+    - desc: Java home path
+      name: javaHome
+      noArgs: false
+      required: false
+    - desc: The process id of java application
+      name: pid
+      noArgs: false
+      required: false
+    required: true
+    type: jvm
+  scope: host
+  shortDesc: jedis experiment
+  target: jedis
+kind: plugin
+version: v1
