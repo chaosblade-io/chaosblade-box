@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.litmus.kubeapi;
+package com.alibaba.chaosblade.platform.service.task.log.i18n;
 
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 
+/**
+ * @author yefei
+ */
 @Configuration
-@ComponentScan("com.alibaba.chaosblade.platform.litmus.kubeapi")
-public class Config {
+public class I18nConfig {
+
+    @Bean(name = "messageSource")
+    public ReloadableResourceBundleMessageSource messageSource() {
+        ReloadableResourceBundleMessageSource messageBundle = new ReloadableResourceBundleMessageSource();
+        messageBundle.setBasename("classpath:task/logs/logs");
+        messageBundle.setDefaultEncoding("UTF-8");
+        return messageBundle;
+    }
 }

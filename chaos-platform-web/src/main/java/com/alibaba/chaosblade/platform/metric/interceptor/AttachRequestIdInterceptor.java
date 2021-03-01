@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.platform.metric.interceptor;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.chaosblade.platform.metric.model.WebConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -34,6 +35,8 @@ public class AttachRequestIdInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        LocaleContextHolder.resetLocaleContext();
+
         String requestId = IdUtil.simpleUUID();
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         requestAttributes.setAttribute(WebConstants.REQUEST_ID, requestId, RequestAttributes.SCOPE_REQUEST);

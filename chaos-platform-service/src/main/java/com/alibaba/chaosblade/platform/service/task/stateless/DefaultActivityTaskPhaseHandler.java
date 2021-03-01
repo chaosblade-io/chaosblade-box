@@ -37,15 +37,19 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogType;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_SUB_TASK_NOT_FOUNT;
 import static com.alibaba.chaosblade.platform.cmmon.exception.ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT;
 
 /**
@@ -75,6 +79,9 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
     @Autowired
     protected ActivityTaskExecuteContext activityTaskExecuteContext;
 
+    @Autowired
+    protected MessageSource messageSource;
+
     @Override
     public boolean preHandle(ActivityTask activityTask) {
         // check status
@@ -83,19 +90,18 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
                 .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
         RunStatus runStatus = RunStatus.parse(status);
 
-        log.info("检查任务状态，任务ID: {}，任务状态: {} ", activityTask.getExperimentTaskId(), runStatus.name());
+        TaskLogUtil.info(log, TaskLogType.CHECK_TASK_STATUS, activityTask.getExperimentTaskId(), runStatus.name());
         if (runStatus == RunStatus.READY || runStatus == RunStatus.RUNNING) {
 
             ExperimentActivityTaskDO activityTaskDO = experimentActivityTaskRepository.selectById(activityTask.getActivityTaskId())
-                    .orElseThrow(() -> new BizException("子任务不存在"));
+                    .orElseThrow(() -> new BizException(EXPERIMENT_SUB_TASK_NOT_FOUNT));
             RunStatus subRunStatus = RunStatus.parse(activityTaskDO.getRunStatus());
-            log.info("检查子任务状态，子任务ID: {}，任务状态: {} ", activityTaskDO.getExperimentTaskId(), subRunStatus.name());
+
+            TaskLogUtil.info(log, TaskLogType.CHECK_SUB_TASK_STATUS, activityTask.getExperimentTaskId(), subRunStatus.name());
+
             if (subRunStatus == RunStatus.READY) {
-                log.info("开始运行子运行，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                        activityTask.getExperimentTaskId(),
-                        activityTask.getPhase(),
-                        activityTask.getActivityTaskId()
-                );
+                TaskLogUtil.info(log, TaskLogType.EXECUTE_SUB_TASK, activityTask.getExperimentTaskId(), activityTask.getPhase(),
+                        String.valueOf(activityTask.getActivityTaskId()));
 
                 // update activity task status -> RUNNING
                 experimentActivityTaskRepository.updateByPrimaryKey(activityTask.getActivityTaskId(), ExperimentActivityTaskDO.builder()
@@ -111,17 +117,11 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
                 return true;
             } else {
-                log.warn("子运行状态不可运行，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                        activityTask.getExperimentTaskId(),
-                        activityTask.getPhase(),
-                        activityTask.getActivityTaskId()
-                );
+                TaskLogUtil.info(log, TaskLogType.SUB_TASK_UNABLE_EXECUTE, activityTask.getExperimentTaskId(), activityTask.getPhase(),
+                        String.valueOf(activityTask.getActivityTaskId()));
             }
         } else {
-            log.warn("当前任务状态不可运行，任务ID: {}，阶段：{}, 状态：{} ",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getPhase(),
-                    runStatus.name());
+            TaskLogUtil.info(log, TaskLogType.TASK_UNABLE_EXECUTE, activityTask.getExperimentTaskId(), activityTask.getPhase(), runStatus.name());
         }
         return false;
     }
@@ -181,13 +181,13 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
                     }
                 }
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
-                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
-                        activityTask.getExperimentTaskId(),
+                TaskLogUtil.info(log, TaskLogType.SUB_EXECUTE_EXECUTING, activityTask.getExperimentTaskId(),
                         activityTask.getPhase(),
-                        activityTask.getActivityTaskId(),
+                        String.valueOf(activityTask.getActivityTaskId()),
                         deviceMeta.getHostname() + "-" + deviceMeta.getIp(),
-                        record.getSuccess(),
-                        record.getErrorMessage());
+                        String.valueOf(record.getSuccess()),
+                        record.getErrorMessage()
+                );
 
                 if (e != null) {
                     AnyThrow.throwUnchecked(e);
@@ -206,10 +206,11 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
         // 执行后等待, 同步执行后续所有任务
         Long waitOfAfter = activityTask.getWaitOfAfter();
         if (waitOfAfter != null) {
-            log.info("演练阶段完成后等待, 任务ID：{}, 子任务ID: {}, 等待时间：{} 毫秒",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getActivityTaskId(),
-                    waitOfAfter);
+
+            TaskLogUtil.info(log, TaskLogType.EXPERIMENT_WAIT_OF_AFTER, activityTask.getExperimentTaskId(),
+                    String.valueOf(activityTask.getActivityTaskId()),
+                    String.valueOf(waitOfAfter)
+            );
 
             activityTaskExecuteContext.timer().newTimeout(timeout ->
                             future.thenRunAsync(
@@ -226,24 +227,26 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
     public void postHandle(ActivityTask activityTask, Throwable e) {
 
         if (e != null) {
-            log.error("子任务运行失败，任务ID: {}，阶段：{}, 子任务ID: {}, 失败原因: ",
-                    activityTask.getExperimentTaskId(),
+            TaskLogUtil.error(log, TaskLogType.SUB_EXECUTE_ERROR, activityTask.getExperimentTaskId(),
+                    e,
                     activityTask.getPhase(),
-                    activityTask.getActivityTaskId(),
-                    e);
+                    String.valueOf(activityTask.getActivityTaskId())
+            );
             activityTask.future().completeExceptionally(e);
         } else {
-            log.info("子任务运行完成，任务ID: {}，阶段：{}, 子任务ID：{} ",
-                    activityTask.getExperimentTaskId(),
+            TaskLogUtil.info(log, TaskLogType.SUB_EXECUTE_SUCCESS, activityTask.getExperimentTaskId(),
                     activityTask.getPhase(),
-                    activityTask.getActivityTaskId());
+                    String.valueOf(activityTask.getActivityTaskId())
+            );
 
             Long waitOfAfter = activityTask.getWaitOfAfter();
             if (waitOfAfter != null) {
-                log.info("演练阶段完成后等待通知, 任务ID：{}, 子任务ID: {} 等待时间：{} 毫秒",
-                        activityTask.getExperimentTaskId(),
-                        activityTask.getActivityTaskId(),
-                        waitOfAfter);
+
+                TaskLogUtil.info(log, TaskLogType.EXPERIMENT_WAIT_OF_AFTER, activityTask.getExperimentTaskId(),
+                        String.valueOf(activityTask.getActivityTaskId()),
+                        String.valueOf(waitOfAfter)
+                );
+
                 activityTaskExecuteContext.timer().newTimeout(timeout -> activityTask.future().complete(null),
                         waitOfAfter,
                         TimeUnit.MILLISECONDS);

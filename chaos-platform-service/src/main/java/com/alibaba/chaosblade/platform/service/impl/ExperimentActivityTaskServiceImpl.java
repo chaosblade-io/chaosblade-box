@@ -35,11 +35,16 @@ import com.alibaba.chaosblade.platform.metric.MetricService;
 import com.alibaba.chaosblade.platform.service.ExperimentActivityTaskService;
 import com.alibaba.chaosblade.platform.service.ExperimentMiniFlowService;
 import com.alibaba.chaosblade.platform.service.model.metric.MetricModel;
-import com.alibaba.chaosblade.platform.service.task.*;
+import com.alibaba.chaosblade.platform.service.task.ActivityTask;
+import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
+import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecutePipeline;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogType;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -126,7 +131,9 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                     .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
 
             if (experimentTask.getRunStatus().equals(RunStatus.READY.getValue())) {
-                logger.info("开始执行演练, 任务ID：{}", activityTask.getExperimentTaskId());
+
+                TaskLogUtil.info(logger, TaskLogType.START_EXPERIMENT, activityTask.getExperimentTaskId());
+
                 experimentTaskRepository.updateByPrimaryKey(experimentTaskDO.getId(), ExperimentTaskDO.builder()
                         .gmtStart(DateUtil.date())
                         .runStatus(RunStatus.RUNNING.getValue())
@@ -144,12 +151,12 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
 
                 String metric = experimentTaskDO.getMetric();
                 if (StrUtil.isNotBlank(metric)) {
-                    logger.info("开始接入监控, 任务ID：{}", activityTask.getExperimentTaskId());
+                    TaskLogUtil.info(logger, TaskLogType.START_METRIC, activityTask.getExperimentTaskId());
                     List<MetricModel> metricModels = JsonUtils.readValue(new TypeReference<List<MetricModel>>() {
                     }, metric);
                     metricModels.forEach(metricModel -> metric(context, metricModel, activityTask));
                 } else {
-                    logger.info("未接入监控, 任务ID：{}", activityTask.getExperimentTaskId());
+                    TaskLogUtil.info(logger, TaskLogType.NO_METRIC, activityTask.getExperimentTaskId());
                 }
             }
         });
@@ -165,6 +172,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                             .resultStatus(ResultStatus.FAILED.getValue())
                             .errorMessage(e.getMessage())
                             .build());
+
                 }
             }
             if (activityTask.isRecoverPhase()) {
@@ -173,12 +181,12 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                         .gmtEnd(DateUtil.date())
                         .build();
                 if (e != null) {
-                    logger.error("演练结束，任务ID：{}, 恢复失败: {}", activityTask.getExperimentTaskId(), e.getMessage());
+                    TaskLogUtil.info(logger, TaskLogType.EXPERIMENT_RECOVER_ERROR, activityTask.getExperimentTaskId(), e.getMessage());
                     log.error(e.getMessage(), e);
                     taskDO.setResultStatus(ResultStatus.FAILED.getValue());
                     taskDO.setErrorMessage(e.getMessage());
                 } else {
-                    logger.info("演练结束，任务ID：{}, 恢复成功", activityTask.getExperimentTaskId());
+                    TaskLogUtil.info(logger, TaskLogType.EXPERIMENT_RECOVER_SUCCESS, activityTask.getExperimentTaskId());
                     taskDO.setResultStatus(ResultStatus.SUCCESS.getValue());
                 }
                 experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), taskDO);
@@ -247,7 +255,8 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                     .build())
                     .handleAsync((r, e) -> {
                         if (e != null) {
-                            logger.error("获取监控数据失败, 任务ID：{}, 机器信息：{}, 异常: {}",
+                            TaskLogUtil.info(logger,
+                                    TaskLogType.GET_METRIC_ERROR,
                                     activityTask.getExperimentTaskId(),
                                     JsonUtils.writeValueAsString(activityTask.getDeviceMetas()),
                                     e.getMessage());

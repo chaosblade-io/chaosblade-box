@@ -76,9 +76,11 @@ public class AttackActivityTaskHandler extends DefaultActivityTaskPhaseHandler {
             experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), ExperimentTaskDO.builder()
                     .resultStatus(ResultStatus.SUCCESS.getValue())
                     .build());
-        }
 
-        super.postHandle(activityTask, e);
+            super.postHandle(activityTask, null);
+        } else {
+            super.postHandle(activityTask, e);
+        }
     }
 
 }

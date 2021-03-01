@@ -17,14 +17,11 @@
 package com.alibaba.chaosblade.platform.http;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.http.constant.Header;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvoker;
-import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategy;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -36,7 +33,6 @@ import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -45,8 +41,6 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author yefei
  */
-@Slf4j
-@Component
 public abstract class AbstractHttpInvoker implements ChaosInvoker<HttpChannelRequest, ResponseCommand>, InitializingBean, DisposableBean {
 
     public static final String CHAOSBLADE_HANDLER = "/chaosblade";
@@ -113,4 +107,5 @@ public abstract class AbstractHttpInvoker implements ChaosInvoker<HttpChannelReq
         });
         return completableFuture;
     }
+
 }

@@ -24,6 +24,8 @@ import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskCompleteListener;
 import com.alibaba.chaosblade.platform.service.task.listener.ExperimentTaskStartListener;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogType;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogUtil;
 import com.alibaba.chaosblade.platform.service.task.stateless.ActivityTaskHandlerStrategyContext;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -90,58 +92,66 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                 ExperimentTaskStartListener experimentTaskStartListener = taskStartListenerMap.get(activityTaskExecutePipeline);
                 experimentTaskStartListener.notify(this, internalTask.getTask());
             }
+            List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
+            for (TaskNode<ActivityTask> node = internalTask; node != null; node = node.prev()) {
+                CompletableFuture<Void> future = node.getTask().future();
+                futures.add(future);
+            }
+
+            TaskNode<ActivityTask> next = internalTask.next();
+            if (next != null) {
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handle((r, e) -> {
+                    executeActivityTask0(next.getTask());
+                    return null;
+                });
+            }
 
             ActivityTask activityTask = internalTask.getTask();
+
+            if (internalTask == activityTaskExecutePipeline.tail()
+                    && taskCompleteListenerMap.get(activityTaskExecutePipeline) != null) {
+                ExperimentTaskCompleteListener experimentTaskCompleteListener = taskCompleteListenerMap.get(activityTaskExecutePipeline);
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handleAsync((r, e) -> {
+                    experimentTaskCompleteListener.notify(this, activityTask, e);
+                    return null;
+                }, executor).handleAsync((r, e) -> {
+                    if (e != null) {
+                        log.error("complete listener notify error!", e);
+                    }
+                    return null;
+                });
+            }
 
             if (internalTask.prev() != null) {
                 String prePhase = internalTask.prev().getTask().getPhase();
                 String nextPhase = internalTask.getTask().getPhase();
                 if (!prePhase.equals(nextPhase)) {
-                    log.info("演练阶段 {} -> {}, 任务ID: {}", prePhase, nextPhase, activityTask.getExperimentTaskId());
+                    TaskLogUtil.info(log, TaskLogType.EXPERIMENT_PHASE_TRANSFER, activityTask.getExperimentTaskId(),
+                            prePhase, nextPhase, String.valueOf(activityTask.getExperimentTaskId()));
                     return;
                 }
             }
             executeActivityTask(activityTaskExecutePipeline, internalTask);
         } catch (Throwable throwable) {
+            log.error("fireExecute error!", throwable);
             activityTaskHandlerStrategyContext.postHandle(
                     internalTask.getTask(),
                     throwable);
+
         }
     }
 
     private void executeActivityTask(ActivityTaskExecutePipeline activityTaskExecutePipeline, TaskNode<ActivityTask> internalTask) {
 
-        List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
-        for (TaskNode<ActivityTask> node = internalTask; node != null; node = node.prev()) {
-            CompletableFuture<Void> future = node.getTask().future();
-            futures.add(future);
-        }
-
-        TaskNode<ActivityTask> next = internalTask.next();
-        if (next != null) {
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handle((r, e) -> {
-                executeActivityTask0(next.getTask());
-                return null;
-            });
-        }
-
         ActivityTask activityTask = internalTask.getTask();
-
-        if (internalTask == activityTaskExecutePipeline.tail()
-                && taskCompleteListenerMap.get(activityTaskExecutePipeline) != null) {
-            ExperimentTaskCompleteListener experimentTaskCompleteListener = taskCompleteListenerMap.get(activityTaskExecutePipeline);
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).handleAsync((r, e) -> {
-                experimentTaskCompleteListener.notify(this, activityTask, e);
-                return null;
-            }, executor);
-        }
-
         Long waitOfBefore = activityTask.getWaitOfBefore();
         if (waitOfBefore != null) {
-            log.info("演练阶段执行前等待, 任务ID：{}, 子任务ID: {} 等待时间：{} 毫秒",
-                    activityTask.getExperimentTaskId(),
-                    activityTask.getActivityTaskId(),
-                    waitOfBefore);
+
+            TaskLogUtil.info(log, TaskLogType.EXPERIMENT_WAIT_OF_BEFORE, activityTask.getExperimentTaskId(),
+                    String.valueOf(activityTask.getActivityTaskId()),
+                    String.valueOf(waitOfBefore)
+            );
+
             timer.newTimeout(timeout ->
                             executor.execute(() -> {
                                 try {
@@ -155,6 +165,7 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                     waitOfBefore,
                     TimeUnit.MILLISECONDS);
         } else {
+            // todo Ensuring transaction commit
             executor.execute(() -> {
                 try {
                     executeActivityTask0(activityTask);

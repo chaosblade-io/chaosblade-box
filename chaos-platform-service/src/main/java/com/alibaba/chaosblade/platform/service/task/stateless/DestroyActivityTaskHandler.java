@@ -30,6 +30,8 @@ import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
 import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogType;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -55,9 +57,10 @@ public class DestroyActivityTaskHandler extends DefaultActivityTaskPhaseHandler 
                 .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
         RunStatus runStatus = RunStatus.parse(status);
 
-        log.info("恢复任务阶段, 检查任务状态，任务ID: {}，任务状态: {} ", activityTask.getExperimentTaskId(), runStatus.name());
+        TaskLogUtil.info(log, TaskLogType.RECOVER_CHECK_SUB_TASK_STATUS, activityTask.getExperimentTaskId(), runStatus.name());
+
         if (runStatus != RunStatus.STOPPING) {
-            log.info("恢复任务阶段不可执行，状态不为 STOPPING 的任务，任务ID: {}", activityTask.getExperimentTaskId());
+            TaskLogUtil.info(log, TaskLogType.RECOVER_PHASE_UNABLE_EXECUTE, activityTask.getExperimentTaskId());
             return false;
         }
         return true;
@@ -123,13 +126,14 @@ public class DestroyActivityTaskHandler extends DefaultActivityTaskPhaseHandler 
                     }
                 }
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), recordDO);
-                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
-                        activityTask.getExperimentTaskId(),
+
+                TaskLogUtil.info(log, TaskLogType.SUB_EXECUTE_EXECUTING, activityTask.getExperimentTaskId(),
                         activityTask.getPhase(),
-                        activityTask.getActivityTaskId(),
+                        String.valueOf(activityTask.getActivityTaskId()),
                         record.getHostname() + "-" + record.getIp(),
-                        recordDO.getSuccess(),
-                        recordDO.getErrorMessage());
+                        String.valueOf(record.getSuccess()),
+                        record.getErrorMessage()
+                );
 
                 if (e != null) {
                     AnyThrow.throwUnchecked(e);

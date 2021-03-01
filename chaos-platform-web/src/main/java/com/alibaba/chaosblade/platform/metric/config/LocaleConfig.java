@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.platform.metric;
+package com.alibaba.chaosblade.platform.metric.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 /**
  * @author yefei
  */
-@Import(cn.hutool.extra.spring.SpringUtil.class)
-@SpringBootApplication(scanBasePackages = {"com.alibaba.chaosblade.platform"})
-public class ChaosPlatformApplication {
+@Configuration
+public class LocaleConfig {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ChaosPlatformApplication.class, args);
+    @Bean
+    public LocaleResolver localeResolver() {
+        return new SessionLocaleResolver();
     }
 
 }
-

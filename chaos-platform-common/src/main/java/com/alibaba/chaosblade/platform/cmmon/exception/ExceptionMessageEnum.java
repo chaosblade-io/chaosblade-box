@@ -36,6 +36,7 @@ public enum ExceptionMessageEnum {
     EXPERIMENT_DEVICE_IS_NULL(6205, "演练机器不能为空"),
     EXPERIMENT_SCENE_IS_NULL(6206, "请选择演练场景"),
     EXPERIMENT_PRE_NO_FINISH(6207, "上一次演练任务未结束"),
+    EXPERIMENT_SUB_TASK_NOT_FOUNT(6208, "子任务不存在"),
 
     // METRIC
     METRIC_NOT_FOUNT(6300, "监控类目不存在"),

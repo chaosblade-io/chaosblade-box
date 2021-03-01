@@ -82,6 +82,7 @@ public abstract class AbstractChaosBladeChaosInvoker implements ChaosInvoker<Req
                             ChaosBlade chaosBlade = BeanUtil.toBean(result, ChaosBlade.class);
 
                             StatusResponseCommand statusResponseCommand = new StatusResponseCommand();
+                            statusResponseCommand.setCode(String.valueOf(statusCode));
                             if (ArrayUtil.isNotEmpty(chaosBlade.getStatus().getExpStatuses())) {
                                 ExperimentStatus expStatus = chaosBlade.getStatus().getExpStatuses()[0];
                                 statusResponseCommand.setState(expStatus.getState());

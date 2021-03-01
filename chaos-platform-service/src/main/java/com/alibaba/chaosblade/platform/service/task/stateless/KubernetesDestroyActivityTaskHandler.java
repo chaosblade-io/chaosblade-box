@@ -32,6 +32,8 @@ import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.RequestCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.ActivityTaskExecuteContext;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogType;
+import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -120,13 +122,14 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
                     }
                 }
                 experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
-                log.info("子任务运行中，任务ID: {}，阶段：{}, 子任务ID: {}, 当前机器: {}, 是否成功: {}, 失败原因: {}",
-                        activityTask.getExperimentTaskId(),
+
+                TaskLogUtil.info(log, TaskLogType.SUB_EXECUTE_EXECUTING, activityTask.getExperimentTaskId(),
                         activityTask.getPhase(),
-                        activityTask.getActivityTaskId(),
+                        String.valueOf(activityTask.getActivityTaskId()),
                         recordDO.getHostname(),
-                        record.getSuccess(),
-                        record.getErrorMessage());
+                        String.valueOf(record.getSuccess()),
+                        record.getErrorMessage()
+                );
 
                 if (e != null) {
                     AnyThrow.throwUnchecked(e);
