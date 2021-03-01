@@ -141,13 +141,11 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
                                     return aDo;
                                 });
 
-                        if (deviceDO.getStatus() == DeviceStatus.OFFLINE.getStatus()) {
-                            deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
-                                    .ip(node.getIp())
-                                    .status(DeviceStatus.ONLINE.getStatus())
-                                    .lastOnlineTime(DateUtil.date())
-                                    .build());
-                        }
+                        deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                                .ip(node.getIp())
+                                .status(DeviceStatus.ONLINE.getStatus())
+                                .lastOnlineTime(DateUtil.date())
+                                .build());
 
                     });
                     return null;
@@ -199,12 +197,10 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
                                         return id;
                                     });
 
-                            if (deviceMapper.selectById(deviceId).getStatus() == DeviceStatus.OFFLINE.getStatus()) {
-                                deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
-                                        .status(DeviceStatus.ONLINE.getStatus())
-                                        .lastOnlineTime(DateUtil.date())
-                                        .build());
-                            }
+                            deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
+                                    .status(DeviceStatus.ONLINE.getStatus())
+                                    .lastOnlineTime(DateUtil.date())
+                                    .build());
                         });
                         return null;
                     });
