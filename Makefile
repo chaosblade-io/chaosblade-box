@@ -1,6 +1,6 @@
 .PHONY: build clean
 
-export CHAOS_PLATFORM_VERSION=0.1.0
+export CHAOS_PLATFORM_VERSION=0.2.0
 SRC_ROOT=$(shell pwd)
 
 # chaos-platform-fe
