@@ -29,10 +29,10 @@ mvn clean package -Dmaven.test.skip=true -Dmysql.url= -Dmysql.username= -Dmysql.
 
 ## run
 ````shell script
-nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaos-platform-web-0.1.0.jar > chaos-platform.log 2>&1 &
+nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaos-platform-web-0.2.0.jar > chaos-platform.log 2>&1 &
 ````
 ````shell script
-nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaos-platform-web-0.1.0.jar --spring.datasource.url= --spring.datasource.username= ---spring.datasource.password= > chaos-platform.log 2>&1 &
+nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaos-platform-web-0.2.0.jar --spring.datasource.url= --spring.datasource.username= ---spring.datasource.password= > chaos-platform.log 2>&1 &
 ````
 
 
