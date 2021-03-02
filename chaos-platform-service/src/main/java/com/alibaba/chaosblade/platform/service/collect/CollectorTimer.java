@@ -22,6 +22,7 @@ import cn.hutool.core.util.EnumUtil;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceStatus;
 import com.alibaba.chaosblade.platform.cmmon.enums.DeviceType;
 import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
+import com.alibaba.chaosblade.platform.cmmon.utils.Preconditions;
 import com.alibaba.chaosblade.platform.cmmon.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.platform.cmmon.utils.timer.Timer;
 import com.alibaba.chaosblade.platform.collector.*;
@@ -84,6 +85,7 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
     private NodeCollector nodeCollector;
 
     public void dryRun() throws Exception {
+        Preconditions.checkNotNull(nodeCollector, "collector is null");
         CompletableFuture<List<Node>> future = nodeCollector.collect(Query.builder().build());
         log.info("collector dry run, node size: {}", future.get().size());
     }
