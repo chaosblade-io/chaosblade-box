@@ -259,18 +259,25 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
             probesRequest.setProbeId(id);
 
             executorService.execute(() -> {
+                try {
+                    Response<String> deployAgent = chaosToolsMgrStrategyContext.deployAgent(Request.builder()
+                            .host(probesRequest.getHost())
+                            .probesId(id)
+                            .commandOptions(probesRequest.getCommandOptions())
+                            .channel(ChannelType.ANSIBLE.name()).build());
 
-                Response<String> deployAgent = chaosToolsMgrStrategyContext.deployAgent(Request.builder()
-                        .host(probesRequest.getHost())
-                        .probesId(id)
-                        .commandOptions(probesRequest.getCommandOptions())
-                        .channel(ChannelType.ANSIBLE.name()).build());
-
-                if (!deployAgent.isSuccess()) {
+                    if (!deployAgent.isSuccess()) {
+                        probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
+                                .ip(probesRequest.getHost())
+                                .status(DeviceStatus.INSTALL_FAIL.getStatus())
+                                .errorMessage(deployAgent.getMessage())
+                                .build());
+                    }
+                } catch (Exception e) {
                     probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
                             .ip(probesRequest.getHost())
                             .status(DeviceStatus.INSTALL_FAIL.getStatus())
-                            .errorMessage(deployAgent.getMessage())
+                            .errorMessage(e.getMessage())
                             .build());
                 }
             });

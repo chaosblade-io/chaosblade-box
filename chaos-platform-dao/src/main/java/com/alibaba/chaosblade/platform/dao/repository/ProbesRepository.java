@@ -66,7 +66,7 @@ public class ProbesRepository implements IRepository<Long, ProbesDO> {
 
     public Optional<ProbesDO> selectByHost(String host) {
         QueryWrapper<ProbesDO> queryWrapper = QueryWrapperBuilder.build();
-        queryWrapper.lambda().eq(ProbesDO::getAgentType, host);
+        queryWrapper.lambda().eq(ProbesDO::getIp, host);
         return Optional.ofNullable(probesMapper.selectOne(queryWrapper));
     }
 

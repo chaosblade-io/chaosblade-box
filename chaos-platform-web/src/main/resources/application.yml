@@ -50,7 +50,7 @@ chaos:
         #  version: 1.13.0
         #  url: https://hub.litmuschaos.io/api/chaos/1.13.0?file=charts/kafka/experiments.yaml
   collector:
-    enable: true
+    enable: false
     type: kube_api
     period: 30
     prometheus:
