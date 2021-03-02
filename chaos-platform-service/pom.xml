@@ -29,10 +29,10 @@
             <artifactId>chaos-platform-invoker-blade-kubeapi</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.alibaba.chaosblade</groupId>
-            <artifactId>chaos-platform-invoker-litmus-kubeapi</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba.chaosblade</groupId>-->
+<!--            <artifactId>chaos-platform-invoker-litmus-kubeapi</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.alibaba.chaosblade</groupId>
