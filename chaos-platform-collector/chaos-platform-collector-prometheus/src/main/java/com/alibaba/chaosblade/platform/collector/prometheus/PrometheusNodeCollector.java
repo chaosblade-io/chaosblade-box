@@ -25,6 +25,7 @@ import com.alibaba.chaosblade.platform.collector.model.Query;
 import com.alibaba.chaosblade.platform.collector.prometheus.model.PrometheusNode;
 import com.alibaba.chaosblade.platform.cmmon.model.PrometheusResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.http.client.methods.HttpPost;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

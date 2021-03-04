@@ -22,7 +22,7 @@ import lombok.Data;
  * @author yefei
  */
 @Data
-public abstract class PageQuery {
+public class PageQuery {
 
     public final static int PAGE = 1;
 

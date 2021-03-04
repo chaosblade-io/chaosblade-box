@@ -22,6 +22,7 @@ package com.alibaba.chaosblade.platform.cmmon.exception;
 public enum ExceptionMessageEnum {
 
     ERROR(6000, "系统异常"),
+    ID_IS_NULL(6001, "ID IS NULL"),
 
     // DEVICE
     DEVICE_TYPE_NOT_FOUNT(6100, "不支持的设备类型"),

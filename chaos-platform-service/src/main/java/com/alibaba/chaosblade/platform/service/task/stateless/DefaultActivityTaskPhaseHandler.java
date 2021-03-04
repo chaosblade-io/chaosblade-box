@@ -32,7 +32,7 @@ import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
 import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRecordRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ExperimentActivityTaskRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ExperimentTaskRepository;
-import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
+import com.alibaba.chaosblade.platform.invoker.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;

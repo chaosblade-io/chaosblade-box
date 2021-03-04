@@ -48,7 +48,7 @@ public abstract class AbstractCollector<T> implements Collector<T>, Initializing
 
     private CloseableHttpAsyncClient httpAsyncClient;
 
-    public CompletableFuture<List<T>> collect(String query) {
+    protected CompletableFuture<List<T>> collect(String query) {
 
         HttpPost httpPost = new HttpPost(api);
         List<NameValuePair> params = new ArrayList<>();
@@ -56,13 +56,12 @@ public abstract class AbstractCollector<T> implements Collector<T>, Initializing
         params.add(new BasicNameValuePair("start", String.valueOf(System.currentTimeMillis() / 1000)));
         params.add(new BasicNameValuePair("end", String.valueOf(System.currentTimeMillis() / 1000)));
         params.add(new BasicNameValuePair("step", "14"));
-
+        CompletableFuture<List<T>> future = new CompletableFuture<>();
         try {
             httpPost.setEntity(new UrlEncodedFormEntity(params));
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            future.completeExceptionally(e);
         }
-        CompletableFuture<List<T>> future = new CompletableFuture<>();
         httpAsyncClient.execute(httpPost, new FutureCallback<HttpResponse>() {
             @Override
             public void completed(HttpResponse httpResponse) {

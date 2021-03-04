@@ -58,6 +58,7 @@ chaos:
   metric:
     aliyun:
   agent:
+    heartbeatsEnable: true
     port: 19527
     release: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaosagent
   ctl:

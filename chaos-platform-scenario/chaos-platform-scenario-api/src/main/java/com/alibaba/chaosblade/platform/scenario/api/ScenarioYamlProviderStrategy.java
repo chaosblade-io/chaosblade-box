@@ -48,7 +48,7 @@ public class ScenarioYamlProviderStrategy implements ScenarioYamlProvider, Initi
     private ApplicationContext applicationContext;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         Map<String, ScenarioYamlProvider> beansOfType = applicationContext.getBeansOfType(ScenarioYamlProvider.class);
         for (Map.Entry<String, ScenarioYamlProvider> entry : beansOfType.entrySet()) {
             ScenarioYamlProvider value = entry.getValue();

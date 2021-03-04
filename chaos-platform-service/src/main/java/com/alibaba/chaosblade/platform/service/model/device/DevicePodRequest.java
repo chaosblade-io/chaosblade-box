@@ -17,12 +17,18 @@
 package com.alibaba.chaosblade.platform.service.model.device;
 
 import com.alibaba.chaosblade.platform.dao.page.PageQuery;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yefei
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DevicePodRequest extends PageQuery {
 
     private String namespace;

@@ -27,7 +27,7 @@ import com.alibaba.chaosblade.platform.cmmon.exception.BizException;
 import com.alibaba.chaosblade.platform.cmmon.utils.AnyThrow;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.platform.dao.model.ExperimentTaskDO;
-import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
+import com.alibaba.chaosblade.platform.invoker.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import com.alibaba.chaosblade.platform.service.task.ActivityTask;
 import com.alibaba.chaosblade.platform.service.task.log.i18n.TaskLogType;

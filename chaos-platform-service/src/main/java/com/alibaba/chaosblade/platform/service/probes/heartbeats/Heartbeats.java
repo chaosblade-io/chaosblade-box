@@ -25,8 +25,8 @@ import com.alibaba.chaosblade.platform.dao.model.DeviceDO;
 import com.alibaba.chaosblade.platform.dao.model.ProbesDO;
 import com.alibaba.chaosblade.platform.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.platform.dao.repository.ProbesRepository;
-import com.alibaba.chaosblade.platform.http.ChaosBladePingHttpInvoker;
-import com.alibaba.chaosblade.platform.http.model.reuest.HttpChannelRequest;
+import com.alibaba.chaosblade.platform.invoker.http.ChaosBladePingHttpInvoker;
+import com.alibaba.chaosblade.platform.invoker.http.model.reuest.HttpChannelRequest;
 import com.alibaba.chaosblade.platform.invoker.ResponseCommand;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,11 +54,18 @@ public class Heartbeats implements InitializingBean {
     @Value("${chaos.agent.port}")
     private int chaosAgentPort;
 
+    @Value("${chaos.agent.heartbeatsEnable}")
+    private boolean heartbeatsEnable;
+
     private Timer timer;
 
     private ExecutorService executorService;
 
     public void addHeartbeats(ProbesDO probesDO) {
+        if (!heartbeatsEnable) {
+            return;
+        }
+
         timer.newTimeout(timeout -> {
             executorService.execute(() -> {
 
@@ -133,6 +140,9 @@ public class Heartbeats implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        if (!heartbeatsEnable) {
+            return;
+        }
 
         timer = new HashedWheelTimer(r -> {
             Thread thread = new Thread(r);
