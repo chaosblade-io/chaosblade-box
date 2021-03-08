@@ -37,7 +37,6 @@ import com.alibaba.chaosblade.platform.service.model.experiment.ExperimentTaskRe
 import com.alibaba.chaosblade.platform.service.model.experiment.activity.ExperimentActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +77,6 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
     private ExperimentActivityTaskRecordRepository experimentActivityTaskRecordRepository;
 
     @Override
-    @Transactional
     public ExperimentTaskResponse createExperimentTask(Long experimentId) {
         ExperimentDO experimentDO = experimentRepository.selectById(experimentId)
                 .orElseThrow(() -> new BizException(ExceptionMessageEnum.EXPERIMENT_NOT_FOUNT));

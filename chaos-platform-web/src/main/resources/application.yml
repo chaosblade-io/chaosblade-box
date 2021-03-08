@@ -9,6 +9,7 @@ logging:
 spring:
   application:
     name: chaos-platform
+    version: @project.version@
   datasource:
     url: jdbc:mysql://@mysql.url@/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: @mysql.username@

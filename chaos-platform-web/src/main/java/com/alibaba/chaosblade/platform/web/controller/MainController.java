@@ -4,8 +4,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.platform.cmmon.utils.SystemPropertiesUtils;
 import com.alibaba.chaosblade.platform.scenario.api.ScenarioRequest;
 import com.alibaba.chaosblade.platform.scenario.api.ScenarioYamlProviderStrategy;
+import com.alibaba.chaosblade.platform.web.model.SystemInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -24,6 +26,9 @@ public class MainController {
     @Autowired
     private ScenarioYamlProviderStrategy scenarioYamlProviderStrategy;
 
+    @Value("${spring.application.version}")
+    private String version;
+
     @GetMapping(path = {"/", "/experiment/**", "/machine/**", "/scenario/**", "/chaostools/**"})
     public String root() {
         return "/index.html";
@@ -38,6 +43,16 @@ public class MainController {
         } else {
             log.warn("i18n api, param is wrong locale");
         }
+    }
+
+    @GetMapping("/api/SystemInfo")
+    @ResponseBody
+    public SystemInfoResponse systemInfo() {
+        Locale locale = LocaleContextHolder.getLocale();
+        return SystemInfoResponse.builder()
+                .locale(locale.toLanguageTag())
+                .version(version)
+                .build();
     }
 
     @GetMapping(path = "/api/FetchChaostoolsOverview/**")

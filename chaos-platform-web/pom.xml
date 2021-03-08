@@ -6,7 +6,7 @@
     <parent>
         <artifactId>chaos-platform</artifactId>
         <groupId>com.alibaba.chaosblade</groupId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,7 +57,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.alibaba.chaosblade.platform.metric.ChaosPlatformApplication</mainClass>
+                    <mainClass>com.alibaba.chaosblade.platform.web.ChaosPlatformApplication</mainClass>
                     <layout>ZIP</layout>
                 </configuration>
                 <executions>
@@ -71,3 +71,4 @@
         </plugins>
     </build>
 </project>
+

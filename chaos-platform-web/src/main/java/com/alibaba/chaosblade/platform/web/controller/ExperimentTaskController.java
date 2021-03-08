@@ -60,7 +60,7 @@ public class ExperimentTaskController {
 
     @RequestMapping("/FailRetryExperiment")
     public ExperimentTaskResponse failRetryExperiment(@RequestBody ExperimentTaskRequest experimentRequest) {
-        Preconditions.checkNotNull(experimentRequest.getTaskId(), ID_IS_NULL);
+        Preconditions.checkNotNull(experimentRequest.getTask().getTaskId(), ID_IS_NULL);
         return experimentTaskService.failRetryExperiment(experimentRequest);
     }
 

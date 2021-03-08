@@ -108,7 +108,7 @@ public class AnsibleChaosToolsMgr implements ChaosToolsMgr<Request> {
                 return Response.ofFail(IoUtil.read(process.getErrorStream(), SystemPropertiesUtils.getPropertiesFileEncoding()));
             } else {
                 String result = IoUtil.read(process.getInputStream(), SystemPropertiesUtils.getPropertiesFileEncoding());
-                if (result.contains("CHANGED")) {
+                if (result.contains("rc=0")) {
                     return Response.ofSuccess(result);
                 } else {
                     return Response.ofFail(result);

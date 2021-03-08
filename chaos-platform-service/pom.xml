@@ -6,7 +6,7 @@
     <parent>
         <artifactId>chaos-platform</artifactId>
         <groupId>com.alibaba.chaosblade</groupId>
-        <version>0.2.0</version>
+        <version>0.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,10 +29,10 @@
             <artifactId>chaos-platform-invoker-blade-kubeapi</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.alibaba.chaosblade</groupId>-->
-<!--            <artifactId>chaos-platform-invoker-litmus-kubeapi</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaos-platform-invoker-litmus-kubeapi</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.alibaba.chaosblade</groupId>

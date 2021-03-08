@@ -16,8 +16,12 @@
 
 package com.alibaba.chaosblade.platform.web.controller;
 
+import com.alibaba.chaosblade.platform.cmmon.utils.JsonUtils;
 import com.alibaba.chaosblade.platform.scenario.api.model.ToolsOverview;
 import com.alibaba.chaosblade.platform.web.ChaosPlatformApplication;
+import com.alibaba.chaosblade.platform.web.model.Response;
+import com.alibaba.chaosblade.platform.web.model.SystemInfoResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,6 +59,23 @@ public class MainControllerTest {
     @Before
     public void init() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    @Test
+    public void testSystemInfo() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/SystemInfo")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andReturn();
+        MockHttpServletResponse httpServletResponse = mvcResult.getResponse();
+        Assert.assertEquals(httpServletResponse.getStatus(), 200);
+
+        Response<SystemInfoResponse> response = JsonUtils.readValue(
+                new TypeReference<Response<SystemInfoResponse>>() {
+                },
+                httpServletResponse.getContentAsByteArray());
+
+        Assert.assertEquals(response.getData().getVersion(), "0.3.0");
     }
 
     @Test
