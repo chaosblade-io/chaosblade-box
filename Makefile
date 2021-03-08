@@ -3,8 +3,8 @@
 export CHAOS_PLATFORM_VERSION=0.3.0
 SRC_ROOT=$(shell pwd)
 
-# chaos-platform-fe
-CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaos-platform-fe.git
+# chaosbox-fe
+CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaosbox-fe.git
 CHAOS_PLATFORM_FE_BRANCH=main
 
 mysql:
@@ -19,11 +19,11 @@ mysql:
 
 build_fe:
 	rm -rf ./cache
-	rm -rf chaos-platform-web/src/main/resources/web/build/*
-	mkdir -p ./cache/chaos-platform-fe
-	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaos-platform-fe
-	cd cache/chaos-platform-fe && yarn add react-app-rewired && yarn build
-	cp -r cache/chaos-platform-fe/build/* $(SRC_ROOT)/chaos-platform-web/src/main/resources/web/build
+	rm -rf chaosbox-web/src/main/resources/web/build/*
+	mkdir -p ./cache/chaosbox-fe
+	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaosbox-fe
+	cd cache/chaosbox-fe && yarn add react-app-rewired && yarn build
+	cp -r cache/chaosbox-fe/build/* $(SRC_ROOT)/chaosbox-web/src/main/resources/web/build
 
 build:
 	docker run -it \
@@ -34,15 +34,15 @@ build:
 
 app:
 	docker run -it -d --rm \
-    		--name chaos-platform \
-    		-v $(shell pwd)/chaos-platform-web/target:/root/ \
+    		--name chaosbox \
+    		-v $(shell pwd)/chaosbox-web/target:/root/ \
     		-v /etc/localtime:/etc/localtime:ro \
     		-p 8080:8080 \
     		-p 8000:8000 \
     		openjdk:8 \
-    		java -Duser.timezone=Asia/Shanghai -jar /root/chaos-platform-web-${CHAOS_PLATFORM_VERSION}.jar
+    		java -Duser.timezone=Asia/Shanghai -jar /root/chaosbox-web-${CHAOS_PLATFORM_VERSION}.jar
 
 build_image:
-	docker build --rm -t chaos-platform:${CHAOS_PLATFORM_VERSION} .
+	docker build --rm -t chaosbox:${CHAOS_PLATFORM_VERSION} .
 
 

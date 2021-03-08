@@ -30,9 +30,6 @@ before_script:
   - minikube update-context --profile=minikube
   - "sudo chown -R travis: /home/travis/.minikube/"
   - eval "$(minikube docker-env --profile=minikube)" && export DOCKER_CLI='docker'
-  - docker run --rm -d -it -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 --name chaos-mysql-5.6 mysql:5.6 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
-  - sleep 10
-  - docker exec -i chaos-mysql-5.6 mysql -uroot -p123456 < sql/chaos-platform.sql
 
 script:
   # Following is just to demo that the kubernetes cluster works.
