@@ -1,7 +1,7 @@
 ![logo](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/doc/image/chaosblade-logo.png)  
 
 ## Introduction
-chaos-platform a chaos engineering platform with rich scenes
+chaosbox a chaos engineering platform with rich scenes
 
 ## Compile
 ### mysql
@@ -29,10 +29,10 @@ mvn clean package -Dmaven.test.skip=true -Dmysql.url= -Dmysql.username= -Dmysql.
 
 ## run
 ````shell script
-nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaos-platform-web-0.2.0.jar > chaos-platform.log 2>&1 &
+nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaosbox-web-0.3.0.jar > chaosbox.log 2>&1 &
 ````
 ````shell script
-nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaos-platform-web-0.2.0.jar --spring.datasource.url= --spring.datasource.username= ---spring.datasource.password= > chaos-platform.log 2>&1 &
+nohup java -Xdebug -Duser.timezone=Asia/Shanghai -jar chaosbox-web-0.3.0.jar --spring.datasource.url= --spring.datasource.username= ---spring.datasource.password= > chaosbox.log 2>&1 &
 ````
 
 
