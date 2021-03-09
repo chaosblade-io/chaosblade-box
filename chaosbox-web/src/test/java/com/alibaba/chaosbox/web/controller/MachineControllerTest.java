@@ -20,6 +20,8 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosbox.common.utils.JsonUtils;
 import com.alibaba.chaosbox.dao.page.PageQuery;
 import com.alibaba.chaosbox.dao.page.PageUtils;
+import com.alibaba.chaosbox.metric.init.MetricCateGoryLoader;
+import com.alibaba.chaosbox.scenario.api.init.SceneCategoryLoader;
 import com.alibaba.chaosbox.service.DeviceService;
 import com.alibaba.chaosbox.service.model.device.*;
 import com.alibaba.chaosbox.web.ChaosboxApplication;
@@ -37,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -60,6 +63,12 @@ public class MachineControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
+
+    @MockBean
+    private SceneCategoryLoader sceneCategoryLoader;
+
+    @MockBean
+    private MetricCateGoryLoader metricCateGoryLoader;
 
     @Before
     public void init() {

@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: chaosbox
+  labels:
+    name: chaosbox
+  namespace: {{ .Release.Namespace }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: chaosbox
+  labels:
+    name: chaosbox
+rules:
+  - apiGroups:
+      - ''
+      - batch
+      - apps
+    resources:
+      - nodes
+      - events
+      - jobs
+      - pods
+      - pods/log
+      - pods/eviction
+      - pods/exec
+      - configmaps
+      - daemonsets
+      - deployments
+      - replicationcontrollers
+      - secrets
+      - statefulsets
+      - replicasets
+      - services
+      - serviceaccounts
+    verbs:
+      - "*"
+  - apiGroups:
+      - chaosblade.io
+    resources:
+      - chaosblades
+      - chaosblades/status
+    verbs:
+      - "*"
+  - apiGroups:
+      - apps.openshift.io
+    resources:
+      - deploymentconfigs
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - rollouts
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - litmuschaos.io
+    resources:
+      - chaosengines
+      - chaosexperiments
+      - chaosresults
+    verbs:
+      - get
+      - create
+      - update
+      - patch
+      - delete
+      - list
+      - watch
+      - deletecollection
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: chaosbox
+  labels:
+    name: chaosbox
+roleRef:
+  kind: ClusterRole
+  name: chaosbox
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: chaosbox
+    namespace: {{ .Release.Namespace }}

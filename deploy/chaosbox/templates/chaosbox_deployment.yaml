@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaosbox
+  labels:
+    name: chaosbox
+    app: chaosbox
+spec:
+  selector:
+    matchLabels:
+      name: chaosbox
+      app: chaosbox
+  template:
+    metadata:
+      labels:
+        name: chaosbox
+        app: chaosbox
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: NotIn
+                    values:
+                      - virtual-kubelet
+      containers:
+        - name: chaosbox
+          image: {{ .Values.chaosbox.repository }}:{{ .Values.chaosbox.version }}
+          imagePullPolicy: {{ .Values.chaosbox.pullPolicy }}
+          env:
+            - name: KUBERNETES_NODENAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          args:
+            - '--spring.datasource.url={{ .Values.spring.datasource.url }}'
+            - '--spring.datasource.username={{ .Values.spring.datasource.username }}'
+            - '--spring.datasource.password={{ .Values.spring.datasource.password }}'
+            - '--chaos.collector.enable={{ .Values.chaos.collector.enable }}'
+            - '--chaos.collector.period={{ .Values.chaos.collector.period }}'
+            - '--chaos.collector.type={{ .Values.chaos.collector.type }}'
+            - '--logging.level.root={{ .Values.logging.level.root }}'
+            - '--logging.level.com.alibaba.chaosbox={{ .Values.logging.level.chaosbox }}'
+            - '--chaos.agent.port={{ .Values.chaos.agent.port }}'
+            {{ if .Values.chaos.scene.market }}
+            - '--chaos.scene.market={{ .Values.chaos.scene.market }}'
+            {{ end }}
+            - '--chaos.scene.originals.litmus[0].name={{ .Values.chaos.scene.originals.litmus.generic.name }}'
+            - '--chaos.scene.originals.litmus[0].version={{ .Values.chaos.scene.originals.litmus.generic.version }}'
+            - '--chaos.scene.originals.litmus[0].url={{ .Values.chaos.scene.originals.litmus.generic.url }}'
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: docker-socket
+            - mountPath: /etc/hosts
+              name: hosts
+
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      hostPID: true
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      volumes:
+        - hostPath:
+            path: /var/run/docker.sock
+          name: docker-socket
+        - hostPath:
+            path: /etc/hosts
+          name: hosts
+      serviceAccountName: chaosbox

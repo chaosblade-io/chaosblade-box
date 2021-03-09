@@ -9,8 +9,6 @@ import com.alibaba.chaosbox.dao.repository.MetricCategoryRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
