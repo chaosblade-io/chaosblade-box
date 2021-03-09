@@ -34,25 +34,24 @@ import com.alibaba.chaosbox.dao.page.PageUtils;
 import com.alibaba.chaosbox.dao.repository.SceneCategoryRepository;
 import com.alibaba.chaosbox.dao.repository.SceneParamRepository;
 import com.alibaba.chaosbox.dao.repository.SceneRepository;
+import com.alibaba.chaosbox.scenario.api.init.SceneCategoryLoader;
+import com.alibaba.chaosbox.scenario.api.model.ToolsOverview;
+import com.alibaba.chaosbox.scenario.api.model.ToolsVersion;
 import com.alibaba.chaosbox.service.SceneParamService;
 import com.alibaba.chaosbox.service.SceneService;
 import com.alibaba.chaosbox.service.ToolsService;
 import com.alibaba.chaosbox.service.model.device.KubernetesDevice;
 import com.alibaba.chaosbox.service.model.scene.*;
-import com.alibaba.chaosbox.service.model.scene.Action;
-import com.alibaba.chaosbox.service.model.scene.Scene;
-import com.alibaba.chaosbox.service.model.scene.SceneImportRequest;
-import com.alibaba.chaosbox.service.model.scene.SceneImportResponse;
 import com.alibaba.chaosbox.service.model.scene.param.Component;
 import com.alibaba.chaosbox.service.model.scene.param.SceneParamRequest;
 import com.alibaba.chaosbox.service.model.scene.param.SceneParamResponse;
-import com.alibaba.chaosbox.scenario.api.model.ToolsOverview;
-import com.alibaba.chaosbox.scenario.api.model.ToolsVersion;
-import com.alibaba.chaosbox.service.model.scene.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
@@ -68,6 +67,7 @@ import static com.alibaba.chaosbox.common.constants.ChaosConstant.DEFAULT_TOOLS;
  * @author yefei
  */
 @Service
+@DependsOn("sceneCategoryLoader")
 public class SceneServiceImpl implements SceneService, InitializingBean {
 
     @Autowired
@@ -90,6 +90,7 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+
         if (autoImport) {
             ToolsOverview toolsOverview = toolsService.toolsOverview(DEFAULT_TOOLS);
             ToolsVersion toolsVersion = toolsService.toolsVersion(toolsOverview.getName(), toolsOverview.getLatest());

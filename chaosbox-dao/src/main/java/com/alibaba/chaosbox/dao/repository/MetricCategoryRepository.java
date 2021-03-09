@@ -19,6 +19,7 @@ package com.alibaba.chaosbox.dao.repository;
 import com.alibaba.chaosbox.dao.QueryWrapperBuilder;
 import com.alibaba.chaosbox.dao.mapper.MetricCategoryMapper;
 import com.alibaba.chaosbox.dao.model.MetricCategoryDO;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -41,6 +42,12 @@ public class MetricCategoryRepository implements IRepository<Long, MetricCategor
     @Override
     public Optional<MetricCategoryDO> selectById(Long aLong) {
         return Optional.ofNullable(metricCategoryMapper.selectById(aLong));
+    }
+
+    public Optional<MetricCategoryDO> selectByCode(String metricCode) {
+        QueryWrapper<MetricCategoryDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(MetricCategoryDO::getCode, metricCode);
+        return Optional.ofNullable( metricCategoryMapper.selectOne(queryWrapper));
     }
 
     @Override

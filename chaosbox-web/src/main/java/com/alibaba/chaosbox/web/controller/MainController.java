@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosbox.common.utils.SystemPropertiesUtils;
 import com.alibaba.chaosbox.scenario.api.ScenarioRequest;
 import com.alibaba.chaosbox.scenario.api.ScenarioYamlProviderStrategy;
+import com.alibaba.chaosbox.web.model.SystemInfoRequest;
 import com.alibaba.chaosbox.web.model.SystemInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.ServletOutputStream;
@@ -34,10 +37,10 @@ public class MainController {
         return "/index.html";
     }
 
-    @GetMapping("/api/I18n")
+    @PostMapping("/api/I18n")
     @ResponseBody
-    public void i18n(String locale) {
-        Locale parseLocale = StringUtils.parseLocale(locale);
+    public void i18n(@RequestBody SystemInfoRequest request) {
+        Locale parseLocale = StringUtils.parseLocale(request.getLocale());
         if (parseLocale != null) {
             LocaleContextHolder.setDefaultLocale(parseLocale);
         } else {
@@ -50,7 +53,7 @@ public class MainController {
     public SystemInfoResponse systemInfo() {
         Locale locale = LocaleContextHolder.getLocale();
         return SystemInfoResponse.builder()
-                .locale(locale.toLanguageTag())
+                .locale(locale.getLanguage())
                 .version(version)
                 .build();
     }

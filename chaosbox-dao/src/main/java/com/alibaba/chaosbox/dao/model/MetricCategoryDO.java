@@ -17,12 +17,18 @@
 package com.alibaba.chaosbox.dao.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * t_chaos_metric_category
  * @author yefei
  */
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("t_chaos_metric_category")
 @Data
 public class MetricCategoryDO extends BaseDO {

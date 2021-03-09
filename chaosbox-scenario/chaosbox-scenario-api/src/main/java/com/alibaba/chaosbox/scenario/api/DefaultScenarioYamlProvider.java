@@ -69,9 +69,11 @@ public class DefaultScenarioYamlProvider implements ScenarioYamlProvider, Initia
 
     @Override
     public void afterPropertiesSet() {
-        Map<String, ScenarioParser> beansOfType = applicationContext.getBeansOfType(ScenarioParser.class);
-        for (Map.Entry<String, ScenarioParser> entry : beansOfType.entrySet()) {
-            generateSpec(entry.getValue().parse(ScenarioRequest.builder().build()));
+        if (StrUtil.isBlank(sceneMarket)) {
+            Map<String, ScenarioParser> beansOfType = applicationContext.getBeansOfType(ScenarioParser.class);
+            for (Map.Entry<String, ScenarioParser> entry : beansOfType.entrySet()) {
+                generateSpec(entry.getValue().parse(ScenarioRequest.builder().build()));
+            }
         }
     }
 

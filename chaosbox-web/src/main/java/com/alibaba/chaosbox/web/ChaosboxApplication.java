@@ -25,10 +25,10 @@ import org.springframework.context.annotation.Import;
  */
 @Import(cn.hutool.extra.spring.SpringUtil.class)
 @SpringBootApplication(scanBasePackages = {"com.alibaba.chaosbox"})
-public class ChaosPlatformApplication {
+public class ChaosboxApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ChaosPlatformApplication.class, args);
+        SpringApplication.run(ChaosboxApplication.class, args);
     }
 
 }

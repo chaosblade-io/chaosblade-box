@@ -57,7 +57,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.alibaba.chaosbox.web.ChaosPlatformApplication</mainClass>
+                    <mainClass>com.alibaba.chaosbox.web.ChaosboxApplication</mainClass>
                     <layout>ZIP</layout>
                 </configuration>
                 <executions>

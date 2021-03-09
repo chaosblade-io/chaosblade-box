@@ -26,6 +26,7 @@ import com.alibaba.chaosbox.service.SceneCategoryService;
 import com.alibaba.chaosbox.service.model.scene.categroy.SceneCategoryRequest;
 import com.alibaba.chaosbox.service.model.scene.categroy.SceneCategoryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -75,11 +76,12 @@ public class SceneCategoryServiceImpl implements SceneCategoryService {
         if (CollectionUtil.isEmpty(sceneCategoryDOS)) {
             return Collections.emptyList();
         }
+        String language = LocaleContextHolder.getLocale().getLanguage();
 
         List<SceneCategoryResponse> all = sceneCategoryDOS.stream().map(sceneCategoryDO -> SceneCategoryResponse.builder()
                 .categoryId(sceneCategoryDO.getId())
                 .parentId(sceneCategoryDO.getParentId())
-                .name(sceneCategoryDO.getName())
+                .name("en".equals(language) ? sceneCategoryDO.getCategoryCode() : sceneCategoryDO.getName())
                 .level(sceneCategoryDO.getLevel())
                 .supportScopeTypes(JsonUtils.readValue(List.class, sceneCategoryDO.getSupportScope()))
                 .build()
