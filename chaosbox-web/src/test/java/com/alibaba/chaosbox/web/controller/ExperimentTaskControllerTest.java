@@ -17,6 +17,8 @@
 package com.alibaba.chaosbox.web.controller;
 
 import com.alibaba.chaosbox.common.utils.JsonUtils;
+import com.alibaba.chaosbox.metric.init.MetricCateGoryLoader;
+import com.alibaba.chaosbox.scenario.api.init.SceneCategoryLoader;
 import com.alibaba.chaosbox.service.ExperimentTaskService;
 import com.alibaba.chaosbox.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosbox.service.model.experiment.ExperimentTaskRequest;
@@ -34,6 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -55,6 +58,12 @@ public class ExperimentTaskControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
+
+    @MockBean
+    private SceneCategoryLoader sceneCategoryLoader;
+
+    @MockBean
+    private MetricCateGoryLoader metricCateGoryLoader;
 
     @Before
     public void init() {

@@ -1,0 +1,33 @@
+# Default values for chaosbox.
+chaosbox:
+  repository: registry.cn-hangzhou.aliyuncs.com/chaosblade/chaosbox
+  version: 0.3.0
+  pullPolicy: IfNotPresent
+
+spring:
+  datasource:
+    url: jdbc:mysql://chaosbox-mysql:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password:
+chaos:
+  collector:
+    enable: true
+    period: 30
+    type: kube_api
+  agent:
+    port: 19527
+  scene:
+    import: true
+    market: #https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/
+    originals:
+      litmus:
+        generic:
+          name: generic
+          version: 1.13.0
+          url: https://hub.litmuschaos.io/api/chaos/1.13.0?file=charts/generic/experiments.yaml
+
+logging:
+  level:
+    root: info
+    chaosbox: info
+

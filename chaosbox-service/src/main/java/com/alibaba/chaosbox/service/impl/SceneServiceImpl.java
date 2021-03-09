@@ -34,7 +34,6 @@ import com.alibaba.chaosbox.dao.page.PageUtils;
 import com.alibaba.chaosbox.dao.repository.SceneCategoryRepository;
 import com.alibaba.chaosbox.dao.repository.SceneParamRepository;
 import com.alibaba.chaosbox.dao.repository.SceneRepository;
-import com.alibaba.chaosbox.scenario.api.init.SceneCategoryLoader;
 import com.alibaba.chaosbox.scenario.api.model.ToolsOverview;
 import com.alibaba.chaosbox.scenario.api.model.ToolsVersion;
 import com.alibaba.chaosbox.service.SceneParamService;

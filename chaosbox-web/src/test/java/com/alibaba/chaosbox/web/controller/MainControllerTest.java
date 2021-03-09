@@ -17,9 +17,12 @@
 package com.alibaba.chaosbox.web.controller;
 
 import com.alibaba.chaosbox.common.utils.JsonUtils;
+import com.alibaba.chaosbox.metric.init.MetricCateGoryLoader;
+import com.alibaba.chaosbox.scenario.api.init.SceneCategoryLoader;
 import com.alibaba.chaosbox.scenario.api.model.ToolsOverview;
 import com.alibaba.chaosbox.web.ChaosboxApplication;
 import com.alibaba.chaosbox.web.model.Response;
+import com.alibaba.chaosbox.web.model.SystemInfoRequest;
 import com.alibaba.chaosbox.web.model.SystemInfoResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -56,6 +60,12 @@ public class MainControllerTest {
     @Autowired
     private WebApplicationContext wac;
 
+    @MockBean
+    private SceneCategoryLoader sceneCategoryLoader;
+
+    @MockBean
+    private MetricCateGoryLoader metricCateGoryLoader;
+
     @Before
     public void init() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
@@ -80,12 +90,16 @@ public class MainControllerTest {
 
     @Test
     public void testI18n() throws Exception {
+        SystemInfoRequest systemInfoRequest = new SystemInfoRequest();
+        systemInfoRequest.setLocale("en");
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/I18n?locale=en-US")
+                .post("/api/I18n")
+                .content(JsonUtils.writeValueAsBytes(systemInfoRequest))
                 .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
-        Assert.assertEquals(LocaleContextHolder.getLocale().toLanguageTag(), "en-US");
+
+        Assert.assertEquals(LocaleContextHolder.getLocale().toLanguageTag(), "en");
     }
 
     @Test
