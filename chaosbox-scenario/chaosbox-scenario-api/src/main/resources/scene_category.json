@@ -1,0 +1,115 @@
+[
+  {
+    "name": "系统资源",
+    "categoryCode": "system",
+    "level": 0,
+    "supportScope": "[\"host\",\"kubernetes\"]",
+    "subCategories": [
+      {
+        "name": "CPU资源",
+        "categoryCode": "system_cpu",
+        "parentCode": "system",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "内存资源",
+        "categoryCode": "system_mem",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "磁盘资源",
+        "categoryCode": "system_disk",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "脚本资源",
+        "categoryCode": "system_script",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "文件资源",
+        "categoryCode": "system_file",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "内核资源",
+        "categoryCode": "system_kernel",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "网络资源",
+        "categoryCode": "system_network",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "应用进程",
+        "categoryCode": "system_process",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "容器资源",
+        "categoryCode": "system_container",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      }
+    ]
+  },
+  {
+    "name": "JAVA应用",
+    "categoryCode": "java",
+    "level": 0,
+    "supportScope": "[\"host\",\"kubernetes\"]",
+    "subCategories": [
+      {
+        "name": "延迟",
+        "categoryCode": "java_delay",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "抛异常",
+        "categoryCode": "java_exception",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "自定义故障",
+        "categoryCode": "java_custom",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "篡改数据",
+        "categoryCode": "java_data_tamper",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "资源占用",
+        "categoryCode": "java_resource",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "CPU资源",
+        "categoryCode": "java_resource_cpu",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      },
+      {
+        "name": "内存资源",
+        "categoryCode": "java_resource_mem",
+        "level": 1,
+        "supportScope": "[\"host\",\"kubernetes\"]"
+      }
+    ]
+  }
+]

@@ -13,10 +13,17 @@
     <artifactId>chaosbox-metric-api</artifactId>
 
     <dependencies>
+
         <dependency>
             <groupId>com.alibaba.chaosblade</groupId>
             <artifactId>chaosbox-common</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosbox-dao</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

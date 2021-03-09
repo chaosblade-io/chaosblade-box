@@ -54,6 +54,12 @@ public class SceneCategoryRepository implements IRepository<Long, SceneCategoryD
         return categoryMapper.selectList(queryWrapper);
     }
 
+    public Optional<SceneCategoryDO> selectByCode(String categoryCode) {
+        QueryWrapper<SceneCategoryDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(SceneCategoryDO::getCategoryCode, categoryCode);
+        return Optional.ofNullable(categoryMapper.selectOne(queryWrapper));
+    }
+
     @Override
     public Optional<SceneCategoryDO> selectById(Long aLong) {
         return Optional.ofNullable(categoryMapper.selectById(aLong));

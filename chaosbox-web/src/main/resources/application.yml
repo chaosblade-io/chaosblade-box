@@ -11,6 +11,10 @@ spring:
     name: chaosbox
     version: @project.version@
   datasource:
+    initialization-mode: always
+    schema:
+      - classpath:sql/chaos-box-ddl.sql
+    platform: mysql
     url: jdbc:mysql://@mysql.url@/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: @mysql.username@
     password: @mysql.password@

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-CREATE DATABASE chaosblade;
+CREATE DATABASE IF NOT EXISTS chaosblade;
 USE chaosblade;
 SET NAMES utf8mb4;
 
-create table t_chaos_application
+create table if not exists t_chaos_application
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -27,18 +27,14 @@ create table t_chaos_application
     namespace    varchar(32) default 'default' not null comment 'namespace',
     app_name     varchar(128)                  not null comment 'application name',
     app_type     tinyint                       null comment 'application type 0-host, 1-k8s',
-    constraint app
-        unique (namespace, app_name)
+    constraint app unique (namespace, app_name),
+    key `INX_APPLICATION_NA_APP_NAME` (namespace, app_name),
+    key `INX_APPLICATION_APP_NAME` (app_name)
 ) ENGINE = InnoDB
     COMMENT 'application'
   DEFAULT CHARSET = utf8;
 
-alter table t_chaos_application
-    add index `INX_APPLICATION_NA_APP_NAME` (namespace, app_name);
-alter table t_chaos_application
-    add index `INX_APPLICATION_APP_NAME` (app_name);
-
-create table t_chaos_application_device
+create table if not exists t_chaos_application_device
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -49,16 +45,14 @@ create table t_chaos_application_device
     group_id     bigint unsigned               not null comment 'application group id',
     app_name     varchar(128)                  not null comment 'application name',
     group_name   varchar(256)                  not null comment 'application group name',
-    device_id    varchar(64)                   null
+    device_id    varchar(64)                   null,
+    key `INX_APPLICATION_DEVICE_APP_ID_DEVICE_ID` (app_id, device_id)
 )
     ENGINE = InnoDB
     COMMENT 'application device relation'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_application_device
-    add index `INX_APPLICATION_DEVICE_APP_ID_DEVICE_ID` (app_id, device_id);
-
-create table t_chaos_application_group
+create table if not exists t_chaos_application_group
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -68,16 +62,14 @@ create table t_chaos_application_group
     app_name     varchar(128) not null comment 'application name',
     group_name   varchar(128) not null comment 'application group name',
     constraint uk_uid_cid
-        unique (app_id, group_name)
+        unique (app_id, group_name),
+    key `INX_APP_GROUP_APP_ID` (app_id)
 )
     ENGINE = InnoDB
     comment 'application_group'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_application_group
-    add index `INX_APP_GROUP_APP_ID` (app_id);
-
-create table t_chaos_device
+create table if not exists t_chaos_device
 (
     id                   bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -98,16 +90,14 @@ create table t_chaos_device
     is_experimented      tinyint      default 0 not null comment 'is experimented',
     last_experiment_time datetime               null comment 'last experiment time',
     last_task_id         bigint                 null comment 'last task id',
-    last_task_status     tinyint                null comment 'last task status'
+    last_task_status     tinyint                null comment 'last task status',
+    key `INX_DEVICE_IP` (ip)
 )
     ENGINE = InnoDB
     comment 'device'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_device
-    add index `INX_DEVICE_IP` (ip);
-
-create table t_chaos_device_node
+create table if not exists t_chaos_device_node
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -118,16 +108,14 @@ create table t_chaos_device_node
     cluster_name varchar(256) null comment 'cluster name',
     node_name    varchar(256) not null comment 'node name',
     node_ip      varchar(128) null comment 'node ip',
-    node_version varchar(128) null comment 'node version'
+    node_version varchar(128) null comment 'node version',
+    key `INX_DEVICE_NODE_DEVICE_ID` (device_id)
 )
     ENGINE = InnoDB
     comment 'k8s-node'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_device_node
-    add index `INX_DEVICE_NODE_DEVICE_ID` (device_id);
-
-create table t_chaos_device_pod
+create table if not exists t_chaos_device_pod
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -138,16 +126,14 @@ create table t_chaos_device_pod
     namespace    varchar(256)    null comment 'namespace',
     pod_name     varchar(128)    not null comment 'pod name',
     pod_ip       varchar(128)    null comment 'pod ip',
-    containers   longtext        null comment 'containers, json'
+    containers   longtext        null comment 'containers, json',
+    key `INX_DEVICE_POD_DEVICE_ID` (device_id)
 )
     ENGINE = InnoDB
     comment 'k8s-pod'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_device_pod
-    add index `INX_DEVICE_POD_DEVICE_ID` (device_id);
-
-create table t_chaos_experiment
+create table if not exists t_chaos_experiment
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -166,7 +152,7 @@ create table t_chaos_experiment
     comment 'experiment'
     DEFAULT CHARSET = utf8;
 
-create table t_chaos_experiment_activity
+create table if not exists t_chaos_experiment_activity
 (
     id                  bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -179,16 +165,14 @@ create table t_chaos_experiment_activity
     activity_order      int          default 0  not null comment 'order of execution of activities within the same phase',
     activity_priority   tinyint                 null comment '活动优先级',
     activity_definition longtext                not null comment 'activity definition, contains parameter machines and so on',
-    scene_code          varchar(64)             null comment 'scene code'
+    scene_code          varchar(64)             null comment 'scene code',
+    key `INX_EXPERIMENT_ACTIVITY_EXPERIMENT_ID` (experiment_id)
 )
     ENGINE = InnoDB
     comment 'experiment activity'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_experiment_activity
-    add index `INX_EXPERIMENT_ACTIVITY_EXPERIMENT_ID` (experiment_id);
-
-create table t_chaos_experiment_activity_task
+create table if not exists t_chaos_experiment_activity_task
 (
     id                    bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -209,19 +193,15 @@ create table t_chaos_experiment_activity_task
     run_param             longtext                null comment 'run param',
     activity_order        int          default 0  not null comment 'order of execution of activities within the same phase',
     scene_code            varchar(100) default '' not null comment 'scene_code',
-    app_id                bigint unsigned         null comment 'application id'
+    app_id                bigint unsigned         null comment 'application id',
+    key `INX_EXPERIMENT_ACTIVITY_ID` (activity_id),
+    key `INX_EXPERIMENT_ACTIVITY_TASK_ID` (experiment_task_id)
 )
     ENGINE = InnoDB
     comment 'experiment activity task'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_experiment_activity_task
-    add index `INX_EXPERIMENT_ACTIVITY_ID` (activity_id);
-
-alter table t_chaos_experiment_activity_task
-    add index `INX_EXPERIMENT_ACTIVITY_TASK_ID` (experiment_task_id);
-
-create table t_chaos_experiment_activity_task_record
+create table if not exists t_chaos_experiment_activity_task_record
 (
     id                 bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -240,19 +220,15 @@ create table t_chaos_experiment_activity_task_record
     scene_code         varchar(256)     null comment 'scene code',
     gmt_start          datetime         null comment 'start time',
     gmt_end            datetime         null comment 'end time ',
-    phase              varchar(250)     null comment 'phase'
+    phase              varchar(250)     null comment 'phase',
+    key `INX_EXPERIMENT_R_ACTIVITY_ID` (activity_task_id),
+    key `INX_EXPERIMENT_R_TASK_ID` (experiment_task_id)
 )
     ENGINE = InnoDB
     comment 'experiment activity task_ record'
     DEFAULT CHARSET = utf8;
 
-alter table t_chaos_experiment_activity_task_record
-    add index `INX_EXPERIMENT_R_ACTIVITY_ID` (activity_task_id);
-
-alter table t_chaos_experiment_activity_task_record
-    add index `INX_EXPERIMENT_R_TASK_ID` (experiment_task_id);
-
-create table t_chaos_experiment_mini_flow
+create table if not exists t_chaos_experiment_mini_flow
 (
     id            bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -263,7 +239,7 @@ create table t_chaos_experiment_mini_flow
 )
     comment 'experiment mini flow';
 
-create table t_chaos_experiment_mini_flow_group
+create table if not exists t_chaos_experiment_mini_flow_group
 (
     id            bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -275,7 +251,7 @@ create table t_chaos_experiment_mini_flow_group
 )
     comment 'experiment mini flow group';
 
-create table t_chaos_experiment_task
+create table if not exists t_chaos_experiment_task
 (
     id               bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -294,14 +270,12 @@ create table t_chaos_experiment_task
     result_status    tinyint unsigned   null comment 'result status',
     error_message    text               null comment 'error message',
     duration         int(255) default 0 not null comment 'duration',
-    metric           longtext           null comment 'metric config'
+    metric           longtext           null comment 'metric config',
+    key `INX_EXPERIMENT_TASK_EXP_ID` (experiment_id)
 )
     comment 'experiment task' DEFAULT CHARSET = utf8;
 
-alter table t_chaos_experiment_task
-    add index `INX_EXPERIMENT_TASK_EXP_ID` (experiment_id);
-
-create table t_chaos_experiment_task_log
+create table if not exists t_chaos_experiment_task_log
 (
     id               bigint unsigned auto_increment
         primary key,
@@ -311,14 +285,12 @@ create table t_chaos_experiment_task_log
     content_en       longtext default null comment 'content en',
     log_date         datetime        not null comment 'log date',
     task_id          bigint unsigned null comment 'task id',
-    activity_task_id bigint unsigned null comment 'activity task id'
+    activity_task_id bigint unsigned null comment 'activity task id',
+    key `INX_EXPERIMENT_TASK_LOG_TASK_ID` (task_id)
 )
     comment 'experiment task log' DEFAULT CHARSET = utf8;
 
-alter table t_chaos_experiment_task_log
-    add index `INX_EXPERIMENT_TASK_LOG_TASK_ID` (task_id);
-
-create table t_chaos_probes
+create table if not exists t_chaos_probes
 (
     id               bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -342,7 +314,7 @@ create table t_chaos_probes
 )
     comment 'probes' DEFAULT CHARSET = utf8;
 
-create table t_chaos_scene
+create table if not exists t_chaos_scene
 (
     id                  bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -365,7 +337,7 @@ create table t_chaos_scene
 )
     comment 'scene' DEFAULT CHARSET = utf8;
 
-create table t_chaos_scene_category
+create table if not exists t_chaos_scene_category
 (
     id            bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -379,7 +351,7 @@ create table t_chaos_scene_category
 )
     comment 'scene category' DEFAULT CHARSET = utf8;
 
-create table t_chaos_scene_param
+create table if not exists t_chaos_scene_param
 (
     id            bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -396,7 +368,7 @@ create table t_chaos_scene_param
 )
     comment 'scene param' DEFAULT CHARSET = utf8;
 
-create table t_chaos_tools
+create table if not exists t_chaos_tools
 (
     id           bigint unsigned auto_increment comment 'primary key'
         primary key,
@@ -410,7 +382,7 @@ create table t_chaos_tools
 )
     comment 'chaos tools' DEFAULT CHARSET = utf8;
 
-create table t_chaos_metric_category
+create table if not exists t_chaos_metric_category
 (
     id           bigint(100) unsigned auto_increment
         primary key,
@@ -426,7 +398,7 @@ create table t_chaos_metric_category
     ENGINE = InnoDB comment 'metric category'
     DEFAULT CHARSET = utf8;
 
-CREATE TABLE `t_chaos_metric_task`
+create table if not exists `t_chaos_metric_task`
 (
     `id`            bigint(100) unsigned NOT NULL AUTO_INCREMENT,
     `gmt_create`    datetime             NOT NULL COMMENT 'modified time',
@@ -441,16 +413,11 @@ CREATE TABLE `t_chaos_metric_task`
     `category_id`   bigint(20)           NOT NULL COMMENT 'category id',
     `category_code` varchar(50)          NOT NULL COMMENT 'category code',
     `metric`        longtext            DEFAULT NULL COMMENT 'metric',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    key `INX_METRIC_TASK_TASK_ID` (task_id),
+    key `INX_METRIC_TASK_DATE` (date)
 ) ENGINE = InnoDB COMMENT 'metric task'
   DEFAULT CHARSET = utf8;
-
-alter table t_chaos_metric_task
-    add index `INX_METRIC_TASK_TASK_ID` (task_id);
-
-alter table t_chaos_metric_task
-    add index `INX_METRIC_TASK_DATE` (date);
-
 
 INSERT INTO chaosblade.t_chaos_metric_category (id, gmt_create, gmt_modified, name, parent_id, level, unit, code,
                                                 params)

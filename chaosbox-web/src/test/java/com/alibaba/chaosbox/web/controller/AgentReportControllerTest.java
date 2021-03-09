@@ -19,7 +19,7 @@ package com.alibaba.chaosbox.web.controller;
 import com.alibaba.chaosbox.common.utils.JsonUtils;
 import com.alibaba.chaosbox.service.DeviceService;
 import com.alibaba.chaosbox.service.model.device.DeviceRegisterRequest;
-import com.alibaba.chaosbox.web.ChaosPlatformApplication;
+import com.alibaba.chaosbox.web.ChaosboxApplication;
 import com.alibaba.chaosbox.web.model.Response;
 import com.alibaba.testable.core.annotation.MockDiagnose;
 import com.alibaba.testable.core.annotation.MockMethod;
@@ -43,7 +43,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ChaosPlatformApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ChaosboxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AgentReportControllerTest {
 
     private MockMvc mockMvc;

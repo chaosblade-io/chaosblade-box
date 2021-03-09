@@ -22,7 +22,7 @@ import com.alibaba.chaosbox.dao.page.PageQuery;
 import com.alibaba.chaosbox.dao.page.PageUtils;
 import com.alibaba.chaosbox.service.DeviceService;
 import com.alibaba.chaosbox.service.model.device.*;
-import com.alibaba.chaosbox.web.ChaosPlatformApplication;
+import com.alibaba.chaosbox.web.ChaosboxApplication;
 import com.alibaba.chaosbox.web.model.PageResponse;
 import com.alibaba.chaosbox.web.model.Response;
 import com.alibaba.testable.core.annotation.MockDiagnose;
@@ -53,7 +53,7 @@ import java.util.List;
  */
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ChaosPlatformApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ChaosboxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MachineControllerTest {
 
     private MockMvc mockMvc;

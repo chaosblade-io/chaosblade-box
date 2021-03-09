@@ -1,0 +1,8 @@
+[
+  {
+    "name": "Prometheus 监控",
+    "level": 0,
+    "code": "metric.prometheus",
+    "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true}, {\"name\":\"rule\", \"desc\":\"rule\", \"type\":\"text\"}]"
+  }
+]

@@ -18,7 +18,7 @@ package com.alibaba.chaosbox.web.controller;
 
 import com.alibaba.chaosbox.common.utils.JsonUtils;
 import com.alibaba.chaosbox.scenario.api.model.ToolsOverview;
-import com.alibaba.chaosbox.web.ChaosPlatformApplication;
+import com.alibaba.chaosbox.web.ChaosboxApplication;
 import com.alibaba.chaosbox.web.model.Response;
 import com.alibaba.chaosbox.web.model.SystemInfoResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -48,7 +48,7 @@ import java.io.ByteArrayInputStream;
  */
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ChaosPlatformApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ChaosboxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MainControllerTest {
 
     private MockMvc mockMvc;
