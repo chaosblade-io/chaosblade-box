@@ -249,32 +249,37 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
                 continue;
             }
 
-            Long id = probesRepository.selectByHost(probesRequest.getHost()).map(ProbesDO::getId)
-                    .orElseGet(() -> probesRepository.insert((ProbesDO.builder()
-                            .ip(probesRequest.getHost())
-                            .deployBlade(installProbesRequest.isDeployBlade())
-                            .agentType(AgentType.HOST.getCode())
-                            .status(DeviceStatus.INSTALLING.getStatus())
-                            .build())));
-            probesRequest.setProbeId(id);
+            ProbesDO probesDO = ProbesDO.builder()
+                    .ip(probesRequest.getHost())
+                    .deployBlade(installProbesRequest.isDeployBlade())
+                    .agentType(AgentType.HOST.getCode())
+                    .status(DeviceStatus.INSTALLING.getStatus())
+                    .build();
+            Optional<ProbesDO> optional = probesRepository.selectByHost(probesRequest.getHost());
+            if (optional.isPresent()) {
+                probesRepository.updateByPrimaryKey(optional.get().getId(), probesDO);
+            } else {
+                probesRepository.insert(probesDO);
+            }
+            probesRequest.setProbeId(probesDO.getId());
 
             executorService.execute(() -> {
                 try {
                     Response<String> deployAgent = chaosToolsMgrStrategyContext.deployAgent(Request.builder()
                             .host(probesRequest.getHost())
-                            .probesId(id)
+                            .probesId(probesDO.getId())
                             .commandOptions(probesRequest.getCommandOptions())
                             .channel(ChannelType.ANSIBLE.name()).build());
 
                     if (!deployAgent.isSuccess()) {
-                        probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
+                        probesRepository.updateByPrimaryKey(probesDO.getId(), ProbesDO.builder()
                                 .ip(probesRequest.getHost())
                                 .status(DeviceStatus.INSTALL_FAIL.getStatus())
                                 .errorMessage(deployAgent.getMessage())
                                 .build());
                     }
                 } catch (Exception e) {
-                    probesRepository.updateByPrimaryKey(id, ProbesDO.builder()
+                    probesRepository.updateByPrimaryKey(probesDO.getId(), ProbesDO.builder()
                             .ip(probesRequest.getHost())
                             .status(DeviceStatus.INSTALL_FAIL.getStatus())
                             .errorMessage(e.getMessage())
@@ -323,7 +328,7 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
                         toolsService.deployChaostoolsToHost(toolsRequest);
                     } catch (BizException e) {
                         probesRepository.updateByDeviceId(deviceId, ProbesDO.builder()
-                                .errorMessage(e.getData().toString())
+                                .errorMessage(e.getMessage() + ":" + e.getData().toString())
                                 .build());
                     }
                 }

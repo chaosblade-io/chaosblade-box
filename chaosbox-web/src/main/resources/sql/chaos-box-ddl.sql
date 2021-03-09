@@ -300,7 +300,7 @@ create table if not exists t_chaos_probes
     success          tinyint unsigned null comment 'success',
     version          varchar(64)      null comment 'version',
     device_id        bigint           null comment 'device id',
-    ip               varchar(256)     not null comment 'ip',
+    ip               varchar(32)      not null comment 'ip',
     hostname         varchar(256)     null comment 'hostname',
     cluster_id       varchar(256)     null comment 'cluster id',
     cluster_name     varchar(256)     null comment 'cluster name',
@@ -310,7 +310,8 @@ create table if not exists t_chaos_probes
     error_message    longtext         null comment 'error message',
     last_ping_time   datetime         null comment 'last ping time',
     last_online_time datetime         null comment 'last ping result time',
-    deploy_blade     tinyint(1) default 1 comment 'deploy blade'
+    deploy_blade     tinyint(1) default 1 comment 'deploy blade',
+    constraint `PROBES_IP_AGENT_TYPE` unique (ip, agent_type)
 )
     comment 'probes' DEFAULT CHARSET = utf8;
 
