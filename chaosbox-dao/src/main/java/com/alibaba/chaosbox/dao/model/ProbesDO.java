@@ -16,6 +16,8 @@
 
 package com.alibaba.chaosbox.dao.model;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -64,6 +66,7 @@ public class ProbesDO extends BaseDO {
      */
     private Byte status;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String errorMessage;
 
     private Date lastPingTime;
