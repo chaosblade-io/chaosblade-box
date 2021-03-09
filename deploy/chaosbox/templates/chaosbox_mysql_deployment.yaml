@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaosbox-mysql
+  labels:
+    app: chaosbox-mysql
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: chaosbox-mysql
+  template:
+    metadata:
+      name: chaosbox-mysql
+      labels:
+        app: chaosbox-mysql
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: NotIn
+                    values:
+                      - virtual-kubelet
+      containers:
+        - name: chaosbox-mysql
+          image: mysql:5.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mysql-port
+              containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: chaosblade
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.spring.datasource.password }}
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: chaosbox-mysql-volume
+      volumes:
+        - name: chaosbox-mysql-volume
+          hostPath:
+            path: /data/mysql
+            type: DirectoryOrCreate
