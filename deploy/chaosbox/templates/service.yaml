@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: chaosbox-mysql
-  name: chaosbox-mysql
+    app: chaosblade-box-mysql
+  name: chaosblade-box-mysql
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -11,7 +11,7 @@ spec:
       protocol: TCP
       targetPort: 3306
   selector:
-    app: chaosbox-mysql
+    app: chaosblade-box-mysql
   sessionAffinity: None
   type: ClusterIP
 
@@ -20,8 +20,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: chaosbox
-  name: chaosbox
+    app: chaosblade-box
+  name: chaosblade-box
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
@@ -29,6 +29,6 @@ spec:
       protocol: TCP
       targetPort: 8080
   selector:
-    app: chaosbox
+    app: chaosblade-box
   sessionAffinity: None
   type: ClusterIP

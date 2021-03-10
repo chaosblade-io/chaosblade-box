@@ -1,8 +1,8 @@
 ![logo](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/doc/image/chaosblade-logo.png)  
 
 # Chaosbox: An chaos engineering platform with rich scenes
-[![Build Status](https://api.travis-ci.org/chaosblade-io/chaosbox.svg?branch=main)](https://travis-ci.org/chaosblade-io/chaosbox)
-![license](https://img.shields.io/github/license/chaosblade-io/chaosbox.svg)
+[![Build Status](https://api.travis-ci.org/chaosblade-io/chaosblade-box.svg?branch=main)](https://travis-ci.org/chaosblade-io/chaosblade-box)
+![license](https://img.shields.io/github/license/chaosblade-io/chaosblade-box.svg)
 
 ## Introduction
 Chaosbox is an chaos engineering platform with rich scenes, the scenes currently included are:
@@ -19,7 +19,7 @@ Go to the project root directory which you cloned and execute compile:
 mvn clean package -Dmaven.test.skip=true
 ```
 
-If you compile the chaosbox image, you can do:
+If you compile the chaosblade-box image, you can do:
 ```bash
 make build_image
 ```
@@ -31,7 +31,7 @@ mvn clean
 
 helm package:
 ```bash
-helm package deploy/chaosbox
+helm package deploy/chaosblade-box
 ```
 
 ## Run Application
@@ -50,7 +50,7 @@ Notes: You must replace the follow parameters: DATASOURCE_URL, DATASOURCE_USERNA
 Then run the application, run method is as follows:
 
 ```bash
-nohup java -Duser.timezone=Asia/Shanghai -jar chaosbox-web-0.3.0.jar --spring.datasource.url=DATASOURCE_URL --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD > chaosbox.log 2>&1 &
+nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box-web-0.3.0.jar --spring.datasource.url=DATASOURCE_URL --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD > chaosblade-box.log 2>&1 &
 ```
 
 You can use a browser to access the http://127.0.0.1:8080 website to use the platform.
@@ -58,11 +58,11 @@ You can use a browser to access the http://127.0.0.1:8080 website to use the pla
 If you're deployed on kubernetes, the usage method is as follows:
 
 ```bash
-helm install chaosbox chaosbox-0.3.0.tgz --set spring.datasource.password=DATASOURCE_PASSWORD --namespace chaosblade
+helm install chaosblade-box chaosblade-box-0.3.0.tgz --set spring.datasource.password=DATASOURCE_PASSWORD --namespace chaosblade
 ```
 
 ## Bugs and Feedback
-For bug report, questions and discussions please submit [GitHub Issues](https://github.com/chaosblade-io/chaosbox/issues). 
+For bug report, questions and discussions please submit [GitHub Issues](https://github.com/chaosblade-io/chaosblade-box/issues). 
 
 You can also contact us via:
 * Dingding group (recommended for chinese): 23177705

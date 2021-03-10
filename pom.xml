@@ -5,15 +5,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>chaosbox-web</module>
-        <module>chaosbox-service</module>
-        <module>chaosbox-dao</module>
-        <module>chaosbox-common</module>
-        <module>chaosbox-invoker</module>
-        <module>chaosbox-metric</module>
-        <module>chaosbox-collector</module>
-        <module>chaosbox-toolsmgr</module>
-        <module>chaosbox-scenario</module>
+        <module>chaosblade-box-web</module>
+        <module>chaosblade-box-service</module>
+        <module>chaosblade-box-dao</module>
+        <module>chaosblade-box-common</module>
+        <module>chaosblade-box-invoker</module>
+        <module>chaosblade-box-metric</module>
+        <module>chaosblade-box-collector</module>
+        <module>chaosblade-box-toolsmgr</module>
+        <module>chaosblade-box-scenario</module>
     </modules>
 
     <parent>
@@ -31,26 +31,26 @@
     </properties>
 
     <groupId>com.alibaba.chaosblade</groupId>
-    <artifactId>chaosbox</artifactId>
+    <artifactId>chaosblade-box</artifactId>
     <version>0.3.0</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <artifactId>chaosbox-service</artifactId>
+                <artifactId>chaosblade-box-service</artifactId>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <artifactId>chaosbox-dao</artifactId>
+                <artifactId>chaosblade-box-dao</artifactId>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <artifactId>chaosbox-common</artifactId>
+                <artifactId>chaosblade-box-common</artifactId>
                 <groupId>com.alibaba.chaosblade</groupId>
                 <version>${project.version}</version>
             </dependency>
@@ -58,25 +58,25 @@
             <!--- chaos-invoker -->
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-invoker-api</artifactId>
+                <artifactId>chaosblade-box-invoker-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-invoker-http</artifactId>
+                <artifactId>chaosblade-box-invoker-http</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-invoker-blade-kubeapi</artifactId>
+                <artifactId>chaosblade-box-invoker-blade-kubeapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-invoker-litmus-kubeapi</artifactId>
+                <artifactId>chaosblade-box-invoker-litmus-kubeapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!--- chaos-invoker -->
@@ -84,19 +84,19 @@
             <!-- chaos metric -->
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-metric-api</artifactId>
+                <artifactId>chaosblade-box-metric-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-metric-aliyun</artifactId>
+                <artifactId>chaosblade-box-metric-aliyun</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-metric-prometheus</artifactId>
+                <artifactId>chaosblade-box-metric-prometheus</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -116,19 +116,19 @@
             <!-- chaos collector -->
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-collector-api</artifactId>
+                <artifactId>chaosblade-box-collector-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-collector-prometheus</artifactId>
+                <artifactId>chaosblade-box-collector-prometheus</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-collector-kubeapi</artifactId>
+                <artifactId>chaosblade-box-collector-kubeapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- chaos collector -->
@@ -136,31 +136,31 @@
             <!-- chaos toolsmgr -->
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-toolsmgr</artifactId>
+                <artifactId>chaosblade-box-toolsmgr</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-toolsmgr-api</artifactId>
+                <artifactId>chaosblade-box-toolsmgr-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-toolsmgr-ssh</artifactId>
+                <artifactId>chaosblade-box-toolsmgr-ssh</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-toolsmgr-ansible</artifactId>
+                <artifactId>chaosblade-box-toolsmgr-ansible</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-toolsmgr-puppet</artifactId>
+                <artifactId>chaosblade-box-toolsmgr-puppet</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- chaos toolsmgr -->
@@ -168,19 +168,19 @@
             <!-- chaos scenario -->
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-scenario-api</artifactId>
+                <artifactId>chaosblade-box-scenario-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-scenario-litmus</artifactId>
+                <artifactId>chaosblade-box-scenario-litmus</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.alibaba.chaosblade</groupId>
-                <artifactId>chaosbox-scenario-blade</artifactId>
+                <artifactId>chaosblade-box-scenario-blade</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- chaos scenario -->
