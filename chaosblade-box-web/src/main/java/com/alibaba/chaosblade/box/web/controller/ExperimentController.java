@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum.*;
+
 /**
  * @author yefei
  */
