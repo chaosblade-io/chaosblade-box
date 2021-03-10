@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chaosbox
+  name: chaosblade-box
   labels:
-    name: chaosbox
-    app: chaosbox
+    name: chaosblade-box
+    app: chaosblade-box
 spec:
   selector:
     matchLabels:
-      name: chaosbox
-      app: chaosbox
+      name: chaosblade-box
+      app: chaosblade-box
   template:
     metadata:
       labels:
-        name: chaosbox
-        app: chaosbox
+        name: chaosblade-box
+        app: chaosblade-box
     spec:
       affinity:
         nodeAffinity:
@@ -26,9 +26,9 @@ spec:
                     values:
                       - virtual-kubelet
       containers:
-        - name: chaosbox
-          image: {{ .Values.chaosbox.repository }}:{{ .Values.chaosbox.version }}
-          imagePullPolicy: {{ .Values.chaosbox.pullPolicy }}
+        - name: chaosblade-box
+          image: {{ .Values.chaosblade-box.repository }}:{{ .Values.chaosblade-box.version }}
+          imagePullPolicy: {{ .Values.chaosblade-box.pullPolicy }}
           env:
             - name: KUBERNETES_NODENAME
               valueFrom:
@@ -42,7 +42,7 @@ spec:
             - '--chaos.collector.period={{ .Values.chaos.collector.period }}'
             - '--chaos.collector.type={{ .Values.chaos.collector.type }}'
             - '--logging.level.root={{ .Values.logging.level.root }}'
-            - '--logging.level.com.alibaba.chaosbox={{ .Values.logging.level.chaosbox }}'
+            - '--logging.level.com.alibaba.chaosblade.box={{ .Values.logging.level.chaosblade-box }}'
             - '--chaos.agent.port={{ .Values.chaos.agent.port }}'
             {{ if .Values.chaos.scene.market }}
             - '--chaos.scene.market={{ .Values.chaos.scene.market }}'
@@ -71,4 +71,4 @@ spec:
         - hostPath:
             path: /etc/hosts
           name: hosts
-      serviceAccountName: chaosbox
+      serviceAccountName: chaosblade-box

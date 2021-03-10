@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>chaosblade-box</artifactId>
+        <groupId>com.alibaba.chaosblade</groupId>
+        <version>0.3.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>chaosblade-box-service</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-dao</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-invoker-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-invoker-blade-kubeapi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-invoker-litmus-kubeapi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-metric-aliyun</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-metric-prometheus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-collector-prometheus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-collector-kubeapi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-toolsmgr-ssh</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-toolsmgr-ansible</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-toolsmgr-puppet</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-scenario-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-scenario-blade</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-scenario-litmus</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+</project>
