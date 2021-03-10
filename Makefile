@@ -1,6 +1,6 @@
 .PHONY: build clean
 
-export CHAOS_PLATFORM_VERSION=0.3.0
+export CHAOS_PLATFORM_VERSION=0.3.1
 SRC_ROOT=$(shell pwd)
 
 # chaosblade-box-fe
