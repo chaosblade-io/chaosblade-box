@@ -34,6 +34,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.alibaba.chaosblade.box.common.constants.ChaosConstant.LANGUAGE_EN;
+
 /**
  * @author yefei
  */
@@ -81,7 +83,7 @@ public class SceneCategoryServiceImpl implements SceneCategoryService {
         List<SceneCategoryResponse> all = sceneCategoryDOS.stream().map(sceneCategoryDO -> SceneCategoryResponse.builder()
                 .categoryId(sceneCategoryDO.getId())
                 .parentId(sceneCategoryDO.getParentId())
-                .name("en".equals(language) ? sceneCategoryDO.getCategoryCode() : sceneCategoryDO.getName())
+                .name(LANGUAGE_EN.equals(language) ? sceneCategoryDO.getCategoryCode() : sceneCategoryDO.getName())
                 .level(sceneCategoryDO.getLevel())
                 .supportScopeTypes(JsonUtils.readValue(List.class, sceneCategoryDO.getSupportScope()))
                 .build()

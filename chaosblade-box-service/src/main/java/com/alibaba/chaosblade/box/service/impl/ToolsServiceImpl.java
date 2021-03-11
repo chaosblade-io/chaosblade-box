@@ -77,7 +77,7 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Override
     public DeviceResponse deployChaostoolsToHost(ToolsRequest toolsRequest) {
-        DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException("机器不存在"));
+        DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT));
         ToolsDO toolsDO = toolsRepository.selectByNameAndVersion(
                 toolsRequest.getMachineId(),
                 toolsRequest.getName(),
@@ -109,7 +109,7 @@ public class ToolsServiceImpl implements ToolsService {
     @Override
     public DeviceResponse undeployChaostoolsForHost(ToolsRequest toolsRequest) {
 
-        DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException("机器不存在"));
+        DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT));
 
         Response<String> deployTools = chaosToolsMgrStrategyContext.unDeployTools(
                 Request.builder().host(deviceDO.getIp())
@@ -126,7 +126,7 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Override
     public DeviceResponse upgradeChaostoolsToHost(ToolsRequest toolsRequest) {
-        DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException("机器不存在"));
+        DeviceDO deviceDO = deviceRepository.selectById(toolsRequest.getMachineId()).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT));
 
         Response<String> deployTools = chaosToolsMgrStrategyContext.deployTools(Request.builder().host(deviceDO.getIp())
                 .toolsName(toolsRequest.getName())

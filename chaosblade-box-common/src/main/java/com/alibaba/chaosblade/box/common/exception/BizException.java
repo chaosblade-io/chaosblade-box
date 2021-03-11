@@ -16,6 +16,10 @@
 
 package com.alibaba.chaosblade.box.common.exception;
 
+import org.springframework.context.i18n.LocaleContextHolder;
+
+import static com.alibaba.chaosblade.box.common.constants.ChaosConstant.LANGUAGE_EN;
+
 /**
  * @author yefei
  */
@@ -26,13 +30,15 @@ public class BizException extends RuntimeException {
     private Object data;
 
     public <T> BizException(ExceptionMessageEnum exceptionMessageEnum, T data) {
-        super(exceptionMessageEnum.message);
+        super(LANGUAGE_EN.equals(LocaleContextHolder.getLocale().getLanguage())
+                ? exceptionMessageEnum.name() : exceptionMessageEnum.message);
         this.code = exceptionMessageEnum.code;
         this.data = data;
     }
 
     public BizException(ExceptionMessageEnum exceptionMessageEnum) {
-        super(exceptionMessageEnum.message);
+        super(LANGUAGE_EN.equals(LocaleContextHolder.getLocale().getLanguage())
+                ? exceptionMessageEnum.name() : exceptionMessageEnum.message);
         this.code = exceptionMessageEnum.code;
     }
 
