@@ -257,7 +257,7 @@ create table if not exists t_chaos_experiment_task
         primary key,
     gmt_create       datetime           null comment 'create time',
     gmt_modified     datetime           null comment 'modified time',
-    task_name        varchar(64)        null comment 'task name',
+    task_name        varchar(256)        null comment 'task name',
     experiment_id    bigint             not null comment 'experiment id',
     activity_id      varchar(500)       null comment 'current activity id',
     activity_task_id varchar(64)        null comment 'current activity task id',

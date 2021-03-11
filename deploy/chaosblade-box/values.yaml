@@ -1,5 +1,5 @@
 # Default values for chaosblade-box.
-chaosblade-box:
+box:
   repository: registry.cn-hangzhou.aliyuncs.com/chaosblade/chaosblade-box
   version: 0.3.1
   pullPolicy: IfNotPresent
@@ -29,5 +29,5 @@ chaos:
 logging:
   level:
     root: info
-    chaosblade-box: info
+    box: info
 
