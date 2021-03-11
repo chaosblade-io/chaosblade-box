@@ -1,3 +1,46 @@
-{
-
-}
+"litmuschaos.node-node.drain":
+  - "system_container"
+"litmuschaos.node-cpu.hog":
+  - "system_cpu"
+"litmuschaos.pod-io.stress":
+  - "system_disk"
+"litmuschaos.node-node.taint":
+  - "system_container"
+"litmuschaos.disk-disk.loss":
+  - "system_disk"
+"litmuschaos.pod-cpu.hog":
+  - "system_cpu"
+"litmuschaos.pod-pod.delete":
+  - "system_container"
+"litmuschaos.node-memory.hog":
+  - "system_mem"
+"litmuschaos.pod-network.loss":
+  - "system_network"
+"litmuschaos.node-node.poweroff":
+  - "system_container"
+"litmuschaos.pod-pod.autoscaler":
+  - "system_container"
+"litmuschaos.kubelet-service.kill":
+  - "system_process"
+"litmuschaos.docker-service.kill":
+  - "system_process"
+"litmuschaos.k8-service.kill":
+  - "system_process"
+"litmuschaos.node-node.restart":
+  - "system_container"
+"litmuschaos.k8-pod.delete":
+  - "system_container"
+"litmuschaos.node-io.stress":
+  - "system_disk"
+"litmuschaos.pod-network.duplication":
+  - "system_network"
+"litmuschaos.container-container.kill":
+  - "system_container"
+"litmuschaos.pod-network.latency":
+  - "system_network"
+"litmuschaos.pod-memory.hog":
+  - "system_mem"
+"litmuschaos.disk-disk.fill":
+  - "system_disk"
+"litmuschaos.pod-network.corruption":
+  - "system_network"

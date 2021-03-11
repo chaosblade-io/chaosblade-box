@@ -32,6 +32,8 @@ public class ScenarioRequest {
 
     private String chaosTools;
 
+    private String original;
+
     private String version;
 
     private String spec;
