@@ -72,7 +72,12 @@ public class DefaultScenarioYamlProvider implements ScenarioYamlProvider, Initia
         if (StrUtil.isBlank(sceneMarket)) {
             Map<String, ScenarioParser> beansOfType = applicationContext.getBeansOfType(ScenarioParser.class);
             for (Map.Entry<String, ScenarioParser> entry : beansOfType.entrySet()) {
-                generateSpec(entry.getValue().parse(ScenarioRequest.builder().build()));
+                Original original = entry.getValue().getClass().getAnnotation(Original.class);
+                if (original != null) {
+                    generateSpec(entry.getValue().parse(ScenarioRequest.builder()
+                            .original(original.value()[0].getName())
+                            .build()));
+                }
             }
         }
     }

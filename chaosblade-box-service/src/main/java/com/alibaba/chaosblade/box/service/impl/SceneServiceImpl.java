@@ -20,6 +20,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.common.enums.ChaosTools;
 import com.alibaba.chaosblade.box.common.model.chaos.*;
 import com.alibaba.chaosblade.box.service.SceneParamService;
 import com.alibaba.chaosblade.box.service.SceneService;
@@ -89,65 +90,70 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-
         if (autoImport) {
-            ToolsOverview toolsOverview = toolsService.toolsOverview(DEFAULT_TOOLS);
-            ToolsVersion toolsVersion = toolsService.toolsVersion(toolsOverview.getName(), toolsOverview.getLatest());
-            List<String> scenarioFiles = toolsVersion.getScenarioFiles();
-            for (String scenarioFile : scenarioFiles) {
-                PluginSpecBean pluginSpecBean = toolsService.toolsScene(toolsOverview.getName(), toolsOverview.getLatest(), scenarioFile);
-                List<Scene> scenes = pluginSpecBean.getItems().stream().map(
-                        item -> Scene.builder().actions(
-                                item.getActions().stream().map(
-                                        actionSpecBean -> Action.builder()
-                                                .name(actionSpecBean.getAction())
-                                                .desc(actionSpecBean.getLongDesc())
-                                                .flags(actionSpecBean.getFlags() == null ? CollUtil.newArrayList() : actionSpecBean.getFlags().stream().map(
-                                                        flagSpecBean -> Flag.builder()
-                                                                .name(flagSpecBean.getName())
-                                                                .desc(flagSpecBean.getDesc())
-                                                                .defaultValue(flagSpecBean.isNoArgs() ? "true" : null)
-                                                                .required(flagSpecBean.isRequired())
-                                                                .build()
-                                                ).collect(Collectors.toList()))
-                                                .matchers(actionSpecBean.getMatchers() == null ? CollUtil.newArrayList() : actionSpecBean.getMatchers().stream().map(
-                                                        matcherSpecBean -> Matcher.builder()
-                                                                .name(matcherSpecBean.getName())
-                                                                .desc(matcherSpecBean.getDesc())
-                                                                .defaultValue(matcherSpecBean.isNoArgs() ? "true" : null)
-                                                                .required(matcherSpecBean.isRequired())
-                                                                .build()
-                                                ).collect(Collectors.toList()))
-                                                .categories(CollUtil.newArrayList(actionSpecBean.getCategories()))
-                                                .build()
-                                ).collect(Collectors.toList())
-                        ).prepare(
-                                item.getPrepare() == null ? null :
-                                        Prepare.builder().required(item.getPrepare().isRequired())
-                                                .flags(item.getPrepare().getFlags().stream().map(
-                                                        flagSpecBean -> Flag.builder()
-                                                                .name(flagSpecBean.getName())
-                                                                .desc(flagSpecBean.getDesc())
-                                                                .defaultValue(flagSpecBean.isNoArgs() ? "true" : null)
-                                                                .required(flagSpecBean.isRequired())
-                                                                .build()
-                                                ).collect(Collectors.toList()))
-                                                .type(item.getPrepare().getType())
-                                                .build()
-                        ).target(item.getTarget())
-                                .scope(item.getScope())
-                                .build()
-                ).collect(Collectors.toList());
+            for (ChaosTools value : ChaosTools.values()) {
+                covert(value.getName());
+            }
+        }
+    }
 
-                try {
-                    importScenarios(SceneImportRequest.builder()
-                            .name(toolsOverview.getName())
-                            .version(toolsOverview.getLatest())
-                            .active(true)
-                            .scenarios(scenes).build());
-                } catch (BizException e) {
-                    // ignore
-                }
+    private void covert(String origin) {
+        ToolsOverview toolsOverview = toolsService.toolsOverview(origin);
+        ToolsVersion toolsVersion = toolsService.toolsVersion(toolsOverview.getName(), toolsOverview.getLatest());
+        List<String> scenarioFiles = toolsVersion.getScenarioFiles();
+        for (String scenarioFile : scenarioFiles) {
+            PluginSpecBean pluginSpecBean = toolsService.toolsScene(toolsOverview.getName(), toolsOverview.getLatest(), scenarioFile);
+            List<Scene> scenes = pluginSpecBean.getItems().stream().map(
+                    item -> Scene.builder().actions(
+                            item.getActions().stream().map(
+                                    actionSpecBean -> Action.builder()
+                                            .name(actionSpecBean.getAction())
+                                            .desc(actionSpecBean.getLongDesc())
+                                            .flags(actionSpecBean.getFlags() == null ? CollUtil.newArrayList() : actionSpecBean.getFlags().stream().map(
+                                                    flagSpecBean -> Flag.builder()
+                                                            .name(flagSpecBean.getName())
+                                                            .desc(flagSpecBean.getDesc())
+                                                            .defaultValue(flagSpecBean.isNoArgs() ? "true" : null)
+                                                            .required(flagSpecBean.isRequired())
+                                                            .build()
+                                            ).collect(Collectors.toList()))
+                                            .matchers(actionSpecBean.getMatchers() == null ? CollUtil.newArrayList() : actionSpecBean.getMatchers().stream().map(
+                                                    matcherSpecBean -> Matcher.builder()
+                                                            .name(matcherSpecBean.getName())
+                                                            .desc(matcherSpecBean.getDesc())
+                                                            .defaultValue(matcherSpecBean.isNoArgs() ? "true" : null)
+                                                            .required(matcherSpecBean.isRequired())
+                                                            .build()
+                                            ).collect(Collectors.toList()))
+                                            .categories(CollUtil.newArrayList(actionSpecBean.getCategories()))
+                                            .build()
+                            ).collect(Collectors.toList())
+                    ).prepare(
+                            item.getPrepare() == null ? null :
+                                    Prepare.builder().required(item.getPrepare().isRequired())
+                                            .flags(item.getPrepare().getFlags().stream().map(
+                                                    flagSpecBean -> Flag.builder()
+                                                            .name(flagSpecBean.getName())
+                                                            .desc(flagSpecBean.getDesc())
+                                                            .defaultValue(flagSpecBean.isNoArgs() ? "true" : null)
+                                                            .required(flagSpecBean.isRequired())
+                                                            .build()
+                                            ).collect(Collectors.toList()))
+                                            .type(item.getPrepare().getType())
+                                            .build()
+                    ).target(item.getTarget())
+                            .scope(item.getScope())
+                            .build()
+            ).collect(Collectors.toList());
+
+            try {
+                importScenarios(SceneImportRequest.builder()
+                        .name(toolsOverview.getName())
+                        .version(toolsOverview.getLatest())
+                        .active(true)
+                        .scenarios(scenes).build());
+            } catch (BizException e) {
+                // ignore
             }
         }
     }

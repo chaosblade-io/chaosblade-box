@@ -17,15 +17,19 @@
 package com.alibaba.chaosblade.box.scenario.litmus;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.common.enums.ChaosTools;
 import com.alibaba.chaosblade.box.common.model.chaos.ActionSpecBean;
 import com.alibaba.chaosblade.box.common.model.chaos.FlagSpecBean;
 import com.alibaba.chaosblade.box.common.model.chaos.ModelSpecBean;
 import com.alibaba.chaosblade.box.common.model.chaos.PluginSpecBean;
+import com.alibaba.chaosblade.box.common.utils.SystemPropertiesUtils;
 import com.alibaba.chaosblade.box.scenario.api.Original;
 import com.alibaba.chaosblade.box.scenario.api.ScenarioParser;
 import com.alibaba.chaosblade.box.scenario.api.ScenarioRequest;
@@ -37,8 +41,10 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,11 +109,24 @@ public class LitmusScenarioParser implements ScenarioParser {
                                     return null;
                                 }
 
+                                InputStream stream = ResourceUtil.getStream(String.format("litmuschaos/%s/category.yaml", litmus.getVersion()));
+
+
+                                String sceneCode = StrUtil.builder(scenarioRequest.getOriginal(), ChaosConstant.DOT,
+                                        scope,
+                                        "-",
+                                        target,
+                                        ChaosConstant.DOT, action).toString();
+
+
+                                Map<String, List<String>> categories = yaml.load(IoUtil.read(stream, SystemPropertiesUtils.getPropertiesFileEncoding()));
+
                                 return ModelSpecBean.builder()
                                         .longDesc(chaosExperiment.getDescription().getMessage())
                                         .target(target)
                                         .actions(CollUtil.newArrayList(ActionSpecBean.builder()
                                                 .action(action)
+                                                .categories(categories.get(sceneCode) == null ? null : categories.get(sceneCode).toArray(new String[0]))
                                                 .flags(Stream.of(GLOBAL_FLAG.stream(),
                                                                 Arrays.stream(chaosExperiment.getSpec().getDefinition().getEnv())
                                                                         .map(flag ->
