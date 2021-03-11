@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.collector.kubeapi;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.box.collector.CollectorStrategy;
 import com.alibaba.chaosblade.box.collector.CollectorType;
 import com.alibaba.chaosblade.box.collector.ContainerCollector;
@@ -66,7 +67,8 @@ public class KubeApiContainerCollector implements ContainerCollector, Initializi
                         @Override
                         public void onSuccess(V1PodList result, int statusCode, Map<String, List<String>> responseHeaders) {
                             List<Container> containers = result.getItems().stream()
-                                    .filter(v1Pod -> Objects.equals(v1Pod.getMetadata().getName(), query.getPodName()))
+                                    .filter(v1Pod -> Objects.equals(v1Pod.getMetadata().getName(), query.getPodName())
+                                            && CollUtil.isNotEmpty(v1Pod.getStatus().getContainerStatuses()))
                                     .flatMap(v1Pod ->
                                             v1Pod.getStatus().getContainerStatuses().stream()
                                                     .map(v1ContainerStatus ->

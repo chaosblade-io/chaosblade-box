@@ -27,8 +27,8 @@ spec:
                       - virtual-kubelet
       containers:
         - name: chaosblade-box
-          image: {{ .Values.chaosblade-box.repository }}:{{ .Values.chaosblade-box.version }}
-          imagePullPolicy: {{ .Values.chaosblade-box.pullPolicy }}
+          image: {{ .Values.box.repository }}:{{ .Values.box.version }}
+          imagePullPolicy: {{ .Values.box.pullPolicy }}
           env:
             - name: KUBERNETES_NODENAME
               valueFrom:
@@ -42,7 +42,7 @@ spec:
             - '--chaos.collector.period={{ .Values.chaos.collector.period }}'
             - '--chaos.collector.type={{ .Values.chaos.collector.type }}'
             - '--logging.level.root={{ .Values.logging.level.root }}'
-            - '--logging.level.com.alibaba.chaosblade.box={{ .Values.logging.level.chaosblade-box }}'
+            - '--logging.level.com.alibaba.chaosblade.box={{ .Values.logging.level.box }}'
             - '--chaos.agent.port={{ .Values.chaos.agent.port }}'
             {{ if .Values.chaos.scene.market }}
             - '--chaos.scene.market={{ .Values.chaos.scene.market }}'
