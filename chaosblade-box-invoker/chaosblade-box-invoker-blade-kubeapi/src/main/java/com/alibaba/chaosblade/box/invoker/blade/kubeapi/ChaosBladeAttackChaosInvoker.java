@@ -163,7 +163,7 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
                             String error = statusResponseCommand.getError();
 
                             if (StrUtil.isNotEmpty(error)) {
-                                future.completeExceptionally(new BizException(statusResponseCommand.getError()));
+                                future.complete(statusResponseCommand);
                             } else {
                                 if ("Running".equals(statusResponseCommand.getPhase())) {
                                     future.complete(statusResponseCommand);

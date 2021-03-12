@@ -16,7 +16,7 @@
 
 package com.alibaba.chaosblade.box.web.controller;
 
-import com.alibaba.chaosblade.box.web.ChaosboxApplication;
+import com.alibaba.chaosblade.box.web.ChaosbladeBoxApplication;
 import com.alibaba.chaosblade.box.web.model.Response;
 import com.alibaba.chaosblade.box.web.model.SystemInfoRequest;
 import com.alibaba.chaosblade.box.web.model.SystemInfoResponse;
@@ -52,7 +52,7 @@ import java.io.ByteArrayInputStream;
  */
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ChaosboxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ChaosbladeBoxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MainControllerTest {
 
     private MockMvc mockMvc;
