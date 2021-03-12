@@ -17,6 +17,7 @@
 package com.alibaba.chaosblade.box.service.impl;
 
 import com.alibaba.chaosblade.box.dao.repository.ToolsRepository;
+import com.alibaba.chaosblade.box.scenario.api.ScenarioYamlProvider;
 import com.alibaba.chaosblade.box.service.DeviceService;
 import com.alibaba.chaosblade.box.service.ToolsService;
 import com.alibaba.chaosblade.box.common.exception.BizException;
@@ -26,7 +27,6 @@ import com.alibaba.chaosblade.box.dao.model.DeviceDO;
 import com.alibaba.chaosblade.box.dao.model.ToolsDO;
 import com.alibaba.chaosblade.box.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.box.scenario.api.ScenarioRequest;
-import com.alibaba.chaosblade.box.scenario.api.ScenarioYamlProviderStrategy;
 import com.alibaba.chaosblade.box.scenario.api.model.ToolsOverview;
 import com.alibaba.chaosblade.box.scenario.api.model.ToolsVersion;
 import com.alibaba.chaosblade.box.service.model.device.DeviceRequest;
@@ -65,7 +65,7 @@ public class ToolsServiceImpl implements ToolsService {
     private ChaosToolsMgrStrategyContext chaosToolsMgrStrategyContext;
 
     @Autowired
-    private ScenarioYamlProviderStrategy scenarioYamlProviderStrategy;
+    private ScenarioYamlProvider scenarioYamlProvider;
 
     @Override
     public ToolsStatisticsResponse getChaostoolsDeployedStatistics(ToolsRequest toolsRequest) {
@@ -152,7 +152,7 @@ public class ToolsServiceImpl implements ToolsService {
     @Override
     public ToolsOverview toolsOverview(String toolsName) {
         Representer representer = new Representer();
-        String overview = scenarioYamlProviderStrategy.overview(ScenarioRequest.builder()
+        String overview = scenarioYamlProvider.overview(ScenarioRequest.builder()
                 .chaosTools(toolsName)
                 .build());
         representer.getPropertyUtils().setSkipMissingProperties(true);
@@ -174,7 +174,7 @@ public class ToolsServiceImpl implements ToolsService {
         });
         representer.getPropertyUtils().setSkipMissingProperties(true);
 
-        String versionYaml = scenarioYamlProviderStrategy.versionYaml(ScenarioRequest.builder()
+        String versionYaml = scenarioYamlProvider.versionYaml(ScenarioRequest.builder()
                 .chaosTools(toolsName)
                 .version(version)
                 .build());
@@ -187,7 +187,7 @@ public class ToolsServiceImpl implements ToolsService {
         Representer representer = new Representer();
         representer.getPropertyUtils().setSkipMissingProperties(true);
 
-        String versionYaml = scenarioYamlProviderStrategy.specYaml(ScenarioRequest.builder()
+        String versionYaml = scenarioYamlProvider.specYaml(ScenarioRequest.builder()
                 .chaosTools(toolsName)
                 .version(version)
                 .spec(sceneFileName)

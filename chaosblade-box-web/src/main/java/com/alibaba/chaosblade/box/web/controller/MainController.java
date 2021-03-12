@@ -1,11 +1,11 @@
 package com.alibaba.chaosblade.box.web.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.scenario.api.DefaultScenarioYamlProvider;
 import com.alibaba.chaosblade.box.web.model.SystemInfoRequest;
 import com.alibaba.chaosblade.box.web.model.SystemInfoResponse;
 import com.alibaba.chaosblade.box.common.utils.SystemPropertiesUtils;
 import com.alibaba.chaosblade.box.scenario.api.ScenarioRequest;
-import com.alibaba.chaosblade.box.scenario.api.ScenarioYamlProviderStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,7 @@ import java.util.Locale;
 public class MainController {
 
     @Autowired
-    private ScenarioYamlProviderStrategy scenarioYamlProviderStrategy;
+    private DefaultScenarioYamlProvider yamlProvider;
 
     @Value("${spring.application.version}")
     private String version;
@@ -61,7 +61,7 @@ public class MainController {
     @GetMapping(path = "/api/FetchChaostoolsOverview/**")
     public void overview(HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
         ScenarioRequest scenarioRequest = parseParam(httpServletRequest, "/api/FetchChaostoolsOverview", "");
-        String specYaml = scenarioYamlProviderStrategy.overview(scenarioRequest);
+        String specYaml = yamlProvider.overview(scenarioRequest);
 
         ServletOutputStream outputStream = response.getOutputStream();
         outputStream.write(specYaml.getBytes(SystemPropertiesUtils.getPropertiesFileEncoding()));
@@ -70,7 +70,7 @@ public class MainController {
     @GetMapping(path = "/api/FetchChaostoolsVersionInfo/**")
     public void versionInfo(HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
         ScenarioRequest scenarioRequest = parseParam(httpServletRequest, "/api/FetchChaostoolsVersionInfo", "");
-        String specYaml = scenarioYamlProviderStrategy.versionYaml(scenarioRequest);
+        String specYaml = yamlProvider.versionYaml(scenarioRequest);
 
         response.getOutputStream().write(specYaml.getBytes(SystemPropertiesUtils.getPropertiesFileEncoding()));
     }
@@ -78,14 +78,14 @@ public class MainController {
     @GetMapping(path = "/api/FetchChaostoolsScenarios/**")
     public void tools(HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
         ScenarioRequest scenarioRequest = parseParam(httpServletRequest, "/api/FetchChaostoolsScenarios", "");
-        String specYaml = scenarioYamlProviderStrategy.specYaml(scenarioRequest);
+        String specYaml = yamlProvider.specYaml(scenarioRequest);
 
         response.getOutputStream().write(specYaml.getBytes(SystemPropertiesUtils.getPropertiesFileEncoding()));
     }
 
     @GetMapping("/api/FetchPublicChaostools")
     public void configurationYaml(HttpServletResponse response) throws Exception {
-        String specYaml = scenarioYamlProviderStrategy.configuration(ScenarioRequest.builder().build());
+        String specYaml = yamlProvider.configuration(ScenarioRequest.builder().build());
         response.getOutputStream().write(specYaml.getBytes(SystemPropertiesUtils.getPropertiesFileEncoding()));
     }
 

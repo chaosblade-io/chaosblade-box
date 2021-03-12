@@ -5,3 +5,4 @@ downloadUrl:
     linux-amd64: ""
 changelog: "litmuschaos"
 scenarioFiles:
+  - litmuschaos-generic-spec-1.13.0.yaml
