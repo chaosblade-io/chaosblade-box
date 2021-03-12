@@ -30,5 +30,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Original {
 
-    ChaosTools[] value();
+    ChaosTools value();
 }

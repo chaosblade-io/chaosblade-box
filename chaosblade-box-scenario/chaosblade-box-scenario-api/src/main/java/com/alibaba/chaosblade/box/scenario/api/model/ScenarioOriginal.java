@@ -16,11 +16,17 @@
 
 package com.alibaba.chaosblade.box.scenario.api.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yefei
  */
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class ScenarioOriginal {
 

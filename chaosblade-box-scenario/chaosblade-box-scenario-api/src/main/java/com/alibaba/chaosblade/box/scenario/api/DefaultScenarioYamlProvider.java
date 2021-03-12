@@ -22,7 +22,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
-import com.alibaba.chaosblade.box.common.enums.ChaosTools;
 import com.alibaba.chaosblade.box.common.model.chaos.PluginSpecBean;
 import com.alibaba.chaosblade.box.common.utils.SystemPropertiesUtils;
 import com.alibaba.chaosblade.box.scenario.api.model.ToolsVersion;
@@ -52,7 +51,6 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Component
-@Original({ChaosTools.LITMUS_CHAOS, ChaosTools.CHAOS_BLADE})
 public class DefaultScenarioYamlProvider implements ScenarioYamlProvider, InitializingBean {
 
     private final static String VERSION_YAML = Constants.VERSION_YAML;
@@ -60,6 +58,8 @@ public class DefaultScenarioYamlProvider implements ScenarioYamlProvider, Initia
     protected Map<String, String> versionYaml = new ConcurrentHashMap<>();
 
     protected Map<String, String> specYaml = new ConcurrentHashMap<>();
+
+    private Map<String, ScenarioParser> parserMap = new ConcurrentHashMap<>();
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -74,9 +74,7 @@ public class DefaultScenarioYamlProvider implements ScenarioYamlProvider, Initia
             for (Map.Entry<String, ScenarioParser> entry : beansOfType.entrySet()) {
                 Original original = entry.getValue().getClass().getAnnotation(Original.class);
                 if (original != null) {
-                    generateSpec(entry.getValue().parse(ScenarioRequest.builder()
-                            .original(original.value()[0].getName())
-                            .build()));
+                    parserMap.put(original.value().getName(), entry.getValue());
                 }
             }
         }
@@ -168,6 +166,12 @@ public class DefaultScenarioYamlProvider implements ScenarioYamlProvider, Initia
         if (yaml == null) {
             InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
             if (inputStream == null) {
+                ScenarioParser scenarioParser = parserMap.get(scenarioRequest.getChaosTools());
+                if (scenarioParser != null) {
+                    List<PluginSpecBean> parse = scenarioParser.parse(ScenarioRequest.builder().build());
+                    generateSpec(parse);
+                    return specYaml.get(scenarioRequest.getSpec());
+                }
                 return null;
             } else {
                 return IoUtil.read(inputStream, SystemPropertiesUtils.getPropertiesFileEncoding());

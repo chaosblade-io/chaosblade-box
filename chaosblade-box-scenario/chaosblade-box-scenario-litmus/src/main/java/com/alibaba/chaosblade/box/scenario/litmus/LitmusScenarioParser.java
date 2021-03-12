@@ -111,8 +111,8 @@ public class LitmusScenarioParser implements ScenarioParser {
 
                                 InputStream stream = ResourceUtil.getStream(String.format("litmuschaos/%s/category.yaml", litmus.getVersion()));
 
-
-                                String sceneCode = StrUtil.builder(scenarioRequest.getOriginal(), ChaosConstant.DOT,
+                                Original annotation = LitmusScenarioParser.class.getAnnotation(Original.class);
+                                String sceneCode = StrUtil.builder(annotation.value().getName(), ChaosConstant.DOT,
                                         scope,
                                         "-",
                                         target,
