@@ -18,7 +18,7 @@ package com.alibaba.chaosblade.box.web.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.box.service.model.device.*;
-import com.alibaba.chaosblade.box.web.ChaosboxApplication;
+import com.alibaba.chaosblade.box.web.ChaosbladeBoxApplication;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
 import com.alibaba.chaosblade.box.dao.page.PageQuery;
 import com.alibaba.chaosblade.box.dao.page.PageUtils;
@@ -56,7 +56,7 @@ import java.util.List;
  */
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ChaosboxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ChaosbladeBoxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class MachineControllerTest {
 
     private MockMvc mockMvc;

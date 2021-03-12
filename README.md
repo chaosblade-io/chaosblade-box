@@ -1,11 +1,11 @@
 ![logo](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/doc/image/chaosblade-logo.png)  
 
-# Chaosbox: An chaos engineering platform with rich scenes
+# Chaosblade-box: An chaos engineering platform with rich scenes
 [![Build Status](https://api.travis-ci.org/chaosblade-io/chaosblade-box.svg?branch=main)](https://travis-ci.org/chaosblade-io/chaosblade-box)
 ![license](https://img.shields.io/github/license/chaosblade-io/chaosblade-box.svg)
 
 ## Introduction
-Chaosbox is an chaos engineering platform with rich scenes, the scenes currently included are:
+Chaosblade-box is an chaos engineering platform with rich scenes, the scenes currently included are:
 * [chaosblade-exec-os](https://github.com/chaosblade-io/chaosblade-exec-os): Implementation of basic resource experimental scenarios.
 * [chaosblade-exec-docker](https://github.com/chaosblade-io/chaosblade-exec-docker): Docker container experimental scenario implementation, standardized by calling the Docker API.
 * [chaosblade-operator](https://github.com/chaosblade-io/chaosblade-operator): Kubernetes platform experimental scenario is implemented, chaos experiments are defined by Kubernetes standard CRD method, it is very convenient to use Kubernetes resource operation method To create, update, and delete experimental scenarios, including using kubectl, client-go, etc., and also using the chaosblade cli tool described above.
@@ -78,4 +78,4 @@ We welcome every contribution, even if it is just punctuation. See details of [C
 The original intention of our open source project is to lower the threshold for chaos engineering to be implemented in enterprises, so we highly value the use of the project in enterprises. Welcome everyone here [ISSUE](https://github.com/chaosblade-io/chaosblade/issues/32). After registration, you will be invited to join the corporate mail group to discuss the problems encountered by Chaos Engineering in the landing of the company and share the landing experience.
 
 ## License
-Chaosbox is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.
+Chaosblade-box is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.

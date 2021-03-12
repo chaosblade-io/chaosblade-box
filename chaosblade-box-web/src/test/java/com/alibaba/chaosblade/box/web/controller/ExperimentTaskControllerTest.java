@@ -16,7 +16,7 @@
 
 package com.alibaba.chaosblade.box.web.controller;
 
-import com.alibaba.chaosblade.box.web.ChaosboxApplication;
+import com.alibaba.chaosblade.box.web.ChaosbladeBoxApplication;
 import com.alibaba.chaosblade.box.web.model.Response;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
 import com.alibaba.chaosblade.box.metric.init.MetricCateGoryLoader;
@@ -51,7 +51,7 @@ import java.util.List;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ChaosboxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ChaosbladeBoxApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ExperimentTaskControllerTest {
 
     private MockMvc mockMvc;
