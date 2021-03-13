@@ -1,0 +1,18 @@
+.ant-divider{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;color:rgba(0,0,0,.85);font-size:14px;font-variant:tabular-nums;line-height:1.5715;list-style:none;-webkit-font-feature-settings:"tnum","tnum";font-feature-settings:"tnum","tnum";border-top:1px solid rgba(0,0,0,.06)}.ant-divider-vertical{position:relative;top:-.06em;display:inline-block;height:.9em;margin:0 8px;vertical-align:middle;border-top:0;border-left:1px solid rgba(0,0,0,.06)}.ant-divider-horizontal{display:-ms-flexbox;display:flex;clear:both;width:100%;min-width:100%;margin:24px 0}.ant-divider-horizontal.ant-divider-with-text{display:-ms-flexbox;display:flex;margin:16px 0;color:rgba(0,0,0,.85);font-weight:500;font-size:16px;white-space:nowrap;text-align:center;border-top:0;border-top-color:rgba(0,0,0,.06)}.ant-divider-horizontal.ant-divider-with-text:after,.ant-divider-horizontal.ant-divider-with-text:before{position:relative;top:50%;width:50%;border-top:1px solid transparent;border-top-color:inherit;border-bottom:0;-webkit-transform:translateY(50%);transform:translateY(50%);content:""}.ant-divider-horizontal.ant-divider-with-text-left:before{top:50%;width:5%}.ant-divider-horizontal.ant-divider-with-text-left:after,.ant-divider-horizontal.ant-divider-with-text-right:before{top:50%;width:95%}.ant-divider-horizontal.ant-divider-with-text-right:after{top:50%;width:5%}.ant-divider-inner-text{display:inline-block;padding:0 1em}.ant-divider-dashed{background:none;border:dashed rgba(0,0,0,.06);border-width:1px 0 0}.ant-divider-horizontal.ant-divider-with-text.ant-divider-dashed{border-top:0}.ant-divider-horizontal.ant-divider-with-text.ant-divider-dashed:after,.ant-divider-horizontal.ant-divider-with-text.ant-divider-dashed:before{border-style:dashed none none}.ant-divider-vertical.ant-divider-dashed{border-width:0 0 0 1px}.ant-divider-plain.ant-divider-with-text{color:rgba(0,0,0,.85);font-weight:400;font-size:14px}.ant-divider-rtl{direction:rtl}.ant-divider-rtl.ant-divider-horizontal.ant-divider-with-text-left:before{width:95%}.ant-divider-rtl.ant-divider-horizontal.ant-divider-with-text-left:after,.ant-divider-rtl.ant-divider-horizontal.ant-divider-with-text-right:before{width:5%}.ant-divider-rtl.ant-divider-horizontal.ant-divider-with-text-right:after{width:95%}.ant-affix{position:fixed;z-index:10}
+
+/*!
+ * Copyright 1999-2021 Alibaba Group Holding Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */.Detail_title__Cp1Sa{font-size:medium;color:red}.Detail_detailDescription__2_cKu .ant-descriptions-bordered{padding:0;background-color:#fff;border:none}.Detail_hidden__3sPec{display:none}
+/*# sourceMappingURL=18.92ff42e1.chunk.css.map */
