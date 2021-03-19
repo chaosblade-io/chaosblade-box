@@ -30,7 +30,6 @@ import com.alibaba.chaosblade.box.invoker.ResponseCommand;
 import com.alibaba.chaosblade.box.invoker.litmus.kubeapi.crd.engine.*;
 import com.alibaba.chaosblade.box.scenario.litmus.model.ChaosExperiment;
 import com.alibaba.chaosblade.box.scenario.litmus.model.experiments.ChaosExperimentDefinitionEnv;
-import com.alibaba.chaosblade.box.invoker.litmus.kubeapi.crd.engine.*;
 import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
@@ -192,6 +191,9 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
                 .kind(Constants.CHAOS_ENGINE)
                 .metadata(v1ObjectMeta)
                 .spec(ChaosEngineSpec.builder()
+                        .appinfo(ChaosEngineSpecAppinfo.builder()
+                                .appns(requestCommand.getArguments().get("appns"))
+                                .build())
                         .chaosServiceAccount(serviceAccount)
                         .engineState("active")
                         .monitoring(false)

@@ -85,7 +85,7 @@ public class MainControllerTest {
                 },
                 httpServletResponse.getContentAsByteArray());
 
-        Assert.assertEquals(response.getData().getVersion(), "0.3.1");
+        Assert.assertEquals(response.getData().getVersion(), "0.3.2");
     }
 
     @Test

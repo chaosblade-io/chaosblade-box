@@ -61,19 +61,19 @@ public class ChaosBladeRecoverChaosInvoker extends AbstractChaosBladeChaosInvoke
                     new ApiCallback() {
                         @Override
                         public void onFailure(ApiException e, int statusCode, Map responseHeaders) {
+                            ResponseCommand responseCommand;
                             if (statusCode == 404) {
-                                ResponseCommand responseCommand = ResponseCommand.builder().success(true)
+                                responseCommand = ResponseCommand.builder().success(true)
                                         .result(requestCommand.getName()).build();
-                                completableFuture.complete(responseCommand);
                             } else {
-                                ResponseCommand responseCommand = ResponseCommand.builder()
+                                responseCommand = ResponseCommand.builder()
                                         .success(false)
                                         .code(String.valueOf(statusCode))
                                         .result(e.getMessage())
                                         .error(e.getResponseBody())
                                         .build();
-                                completableFuture.complete(responseCommand);
                             }
+                            completableFuture.complete(responseCommand);
                         }
 
                         @Override
