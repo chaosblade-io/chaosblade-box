@@ -150,7 +150,7 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                                 if (value != null) {
                                     return metric.contains(value);
                                 }
-                                return false;
+                                return true;
                             }).findFirst().ifPresent(deviceMeta -> {
                                 metricChartLineResponse.setMetricChartLines(metricChartLines);
                                 metricChartLineResponse.setDeviceMeta(deviceMeta);

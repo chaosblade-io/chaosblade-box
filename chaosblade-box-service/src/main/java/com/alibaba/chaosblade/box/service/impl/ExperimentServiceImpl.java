@@ -269,6 +269,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                 .dimension(experimentDO.getDimension())
                 .createTime(experimentDO.getGmtCreate())
                 .modifyTime(experimentDO.getGmtModified())
+                .taskCount(experimentTaskRepository.selectByExperimentId(experimentDO.getId()).size())
                 .build();
 
         if (StrUtil.isNotBlank(experimentDO.getMetric())) {

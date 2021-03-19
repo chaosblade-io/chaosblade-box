@@ -472,8 +472,25 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
                         sceneParamResponse.getComponent().setEditable(false);
                     }
                 }
+                if ("TARGET_CONTAINER".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getContainerName).distinct()
+                            .collect(Collectors.joining(",")));
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
             case POD:
                 if ("namespace".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getNamespace).findFirst().get());
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
+                if ("appns".equals(sceneParamResponse.getName())) {
                     sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getNamespace).findFirst().get());
                     if (sceneParamResponse.getComponent() == null) {
                         sceneParamResponse.setComponent(Component.builder().editable(false).build());
@@ -490,9 +507,27 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
                         sceneParamResponse.getComponent().setEditable(false);
                     }
                 }
+                if ("TARGET_PODS".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getPodName)
+                            .collect(Collectors.joining(",")));
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
                 break;
             case NODE:
                 if ("names".equals(sceneParamResponse.getName())) {
+                    sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getNodeName)
+                            .collect(Collectors.joining(",")));
+                    if (sceneParamResponse.getComponent() == null) {
+                        sceneParamResponse.setComponent(Component.builder().editable(false).build());
+                    } else {
+                        sceneParamResponse.getComponent().setEditable(false);
+                    }
+                }
+                if ("TARGET_NODES".equals(sceneParamResponse.getName())) {
                     sceneParamResponse.setValue(sceneRequest.getMachines().stream().map(KubernetesDevice::getNodeName)
                             .collect(Collectors.joining(",")));
                     if (sceneParamResponse.getComponent() == null) {
