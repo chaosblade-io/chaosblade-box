@@ -16,12 +16,6 @@
 
 package com.alibaba.chaosblade.box.invoker.litmus.kubeapi;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
-import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
-import com.alibaba.chaosblade.box.common.enums.ChaosTools;
 import com.alibaba.chaosblade.box.invoker.ChaosInvoker;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.invoker.ResponseCommand;
@@ -29,10 +23,7 @@ import com.alibaba.chaosblade.box.scenario.litmus.model.ChaosExperiment;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
-import io.kubernetes.client.util.Config;
 import org.springframework.beans.factory.InitializingBean;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -41,56 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author yefei
  */
-public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
+public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand> {
 
     protected final static String SA_SUFFIX = "-sa";
 
     protected ApiClient client;
-
-    protected final Map<String, ChaosExperiment> experimentMap = new ConcurrentHashMap<>();
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        HttpRequest request = HttpUtil.createGet("https://hub.litmuschaos.io/api/chaos/1.13.0?file=charts/generic/experiments.yaml");
-        HttpResponse execute = request.execute();
-        String s = new String(execute.bodyBytes());
-
-        for (String s1 : StrUtil.split(s, "---")) {
-            if (StrUtil.isBlank(s1)) {
-                continue;
-            }
-            s1 = s1.trim();
-            Representer representer = new Representer();
-            representer.getPropertyUtils().setSkipMissingProperties(true);
-            Yaml yaml = new Yaml(representer);
-            ChaosExperiment chaosExperiment = yaml.loadAs(s1, ChaosExperiment.class);
-
-            // pod-delete
-            // k8s-pod-delete
-            // node-cpu-hog
-            // kafka-broker-disk-failure // todo
-            String name = chaosExperiment.getMetadata().getName();
-
-            String[] split = StrUtil.split(name, "-");
-            String target;
-            String action;
-            if (split.length == 2) {
-                target = split[0] + "-" + split[0];
-                action = split[1];
-            } else if (split.length == 3) {
-                target = split[0] + "-" + split[1];
-                action = split[2];
-            } else {
-                continue;
-            }
-
-            String sceneCode = ChaosTools.LITMUS_CHAOS.getName() + ChaosConstant.DOT
-                    + target + ChaosConstant.DOT +  action;
-
-            experimentMap.put(sceneCode, chaosExperiment);
-        }
-        client = Config.defaultClient();
-    }
 
     protected CompletableFuture<ResponseCommand> postExperiment(RequestCommand requestCommand) {
         CompletableFuture<ResponseCommand> future = new CompletableFuture<>();

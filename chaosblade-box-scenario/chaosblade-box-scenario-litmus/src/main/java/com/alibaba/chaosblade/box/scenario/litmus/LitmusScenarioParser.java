@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,6 +57,8 @@ import java.util.stream.Stream;
 @Component
 @ConfigurationProperties(prefix = "chaos.scene.originals")
 public class LitmusScenarioParser implements ScenarioParser {
+
+    protected final Map<String, ChaosExperiment> experimentMap = new ConcurrentHashMap<>();
 
     private final static List<FlagSpecBean> GLOBAL_FLAG = CollUtil.newArrayList(
             FlagSpecBean.builder()
@@ -75,6 +78,10 @@ public class LitmusScenarioParser implements ScenarioParser {
     }
 
     private List<ScenarioOriginal> litmus;
+
+    public Map<String, ChaosExperiment> getExperimentMap() {
+        return experimentMap;
+    }
 
     @Override
     public List<PluginSpecBean> parse(ScenarioRequest scenarioRequest) {
@@ -118,6 +125,7 @@ public class LitmusScenarioParser implements ScenarioParser {
                                         target,
                                         ChaosConstant.DOT, action).toString();
 
+                                experimentMap.put(sceneCode, chaosExperiment);
 
                                 Map<String, List<String>> categories = yaml.load(IoUtil.read(stream, SystemPropertiesUtils.getPropertiesFileEncoding()));
 

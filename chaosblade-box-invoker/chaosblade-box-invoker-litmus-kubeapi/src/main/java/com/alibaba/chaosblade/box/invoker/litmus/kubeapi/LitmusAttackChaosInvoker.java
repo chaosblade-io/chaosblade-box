@@ -28,6 +28,7 @@ import com.alibaba.chaosblade.box.invoker.ChaosInvokerStrategy;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.invoker.ResponseCommand;
 import com.alibaba.chaosblade.box.invoker.litmus.kubeapi.crd.engine.*;
+import com.alibaba.chaosblade.box.scenario.litmus.LitmusScenarioParser;
 import com.alibaba.chaosblade.box.scenario.litmus.model.ChaosExperiment;
 import com.alibaba.chaosblade.box.scenario.litmus.model.experiments.ChaosExperimentDefinitionEnv;
 import io.kubernetes.client.openapi.ApiCallback;
@@ -36,6 +37,7 @@ import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
 import io.kubernetes.client.openapi.apis.RbacAuthorizationV1Api;
 import io.kubernetes.client.openapi.models.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -55,9 +57,13 @@ import java.util.stream.Collectors;
 @Component
 public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
 
+    @Autowired
+    private LitmusScenarioParser litmusScenarioParser;
+
     private String preExperiment(RequestCommand requestCommand) {
         CompletableFuture<ResponseCommand> future = new CompletableFuture<>();
         String serviceAccount = requestCommand.getSceneCode() + SA_SUFFIX;
+        Map<String, ChaosExperiment> experimentMap = litmusScenarioParser.getExperimentMap();
         ChaosExperiment chaosExperiment = experimentMap.get(requestCommand.getSceneCode());
 
         try {
