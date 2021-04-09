@@ -58,6 +58,18 @@ public interface ToolsService {
 
     /**
      *
+     * @param toolsRequest
+     */
+    void deployChaostoolsToHostK8S(ToolsRequest toolsRequest);
+
+    /**
+     *
+     * @param toolsRequest
+     */
+    void undeployChaostoolsToHostK8S(ToolsRequest toolsRequest);
+
+    /**
+     *
      * @return
      */
     ToolsOverview toolsOverview(String toolsName);

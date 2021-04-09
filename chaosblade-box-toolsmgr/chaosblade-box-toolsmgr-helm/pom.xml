@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>chaosblade-box-toolsmgr</artifactId>
+        <groupId>com.alibaba.chaosblade</groupId>
+        <version>0.3.2</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>chaosblade-box-toolsmgr-helm</artifactId>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.alibaba.chaosblade</groupId>
+            <artifactId>chaosblade-box-toolsmgr-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

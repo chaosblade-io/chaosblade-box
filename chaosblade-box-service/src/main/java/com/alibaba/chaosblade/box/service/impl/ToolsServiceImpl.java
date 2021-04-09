@@ -194,4 +194,14 @@ public class ToolsServiceImpl implements ToolsService {
                 .build());
         return new Yaml(representer).loadAs(versionYaml, PluginSpecBean.class);
     }
+
+    @Override
+    public void deployChaostoolsToHostK8S(ToolsRequest toolsRequest) {
+
+    }
+
+    @Override
+    public void undeployChaostoolsToHostK8S(ToolsRequest toolsRequest) {
+
+    }
 }

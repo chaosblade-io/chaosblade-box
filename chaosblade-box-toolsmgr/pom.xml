@@ -33,6 +33,7 @@
         <module>chaosblade-box-toolsmgr-ssh</module>
         <module>chaosblade-box-toolsmgr-ansible</module>
         <module>chaosblade-box-toolsmgr-puppet</module>
+        <module>chaosblade-box-toolsmgr-helm</module>
     </modules>
 
     <dependencies>

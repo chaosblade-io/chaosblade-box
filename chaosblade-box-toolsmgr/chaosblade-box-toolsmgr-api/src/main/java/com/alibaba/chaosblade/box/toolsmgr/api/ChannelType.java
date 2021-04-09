@@ -23,5 +23,6 @@ public enum ChannelType {
 
     SSH,
     ANSIBLE,
-    PUPPET
+    PUPPET,
+    HELM
 }

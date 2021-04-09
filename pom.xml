@@ -20,7 +20,6 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.1.6.RELEASE</version>
-        <relativePath/>
     </parent>
 
     <properties>
@@ -163,6 +162,12 @@
                 <artifactId>chaosblade-box-toolsmgr-puppet</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.chaosblade</groupId>
+                <artifactId>chaosblade-box-toolsmgr-helm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- chaos toolsmgr -->
 
             <!-- chaos scenario -->
@@ -240,6 +245,12 @@
                 <artifactId>client-java</artifactId>
                 <groupId>io.kubernetes</groupId>
                 <version>9.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.19</version>
             </dependency>
 
         </dependencies>
