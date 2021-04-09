@@ -58,10 +58,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.alibaba.chaosblade.box.common.constants.ChaosConstant.CHAOS_DEFAULT_NA;
@@ -202,8 +199,9 @@ public class ExperimentServiceImpl implements ExperimentService {
                     .build());
         }
 
-        List<MetricModel> metricModels = JsonUtils.readValue(new TypeReference<List<MetricModel>>() {
-        }, createExperimentRequest.getMetrics());
+        List<MetricModel> metricModels = Optional.ofNullable(createExperimentRequest.getMetrics())
+                .map(metric -> JsonUtils.readValue(new TypeReference<List<MetricModel>>() {
+                }, metric)).orElse(null);
 
         // attack
         ActivityTask activityTask = ActivityTask.builder()
@@ -425,11 +423,11 @@ public class ExperimentServiceImpl implements ExperimentService {
                                         sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build())
                                                 .getCategories()
                                 )
-                                .parameters(activityTask.getArguments()
-                                        .entrySet().stream().map(entry -> SceneParamResponse.builder()
+                                .parameters(Optional.ofNullable(activityTask.getArguments()).map((arguments) ->
+                                        arguments.entrySet().stream().map(entry -> SceneParamResponse.builder()
                                                 .name(entry.getKey())
                                                 .value(entry.getValue())
-                                                .build()).collect(Collectors.toList())
+                                                .build()).collect(Collectors.toList())).orElse(null)
                                 )
                                 .build();
                     }

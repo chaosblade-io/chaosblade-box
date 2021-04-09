@@ -29,7 +29,7 @@ import java.util.Map;
  * @author yefei
  */
 @Component
-public class ChaosToolsMgrStrategyContext implements ChaosToolsMgr, BeanPostProcessor {
+public class ChaosToolsMgrStrategyContext implements ChaosToolsMgr<Request>, BeanPostProcessor {
 
     private final Map<String, ChaosToolsMgr<Request>> map = new HashMap<>();
 

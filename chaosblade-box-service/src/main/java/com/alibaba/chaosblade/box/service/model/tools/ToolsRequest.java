@@ -26,6 +26,8 @@ import lombok.Data;
 @Builder
 public class ToolsRequest {
 
+    private String channel;
+
     private Long machineId;
 
     private String name;
@@ -33,4 +35,6 @@ public class ToolsRequest {
     private String version;
 
     private String url;
+
+    private String helmValues;
 }
