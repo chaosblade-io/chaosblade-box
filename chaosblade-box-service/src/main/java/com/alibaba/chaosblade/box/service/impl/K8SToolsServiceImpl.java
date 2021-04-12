@@ -59,7 +59,7 @@ public class K8SToolsServiceImpl implements K8SToolsService {
 
         HelmRequest helmRequest = new HelmRequest();
         helmRequest.setName(TGZ_NAME.get(toolsRequest.getName()));
-        helmRequest.setToolsName(helmRepoName + "/" + helmRequest.getName() + ".tgz");
+        helmRequest.setToolsName(helmRepoName + "/" + helmRequest.getName());
         helmRequest.setToolsVersion(toolsRequest.getVersion());
 
         StringBuilder commandOptions = new StringBuilder("--set ");
