@@ -21,6 +21,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.dao.model.*;
 import com.alibaba.chaosblade.box.dao.repository.*;
@@ -160,7 +161,7 @@ public class DeviceServiceImpl implements DeviceService {
                             return deviceDO.getId();
                         });
 
-                try {
+                if (NumberUtil.isNumber(deviceRegisterRequest.getAgentId())){
                     long id = Long.parseLong(deviceRegisterRequest.getAgentId());
                     probesRepository.updateByPrimaryKey(id,
                             ProbesDO.builder()
@@ -169,21 +170,24 @@ public class DeviceServiceImpl implements DeviceService {
                                     .status(DeviceStatus.ONLINE.getStatus())
                                     .version(deviceRegisterRequest.getAgentVersion())
                                     .build());
-                } catch (NumberFormatException e) {
-                    ProbesDO probes = ProbesDO.builder()
-                            .ip(deviceRegisterRequest.getIp())
-                            .deviceId(deviceId)
-                            .agentType(AgentType.HOST.getCode())
-                            .status(DeviceStatus.ONLINE.getStatus())
-                            .hostname(deviceRegisterRequest.getHostName())
-                            .version(deviceRegisterRequest.getAgentVersion())
-                            .lastOnlineTime(DateUtil.date())
-                            .lastPingTime(DateUtil.date())
-                            .installMode((byte) installModel.getCode())
-                            .ip(deviceRegisterRequest.getIp())
-                            .build();
-                    probesRepository.insert(probes);
-                    heartbeats.addHeartbeats(probes);
+                } else {
+                    ProbesDO probesDO = probesRepository.selectByDeviceId(deviceId).orElseGet(() -> {
+                        ProbesDO probes = ProbesDO.builder()
+                                .ip(deviceRegisterRequest.getIp())
+                                .deviceId(deviceId)
+                                .agentType(AgentType.HOST.getCode())
+                                .status(DeviceStatus.ONLINE.getStatus())
+                                .hostname(deviceRegisterRequest.getHostName())
+                                .version(deviceRegisterRequest.getAgentVersion())
+                                .lastOnlineTime(DateUtil.date())
+                                .lastPingTime(DateUtil.date())
+                                .installMode((byte) installModel.getCode())
+                                .ip(deviceRegisterRequest.getIp())
+                                .build();
+                        probesRepository.insert(probes);
+                        return probes;
+                    });
+                    heartbeats.addHeartbeats(probesDO);
                 }
                 applicationContext.publishEvent(new ProbesInstallSuccessEvent(deviceId));
                 break;
