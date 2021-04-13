@@ -45,7 +45,7 @@ mybatis-plus:
 chaos:
   scene:
     import: true
-    market: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/
+    market: #https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/
     originals:
       litmus:
         - name: generic
