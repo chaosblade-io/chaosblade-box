@@ -16,31 +16,32 @@
 
 package com.alibaba.chaosblade.box.service.impl;
 
-import cn.hutool.core.collection.CollUtil;
-import com.alibaba.chaosblade.box.dao.model.*;
-import com.alibaba.chaosblade.box.dao.repository.*;
-import com.alibaba.chaosblade.box.service.ExperimentActivityService;
-import com.alibaba.chaosblade.box.service.ExperimentActivityTaskService;
-import com.alibaba.chaosblade.box.service.ExperimentMiniFlowService;
-import com.alibaba.chaosblade.box.service.ExperimentTaskService;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
-import com.alibaba.chaosblade.box.common.enums.ExperimentDeviceStatus;
 import com.alibaba.chaosblade.box.common.enums.ResultStatus;
 import com.alibaba.chaosblade.box.common.enums.RunStatus;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
-import com.alibaba.chaosblade.box.service.model.experiment.ExperimentDevice;
+import com.alibaba.chaosblade.box.common.utils.JsonUtils;
+import com.alibaba.chaosblade.box.dao.model.*;
+import com.alibaba.chaosblade.box.dao.repository.*;
+import com.alibaba.chaosblade.box.service.*;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivity;
-import com.alibaba.chaosblade.box.dao.model.*;
-import com.alibaba.chaosblade.box.dao.repository.*;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
+import com.alibaba.chaosblade.box.service.model.scene.SceneRequest;
+import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
+import com.alibaba.chaosblade.box.service.task.ActivityTask;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,10 +75,13 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
     private ExperimentActivityTaskService experimentActivityTaskService;
 
     @Autowired
-    private ExperimentMiniFlowService experimentMiniFlowService;
+    private ExperimentActivityTaskRecordRepository experimentActivityTaskRecordRepository;
 
     @Autowired
-    private ExperimentActivityTaskRecordRepository experimentActivityTaskRecordRepository;
+    private SceneService sceneService;
+
+    @Autowired
+    private ExperimentMiniFlowService experimentMiniFlowService;
 
     @Override
     public ExperimentTaskResponse createExperimentTask(Long experimentId) {
@@ -92,10 +96,13 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
             }
         }
 
+        List<DeviceMeta> deviceMetas = experimentMiniFlowService.selectExperimentDevice(experimentId);
+
         ExperimentTaskDO experimentTaskDO = ExperimentTaskDO.builder()
                 .experimentId(experimentId)
                 .taskName(experimentDO.getName())
                 .taskType((byte) 0)
+                .hosts(JsonUtils.writeValueAsString(deviceMetas))
                 .metric(experimentDO.getMetric())
                 .runStatus(RunStatus.READY.getValue())
                 .build();
@@ -201,36 +208,8 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
         ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectById(experimentRequest.getTaskId())
                 .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
 
-        List<DeviceMeta> deviceMetas = experimentMiniFlowService.selectExperimentDevice(experimentTaskDO.getExperimentId());
-
-        List<ExperimentActivityTaskRecordDO> taskRecords = experimentActivityTaskRecordRepository.selectExperimentTaskId(experimentTaskDO.getId());
-        Map<Long, List<ExperimentActivityTaskRecordDO>> listMap = taskRecords.stream()
-                .collect(Collectors.toMap(ExperimentActivityTaskRecordDO::getDeviceId, CollUtil::newArrayList, (u1, u2) -> {
-                    u1.addAll(u2);
-                    return u1;
-                }));
-
-        List<Map<String, List<ExperimentDevice>>> mapList = deviceMetas.stream().map(hostMeta -> {
-            Map<String, List<ExperimentDevice>> map = new HashMap<>();
-            List<ExperimentActivityTaskRecordDO> experimentActivityTask = listMap.get(hostMeta.getDeviceId());
-            if (CollUtil.isNotEmpty(experimentActivityTask)) {
-                map = experimentActivityTask.stream().collect(Collectors.toMap(ExperimentActivityTaskRecordDO::getPhase,
-                        u -> CollUtil.newArrayList(ExperimentDevice.builder()
-                                .status(Optional.ofNullable(u.getSuccess())
-                                        .map(r -> r ? ExperimentDeviceStatus.SUCCESS.getValue() : ExperimentDeviceStatus.ERROR.getValue())
-                                        .orElse(ExperimentDeviceStatus.RUNNING.getValue()))
-                                .deviceId(hostMeta.getDeviceId())
-                                .deviceType(hostMeta.getDeviceType())
-                                .error(u.getErrorMessage())
-                                .build()),
-                        (u1, u2) -> {
-                            u1.addAll(u2);
-                            return u1;
-                        }
-                ));
-            }
-            return map;
-        }).collect(Collectors.toList());
+        List<ExperimentActivityTask> experimentActivityTasks = experimentActivityTaskService.selectExperimentActivityTask(experimentRequest.getTaskId());
+        //List<ExperimentActivityTaskRecordDO> taskRecords = experimentActivityTaskRecordRepository.selectExperimentTaskId(experimentTaskDO.getId());
 
         return ExperimentTaskResponse.builder()
                 .experimentId(experimentTaskDO.getExperimentId())
@@ -241,7 +220,12 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .status(experimentTaskDO.getRunStatus())
                 .resultStatus(experimentTaskDO.getResultStatus())
                 .error(experimentTaskDO.getErrorMessage())
-                .machines(mapList)
+                .activityTasks(experimentActivityTasks.stream().map(experimentActivityTask -> {
+                    ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivityTask.getRunParam());
+                    SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
+                    experimentActivityTask.setScene(scenario);
+                    return experimentActivityTask;
+                }).collect(Collectors.toList()))
                 .build();
     }
 
@@ -267,7 +251,7 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                         ExperimentActivityTaskDO.builder().runStatus(RunStatus.READY.getValue()).build());
             });
             experimentActivityTaskService.executeActivityTasks(experimentActivityTasks, experimentTaskDO);
-        } else if (experimentTaskDO.getRunStatus() == RunStatus.FINISHED.getValue()){
+        } else if (experimentTaskDO.getRunStatus() == RunStatus.FINISHED.getValue()) {
             stopExperimentTask(taskId);
         } else {
             throw new BizException("Un support operation");
@@ -275,4 +259,32 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
         return null;
     }
 
+    @Override
+    public List<ExperimentActivityTaskRecord> queryTaskRecord(ExperimentTaskRequest experimentRequest) {
+        ExperimentTaskDO experimentTaskDO = experimentTaskRepository.selectById(experimentRequest.getTaskId())
+                .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
+        if (StrUtil.isBlank(experimentTaskDO.getHosts())) {
+            return Collections.emptyList();
+        }
+
+        List<DeviceMeta> deviceMetas = JsonUtils.readValue(new TypeReference<List<DeviceMeta>>() {
+        }, experimentTaskDO.getHosts());
+
+        Map<String, ExperimentActivityTaskRecordDO> map = experimentActivityTaskRecordRepository
+                .selectActivityTaskId(experimentRequest.getActivityTaskId())
+                .stream().collect(Collectors.toMap(ExperimentActivityTaskRecordDO::getIp, v -> v));
+
+        return deviceMetas.stream().map(deviceMeta -> {
+            ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = map.get(deviceMeta.getIp());
+            if (experimentActivityTaskRecordDO == null) {
+                return ExperimentActivityTaskRecord.builder()
+                        .ip(deviceMeta.getIp())
+                        .build();
+            } else {
+                ExperimentActivityTaskRecord experimentActivityTask = new ExperimentActivityTaskRecord();
+                BeanUtil.copyProperties(experimentActivityTaskRecordDO, experimentActivityTask);
+                return experimentActivityTask;
+            }
+        }).collect(Collectors.toList());
+    }
 }

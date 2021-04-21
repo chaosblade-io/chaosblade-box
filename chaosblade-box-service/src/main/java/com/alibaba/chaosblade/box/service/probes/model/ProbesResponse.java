@@ -60,4 +60,6 @@ public class ProbesResponse {
 
     private Date heartbeatTime;
 
+    private String clusterName;
+
 }

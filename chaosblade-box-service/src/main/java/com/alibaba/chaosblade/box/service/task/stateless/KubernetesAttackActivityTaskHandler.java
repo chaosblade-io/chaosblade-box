@@ -18,6 +18,8 @@ package com.alibaba.chaosblade.box.service.task.stateless;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.dao.model.ClusterDO;
+import com.alibaba.chaosblade.box.dao.repository.ClusterRepository;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.alibaba.chaosblade.box.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.box.common.TaskLogRecord;
@@ -33,6 +35,7 @@ import com.alibaba.chaosblade.box.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.service.task.log.i18n.TaskLogType;
 import com.alibaba.chaosblade.box.service.task.log.i18n.TaskLogUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -65,23 +68,28 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
     @Autowired
     private ActivityTaskExecuteContext activityTaskExecuteContext;
 
+    @Autowired
+    private ClusterRepository clusterRepository;
+
     @Override
     public void handle(ActivityTask activityTask) {
         if (!activityTask.canExecuted()) {
             return;
         }
-
-        String hostname = JsonUtils.writeValueAsString(activityTask.getDeviceMetas());
-        final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
-                .experimentTaskId(activityTask.getExperimentTaskId())
-                .flowId(activityTask.getFlowId())
-                .hostname(hostname)
-                .activityTaskId(activityTask.getActivityTaskId())
-                .sceneCode(activityTask.getSceneCode())
-                .gmtStart(DateUtil.date())
-                .phase(activityTask.getPhase())
-                .build();
-        experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
+        activityTask.getDeviceMetas().stream().forEach((deviceMeta -> {
+            ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
+                    .experimentTaskId(activityTask.getExperimentTaskId())
+                    .flowId(activityTask.getFlowId())
+                    .deviceId(deviceMeta.getDeviceId())
+                    .hostname(deviceMeta.identity())
+                    .ip(deviceMeta.getIp())
+                    .activityTaskId(activityTask.getActivityTaskId())
+                    .sceneCode(activityTask.getSceneCode())
+                    .gmtStart(DateUtil.date())
+                    .phase(activityTask.getPhase())
+                    .build();
+            experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
+        }));
 
         ExperimentDimension experimentDimension = activityTask.getExperimentDimension();
         RequestCommand requestCommand = new RequestCommand();
@@ -89,6 +97,10 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
         requestCommand.setPhase(activityTask.getPhase());
         requestCommand.setSceneCode(activityTask.getSceneCode());
         requestCommand.setArguments(activityTask.getArguments());
+        requestCommand.setConfig(clusterRepository
+                .selectById(activityTask.getDeviceMetas().get(0).getDeviceId())
+                .map(ClusterDO::getConfig)
+                .orElse(null));
 
         chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
             try {
@@ -110,12 +122,14 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
                         }
                     }
                 }
-                experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
+                UpdateWrapper<ExperimentActivityTaskRecordDO> wrapper = new UpdateWrapper<>();
+                wrapper.lambda().eq(ExperimentActivityTaskRecordDO::getActivityTaskId, activityTask.getActivityTaskId());
+                experimentActivityTaskRecordRepository.update(record, wrapper);
 
                 TaskLogUtil.info(log, TaskLogType.SUB_EXECUTE_EXECUTING, activityTask.getExperimentTaskId(),
                         activityTask.getPhase(),
                         String.valueOf(activityTask.getActivityTaskId()),
-                        hostname,
+                        JsonUtils.writeValueAsString(activityTask.getDeviceMetas()),
                         String.valueOf(record.getSuccess()),
                         record.getErrorMessage()
                 );

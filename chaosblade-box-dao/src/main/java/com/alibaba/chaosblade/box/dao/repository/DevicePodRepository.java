@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.box.dao.repository;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.dao.QueryWrapperBuilder;
+import com.alibaba.chaosblade.box.dao.model.DeviceNodeDO;
 import com.alibaba.chaosblade.box.dao.model.DevicePodDO;
 import com.alibaba.chaosblade.box.dao.mapper.DevicePodMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -111,5 +112,11 @@ public class DevicePodRepository implements IRepository<Long, DevicePodDO> {
     public boolean updateByPrimaryKey(Long id, DevicePodDO devicePodDO) {
         devicePodDO.setId(id);
         return devicePodMapper.updateById(devicePodDO) == 1;
+    }
+
+    public Optional<DevicePodDO> selectByDeviceId(Long id) {
+        QueryWrapper<DevicePodDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(DevicePodDO::getDeviceId, id);
+        return Optional.ofNullable(devicePodMapper.selectOne(queryWrapper));
     }
 }

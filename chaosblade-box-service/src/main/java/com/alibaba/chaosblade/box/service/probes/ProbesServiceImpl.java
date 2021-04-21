@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.box.service.probes;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.chaosblade.box.common.enums.ProbesInstallModel;
 import com.alibaba.chaosblade.box.service.ToolsService;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
@@ -43,6 +44,7 @@ import com.alibaba.chaosblade.box.toolsmgr.api.ChannelType;
 import com.alibaba.chaosblade.box.toolsmgr.api.ChaosToolsMgrStrategyContext;
 import com.alibaba.chaosblade.box.toolsmgr.api.Request;
 import com.alibaba.chaosblade.box.toolsmgr.api.Response;
+import com.alibaba.chaosblade.box.toolsmgr.ssh.SSHRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -126,6 +128,7 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
         return hosts.stream().map(host -> ProbesResponse.builder()
                 .host(host)
                 .status(Optional.ofNullable(map.get(host)).map(ProbesDO::getStatus).orElse(UNINSTALLING.getStatus()))
+                .error(Optional.ofNullable(map.get(host)).map(ProbesDO::getErrorMessage).orElse(null))
                 .build()).collect(Collectors.toList());
     }
 
@@ -146,25 +149,28 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
 
     @Override
     public List<ProbesResponse> getProbesPageable(ProbesRequest probesRequest) {
+        PageUtils.startPage(probesRequest);
         List<ProbesDO> probesDOS = probesRepository.selectList(ProbesDO.builder()
                 .hostname(probesRequest.getHostname())
                 .ip(probesRequest.getIp())
                 .status(probesRequest.getStatus())
+                .installMode(probesRequest.getInstallMode())
                 .agentType(probesRequest.getAgentType())
                 .build());
 
-        PageUtils.startPage(probesRequest);
         return probesDOS.stream().map(probesDO -> ProbesResponse.builder()
                 .probeId(probesDO.getId())
                 .deviceId(probesDO.getDeviceId())
                 .hostname(probesDO.getHostname())
                 .ip(probesDO.getIp())
+                .clusterName(probesDO.getClusterName())
                 .createTime(probesDO.getGmtCreate())
                 .modifyTime(probesDO.getGmtModified())
                 .heartbeatTime(probesDO.getLastOnlineTime())
                 .status(probesDO.getStatus())
                 .version(probesDO.getVersion())
                 .agentType(probesDO.getAgentType())
+                .error(probesDO.getErrorMessage())
                 .build()).collect(Collectors.toList());
     }
 
@@ -253,6 +259,7 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
                     .ip(probesRequest.getHost())
                     .deployBlade(installProbesRequest.isDeployBlade())
                     .agentType(AgentType.HOST.getCode())
+                    .installMode((byte)ProbesInstallModel.ANSIBLE.getCode())
                     .status(DeviceStatus.INSTALLING.getStatus())
                     .build();
             Optional<ProbesDO> optional = probesRepository.selectByHost(probesRequest.getHost());
@@ -386,5 +393,124 @@ public class ProbesServiceImpl implements ProbesService, InitializingBean {
         }
 
         return ProbesResponse.builder().probeId(probesDO.getId()).build();
+    }
+
+    @Override
+    public ProbesResponse installProbe(ProbesRequest probesRequest) {
+        String entryPoint = InetUtils.getLocalHost() + ChaosConstant.COLON + serverPort;
+
+        probesRequest.setCommandOptions(String.format("-t %s -r %s %s", entryPoint, release, probesRequest.getCommandOptions()));
+
+        ProbesDO probesDO = ProbesDO.builder()
+                .ip(probesRequest.getHost())
+                .deployBlade(true)
+                .agentType(AgentType.HOST.getCode())
+                .installMode((byte)ProbesInstallModel.ANSIBLE.getCode())
+                .status(DeviceStatus.INSTALLING.getStatus())
+                .build();
+
+        Optional<ProbesDO> optional = probesRepository.selectByHost(probesRequest.getHost());
+        if (optional.isPresent()) {
+            probesRepository.updateByPrimaryKey(optional.get().getId(), probesDO);
+        } else {
+            probesRepository.insert(probesDO);
+        }
+        probesRequest.setProbeId(probesDO.getId());
+
+        Response<String> deployAgent = chaosToolsMgrStrategyContext.deployAgent(Request.builder()
+                .host(probesRequest.getHost())
+                .probesId(probesDO.getId())
+                .commandOptions(probesRequest.getCommandOptions())
+                .channel(ChannelType.ANSIBLE.name()).build());
+
+        if (!deployAgent.isSuccess()) {
+            probesRepository.updateByPrimaryKey(probesDO.getId(), ProbesDO.builder()
+                    .status(DeviceStatus.INSTALL_FAIL.getStatus())
+                    .errorMessage(deployAgent.getMessage())
+                    .build());
+            throw new BizException(deployAgent.getMessage());
+        } else {
+            probesRepository.updateByPrimaryKey(probesDO.getId(), ProbesDO.builder()
+                    .errorMessage(deployAgent.getMessage())
+                    .build());
+        }
+
+        return probesRepository.selectById(probesDO.getId()).map(probes -> {
+            ProbesResponse probesResponse = ProbesResponse.builder()
+                    .probeId(probesDO.getId())
+                    .deviceId(probesDO.getDeviceId())
+                    .hostname(probesDO.getHostname())
+                    .ip(probesDO.getIp())
+                    .createTime(probesDO.getGmtCreate())
+                    .modifyTime(probesDO.getGmtModified())
+                    .status(probesDO.getStatus())
+                    .error(probesDO.getErrorMessage())
+                    .version(probesDO.getVersion())
+                    .agentType(probesDO.getAgentType())
+                    .build();
+            heartbeats.addHeartbeats(probesDO);
+            return probesResponse;
+        }).orElse(null);
+    }
+
+    @Override
+    public ProbesResponse installProbeBySSH(ProbesRequest probesRequest) {
+        String entryPoint = InetUtils.getLocalHost() + ChaosConstant.COLON + serverPort;
+
+        probesRequest.setCommandOptions(String.format("-t %s -r %s %s", entryPoint, release, probesRequest.getCommandOptions()));
+
+        ProbesDO probesDO = ProbesDO.builder()
+                .ip(probesRequest.getHost())
+                .deployBlade(true)
+                .installMode((byte)ProbesInstallModel.SSH.getCode())
+                .agentType(AgentType.HOST.getCode())
+                .status(DeviceStatus.INSTALLING.getStatus())
+                .build();
+
+        Optional<ProbesDO> optional = probesRepository.selectByHost(probesRequest.getHost());
+        if (optional.isPresent()) {
+            probesRepository.updateByPrimaryKey(optional.get().getId(), probesDO);
+        } else {
+            probesRepository.insert(probesDO);
+        }
+        probesRequest.setProbeId(probesDO.getId());
+
+        SSHRequest request = new SSHRequest();
+
+        request.setChannel(ChannelType.SSH.name());
+        request.setHost(probesRequest.getHost());
+        request.setProbesId(probesDO.getId());
+        request.setUser(probesRequest.getUsername());
+        request.setPassword(probesRequest.getPassword());
+        request.setPort(probesRequest.getPort());
+        request.setCommandOptions(probesRequest.getCommandOptions());
+
+        Response<String> deployAgent = chaosToolsMgrStrategyContext.deployAgent(request);
+
+        if (!deployAgent.isSuccess()) {
+            probesRepository.updateByPrimaryKey(probesDO.getId(), ProbesDO.builder()
+                    .ip(probesRequest.getHost())
+                    .status(DeviceStatus.INSTALL_FAIL.getStatus())
+                    .errorMessage(deployAgent.getMessage())
+                    .build());
+            throw new BizException(deployAgent.getMessage());
+        }
+
+        return probesRepository.selectById(probesDO.getId()).map(probes -> {
+            ProbesResponse probesResponse = ProbesResponse.builder()
+                    .probeId(probesDO.getId())
+                    .deviceId(probesDO.getDeviceId())
+                    .hostname(probesDO.getHostname())
+                    .ip(probesDO.getIp())
+                    .createTime(probesDO.getGmtCreate())
+                    .modifyTime(probesDO.getGmtModified())
+                    .status(probesDO.getStatus())
+                    .error(probesDO.getErrorMessage())
+                    .version(probesDO.getVersion())
+                    .agentType(probesDO.getAgentType())
+                    .build();
+            heartbeats.addHeartbeats(probesDO);
+            return probesResponse;
+        }).orElse(null);
     }
 }

@@ -69,6 +69,8 @@ public class MachineResponse {
 
     private Byte taskStatus;
 
+    private Byte type;
+
     private List<ToolsResponse> chaostools;
 
 }

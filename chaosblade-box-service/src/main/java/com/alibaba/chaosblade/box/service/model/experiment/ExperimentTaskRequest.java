@@ -26,6 +26,8 @@ public class ExperimentTaskRequest {
 
     private Long taskId;
 
+    private Long activityTaskId;
+
     private ExperimentTaskRequest task;
 
 }

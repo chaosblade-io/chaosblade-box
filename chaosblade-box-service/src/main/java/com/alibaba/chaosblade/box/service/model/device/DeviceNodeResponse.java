@@ -33,6 +33,8 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class DeviceNodeResponse extends MachineResponse {
 
+    private String clusterId;
+
     private String clusterName;
 
     private String nodeName;

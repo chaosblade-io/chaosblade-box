@@ -16,6 +16,9 @@
 
 package com.alibaba.chaosblade.box.service.model.experiment;
 
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
+import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +26,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author yefei
@@ -52,5 +54,7 @@ public class ExperimentTaskResponse {
 
     private String error;
 
-    private List<Map<String, List<ExperimentDevice>>> machines;
+    private List<ExperimentActivityTask> activityTasks;
+
+    private List<ExperimentActivityTaskRecord> activityTaskRecords;
 }

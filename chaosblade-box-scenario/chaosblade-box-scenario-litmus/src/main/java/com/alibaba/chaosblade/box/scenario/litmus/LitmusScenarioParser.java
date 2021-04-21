@@ -17,6 +17,7 @@
 package com.alibaba.chaosblade.box.scenario.litmus;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
@@ -36,6 +37,7 @@ import com.alibaba.chaosblade.box.scenario.api.ScenarioRequest;
 import com.alibaba.chaosblade.box.scenario.api.model.ScenarioOriginal;
 import com.alibaba.chaosblade.box.scenario.litmus.model.ChaosExperiment;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
@@ -56,7 +58,7 @@ import java.util.stream.Stream;
 @Original(ChaosTools.LITMUS_CHAOS)
 @Component
 @ConfigurationProperties(prefix = "chaos.scene.originals")
-public class LitmusScenarioParser implements ScenarioParser {
+public class LitmusScenarioParser implements ScenarioParser, InitializingBean {
 
     protected final Map<String, ChaosExperiment> experimentMap = new ConcurrentHashMap<>();
 
@@ -84,14 +86,34 @@ public class LitmusScenarioParser implements ScenarioParser {
     }
 
     @Override
+    public void afterPropertiesSet() throws Exception {
+        if (CollUtil.isNotEmpty(litmus)) {
+            parse(ScenarioRequest.builder().build());
+        }
+    }
+
+    @Override
     public List<PluginSpecBean> parse(ScenarioRequest scenarioRequest) {
 
         return litmus.stream().map(
                 litmus -> {
-                    log.info("parse scenario yaml, name: {}, url: {}", litmus.getName(), litmus.getUrl());
-                    HttpRequest request = HttpUtil.createGet(litmus.getUrl());
-                    HttpResponse execute = request.execute();
-                    String s = new String(execute.bodyBytes());
+                    log.info("parse scenario yaml, name: {}", litmus.getName());
+                    String file = String.format("%s/%s-%s-%s.yaml",
+                            ChaosTools.LITMUS_CHAOS.getName(),
+                            ChaosTools.LITMUS_CHAOS.getName(),
+                            litmus.getName(),
+                            litmus.getVersion());
+
+                    String s;
+                    if (FileUtil.exist(file)) {
+                        s = FileUtil.readString(file, SystemPropertiesUtils.getPropertiesFileEncoding());
+                    } else {
+                        log.info("parse scenario yaml from url, name: {}, url: {}", litmus.getName(), litmus.getUrl());
+                        HttpRequest request = HttpUtil.createGet(litmus.getUrl());
+                        HttpResponse execute = request.execute();
+                        s = new String(execute.bodyBytes());
+                        FileUtil.writeString(s, file, SystemPropertiesUtils.getPropertiesFileEncoding());
+                    }
 
                     List<ModelSpecBean> modelSpecBeans = Arrays.stream(StrUtil.split(s, "---"))
                             .filter(StrUtil::isNotBlank)
@@ -136,13 +158,13 @@ public class LitmusScenarioParser implements ScenarioParser {
                                                 .action(action)
                                                 .categories(categories.get(sceneCode) == null ? null : categories.get(sceneCode).toArray(new String[0]))
                                                 .flags(Stream.of(GLOBAL_FLAG.stream(),
-                                                                Arrays.stream(chaosExperiment.getSpec().getDefinition().getEnv())
-                                                                        .map(flag ->
-                                                                                FlagSpecBean.builder()
-                                                                                        .name(flag.getName())
-                                                                                        .defaultValue(flag.getValue())
-                                                                                        .build()
-                                                                        )).flatMap(x -> x).collect(Collectors.toList()))
+                                                        Arrays.stream(chaosExperiment.getSpec().getDefinition().getEnv())
+                                                                .map(flag ->
+                                                                        FlagSpecBean.builder()
+                                                                                .name(flag.getName())
+                                                                                .defaultValue(flag.getValue())
+                                                                                .build()
+                                                                )).flatMap(x -> x).collect(Collectors.toList()))
                                                 .build()))
                                         .scope(scope)
                                         .build();

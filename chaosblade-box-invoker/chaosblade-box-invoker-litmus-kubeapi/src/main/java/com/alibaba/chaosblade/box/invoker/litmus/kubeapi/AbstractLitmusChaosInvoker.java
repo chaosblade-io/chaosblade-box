@@ -23,6 +23,7 @@ import com.alibaba.chaosblade.box.scenario.litmus.model.ChaosExperiment;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
+import io.kubernetes.client.util.Config;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Map;
@@ -32,11 +33,16 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author yefei
  */
-public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand> {
+public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<RequestCommand, ResponseCommand>, InitializingBean {
 
     protected final static String SA_SUFFIX = "-sa";
 
     protected ApiClient client;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        client = Config.defaultClient();
+    }
 
     protected CompletableFuture<ResponseCommand> postExperiment(RequestCommand requestCommand) {
         CompletableFuture<ResponseCommand> future = new CompletableFuture<>();

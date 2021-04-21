@@ -19,4 +19,11 @@ public interface K8SToolsService {
      * @param toolsRequest
      */
     String deployChaostoolsToK8S(ToolsRequest toolsRequest);
+
+    /**
+     *
+     * @param toolsRequest
+     * @return
+     */
+    String undeployChaostoolsToK8S(ToolsRequest toolsRequest);
 }

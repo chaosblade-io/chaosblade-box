@@ -17,9 +17,12 @@
 package com.alibaba.chaosblade.box.dao.repository;
 
 import com.alibaba.chaosblade.box.dao.QueryWrapperBuilder;
+import com.alibaba.chaosblade.box.dao.mapper.ExperimentActivityMapper;
 import com.alibaba.chaosblade.box.dao.mapper.ExperimentActivityTaskRecordMapper;
+import com.alibaba.chaosblade.box.dao.model.ExperimentActivityDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentActivityTaskRecordDO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -30,7 +33,8 @@ import java.util.Optional;
  * @author yefei
  */
 @Repository
-public class ExperimentActivityTaskRecordRepository implements IRepository<Long, ExperimentActivityTaskRecordDO> {
+public class ExperimentActivityTaskRecordRepository extends ServiceImpl<ExperimentActivityTaskRecordMapper, ExperimentActivityTaskRecordDO>
+        implements IRepository<Long, ExperimentActivityTaskRecordDO> {
 
     @Autowired
     private ExperimentActivityTaskRecordMapper experimentActivityTaskRecordMapper;
@@ -64,4 +68,11 @@ public class ExperimentActivityTaskRecordRepository implements IRepository<Long,
         queryWrapper.lambda().eq(ExperimentActivityTaskRecordDO::getExperimentTaskId, experimentTaskId);
         return experimentActivityTaskRecordMapper.selectList(queryWrapper);
     }
+
+    public List<ExperimentActivityTaskRecordDO> selectActivityTaskId(Long activityTaskId) {
+        QueryWrapper<ExperimentActivityTaskRecordDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(ExperimentActivityTaskRecordDO::getActivityTaskId, activityTaskId);
+        return experimentActivityTaskRecordMapper.selectList(queryWrapper);
+    }
 }
+

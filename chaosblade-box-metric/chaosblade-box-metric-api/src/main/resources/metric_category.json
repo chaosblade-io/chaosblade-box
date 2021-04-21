@@ -3,6 +3,36 @@
     "name": "Prometheus 监控",
     "level": 0,
     "code": "metric.prometheus",
-    "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true}, {\"name\":\"rule\", \"desc\":\"rule\", \"type\":\"text\"}]"
+    "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true}, {\"name\":\"rule\", \"desc\":\"rule\", \"type\":\"text\"}]",
+    "subCategories": [
+      {
+        "name": "Prometheus 自定义",
+        "parentId": 1381787810201034754,
+        "level": 1,
+        "code": "metric.prometheus.cpu",
+        "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true}]"
+      },
+      {
+        "name": "CPU 使用率",
+        "parentId": 1381787810201034754,
+        "level": 1,
+        "code": "metric.prometheus.cpu",
+        "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true, \"defaultValue\": \"100 - (avg by(instance) (irate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)\"}]"
+      },
+      {
+        "name": "内存使用率",
+        "parentId": 1381787810201034754,
+        "level": 1,
+        "code": "metric.prometheus.mem",
+        "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true, \"defaultValue\": \"(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes\"}]"
+      },
+      {
+        "name": "磁盘使用量",
+        "parentId": 1381787810201034754,
+        "level": 1,
+        "code": "metric.prometheus.disk",
+        "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true, \"defaultValue\": \"node_filesystem_size_bytes\"}]"
+      }
+    ]
   }
 ]

@@ -25,7 +25,8 @@ public enum DeviceType {
 
     HOST((byte) 0),
     NODE((byte) 1),
-    POD((byte) 2);
+    POD((byte) 2),
+    CLUSTER((byte) 9);
 
     private Byte code;
 
