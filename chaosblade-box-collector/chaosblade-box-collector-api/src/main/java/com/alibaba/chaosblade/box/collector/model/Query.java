@@ -29,4 +29,10 @@ public class Query {
     private String nodeName;
 
     private String podName;
+
+    private Long clusterId;
+
+    private String config;
+
+    private volatile boolean stop;
 }

@@ -31,4 +31,9 @@ public class K8SToolsController {
         return Response.ofSuccess(k8SToolsService.deployChaostoolsToK8S(toolsRequest));
     }
 
+    @RequestMapping("/UndeployChaostoolsToK8S")
+    public Response<String> undeployChaostoolsToK8S(@RequestBody ToolsRequest toolsRequest) {
+        return Response.ofSuccess(k8SToolsService.undeployChaostoolsToK8S(toolsRequest));
+    }
+
 }

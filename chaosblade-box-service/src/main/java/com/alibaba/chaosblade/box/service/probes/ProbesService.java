@@ -77,5 +77,18 @@ public interface ProbesService {
      */
     ProbesResponse uninstallProbe(InstallProbesRequest installProbesRequest);
 
+    /**
+     *
+     * @param probesRequest
+     * @return
+     */
+    ProbesResponse installProbe(ProbesRequest probesRequest);
+
+    /**
+     *
+     * @param probesRequest
+     * @return
+     */
+    ProbesResponse installProbeBySSH(ProbesRequest probesRequest);
 }
 

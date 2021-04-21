@@ -21,6 +21,7 @@ import com.alibaba.chaosblade.box.service.ExperimentTaskService;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +51,12 @@ public class ExperimentTaskController {
     public ExperimentTaskResponse queryTaskInfo(@RequestBody ExperimentTaskRequest experimentRequest) {
         Preconditions.checkNotNull(experimentRequest.getTaskId(), ID_IS_NULL);
         return experimentTaskService.queryTaskInfo(experimentRequest);
+    }
+
+    @RequestMapping("/QueryTaskRecord")
+    public List<ExperimentActivityTaskRecord> queryTaskRecord(@RequestBody ExperimentTaskRequest experimentRequest) {
+        Preconditions.checkNotNull(experimentRequest.getActivityTaskId(), ID_IS_NULL);
+        return experimentTaskService.queryTaskRecord(experimentRequest);
     }
 
     @RequestMapping("/QueryTaskLog")

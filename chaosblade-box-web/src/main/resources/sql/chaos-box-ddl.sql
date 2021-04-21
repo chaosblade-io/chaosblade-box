@@ -257,7 +257,7 @@ create table if not exists t_chaos_experiment_task
         primary key,
     gmt_create       datetime           null comment 'create time',
     gmt_modified     datetime           null comment 'modified time',
-    task_name        varchar(256)        null comment 'task name',
+    task_name        varchar(256)       null comment 'task name',
     experiment_id    bigint             not null comment 'experiment id',
     activity_id      varchar(500)       null comment 'current activity id',
     activity_task_id varchar(64)        null comment 'current activity task id',
@@ -420,6 +420,16 @@ create table if not exists `t_chaos_metric_task`
 ) ENGINE = InnoDB COMMENT 'metric task'
   DEFAULT CHARSET = utf8;
 
-
-
-
+create table if not exists `t_chaos_cluster`
+(
+    `id`                bigint(100) unsigned NOT NULL AUTO_INCREMENT,
+    `gmt_create`        datetime             NOT NULL COMMENT 'modified time',
+    `gmt_modified`      datetime             NOT NULL COMMENT 'create time',
+    `cluster_name`      varchar(100)         NOT NULL,
+    `config`            longtext             NULL,
+    `is_collector`      longtext             NULL comment 'is_collector',
+    `last_collect_time` datetime             NULL comment 'last collect time',
+    `status`            tinyint unsigned     NULL comment 'status',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB COMMENT 'cluster info'
+  DEFAULT CHARSET = utf8;

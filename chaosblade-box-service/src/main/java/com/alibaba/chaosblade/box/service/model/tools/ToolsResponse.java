@@ -30,7 +30,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ToolsResponse {
 
+    private Long deviceId;
+
+    private String hostname;
+
+    private String ip;
+
     private String name;
 
+    private String clusterName;
+
     private String version;
+
+    private Byte deviceType;
+
+    private int status;
 }

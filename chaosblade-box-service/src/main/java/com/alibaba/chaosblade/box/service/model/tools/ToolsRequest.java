@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.service.model.tools;
 
+import com.alibaba.chaosblade.box.dao.page.PageQuery;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,7 +25,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class ToolsRequest {
+public class ToolsRequest extends PageQuery {
 
     private String channel;
 
@@ -37,4 +38,12 @@ public class ToolsRequest {
     private String url;
 
     private String helmValues;
+
+    private Byte deviceType;
+
+    private Byte status;
+
+    private String hostname;
+
+    private String clusterName;
 }

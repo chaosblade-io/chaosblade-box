@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.dao.repository;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.box.dao.mapper.ToolsMapper;
 import com.alibaba.chaosblade.box.dao.model.ToolsDO;
@@ -52,6 +53,19 @@ public class ToolsRepository implements IRepository<Long, ToolsDO> {
         return toolsMapper.updateById(toolsDO) == 1;
     }
 
+    public List<ToolsDO> selectList(ToolsDO toolsDO) {
+
+        QueryWrapper<ToolsDO> queryWrapper = QueryWrapperBuilder.build();
+        if (StrUtil.isNotBlank(toolsDO.getName())) {
+            queryWrapper.lambda().like(ToolsDO::getName, toolsDO.getName());
+        }
+        if (StrUtil.isNotBlank(toolsDO.getVersion())) {
+            queryWrapper.lambda().eq(ToolsDO::getVersion, toolsDO.getVersion());
+        }
+        queryWrapper.lambda().eq(ToolsDO::getDeviceType, toolsDO.getDeviceType());
+        return toolsMapper.selectList(queryWrapper);
+    }
+
     public List<ToolsDO> selectByDeviceId(Long deviceId) {
         QueryWrapper<ToolsDO> queryWrapper = QueryWrapperBuilder.build();
         queryWrapper.lambda().eq(ToolsDO::getDeviceId, deviceId);
@@ -66,7 +80,7 @@ public class ToolsRepository implements IRepository<Long, ToolsDO> {
 
     public Integer selectCountOfKubernetes() {
         QueryWrapper<ToolsDO> queryWrapper = QueryWrapperBuilder.build();
-        queryWrapper.lambda().ne(ToolsDO::getDeviceType, 0);
+        queryWrapper.lambda().ne(ToolsDO::getDeviceType, 1);
         return toolsMapper.selectCount(queryWrapper);
     }
 

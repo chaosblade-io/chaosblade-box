@@ -53,6 +53,7 @@ public class MetricCateGoryLoader implements InitializingBean {
                             .name(sub.getName())
                             .code(sub.getCode())
                             .level(sub.getLevel())
+                            .params(sub.getParams())
                             .parentId(parentId)
                             .build();
 

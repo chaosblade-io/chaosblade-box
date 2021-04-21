@@ -18,6 +18,7 @@ package com.alibaba.chaosblade.box.service.probes.heartbeats;
 
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.chaosblade.box.common.enums.AgentType;
 import com.alibaba.chaosblade.box.common.enums.DeviceStatus;
 import com.alibaba.chaosblade.box.common.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.box.common.utils.timer.Timer;
@@ -156,7 +157,7 @@ public class Heartbeats implements InitializingBean {
             return thread;
         });
 
-        List<ProbesDO> probes = probesRepository.selectList(ProbesDO.builder().build());
+        List<ProbesDO> probes = probesRepository.selectList(ProbesDO.builder().agentType(AgentType.HOST.getCode()).build());
         for (ProbesDO probe : probes) {
             if (DeviceStatus.ONLINE.getStatus() == probe.getStatus()
                     || DeviceStatus.OFFLINE.getStatus() == probe.getStatus()

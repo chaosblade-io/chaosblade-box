@@ -17,6 +17,7 @@
 package com.alibaba.chaosblade.box.collector.kubeapi;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.collector.CollectorStrategy;
 import com.alibaba.chaosblade.box.collector.CollectorType;
 import com.alibaba.chaosblade.box.collector.ContainerCollector;
@@ -31,6 +32,7 @@ import io.kubernetes.client.util.Config;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,8 +56,14 @@ public class KubeApiContainerCollector implements ContainerCollector, Initializi
     @Override
     public CompletableFuture<List<Container>> collect(Query query) {
         CompletableFuture<List<Container>> future = new CompletableFuture<>();
-        CoreV1Api api = new CoreV1Api(client);
+        CoreV1Api api;
         try {
+            if (StrUtil.isBlank(query.getConfig())) {
+                api = new CoreV1Api(client);
+            } else {
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(query.getConfig().getBytes());
+                api = new CoreV1Api(Config.fromConfig(byteArrayInputStream));
+            }
             api.listPodForAllNamespacesAsync(null, null, String.format("metadata.name=%s", query.getPodName()), null,
                     null, null, null, null, null,
                     new ApiCallback<V1PodList>() {
@@ -91,7 +99,7 @@ public class KubeApiContainerCollector implements ContainerCollector, Initializi
 
                         }
                     });
-        } catch (ApiException e) {
+        } catch (Exception e) {
             future.completeExceptionally(e);
         }
         return future;

@@ -17,7 +17,6 @@
 package com.alibaba.chaosblade.box.service;
 
 import com.alibaba.chaosblade.box.service.model.device.*;
-import com.alibaba.chaosblade.box.service.model.device.*;
 
 import java.util.List;
 
@@ -76,6 +75,18 @@ public interface DeviceService {
      * @param deviceRequest
      */
     DeviceResponse getMachinesById(DeviceRequest deviceRequest);
+
+    /**
+     *
+     * @param id
+     */
+    DeviceNodeResponse getNodeByDeviceId(Long id);
+
+    /**
+     *
+     * @param id
+     */
+    DevicePodResponse getPodByDeviceId(Long id);
 
     /**
      *

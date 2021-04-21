@@ -17,7 +17,6 @@
 package com.alibaba.chaosblade.box.service.impl;
 
 import com.alibaba.chaosblade.box.service.ExperimentActivityService;
-import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.dao.model.ExperimentActivityDO;
 import com.alibaba.chaosblade.box.dao.repository.ExperimentActivityRepository;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivity;
@@ -68,8 +67,7 @@ public class ExperimentActivityServiceImpl implements ExperimentActivityService 
     @Override
     public List<ExperimentActivity> selectAttackByExperimentId(Long ExperimentId) {
         List<ExperimentActivityDO> activityDOS = experimentActivityRepository.selectListByExperiment(ExperimentId);
-        return activityDOS.stream().filter(experimentActivityDO ->
-                experimentActivityDO.getPhase().equals(ChaosConstant.PHASE_ATTACK))
+        return activityDOS.stream()
                 .map(this::covert)
                 .collect(Collectors.toList());
     }

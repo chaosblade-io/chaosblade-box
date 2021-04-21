@@ -53,6 +53,9 @@ public class ProbesRepository implements IRepository<Long, ProbesDO> {
         if (probesDO.getAgentType() != null) {
             queryWrapper.lambda().in(ProbesDO::getAgentType, probesDO.getAgentType());
         }
+        if (probesDO.getInstallMode() != null) {
+            queryWrapper.lambda().in(ProbesDO::getInstallMode, probesDO.getInstallMode());
+        }
         return probesMapper.selectList(queryWrapper);
     }
 

@@ -19,11 +19,14 @@ package com.alibaba.chaosblade.box.web.controller;
 import com.alibaba.chaosblade.box.service.ToolsService;
 import com.alibaba.chaosblade.box.service.model.device.DeviceResponse;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsRequest;
+import com.alibaba.chaosblade.box.service.model.tools.ToolsResponse;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsStatisticsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author yefei
@@ -53,5 +56,10 @@ public class ToolsController {
     @RequestMapping("/UpgradeChaostoolsToHost")
     public DeviceResponse upgradeChaostoolsToHost(@RequestBody ToolsRequest toolsRequest) {
         return toolsService.upgradeChaostoolsToHost(toolsRequest);
+    }
+
+    @RequestMapping("/GetChaostoolsPageable")
+    public List<ToolsResponse> getChaostoolsPageable(@RequestBody ToolsRequest toolsRequest) {
+        return toolsService.getChaostoolsPageable(toolsRequest);
     }
 }

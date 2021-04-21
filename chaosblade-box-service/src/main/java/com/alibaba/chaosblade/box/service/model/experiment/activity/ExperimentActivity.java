@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.service.model.experiment.activity;
 
+import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -49,4 +50,6 @@ public class ExperimentActivity {
     private Long waitOfAfter;
 
     private ExperimentActivity nextActivity;
+
+    private SceneResponse scene;
 }

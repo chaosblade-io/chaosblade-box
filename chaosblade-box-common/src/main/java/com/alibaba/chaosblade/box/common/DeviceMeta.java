@@ -16,6 +16,8 @@
 
 package com.alibaba.chaosblade.box.common;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -41,6 +43,8 @@ public class DeviceMeta {
 
     private String ip;
 
+    private String clusterId;
+
     private String nodeName;
 
     private String namespace;
@@ -48,5 +52,23 @@ public class DeviceMeta {
     private String podName;
 
     private String containerName;
+
+    public String identity() {
+        DeviceType deviceType = DeviceType.transByCode(this.deviceType);
+        switch (deviceType) {
+            case HOST:
+                return hostname;
+            case NODE:
+                return String.format("%s/%s", clusterId, nodeName);
+            case POD:
+                if (StrUtil.isBlank(containerName)) {
+                    return String.format("%s/%s/%s/%s", clusterId, nodeName, namespace, podName);
+                } else {
+                    return String.format("%s/%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
+                }
+            default:
+                return null;
+        }
+    }
 
 }

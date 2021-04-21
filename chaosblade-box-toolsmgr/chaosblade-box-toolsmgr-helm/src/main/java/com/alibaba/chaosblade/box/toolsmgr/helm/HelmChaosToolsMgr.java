@@ -35,9 +35,12 @@ public class HelmChaosToolsMgr implements ChaosToolsMgr<HelmRequest>, Initializi
     @Value("${chaos.helm.repo.name}")
     private String helmRepoName;
 
+    @Value("${chaos.helm.repo.enable}")
+    private Boolean enable;
+
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (StrUtil.isNotBlank(helmRepoUrl)) {
+        if (enable) {
             String command = String.format("helm repo add %s %s", helmRepoName, helmRepoUrl);
             Process process = RuntimeUtil.exec(command);
             process.waitFor();
