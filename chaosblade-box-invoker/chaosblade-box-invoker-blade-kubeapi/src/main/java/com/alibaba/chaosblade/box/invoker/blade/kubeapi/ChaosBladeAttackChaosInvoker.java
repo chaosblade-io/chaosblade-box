@@ -20,7 +20,6 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ExperimentSpec;
 import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.FlagSpec;
-import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBlade;
 import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBladeSpec;
 import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
@@ -68,13 +67,12 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
                                         .scope(requestCommand.getScope())
                                         .target(SceneCodeParseUtil.getTarget(requestCommand.getSceneCode()).split("-")[1])
                                         .action(SceneCodeParseUtil.getAction(requestCommand.getSceneCode()))
-                                        .matchers(
-                                                requestCommand.getArguments().keySet().stream()
-                                                        .map(key -> FlagSpec.builder()
-                                                                .name(key)
-                                                                .value(new String[]{requestCommand.getArguments().get(key)})
-                                                                .build()
-                                                        ).toArray(FlagSpec[]::new))
+                                        .matchers(requestCommand.getArguments() == null ? null : requestCommand.getArguments().keySet().stream()
+                                                .map(key -> FlagSpec.builder()
+                                                        .name(key)
+                                                        .value(new String[]{requestCommand.getArguments().get(key)})
+                                                        .build()
+                                                ).toArray(FlagSpec[]::new))
                                         .build()
                         }).build()).build();
 
@@ -142,39 +140,39 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
     private void checkStatus(CompletableFuture<ResponseCommand> future, String name) {
 
         timer.newTimeout(timeout -> {
-                    RequestCommand requestCommand = new RequestCommand();
-                    requestCommand.setName(name);
+            RequestCommand requestCommand = new RequestCommand();
+            requestCommand.setName(name);
 
-                    CompletableFuture<StatusResponseCommand> completableFuture = checkStatus(requestCommand);
+            CompletableFuture<StatusResponseCommand> completableFuture = checkStatus(requestCommand);
 
-                    completableFuture.handle((statusResponseCommand, e) -> {
-                        if (e != null) {
-                            future.completeExceptionally(e);
+            completableFuture.handle((statusResponseCommand, e) -> {
+                if (e != null) {
+                    future.completeExceptionally(e);
+                } else {
+                    statusResponseCommand.setName(name);
+                    statusResponseCommand.setResult(name);
+
+                    log.info("子任务运行中，检查 CRD 状态，NAME: {}, PHASE: {},  是否成功: {}, 失败原因: {}",
+                            requestCommand.getName(),
+                            statusResponseCommand.getPhase(),
+                            statusResponseCommand.isSuccess(),
+                            statusResponseCommand.getError());
+
+                    String error = statusResponseCommand.getError();
+
+                    if (StrUtil.isNotEmpty(error)) {
+                        future.complete(statusResponseCommand);
+                    } else {
+                        if ("Running".equals(statusResponseCommand.getPhase())) {
+                            future.complete(statusResponseCommand);
                         } else {
-                            statusResponseCommand.setName(name);
-                            statusResponseCommand.setResult(name);
-
-                            log.info("子任务运行中，检查 CRD 状态，NAME: {}, PHASE: {},  是否成功: {}, 失败原因: {}",
-                                    requestCommand.getName(),
-                                    statusResponseCommand.getPhase(),
-                                    statusResponseCommand.isSuccess(),
-                                    statusResponseCommand.getError());
-
-                            String error = statusResponseCommand.getError();
-
-                            if (StrUtil.isNotEmpty(error)) {
-                                future.complete(statusResponseCommand);
-                            } else {
-                                if ("Running".equals(statusResponseCommand.getPhase())) {
-                                    future.complete(statusResponseCommand);
-                                } else {
-                                    checkStatus(future, name);
-                                }
-                            }
+                            checkStatus(future, name);
                         }
-                        return null;
-                    });
-                }, 3, TimeUnit.SECONDS);
+                    }
+                }
+                return null;
+            });
+        }, 3, TimeUnit.SECONDS);
     }
 
 }

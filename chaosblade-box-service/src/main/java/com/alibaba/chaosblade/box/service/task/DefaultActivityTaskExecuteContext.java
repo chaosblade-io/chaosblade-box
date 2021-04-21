@@ -127,7 +127,7 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                 String nextPhase = internalTask.getTask().getPhase();
                 if (!prePhase.equals(nextPhase)) {
                     TaskLogUtil.info(log, TaskLogType.EXPERIMENT_PHASE_TRANSFER, activityTask.getExperimentTaskId(),
-                            prePhase, nextPhase, String.valueOf(activityTask.getExperimentTaskId()));
+                            prePhase, nextPhase);
                     return;
                 }
             }

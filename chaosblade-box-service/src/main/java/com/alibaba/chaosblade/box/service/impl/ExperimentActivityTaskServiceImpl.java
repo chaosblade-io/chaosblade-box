@@ -16,14 +16,11 @@
 
 package com.alibaba.chaosblade.box.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.box.dao.model.*;
-import com.alibaba.chaosblade.box.dao.repository.*;
-import com.alibaba.chaosblade.box.service.ExperimentActivityTaskService;
-import com.alibaba.chaosblade.box.service.ExperimentMiniFlowService;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.alibaba.chaosblade.box.common.enums.ExperimentDimension;
@@ -32,16 +29,19 @@ import com.alibaba.chaosblade.box.common.enums.RunStatus;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
+import com.alibaba.chaosblade.box.dao.model.*;
+import com.alibaba.chaosblade.box.dao.repository.*;
 import com.alibaba.chaosblade.box.metric.MetricChartLineRequest;
 import com.alibaba.chaosblade.box.metric.MetricService;
+import com.alibaba.chaosblade.box.service.ExperimentActivityTaskService;
+import com.alibaba.chaosblade.box.service.ExperimentMiniFlowService;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
 import com.alibaba.chaosblade.box.service.model.metric.MetricModel;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.alibaba.chaosblade.box.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.box.service.task.ActivityTaskExecutePipeline;
 import com.alibaba.chaosblade.box.service.task.log.i18n.TaskLogType;
 import com.alibaba.chaosblade.box.service.task.log.i18n.TaskLogUtil;
-import com.alibaba.chaosblade.box.dao.model.*;
-import com.alibaba.chaosblade.box.dao.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -64,6 +64,9 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
 
     @Autowired
     private ExperimentTaskRepository experimentTaskRepository;
+
+    @Autowired
+    private ExperimentActivityTaskRepository experimentActivityTaskRepository;
 
     @Autowired
     private ExperimentMiniFlowService experimentMiniFlowService;
@@ -291,4 +294,16 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
         }, 10, TimeUnit.SECONDS);
     }
 
+    @Override
+    public List<ExperimentActivityTask> selectExperimentActivityTask(Long experimentTaskId) {
+
+        List<ExperimentActivityTaskDO> experimentActivityTasks = experimentActivityTaskRepository
+                .selectByTaskId(experimentTaskId);
+
+        return experimentActivityTasks.stream().map(experimentActivityTaskDO -> {
+            ExperimentActivityTask experimentActivityTask = ExperimentActivityTask.builder().build();
+            BeanUtil.copyProperties(experimentActivityTaskDO, experimentActivityTask);
+            return experimentActivityTask;
+        }).collect(Collectors.toList());
+    }
 }

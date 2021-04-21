@@ -16,10 +16,11 @@
 
 package com.alibaba.chaosblade.box.service;
 
-import com.alibaba.chaosblade.box.service.model.experiment.*;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 
 import java.util.List;
 
@@ -69,4 +70,10 @@ public interface ExperimentTaskService {
      */
     ExperimentTaskResponse failRetryExperiment(ExperimentTaskRequest experimentRequest);
 
+    /**
+     *
+     * @param experimentRequest
+     * @return
+     */
+    List<ExperimentActivityTaskRecord> queryTaskRecord(ExperimentTaskRequest experimentRequest);
 }

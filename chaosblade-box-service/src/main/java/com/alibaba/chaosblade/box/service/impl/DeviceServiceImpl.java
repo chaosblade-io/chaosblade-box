@@ -23,9 +23,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.box.dao.model.*;
-import com.alibaba.chaosblade.box.dao.repository.*;
-import com.alibaba.chaosblade.box.service.DeviceService;
 import com.alibaba.chaosblade.box.common.enums.AgentType;
 import com.alibaba.chaosblade.box.common.enums.DeviceStatus;
 import com.alibaba.chaosblade.box.common.enums.DeviceType;
@@ -35,8 +32,11 @@ import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
 import com.alibaba.chaosblade.box.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.box.dao.mapper.DevicePodMapper;
-import com.alibaba.chaosblade.box.service.model.device.*;
+import com.alibaba.chaosblade.box.dao.model.*;
 import com.alibaba.chaosblade.box.dao.page.PageUtils;
+import com.alibaba.chaosblade.box.dao.repository.*;
+import com.alibaba.chaosblade.box.service.DeviceService;
+import com.alibaba.chaosblade.box.service.model.device.*;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsResponse;
 import com.alibaba.chaosblade.box.service.probes.ProbesInstallSuccessEvent;
 import com.alibaba.chaosblade.box.service.probes.heartbeats.Heartbeats;
@@ -462,6 +462,80 @@ public class DeviceServiceImpl implements DeviceService {
                 .setOriginal(deviceRequest.getOriginal())
                 .setChaostools(tools);
         return deviceResponse;
+    }
+
+    @Override
+    public DeviceNodeResponse getNodeByDeviceId(Long id) {
+        DeviceNodeDO deviceNodeDO = deviceNodeRepository.selectByDeviceId(id).orElseThrow(
+                () -> new BizException(DEVICE_NOT_FOUNT)
+        );
+
+        DeviceDO deviceDO = deviceRepository.selectById(deviceNodeDO.getDeviceId()).orElseThrow(
+                () -> new BizException(DEVICE_NOT_FOUNT)
+        );
+        DeviceNodeResponse deviceNodeResponse = new DeviceNodeResponse();
+
+        deviceNodeResponse.setClusterName(deviceNodeDO.getClusterName())
+                .setClusterId(deviceNodeDO.getClusterId())
+                .setNodeName(deviceNodeDO.getNodeName())
+                .setNodeIp(deviceNodeDO.getNodeIp())
+                .setNodeVersion(deviceNodeDO.getNodeVersion())
+                .setDeviceId(deviceNodeDO.getDeviceId())
+                .setStatus(deviceDO.getStatus())
+                .setChaosed(deviceDO.getIsExperimented())
+                .setCreateTime(deviceDO.getGmtCreate())
+                .setHeartbeatTime(deviceDO.getLastOnlineTime())
+                .setChaosTime(deviceDO.getLastExperimentTime())
+                .setTaskId(deviceDO.getLastTaskId())
+                .setType(deviceDO.getType())
+                .setTaskStatus(deviceDO.getLastTaskStatus());
+
+        return deviceNodeResponse;
+    }
+
+    @Override
+    public DevicePodResponse getPodByDeviceId(Long id) {
+
+        DevicePodDO devicePodDO = devicePodRepository.selectByDeviceId(id).orElseThrow(
+                () -> new BizException(DEVICE_NOT_FOUNT)
+        );
+
+        DeviceNodeDO deviceNodeDO = deviceNodeRepository.selectById(devicePodDO.getDeviceId()).orElseThrow(
+                () -> new BizException(DEVICE_NOT_FOUNT)
+        );
+
+        DeviceDO deviceDO = deviceRepository.selectById(deviceNodeDO.getDeviceId()).orElseThrow(
+                () -> new BizException(DEVICE_NOT_FOUNT)
+        );
+        DevicePodResponse devicePodResponse = new DevicePodResponse();
+
+        List<ContainerBO> containers;
+        if (StrUtil.isBlank(devicePodDO.getContainers())) {
+            containers = Collections.emptyList();
+        } else {
+            containers = JsonUtils.readValue(new TypeReference<List<ContainerBO>>() {
+            }, devicePodDO.getContainers());
+        }
+
+        devicePodResponse.setClusterName(deviceNodeDO.getClusterName())
+                .setClusterId(deviceNodeDO.getClusterId())
+                .setNodeName(deviceNodeDO.getNodeName())
+                .setNodeIp(deviceNodeDO.getNodeIp())
+                .setNodeVersion(deviceNodeDO.getNodeVersion())
+                .setNamespace(devicePodDO.getNamespace())
+                .setContainers(containers)
+                .setPodName(devicePodDO.getPodName())
+                .setPodIp(devicePodDO.getPodIp())
+                .setDeviceId(devicePodDO.getDeviceId())
+                .setStatus(deviceDO.getStatus())
+                .setChaosed(deviceDO.getIsExperimented())
+                .setCreateTime(deviceDO.getGmtCreate())
+                .setHeartbeatTime(deviceDO.getLastOnlineTime())
+                .setChaosTime(deviceDO.getLastExperimentTime())
+                .setTaskId(deviceDO.getLastTaskId())
+                .setTaskStatus(deviceDO.getLastTaskStatus());
+
+        return devicePodResponse;
     }
 
     @Override

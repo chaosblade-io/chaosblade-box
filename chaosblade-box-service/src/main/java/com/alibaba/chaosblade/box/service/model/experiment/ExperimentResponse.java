@@ -17,6 +17,7 @@
 package com.alibaba.chaosblade.box.service.model.experiment;
 
 import com.alibaba.chaosblade.box.service.model.MachineResponse;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivity;
 import com.alibaba.chaosblade.box.service.model.metric.MetricModel;
 import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import lombok.AllArgsConstructor;
@@ -65,5 +66,7 @@ public class ExperimentResponse {
     private List<SceneResponse> scenarios;
 
     private List<MetricModel> metrics;
+
+    private List<ExperimentActivity> activities;
 
 }

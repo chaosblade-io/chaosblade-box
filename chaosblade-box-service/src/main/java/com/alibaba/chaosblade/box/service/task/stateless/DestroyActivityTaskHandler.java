@@ -19,6 +19,8 @@ package com.alibaba.chaosblade.box.service.task.stateless;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.common.enums.ResultStatus;
+import com.alibaba.chaosblade.box.dao.model.ExperimentActivityTaskDO;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.alibaba.chaosblade.box.common.TaskLogRecord;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
@@ -150,5 +152,20 @@ public class DestroyActivityTaskHandler extends DefaultActivityTaskPhaseHandler 
         }, activityTaskExecuteContext.executor());
 
         activityTaskExecuteContext.fireExecute(activityTask.getActivityTaskExecutePipeline());
+    }
+
+    @Override
+    public void postHandle(ActivityTask activityTask, Throwable e) {
+
+        // update activity task
+        experimentActivityTaskRepository.updateByPrimaryKey(activityTask.getActivityTaskId(),
+                ExperimentActivityTaskDO.builder()
+                        .runStatus(RunStatus.FINISHED.getValue())
+                        .resultStatus(e == null ? ResultStatus.SUCCESS.getValue() : ResultStatus.FAILED.getValue())
+                        .errorMessage(e != null ? e.getMessage() : StrUtil.EMPTY)
+                        .gmtEnd(DateUtil.date())
+                        .build());
+
+        super.postHandle(activityTask, e);
     }
 }

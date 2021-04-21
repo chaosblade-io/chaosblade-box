@@ -22,9 +22,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.dao.repository.*;
-import com.alibaba.chaosblade.box.service.ExperimentActivityService;
-import com.alibaba.chaosblade.box.service.ExperimentTaskService;
-import com.alibaba.chaosblade.box.service.SceneService;
+import com.alibaba.chaosblade.box.service.*;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.common.enums.ExperimentDimension;
@@ -40,10 +38,10 @@ import com.alibaba.chaosblade.box.dao.model.ExperimentDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentMiniFlowDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentMiniFlowGroupDO;
 import com.alibaba.chaosblade.box.dao.page.PageUtils;
-import com.alibaba.chaosblade.box.service.ExperimentService;
 import com.alibaba.chaosblade.box.service.model.MachineResponse;
+import com.alibaba.chaosblade.box.service.model.device.DeviceNodeResponse;
+import com.alibaba.chaosblade.box.service.model.device.DevicePodResponse;
 import com.alibaba.chaosblade.box.service.model.device.DeviceRequest;
-import com.alibaba.chaosblade.box.service.model.experiment.*;
 import com.alibaba.chaosblade.box.service.model.experiment.*;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivity;
 import com.alibaba.chaosblade.box.service.model.metric.MetricModel;
@@ -52,7 +50,6 @@ import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.box.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.box.service.model.scene.prepare.JavaAgentPrepare;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
-import com.alibaba.chaosblade.box.dao.repository.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,6 +97,9 @@ public class ExperimentServiceImpl implements ExperimentService {
 
     @Autowired
     private DeviceRepository deviceRepository;
+
+    @Autowired
+    private DeviceService deviceService;
 
     @Override
     @Transactional
@@ -151,18 +151,48 @@ public class ExperimentServiceImpl implements ExperimentService {
                         ).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT))
                 ).collect(Collectors.toList());
             case NODE:
+                return createExperimentRequest.getMachines().stream().map(machine -> {
+                            if (machine.getDeviceId() != null) {
+                                DeviceNodeResponse node = deviceService.getNodeByDeviceId(machine.getDeviceId());
+                                return DeviceMeta.builder().deviceId(node.getDeviceId())
+                                        .clusterId(node.getClusterId())
+                                        .deviceType(node.getType())
+                                        .hostname(node.getHostname())
+                                        .nodeName(node.getNodeName())
+                                        .ip(node.getNodeIp()).build();
+                            } else {
+                                return DeviceMeta.builder().deviceId(machine.getDeviceId())
+                                        .deviceType(dimension.getDeviceType().getCode())
+                                        .nodeName(machine.getNodeName())
+                                        .build();
+                            }
+                        }
+                ).collect(Collectors.toList());
             case POD:
             case CONTAINER:
-                return createExperimentRequest.getMachines().stream().filter(
-                        machine -> !StrUtil.isAllBlank(machine.getNodeName(), machine.getPodName(), machine.getContainerName())
-                ).map(machine ->
-                        DeviceMeta.builder().deviceId(machine.getDeviceId())
-                                .deviceType(dimension.getDeviceType().getCode())
-                                .nodeName(machine.getNodeName())
-                                .namespace(machine.getNamespace())
-                                .podName(machine.getPodName())
-                                .containerName(machine.getContainerName())
-                                .build()
+                return createExperimentRequest.getMachines().stream().map(machine -> {
+                            if (machine.getDeviceId() != null) {
+                                DevicePodResponse pod = deviceService.getPodByDeviceId(machine.getDeviceId());
+                                return DeviceMeta.builder().deviceId(pod.getDeviceId())
+                                        .clusterId(pod.getClusterId())
+                                        .deviceType(pod.getType())
+                                        .hostname(pod.getHostname())
+                                        .nodeName(pod.getNodeName())
+                                        .namespace(pod.getNamespace())
+                                        .podName(pod.getPodName())
+                                        .containerName(pod.getContainerName())
+                                        .ip(pod.getPodIp()).build();
+                            } else {
+                                return DeviceMeta.builder().deviceId(machine.getDeviceId())
+                                        .deviceType(dimension.getDeviceType().getCode())
+                                        .hostname(machine.getHostname())
+                                        .nodeName(machine.getNodeName())
+                                        .namespace(machine.getNamespace())
+                                        .podName(machine.getPodName())
+                                        .containerName(machine.getContainerName())
+                                        .build();
+                            }
+                        }
                 ).collect(Collectors.toList());
             case APPLICATION:
                 // todo
@@ -296,24 +326,36 @@ public class ExperimentServiceImpl implements ExperimentService {
         experimentResponse.setMachines(machineResponses);
 
         List<ExperimentActivity> experimentActivities = experimentActivityService.selectAttackByExperimentId(experimentDO.getId());
+        experimentActivities.stream().forEach(experimentActivity -> {
+            ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
+            SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
+            experimentActivity.setScene(scenario);
+        });
 
-        experimentResponse.setScenarios(experimentActivities.stream().map(experimentActivity ->
-                {
-                    ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
-                    SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
-                    return SceneResponse.builder()
-                            .code(experimentActivity.getSceneCode())
-                            .name(experimentActivity.getActivityName())
-                            .scenarioId(activityTask.getSceneId())
-                            .categories(scenario.getCategories())
-                            .parameters(scenario.getParameters().stream().map(
-                                    sceneParamResponse -> SceneParamResponse.builder()
-                                            .name(sceneParamResponse.getParamName())
-                                            .value(activityTask.getArguments().get(sceneParamResponse.getParamName()))
-                                            .build()).collect(Collectors.toList()))
-                            .build();
-                }
-        ).collect(Collectors.toList()));
+        experimentResponse.setActivities(experimentActivities);
+        experimentResponse.setScenarios(experimentActivities.stream()
+                .filter(experimentActivity ->
+                        experimentActivity.getPhase().equals(ChaosConstant.PHASE_ATTACK))
+                .map(experimentActivity ->
+                        {
+                            ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
+                            SceneResponse scenario = experimentActivity.getScene();
+                            return SceneResponse.builder()
+                                    .code(experimentActivity.getSceneCode())
+                                    .name(experimentActivity.getActivityName())
+                                    .scenarioId(activityTask.getSceneId())
+                                    .original(scenario.getOriginal())
+                                    .version(scenario.getVersion())
+                                    .categories(scenario.getCategories())
+                                    .parameters(scenario.getParameters().stream().map(
+                                            sceneParamResponse -> SceneParamResponse.builder()
+                                                    .name(sceneParamResponse.getParamName())
+                                                    .value(Optional.ofNullable(activityTask.getArguments())
+                                                            .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
+                                                    .build()).collect(Collectors.toList()))
+                                    .build();
+                        }
+                ).collect(Collectors.toList()));
         return experimentResponse;
     }
 
@@ -399,6 +441,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                     .experimentName(experimentDO.getName())
                     .createTime(experimentDO.getGmtCreate())
                     .modifyTime(experimentDO.getGmtModified())
+                    .taskCount(experimentTaskRepository.selectByExperimentId(experimentDO.getId()).size())
                     .build();
 
             experimentTaskRepository.selectById(experimentDO.getTaskId())
@@ -412,26 +455,28 @@ public class ExperimentServiceImpl implements ExperimentService {
 
             List<ExperimentActivity> experimentActivities = experimentActivityService.selectAttackByExperimentId(experimentDO.getId());
 
-            experimentResponse.setScenarios(experimentActivities.stream().map(experimentActivity ->
-                    {
-                        ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
-                        return SceneResponse.builder()
-                                .code(experimentActivity.getSceneCode())
-                                .name(experimentActivity.getActivityName())
-                                .scenarioId(activityTask.getSceneId())
-                                .categories(
-                                        sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build())
-                                                .getCategories()
-                                )
-                                .parameters(Optional.ofNullable(activityTask.getArguments()).map((arguments) ->
-                                        arguments.entrySet().stream().map(entry -> SceneParamResponse.builder()
-                                                .name(entry.getKey())
-                                                .value(entry.getValue())
-                                                .build()).collect(Collectors.toList())).orElse(null)
-                                )
-                                .build();
-                    }
-            ).collect(Collectors.toList()));
+            experimentResponse.setScenarios(experimentActivities.stream()
+                    .filter(experimentActivity ->
+                            experimentActivity.getPhase().equals(ChaosConstant.PHASE_ATTACK))
+                    .map(experimentActivity ->
+                            {
+                                ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
+                                return SceneResponse.builder()
+                                        .code(experimentActivity.getSceneCode())
+                                        .name(experimentActivity.getActivityName())
+                                        .scenarioId(activityTask.getSceneId())
+                                        .categories(
+                                                sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build())
+                                                        .getCategories()
+                                        )
+                                        .parameters(Optional.ofNullable(activityTask.getArguments()).map((arguments) ->
+                                                arguments.entrySet().stream().map(entry -> SceneParamResponse.builder()
+                                                        .name(entry.getKey())
+                                                        .value(entry.getValue())
+                                                        .build()).collect(Collectors.toList())).orElse(null)
+                                        ).build();
+                            }
+                    ).collect(Collectors.toList()));
             return experimentResponse;
         }).collect(Collectors.toList());
     }

@@ -18,6 +18,7 @@ package com.alibaba.chaosblade.box.service;
 
 import com.alibaba.chaosblade.box.dao.model.ExperimentActivityTaskDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
 
 import java.util.List;
 
@@ -36,4 +37,9 @@ public interface ExperimentActivityTaskService {
      * @param experimentActivityTasks
      */
     void executeActivityTasks(List<ExperimentActivityTaskDO> experimentActivityTasks, ExperimentTaskDO experimentTaskDO);
+
+    /**
+     *
+     */
+    List<ExperimentActivityTask> selectExperimentActivityTask(Long experimentTaskId);
 }

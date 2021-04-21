@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.service.model.experiment.activity;
 
+import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,40 +33,40 @@ import java.util.Date;
 @NoArgsConstructor
 public class ExperimentActivityTask {
 
-    private String activityId;
+    private Long id;
+
+    private Long activityId;
 
     private String activityName;
 
-    private String experimentTaskId;
+    private Long experimentTaskId;
+
+    private Long flowId;
 
     private String phase;
 
-    private Date gmtEnd;
-
     private String errorMessage;
 
-    private Byte runState;
+    private Date gmtEnd;
 
-    private Byte resultState;
+    private Byte runStatus;
+
+    private Byte resultStatus;
 
     private Date gmtStart;
 
-    private String namespace;
-
-    private Byte taskMode;
-
-    private ExperimentActivityTask nextActivityTask;
+    private Long preActivityTaskId;
 
     private Long nextActivityTaskId;
-
-    private Byte userCheckState;
 
     private String runParam;
 
     private Integer activityOrder;
 
-    private String appCode;
+    private String sceneCode;
 
     private Long appId;
+
+    private SceneResponse scene;
 
 }

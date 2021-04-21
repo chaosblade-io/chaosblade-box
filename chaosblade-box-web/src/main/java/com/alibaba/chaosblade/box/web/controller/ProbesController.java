@@ -67,6 +67,16 @@ public class ProbesController {
         return probesService.installProbes(installProbesRequest);
     }
 
+    @PostMapping("/InstallProbeByAnsible")
+    public ProbesResponse installProbeByAnsible(@RequestBody ProbesRequest probesRequest) {
+        return probesService.installProbe(probesRequest);
+    }
+
+    @PostMapping("/InstallProbeBySSH")
+    public ProbesResponse installProbeBySSH(@RequestBody ProbesRequest probesRequest) {
+        return probesService.installProbeBySSH(probesRequest);
+    }
+
     @PostMapping("/UninstallProbe")
     public ProbesResponse uninstallProbe(@RequestBody InstallProbesRequest installProbesRequest) {
         return probesService.uninstallProbe(installProbesRequest);

@@ -42,4 +42,6 @@ public class RequestCommand {
 
     private Long timeout;
 
+    private String config;
+
 }

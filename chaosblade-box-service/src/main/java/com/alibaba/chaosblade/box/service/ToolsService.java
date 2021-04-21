@@ -20,8 +20,11 @@ import com.alibaba.chaosblade.box.service.model.device.DeviceResponse;
 import com.alibaba.chaosblade.box.common.model.chaos.PluginSpecBean;
 import com.alibaba.chaosblade.box.scenario.api.model.ToolsOverview;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsRequest;
+import com.alibaba.chaosblade.box.service.model.tools.ToolsResponse;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsStatisticsResponse;
 import com.alibaba.chaosblade.box.scenario.api.model.ToolsVersion;
+
+import java.util.List;
 
 /**
  * @author yefei
@@ -58,18 +61,6 @@ public interface ToolsService {
 
     /**
      *
-     * @param toolsRequest
-     */
-    void deployChaostoolsToHostK8S(ToolsRequest toolsRequest);
-
-    /**
-     *
-     * @param toolsRequest
-     */
-    void undeployChaostoolsToHostK8S(ToolsRequest toolsRequest);
-
-    /**
-     *
      * @return
      */
     ToolsOverview toolsOverview(String toolsName);
@@ -88,4 +79,11 @@ public interface ToolsService {
      * @return
      */
     PluginSpecBean toolsScene(String toolsName, String version, String sceneName);
+
+    /**
+     *
+     * @param toolsRequest
+     * @return
+     */
+    List<ToolsResponse> getChaostoolsPageable(ToolsRequest toolsRequest);
 }

@@ -23,7 +23,6 @@ import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.alibaba.chaosblade.box.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.TaskLogRecord;
-import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.common.enums.ExperimentDimension;
 import com.alibaba.chaosblade.box.common.enums.RunStatus;
 import com.alibaba.chaosblade.box.common.exception.BizException;
@@ -58,7 +57,6 @@ import static com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum.E
 @Slf4j
 @TaskLogRecord
 @Component
-@ActivityTaskHandlerType(value = ChaosConstant.PHASE_PREPARE)
 public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
     @Autowired

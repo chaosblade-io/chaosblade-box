@@ -54,4 +54,14 @@ public class ProbesRequest extends PageQuery {
     private String groupName;
 
     private String commandOptions;
+
+    private String clusterName;
+
+    private Byte installMode;
+
+    private String username;
+
+    private String password;
+
+    private int port;
 }
