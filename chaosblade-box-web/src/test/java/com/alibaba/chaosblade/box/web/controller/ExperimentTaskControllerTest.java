@@ -16,6 +16,8 @@
 
 package com.alibaba.chaosblade.box.web.controller;
 
+import com.alibaba.chaosblade.box.service.ClusterService;
+import com.alibaba.chaosblade.box.service.K8SToolsService;
 import com.alibaba.chaosblade.box.web.ChaosbladeBoxApplication;
 import com.alibaba.chaosblade.box.web.model.Response;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
@@ -64,6 +66,12 @@ public class ExperimentTaskControllerTest {
 
     @MockBean
     private MetricCateGoryLoader metricCateGoryLoader;
+
+    @MockBean
+    private ClusterService clusterService;
+
+    @MockBean
+    private K8SToolsService k8SToolsService;
 
     @Before
     public void init() {

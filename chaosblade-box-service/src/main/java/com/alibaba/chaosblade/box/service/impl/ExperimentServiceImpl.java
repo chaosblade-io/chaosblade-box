@@ -344,6 +344,8 @@ public class ExperimentServiceImpl implements ExperimentService {
             SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
             scenario.setParameters(scenario.getParameters().stream().map(
                     sceneParamResponse -> SceneParamResponse.builder()
+                            .parameterId(sceneParamResponse.getParameterId())
+                            .paramName(sceneParamResponse.getParamName())
                             .name(sceneParamResponse.getParamName())
                             .value(Optional.ofNullable(activityTask.getArguments())
                                     .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
@@ -368,7 +370,8 @@ public class ExperimentServiceImpl implements ExperimentService {
                                     .categories(scenario.getCategories())
                                     .parameters(scenario.getParameters().stream().map(
                                             sceneParamResponse -> SceneParamResponse.builder()
-                                                    .name(sceneParamResponse.getParamName())
+                                                    .parameterId(sceneParamResponse.getParameterId())
+                                                    .name(sceneParamResponse.getName())
                                                     .value(Optional.ofNullable(activityTask.getArguments())
                                                             .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
                                                     .build()).collect(Collectors.toList()))

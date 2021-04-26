@@ -71,7 +71,7 @@ chaos:
     tools: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/chaostoolsctl.sh
   helm:
     repo:
-      enable: true
+      enable: false
       name: chaos
       url: http://localhost:9001
 
