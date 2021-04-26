@@ -18,11 +18,6 @@ package com.alibaba.chaosblade.box.invoker.blade.kubeapi;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ExperimentSpec;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.FlagSpec;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBlade;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBladeSpec;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
@@ -31,6 +26,11 @@ import com.alibaba.chaosblade.box.common.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.box.invoker.ChaosInvokerStrategy;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.invoker.ResponseCommand;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBlade;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBladeSpec;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ExperimentSpec;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.FlagSpec;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
 import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
@@ -39,6 +39,7 @@ import io.kubernetes.client.util.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -53,31 +54,33 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
 
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
-        CustomObjectsApi apiInstance = new CustomObjectsApi(client);
-
-        V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
-        v1ObjectMeta.setName(IdUtil.fastSimpleUUID());
-        ChaosBlade chaosBladeRequest = ChaosBlade.builder()
-                .apiVersion(Constants.API_VERSION)
-                .kind(Constants.KIND)
-                .metadata(v1ObjectMeta)
-                .spec(ChaosBladeSpec.builder()
-                        .experiments(new ExperimentSpec[]{
-                                ExperimentSpec.builder()
-                                        .scope(requestCommand.getScope())
-                                        .target(SceneCodeParseUtil.getTarget(requestCommand.getSceneCode()).split("-")[1])
-                                        .action(SceneCodeParseUtil.getAction(requestCommand.getSceneCode()))
-                                        .matchers(requestCommand.getArguments() == null ? null : requestCommand.getArguments().keySet().stream()
-                                                .map(key -> FlagSpec.builder()
-                                                        .name(key)
-                                                        .value(new String[]{requestCommand.getArguments().get(key)})
-                                                        .build()
-                                                ).toArray(FlagSpec[]::new))
-                                        .build()
-                        }).build()).build();
-
+        CustomObjectsApi apiInstance;
         final CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
+
         try {
+            apiInstance = new CustomObjectsApi(getClient(requestCommand));
+            V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
+            v1ObjectMeta.setName(IdUtil.fastSimpleUUID());
+            ChaosBlade chaosBladeRequest = ChaosBlade.builder()
+                    .apiVersion(Constants.API_VERSION)
+                    .kind(Constants.KIND)
+                    .metadata(v1ObjectMeta)
+                    .spec(ChaosBladeSpec.builder()
+                            .experiments(new ExperimentSpec[]{
+                                    ExperimentSpec.builder()
+                                            .scope(requestCommand.getScope())
+                                            .target(SceneCodeParseUtil.getTarget(requestCommand.getSceneCode()).split("-")[1])
+                                            .action(SceneCodeParseUtil.getAction(requestCommand.getSceneCode()))
+                                            .matchers(requestCommand.getArguments() == null ? null : requestCommand.getArguments().keySet().stream()
+                                                    .map(key -> FlagSpec.builder()
+                                                            .name(key)
+                                                            .value(new String[]{requestCommand.getArguments().get(key)})
+                                                            .build()
+                                                    ).toArray(FlagSpec[]::new))
+                                            .build()
+                            }).build()).build();
+
+
             apiInstance.createClusterCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -100,7 +103,7 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
 
                         @Override
                         public void onSuccess(Object result, int statusCode, Map responseHeaders) {
-                            checkStatus(completableFuture, v1ObjectMeta.getName());
+                            checkStatus(completableFuture, v1ObjectMeta.getName(), requestCommand.getConfig());
                         }
 
                         @Override
@@ -122,6 +125,8 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
                     .error(e.getResponseBody())
                     .build();
             completableFuture.complete(responseCommand);
+        } catch (IOException e) {
+            completableFuture.completeExceptionally(e);
         }
         return completableFuture;
     }
@@ -137,11 +142,12 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
         });
     }
 
-    private void checkStatus(CompletableFuture<ResponseCommand> future, String name) {
+    private void checkStatus(CompletableFuture<ResponseCommand> future, String name, String config) {
 
         timer.newTimeout(timeout -> {
             RequestCommand requestCommand = new RequestCommand();
             requestCommand.setName(name);
+            requestCommand.setConfig(config);
 
             CompletableFuture<StatusResponseCommand> completableFuture = checkStatus(requestCommand);
 
@@ -166,7 +172,7 @@ public class ChaosBladeAttackChaosInvoker extends AbstractChaosBladeChaosInvoker
                         if ("Running".equals(statusResponseCommand.getPhase())) {
                             future.complete(statusResponseCommand);
                         } else {
-                            checkStatus(future, name);
+                            checkStatus(future, name, config);
                         }
                     }
                 }

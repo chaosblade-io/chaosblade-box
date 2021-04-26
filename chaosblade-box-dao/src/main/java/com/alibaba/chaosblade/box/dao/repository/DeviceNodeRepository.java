@@ -48,8 +48,9 @@ public class DeviceNodeRepository implements IRepository<Long, DeviceNodeDO> {
         return Optional.ofNullable(deviceNodeMapper.selectOne(queryWrapper));
     }
 
-    public Optional<DeviceNodeDO> selectByNodeName(String nodeName) {
+    public Optional<DeviceNodeDO> selectByNodeName(Long clusterId, String nodeName) {
         QueryWrapper<DeviceNodeDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().eq(DeviceNodeDO::getClusterId, clusterId);
         queryWrapper.lambda().eq(DeviceNodeDO::getNodeName, nodeName);
         return Optional.ofNullable(deviceNodeMapper.selectOne(queryWrapper));
     }

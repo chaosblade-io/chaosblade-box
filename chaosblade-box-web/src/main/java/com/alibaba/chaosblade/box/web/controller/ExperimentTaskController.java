@@ -21,6 +21,7 @@ import com.alibaba.chaosblade.box.service.ExperimentTaskService;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
+import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskStatistics;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +41,11 @@ public class ExperimentTaskController {
 
     @Autowired
     private ExperimentTaskService experimentTaskService;
+
+    @RequestMapping("/QueryTaskStatistics")
+    public List<ExperimentTaskStatistics> queryTaskStatistics() {
+        return experimentTaskService.queryTaskStatistics();
+    }
 
     @RequestMapping("/GetTasksByExperimentId")
     public List<ExperimentTaskResponse> getExperimentById(@RequestBody ExperimentRequest experimentRequest) {

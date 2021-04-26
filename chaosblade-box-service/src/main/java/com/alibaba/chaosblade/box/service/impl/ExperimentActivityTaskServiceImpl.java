@@ -213,7 +213,7 @@ public class ExperimentActivityTaskServiceImpl implements ExperimentActivityTask
                                 );
                                 break;
                             case NODE:
-                                deviceNodeRepository.selectByNodeName(deviceMeta.getNodeName()).ifPresent(node ->
+                                deviceNodeRepository.selectByNodeName(deviceMeta.getClusterId(), deviceMeta.getNodeName()).ifPresent(node ->
                                         deviceRepository.updateByPrimaryKey(node.getDeviceId(),
                                                 DeviceDO.builder().lastExperimentTime(DateUtil.date())
                                                         .isExperimented(true)

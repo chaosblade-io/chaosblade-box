@@ -35,7 +35,7 @@ public class DeviceNodeDO extends BaseDO {
 
     private Long deviceId;
 
-    private String clusterId;
+    private Long clusterId;
 
     private String clusterName;
 

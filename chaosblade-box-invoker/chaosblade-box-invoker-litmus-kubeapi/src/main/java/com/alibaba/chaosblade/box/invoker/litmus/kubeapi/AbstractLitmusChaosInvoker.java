@@ -16,19 +16,18 @@
 
 package com.alibaba.chaosblade.box.invoker.litmus.kubeapi;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.invoker.ChaosInvoker;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.invoker.ResponseCommand;
-import com.alibaba.chaosblade.box.scenario.litmus.model.ChaosExperiment;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
 import io.kubernetes.client.util.Config;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.Map;
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author yefei
@@ -44,10 +43,19 @@ public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<Request
         client = Config.defaultClient();
     }
 
+    protected ApiClient getClient(RequestCommand requestCommand) throws Exception {
+        if (StrUtil.isBlank(requestCommand.getConfig())) {
+            return client;
+        } else {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(requestCommand.getConfig().getBytes());
+            return Config.fromConfig(byteArrayInputStream);
+        }
+    }
+
     protected CompletableFuture<ResponseCommand> postExperiment(RequestCommand requestCommand) {
         CompletableFuture<ResponseCommand> future = new CompletableFuture<>();
         try {
-            CustomObjectsApi customObjectsApi = new CustomObjectsApi(client);
+            CustomObjectsApi customObjectsApi = new CustomObjectsApi(getClient(requestCommand));
             customObjectsApi.deleteNamespacedCustomObject(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -71,6 +79,8 @@ public abstract class AbstractLitmusChaosInvoker implements ChaosInvoker<Request
                         .result(e.getResponseBody())
                         .success(false).build());
             }
+        } catch (Exception e) {
+            future.completeExceptionally(e);
         }
         future.complete(ResponseCommand.builder().success(true).build());
         return future;

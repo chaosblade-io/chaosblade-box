@@ -16,6 +16,8 @@
 
 package com.alibaba.chaosblade.box.service.model;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -72,5 +74,30 @@ public class MachineResponse {
     private Byte type;
 
     private List<ToolsResponse> chaostools;
+
+    private Long clusterId;
+
+    private String identity;
+
+    public String getIdentity() {
+        if (StrUtil.isBlank(this.deviceType)) {
+            return null;
+        }
+        DeviceType deviceType = DeviceType.transByCode(Byte.valueOf(this.deviceType));
+        switch (deviceType) {
+            case HOST:
+                return hostname;
+            case NODE:
+                return String.format("%s/%s", clusterId, nodeName);
+            case POD:
+                if (StrUtil.isBlank(containerName)) {
+                    return String.format("%s/%s/%s/%s", clusterId, nodeName, namespace, podName);
+                } else {
+                    return String.format("%s/%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
+                }
+            default:
+                return null;
+        }
+    }
 
 }

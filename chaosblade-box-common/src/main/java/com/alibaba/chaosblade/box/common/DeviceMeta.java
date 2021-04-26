@@ -43,7 +43,7 @@ public class DeviceMeta {
 
     private String ip;
 
-    private String clusterId;
+    private Long clusterId;
 
     private String nodeName;
 

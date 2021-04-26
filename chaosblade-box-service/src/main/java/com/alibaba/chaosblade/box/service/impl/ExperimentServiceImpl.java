@@ -21,6 +21,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.common.enums.ChaosTools;
 import com.alibaba.chaosblade.box.dao.repository.*;
 import com.alibaba.chaosblade.box.service.*;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
@@ -138,6 +139,9 @@ public class ExperimentServiceImpl implements ExperimentService {
     private List<DeviceMeta> getDeviceMetas(CreateExperimentRequest createExperimentRequest) {
         ExperimentDimension dimension = EnumUtil.fromString(ExperimentDimension.class, createExperimentRequest.getDimension().toUpperCase());
         List<DeviceMeta> deviceMetas = new ArrayList<>();
+        SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(createExperimentRequest.getScenarioId()).build());
+        String original = SceneCodeParseUtil.getOriginal(scenario.getCode());
+
         switch (dimension) {
             case HOST:
                 Preconditions.checkArgument(CollUtil.isEmpty(createExperimentRequest.getMachines()), EXPERIMENT_DEVICE_IS_NULL);
@@ -151,7 +155,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                         ).orElseThrow(() -> new BizException(DEVICE_NOT_FOUNT))
                 ).collect(Collectors.toList());
             case NODE:
-                return createExperimentRequest.getMachines().stream().map(machine -> {
+                List<DeviceMeta> nodes = createExperimentRequest.getMachines().stream().map(machine -> {
                             if (machine.getDeviceId() != null) {
                                 DeviceNodeResponse node = deviceService.getNodeByDeviceId(machine.getDeviceId());
                                 return DeviceMeta.builder().deviceId(node.getDeviceId())
@@ -168,9 +172,13 @@ public class ExperimentServiceImpl implements ExperimentService {
                             }
                         }
                 ).collect(Collectors.toList());
+                if (original.equals(ChaosTools.CHAOS_BLADE.getName())) {
+                    createExperimentRequest.getParameters().put("names", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining()));
+                }
+                return nodes;
             case POD:
             case CONTAINER:
-                return createExperimentRequest.getMachines().stream().map(machine -> {
+                List<DeviceMeta> list = createExperimentRequest.getMachines().stream().map(machine -> {
                             if (machine.getDeviceId() != null) {
                                 DevicePodResponse pod = deviceService.getPodByDeviceId(machine.getDeviceId());
                                 return DeviceMeta.builder().deviceId(pod.getDeviceId())
@@ -194,6 +202,11 @@ public class ExperimentServiceImpl implements ExperimentService {
                             }
                         }
                 ).collect(Collectors.toList());
+                if (original.equals(ChaosTools.CHAOS_BLADE.getName())) {
+                    createExperimentRequest.getParameters().put("names", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining()));
+                    createExperimentRequest.getParameters().put("container-names", list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining()));
+                }
+                return list;
             case APPLICATION:
                 // todo
         }
@@ -329,6 +342,12 @@ public class ExperimentServiceImpl implements ExperimentService {
         experimentActivities.stream().forEach(experimentActivity -> {
             ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
             SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
+            scenario.setParameters(scenario.getParameters().stream().map(
+                    sceneParamResponse -> SceneParamResponse.builder()
+                            .name(sceneParamResponse.getParamName())
+                            .value(Optional.ofNullable(activityTask.getArguments())
+                                    .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
+                            .build()).collect(Collectors.toList()));
             experimentActivity.setScene(scenario);
         });
 
