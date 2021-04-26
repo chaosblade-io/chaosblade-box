@@ -31,7 +31,7 @@ public class DevicePodResponse extends MachineResponse {
 
     private String namespace;
 
-    private String clusterId;
+    private Long clusterId;
 
     private String clusterName;
 

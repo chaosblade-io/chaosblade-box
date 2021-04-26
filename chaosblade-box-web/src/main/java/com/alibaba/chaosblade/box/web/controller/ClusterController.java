@@ -24,6 +24,11 @@ public class ClusterController {
         clusterService.addCluster(clusterBO);
     }
 
+    @RequestMapping("/UpdateCluster")
+    public void updateCluster(@RequestBody ClusterBO clusterBO) {
+        clusterService.updateCluster(clusterBO);
+    }
+
     @RequestMapping("/GetClusterPageable")
     public List<ClusterBO> getClusterPageable(@RequestBody ClusterBO clusterBO) {
         return clusterService.getClusterPageable(clusterBO);

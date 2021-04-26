@@ -76,7 +76,7 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
         if (!activityTask.canExecuted()) {
             return;
         }
-        activityTask.getDeviceMetas().stream().forEach((deviceMeta -> {
+        activityTask.getDeviceMetas().forEach((deviceMeta -> {
             ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
                     .experimentTaskId(activityTask.getExperimentTaskId())
                     .flowId(activityTask.getFlowId())
@@ -98,7 +98,7 @@ public class KubernetesAttackActivityTaskHandler extends AttackActivityTaskHandl
         requestCommand.setSceneCode(activityTask.getSceneCode());
         requestCommand.setArguments(activityTask.getArguments());
         requestCommand.setConfig(clusterRepository
-                .selectById(activityTask.getDeviceMetas().get(0).getDeviceId())
+                .selectById(activityTask.getDeviceMetas().get(0).getClusterId())
                 .map(ClusterDO::getConfig)
                 .orElse(null));
 

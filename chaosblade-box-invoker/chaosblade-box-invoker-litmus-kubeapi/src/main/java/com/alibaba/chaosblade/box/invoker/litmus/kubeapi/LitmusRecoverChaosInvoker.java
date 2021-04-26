@@ -52,11 +52,9 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
         if (StrUtil.isBlank(requestCommand.getNamespace())) {
             requestCommand.setNamespace("default");
         }
-
-        CustomObjectsApi apiInstance = new CustomObjectsApi(client);
-
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
         try {
+            CustomObjectsApi apiInstance = new CustomObjectsApi(getClient(requestCommand));
             apiInstance.deleteNamespacedCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -75,7 +73,11 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
                             if (statusCode == 404) {
                                 responseCommand = ResponseCommand.builder().success(true)
                                         .result(requestCommand.getName()).build();
-                                clean(requestCommand);
+                                try {
+                                    clean(requestCommand);
+                                } catch (Exception exception) {
+                                    completableFuture.completeExceptionally(exception);
+                                }
                             } else {
                                 responseCommand = ResponseCommand.builder()
                                         .success(false)
@@ -92,7 +94,11 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
                             ResponseCommand responseCommand = ResponseCommand.builder().success(true)
                                     .code(String.valueOf(statusCode))
                                     .result(requestCommand.getName()).build();
-                            clean(requestCommand);
+                            try {
+                                clean(requestCommand);
+                            } catch (Exception e) {
+                                completableFuture.completeExceptionally(e);
+                            }
                             completableFuture.complete(responseCommand);
                         }
 
@@ -115,11 +121,13 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
                     .error(e.getResponseBody())
                     .build();
             completableFuture.complete(responseCommand);
+        } catch (Exception e) {
+            completableFuture.completeExceptionally(e);
         }
         return completableFuture;
     }
 
-    private void clean(RequestCommand requestCommand) {
+    private void clean(RequestCommand requestCommand) throws Exception {
         String serviceAccount = requestCommand.getSceneCode().replace(ChaosConstant.CHAOS_DESTROY_SUFFIX, "") + SA_SUFFIX;
 
         String experimentName;
@@ -134,7 +142,7 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
 
         try {
             // delete experiment
-            CustomObjectsApi customObjectsApi = new CustomObjectsApi(client);
+            CustomObjectsApi customObjectsApi = new CustomObjectsApi(getClient(requestCommand));
             customObjectsApi.deleteNamespacedCustomObject(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -152,7 +160,7 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
         }
         try {
             // delete sa
-            CoreV1Api apiInstance = new CoreV1Api(client);
+            CoreV1Api apiInstance = new CoreV1Api(getClient(requestCommand));
             apiInstance.deleteNamespacedServiceAccount(
                     serviceAccount,
                     requestCommand.getNamespace(),
@@ -166,7 +174,7 @@ public class LitmusRecoverChaosInvoker extends AbstractLitmusChaosInvoker {
         } catch (ApiException e) {
             log.warn("delete service account:[{}] fail", serviceAccount, e);
         }
-        RbacAuthorizationV1Api rbacAuthorizationV1Api = new RbacAuthorizationV1Api(client);
+        RbacAuthorizationV1Api rbacAuthorizationV1Api = new RbacAuthorizationV1Api(getClient(requestCommand));
         try {
             // delete role
             rbacAuthorizationV1Api.deleteClusterRole(serviceAccount, "true",

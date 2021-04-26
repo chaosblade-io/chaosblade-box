@@ -20,35 +20,37 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
 import com.alibaba.chaosblade.box.collector.*;
+import com.alibaba.chaosblade.box.collector.model.Container;
 import com.alibaba.chaosblade.box.collector.model.Node;
+import com.alibaba.chaosblade.box.collector.model.Pod;
+import com.alibaba.chaosblade.box.collector.model.Query;
 import com.alibaba.chaosblade.box.common.enums.DeviceStatus;
 import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
 import com.alibaba.chaosblade.box.common.utils.Preconditions;
 import com.alibaba.chaosblade.box.common.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.box.common.utils.timer.Timer;
-import com.alibaba.chaosblade.box.collector.model.Container;
-import com.alibaba.chaosblade.box.collector.model.Pod;
-import com.alibaba.chaosblade.box.collector.model.Query;
 import com.alibaba.chaosblade.box.dao.QueryWrapperBuilder;
 import com.alibaba.chaosblade.box.dao.mapper.DeviceMapper;
+import com.alibaba.chaosblade.box.dao.model.ClusterDO;
 import com.alibaba.chaosblade.box.dao.model.DeviceDO;
 import com.alibaba.chaosblade.box.dao.model.DeviceNodeDO;
 import com.alibaba.chaosblade.box.dao.model.DevicePodDO;
+import com.alibaba.chaosblade.box.dao.repository.ClusterRepository;
 import com.alibaba.chaosblade.box.dao.repository.DeviceNodeRepository;
 import com.alibaba.chaosblade.box.dao.repository.DevicePodRepository;
 import com.alibaba.chaosblade.box.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.box.service.model.device.ContainerBO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -57,7 +59,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class CollectorTimer implements BeanPostProcessor, InitializingBean {
+public class CollectorTimer implements InitializingBean {
 
     private Timer timer;
 
@@ -73,6 +75,9 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
     @Autowired
     private DevicePodRepository devicePodRepository;
 
+    @Autowired
+    private ClusterRepository clusterRepository;
+
     @Value("${chaos.collector.type}")
     private String collectorType;
 
@@ -81,6 +86,9 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
 
     @Value("${chaos.collector.period}")
     private Integer period;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private NodeCollector nodeCollector;
 
@@ -100,35 +108,6 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
         Preconditions.checkNotNull(nodeCollector, "collector is null");
         CompletableFuture<List<Node>> future = nodeCollector.collect(Query.builder().config(config).build());
         log.info("collector dry run, node size: {}", future.get().size());
-    }
-
-    @Override
-    public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
-        if (o instanceof Collector) {
-            CollectorStrategy strategy = o.getClass().getAnnotation(CollectorStrategy.class);
-            CollectorType collectorType = EnumUtil.fromString(CollectorType.class, this.collectorType.toUpperCase());
-            if (strategy.value() == collectorType) {
-                if (o instanceof NodeCollector) {
-                    nodeCollector = (NodeCollector) o;
-                    if (enableCollect) {
-                        nodeCollect(nodeCollector, Query.builder().build());
-                    }
-                }
-                if (o instanceof PodCollector) {
-                    podCollector = (PodCollector) o;
-                    if (enableCollect) {
-                        podCollect(podCollector, Query.builder().build());
-                    }
-                }
-                if (o instanceof ContainerCollector) {
-                    containerCollector = (ContainerCollector) o;
-                    if (enableCollect) {
-                        containerCollect(containerCollector, Query.builder().build());
-                    }
-                }
-            }
-        }
-        return o;
     }
 
     public void collect(Query query) {
@@ -173,7 +152,7 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
                                             .build();
                                     Long deviceId = deviceRepository.insert(aDo);
                                     deviceNodeRepository.insert(DeviceNodeDO.builder()
-                                            .clusterId(String.valueOf(query.getClusterId()))
+                                            .clusterId(query.getClusterId())
                                             .deviceId(deviceId)
                                             .nodeIp(node.getIp())
                                             .nodeName(node.getName())
@@ -192,6 +171,11 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
                 });
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
+            } finally {
+                if (query.getClusterId() != null) {
+                    clusterRepository.updateByPrimaryKey(query.getClusterId(),
+                            ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
+                }
             }
             if (!query.isStop()) {
                 nodeCollect(collector, query);
@@ -204,8 +188,11 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
             try {
                 List<DeviceNodeDO> nodes = deviceNodeRepository.selectList(DeviceNodeDO.builder().build());
                 for (DeviceNodeDO node : nodes) {
-                    query.setNodeName(node.getNodeName());
-                    CompletableFuture<List<Pod>> future = collector.collect(query);
+                    Query q = Query.builder().build();
+                    q.setClusterId(query.getClusterId());
+                    q.setConfig(query.getConfig());
+                    q.setNodeName(node.getNodeName());
+                    CompletableFuture<List<Pod>> future = collector.collect(q);
 
                     QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
                     queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.POD.getCode());
@@ -250,6 +237,11 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
 
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
+            } finally {
+                if (query.getClusterId() != null) {
+                    clusterRepository.updateByPrimaryKey(query.getClusterId(),
+                            ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
+                }
             }
             if (!query.isStop()) {
                 podCollect(collector, query);
@@ -259,11 +251,16 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
 
     private void containerCollect(ContainerCollector collector, Query query) {
         timer.newTimeout(timeout -> {
+
             try {
                 List<DevicePodDO> devicePods = devicePodRepository.selectList(DevicePodDO.builder().build());
                 for (DevicePodDO devicePod : devicePods) {
-                    query.setPodName(devicePod.getPodName());
-                    CompletableFuture<List<Container>> future = collector.collect(query);
+                    Query q = Query.builder().build();
+                    q.setClusterId(query.getClusterId());
+                    q.setConfig(query.getConfig());
+                    q.setPodName(devicePod.getPodName());
+
+                    CompletableFuture<List<Container>> future = collector.collect(q);
                     future.handle((containers, e) -> {
                         if (e != null) {
                             log.error("collect container fail!", e);
@@ -283,6 +280,11 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
+            } finally {
+                if (query.getClusterId() != null) {
+                    clusterRepository.updateByPrimaryKey(query.getClusterId(),
+                            ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
+                }
             }
             if (!query.isStop()) {
                 containerCollect(collector, query);
@@ -292,6 +294,33 @@ public class CollectorTimer implements BeanPostProcessor, InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        Map<String, Collector> beansOfType = applicationContext.getBeansOfType(Collector.class);
+        for (Map.Entry<String, Collector> entry : beansOfType.entrySet()) {
+            Collector value = entry.getValue();
+            CollectorStrategy strategy = value.getClass().getAnnotation(CollectorStrategy.class);
+            CollectorType collectorType = EnumUtil.fromString(CollectorType.class, this.collectorType.toUpperCase());
+            if (strategy.value() == collectorType) {
+                if (value instanceof NodeCollector) {
+                    nodeCollector = (NodeCollector) value;
+                    if (enableCollect) {
+                        nodeCollect(nodeCollector, Query.builder().build());
+                    }
+                }
+                if (value instanceof PodCollector) {
+                    podCollector = (PodCollector) value;
+                    if (enableCollect) {
+                        podCollect(podCollector, Query.builder().build());
+                    }
+                }
+                if (value instanceof ContainerCollector) {
+                    containerCollector = (ContainerCollector) value;
+                    if (enableCollect) {
+                        containerCollect(containerCollector, Query.builder().build());
+                    }
+                }
+            }
+        }
+
         ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {

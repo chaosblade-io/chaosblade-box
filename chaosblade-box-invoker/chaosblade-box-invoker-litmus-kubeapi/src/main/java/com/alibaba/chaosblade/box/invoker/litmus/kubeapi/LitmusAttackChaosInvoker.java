@@ -60,14 +60,14 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
     @Autowired
     private LitmusScenarioParser litmusScenarioParser;
 
-    private String preExperiment(RequestCommand requestCommand) {
+    private String preExperiment(RequestCommand requestCommand) throws Exception {
         CompletableFuture<ResponseCommand> future = new CompletableFuture<>();
         String serviceAccount = requestCommand.getSceneCode() + SA_SUFFIX;
         Map<String, ChaosExperiment> experimentMap = litmusScenarioParser.getExperimentMap();
         ChaosExperiment chaosExperiment = experimentMap.get(requestCommand.getSceneCode());
 
         try {
-            CustomObjectsApi customObjectsApi = new CustomObjectsApi(client);
+            CustomObjectsApi customObjectsApi = new CustomObjectsApi(getClient(requestCommand));
             customObjectsApi.createNamespacedCustomObject(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -90,7 +90,7 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
             }
         }
         try {
-            CoreV1Api apiInstance = new CoreV1Api(client);
+            CoreV1Api apiInstance = new CoreV1Api(getClient(requestCommand));
             // todo
             V1ServiceAccount v1ServiceAccount = new V1ServiceAccount();
             v1ServiceAccount.metadata(new V1ObjectMeta().name(serviceAccount).namespace(requestCommand.getNamespace()));
@@ -113,7 +113,7 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
                         .success(false).build());
             }
         }
-        RbacAuthorizationV1Api rbacAuthorizationV1Api = new RbacAuthorizationV1Api(client);
+        RbacAuthorizationV1Api rbacAuthorizationV1Api = new RbacAuthorizationV1Api(getClient(requestCommand));
         try {
             // role
             V1ClusterRole v1ClusterRole = new V1ClusterRole();
@@ -175,54 +175,54 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
         }
 
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
-
-        String serviceAccount = preExperiment(requestCommand);
-        CustomObjectsApi apiInstance = new CustomObjectsApi(client);
-
-        V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
-        v1ObjectMeta.setName(IdUtil.fastSimpleUUID());
-
-        String experimentName;
-        String target = SceneCodeParseUtil.getTarget(requestCommand.getSceneCode());
-        String action = SceneCodeParseUtil.getAction(requestCommand.getSceneCode());
-        String[] split = StrUtil.split(target, "-");
-        if (split[0].equals(split[1])) {
-            experimentName = split[0] + "-" + action;
-        } else {
-            experimentName = target + "-" + action;
-        }
-
-        ChaosEngine chaosEngine = ChaosEngine.builder()
-                .apiVersion(Constants.API_VERSION)
-                .kind(Constants.CHAOS_ENGINE)
-                .metadata(v1ObjectMeta)
-                .spec(ChaosEngineSpec.builder()
-                        .appinfo(ChaosEngineSpecAppinfo.builder()
-                                .appns(requestCommand.getArguments().get("appns"))
-                                .build())
-                        .chaosServiceAccount(serviceAccount)
-                        .engineState("active")
-                        .monitoring(false)
-                        .annotationCheck("false")
-                        .jobCleanUpPolicy("delete")
-                        .experiments(new ChaosEngineSpecExperiment[]{
-                                ChaosEngineSpecExperiment.builder()
-                                        .name(experimentName)
-                                        .spec(ChaosEngineSpecExperimentSpec.builder()
-                                                .components(ChaosEngineSpecExperimentSpecComponents.builder()
-                                                        .env(requestCommand.getArguments().keySet().stream()
-                                                                .map(key -> ChaosExperimentDefinitionEnv.builder()
-                                                                        .name(key)
-                                                                        .value(requestCommand.getArguments().get(key))
-                                                                        .build()
-                                                                ).toArray(ChaosExperimentDefinitionEnv[]::new))
-                                                        .build()
-                                                )
-                                                .build())
-                                        .build()})
-                        .build()).build();
-
         try {
+            String serviceAccount = preExperiment(requestCommand);
+            CustomObjectsApi apiInstance = new CustomObjectsApi(getClient(requestCommand));
+
+            V1ObjectMeta v1ObjectMeta = new V1ObjectMeta();
+            v1ObjectMeta.setName(IdUtil.fastSimpleUUID());
+
+            String experimentName;
+            String target = SceneCodeParseUtil.getTarget(requestCommand.getSceneCode());
+            String action = SceneCodeParseUtil.getAction(requestCommand.getSceneCode());
+            String[] split = StrUtil.split(target, "-");
+            if (split[0].equals(split[1])) {
+                experimentName = split[0] + "-" + action;
+            } else {
+                experimentName = target + "-" + action;
+            }
+
+            ChaosEngine chaosEngine = ChaosEngine.builder()
+                    .apiVersion(Constants.API_VERSION)
+                    .kind(Constants.CHAOS_ENGINE)
+                    .metadata(v1ObjectMeta)
+                    .spec(ChaosEngineSpec.builder()
+                            .appinfo(ChaosEngineSpecAppinfo.builder()
+                                    .appns(requestCommand.getArguments().get("appns"))
+                                    .build())
+                            .chaosServiceAccount(serviceAccount)
+                            .engineState("active")
+                            .monitoring(false)
+                            .annotationCheck("false")
+                            .jobCleanUpPolicy("delete")
+                            .experiments(new ChaosEngineSpecExperiment[]{
+                                    ChaosEngineSpecExperiment.builder()
+                                            .name(experimentName)
+                                            .spec(ChaosEngineSpecExperimentSpec.builder()
+                                                    .components(ChaosEngineSpecExperimentSpecComponents.builder()
+                                                            .env(requestCommand.getArguments().keySet().stream()
+                                                                    .map(key -> ChaosExperimentDefinitionEnv.builder()
+                                                                            .name(key)
+                                                                            .value(requestCommand.getArguments().get(key))
+                                                                            .build()
+                                                                    ).toArray(ChaosExperimentDefinitionEnv[]::new))
+                                                            .build()
+                                                    )
+                                                    .build())
+                                            .build()})
+                            .build()).build();
+
+
             apiInstance.createNamespacedCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -273,8 +273,9 @@ public class LitmusAttackChaosInvoker extends AbstractLitmusChaosInvoker {
                     .error(apiException.getResponseBody())
                     .build();
             completableFuture.complete(responseCommand);
+        } catch (Exception e) {
+            completableFuture.completeExceptionally(e);
         }
-
         return completableFuture;
     }
 

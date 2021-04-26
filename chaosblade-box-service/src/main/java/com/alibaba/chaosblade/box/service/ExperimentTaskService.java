@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.box.service;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
+import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskStatistics;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 
@@ -76,4 +77,11 @@ public interface ExperimentTaskService {
      * @return
      */
     List<ExperimentActivityTaskRecord> queryTaskRecord(ExperimentTaskRequest experimentRequest);
+
+    /**
+     *
+     * @return
+     */
+    List<ExperimentTaskStatistics> queryTaskStatistics();
+
 }

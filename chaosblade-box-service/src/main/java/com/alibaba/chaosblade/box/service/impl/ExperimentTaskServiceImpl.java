@@ -25,18 +25,21 @@ import com.alibaba.chaosblade.box.common.enums.RunStatus;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
+import com.alibaba.chaosblade.box.dao.mapper.ExperimentTaskMapper;
 import com.alibaba.chaosblade.box.dao.model.*;
 import com.alibaba.chaosblade.box.dao.repository.*;
 import com.alibaba.chaosblade.box.service.*;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
+import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskStatistics;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivity;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 import com.alibaba.chaosblade.box.service.model.scene.SceneRequest;
 import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,6 +85,9 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
 
     @Autowired
     private ExperimentMiniFlowService experimentMiniFlowService;
+
+    @Autowired
+    private ExperimentTaskMapper experimentTaskMapper;
 
     @Override
     public ExperimentTaskResponse createExperimentTask(Long experimentId) {
@@ -286,5 +292,14 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 return experimentActivityTask;
             }
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ExperimentTaskStatistics> queryTaskStatistics() {
+        List<Map<Integer, Object>> maps = experimentTaskMapper.queryTaskStatistics();
+        return maps.stream().map(map -> ExperimentTaskStatistics.builder()
+                .date(String.valueOf(map.get("date")))
+                .taskCount(String.valueOf(map.get("taskCount")))
+                .build()).collect(Collectors.toList());
     }
 }

@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.box.service.task.stateless;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.chaosblade.box.common.utils.JsonUtils;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.alibaba.chaosblade.box.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.box.common.TaskLogRecord;
@@ -34,6 +35,7 @@ import com.alibaba.chaosblade.box.invoker.ChaosInvokerStrategyContext;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.service.task.log.i18n.TaskLogType;
 import com.alibaba.chaosblade.box.service.task.log.i18n.TaskLogUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -81,28 +83,31 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
                 sceneCode.replace(".stop", "")
         );
 
-        List<CompletableFuture<Void>> futures = CollUtil.newArrayList();
-        for (ExperimentActivityTaskRecordDO recordDO : records) {
-            final ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
+        records.forEach(record -> {
+            ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = ExperimentActivityTaskRecordDO.builder()
                     .experimentTaskId(activityTask.getExperimentTaskId())
+                    .deviceId(record.getDeviceId())
                     .flowId(activityTask.getFlowId())
-                    .hostname(recordDO.getHostname())
+                    .hostname(record.getHostname())
                     .activityTaskId(activityTask.getActivityTaskId())
                     .sceneCode(activityTask.getSceneCode())
                     .gmtStart(DateUtil.date())
                     .phase(activityTask.getPhase())
                     .build();
             experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
+        });
 
-            ExperimentDimension experimentDimension = activityTask.getExperimentDimension();
-            RequestCommand requestCommand = new RequestCommand();
-            requestCommand.setScope(experimentDimension.name().toLowerCase());
-            requestCommand.setPhase(activityTask.getPhase());
-            requestCommand.setSceneCode(activityTask.getSceneCode());
-            requestCommand.setArguments(activityTask.getArguments());
-            requestCommand.setName(recordDO.getResult());
 
-            futures.add(chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
+        ExperimentDimension experimentDimension = activityTask.getExperimentDimension();
+        RequestCommand requestCommand = new RequestCommand();
+        requestCommand.setScope(experimentDimension.name().toLowerCase());
+        requestCommand.setPhase(activityTask.getPhase());
+        requestCommand.setSceneCode(activityTask.getSceneCode());
+        requestCommand.setArguments(activityTask.getArguments());
+        requestCommand.setName(records.get(0).getResult());
+
+        chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
+            try {
                 ExperimentActivityTaskRecordDO record = ExperimentActivityTaskRecordDO.builder().gmtEnd(DateUtil.date()).build();
                 if (e != null) {
                     record.setSuccess(false);
@@ -121,27 +126,24 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
                         }
                     }
                 }
-                experimentActivityTaskRecordRepository.updateByPrimaryKey(experimentActivityTaskRecordDO.getId(), record);
+
+                UpdateWrapper<ExperimentActivityTaskRecordDO> wrapper = new UpdateWrapper<>();
+                wrapper.lambda().eq(ExperimentActivityTaskRecordDO::getActivityTaskId, activityTask.getActivityTaskId());
+                experimentActivityTaskRecordRepository.update(record, wrapper);
 
                 TaskLogUtil.info(log, TaskLogType.SUB_EXECUTE_EXECUTING, activityTask.getExperimentTaskId(),
                         activityTask.getPhase(),
                         String.valueOf(activityTask.getActivityTaskId()),
-                        recordDO.getHostname(),
+                        JsonUtils.writeValueAsString(activityTask.getDeviceMetas()),
                         String.valueOf(record.getSuccess()),
                         record.getErrorMessage()
                 );
 
-                if (e != null) {
-                    AnyThrow.throwUnchecked(e);
-                }
-                return null;
-            }, activityTaskExecuteContext.executor()));
-        }
-
-        CompletableFuture<Void> future = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-
-        future.handleAsync((r, e) -> {
-            postHandle(activityTask, e);
+            } catch (Exception exception) {
+                e = exception;
+            } finally {
+                postHandle(activityTask, e);
+            }
             return null;
         }, activityTaskExecuteContext.executor());
 

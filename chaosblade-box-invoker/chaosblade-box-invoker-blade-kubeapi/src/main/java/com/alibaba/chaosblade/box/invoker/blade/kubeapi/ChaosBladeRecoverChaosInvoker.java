@@ -17,19 +17,20 @@
 package com.alibaba.chaosblade.box.invoker.blade.kubeapi;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.invoker.ChaosInvokerStrategy;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.invoker.ResponseCommand;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
 import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -44,10 +45,11 @@ public class ChaosBladeRecoverChaosInvoker extends AbstractChaosBladeChaosInvoke
 
     @Override
     public CompletableFuture<ResponseCommand> invoke(RequestCommand requestCommand) {
-        CustomObjectsApi apiInstance = new CustomObjectsApi(client);
+        CustomObjectsApi apiInstance;
 
         CompletableFuture<ResponseCommand> completableFuture = new CompletableFuture<>();
         try {
+            apiInstance = new CustomObjectsApi(getClient(requestCommand));
             apiInstance.deleteClusterCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -78,7 +80,7 @@ public class ChaosBladeRecoverChaosInvoker extends AbstractChaosBladeChaosInvoke
 
                         @Override
                         public void onSuccess(Object result, int statusCode, Map responseHeaders) {
-                            checkStatus(completableFuture, requestCommand.getName());
+                            checkStatus(completableFuture, requestCommand.getName(), requestCommand.getConfig());
                         }
 
                         @Override
@@ -100,16 +102,19 @@ public class ChaosBladeRecoverChaosInvoker extends AbstractChaosBladeChaosInvoke
                     .error(e.getResponseBody())
                     .build();
             completableFuture.complete(responseCommand);
+        } catch (IOException e) {
+            completableFuture.completeExceptionally(e);
         }
         return completableFuture;
     }
 
 
-    private void checkStatus(CompletableFuture<ResponseCommand> future, String name) {
+    private void checkStatus(CompletableFuture<ResponseCommand> future, String name, String config) {
 
         timer.newTimeout(timeout -> {
                     RequestCommand requestCommand = new RequestCommand();
                     requestCommand.setName(name);
+                    requestCommand.setConfig(config);
 
                     CompletableFuture<StatusResponseCommand> completableFuture = checkStatus(requestCommand);
 
@@ -137,7 +142,7 @@ public class ChaosBladeRecoverChaosInvoker extends AbstractChaosBladeChaosInvoke
                             if ("Destroyed".equals(statusResponseCommand.getPhase())) {
                                 future.complete(statusResponseCommand);
                             } else {
-                                checkStatus(future, name);
+                                checkStatus(future, name, config);
                             }
 
                         }
@@ -147,7 +152,5 @@ public class ChaosBladeRecoverChaosInvoker extends AbstractChaosBladeChaosInvoke
                 3000,
                 TimeUnit.MILLISECONDS);
     }
-
-
 
 }
