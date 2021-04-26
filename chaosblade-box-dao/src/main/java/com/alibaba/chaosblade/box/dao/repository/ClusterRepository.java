@@ -42,6 +42,9 @@ public class ClusterRepository implements IRepository<Long, ClusterDO> {
         if (StrUtil.isNotBlank(clusterDO.getClusterName())) {
             queryWrapper.lambda().eq(ClusterDO::getClusterName, clusterDO.getClusterName());
         }
+        if (clusterDO.getIsCollector() != null) {
+            queryWrapper.lambda().eq(ClusterDO::getIsCollector, clusterDO.getIsCollector());
+        }
         return clusterMapper.selectList(queryWrapper);
     }
 }

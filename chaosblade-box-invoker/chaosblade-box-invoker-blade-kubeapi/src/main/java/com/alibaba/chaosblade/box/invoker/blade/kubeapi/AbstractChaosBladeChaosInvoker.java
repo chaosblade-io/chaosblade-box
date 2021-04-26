@@ -18,14 +18,15 @@ package com.alibaba.chaosblade.box.invoker.blade.kubeapi;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ArrayUtil;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ExperimentStatus;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBlade;
-import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.utils.timer.HashedWheelTimer;
 import com.alibaba.chaosblade.box.common.utils.timer.Timer;
 import com.alibaba.chaosblade.box.invoker.ChaosInvoker;
 import com.alibaba.chaosblade.box.invoker.RequestCommand;
 import com.alibaba.chaosblade.box.invoker.ResponseCommand;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ChaosBlade;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.crd.ExperimentStatus;
+import com.alibaba.chaosblade.box.invoker.blade.kubeapi.model.StatusResponseCommand;
 import io.kubernetes.client.openapi.ApiCallback;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -33,6 +34,8 @@ import io.kubernetes.client.openapi.apis.CustomObjectsApi;
 import io.kubernetes.client.util.Config;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -56,11 +59,21 @@ public abstract class AbstractChaosBladeChaosInvoker implements ChaosInvoker<Req
         });
     }
 
+    protected ApiClient getClient(RequestCommand requestCommand) throws IOException {
+        if (StrUtil.isBlank(requestCommand.getConfig())) {
+            return client;
+        } else {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(requestCommand.getConfig().getBytes());
+            return Config.fromConfig(byteArrayInputStream);
+        }
+    }
+
     protected CompletableFuture<StatusResponseCommand> checkStatus(RequestCommand requestCommand) {
-        CustomObjectsApi apiInstance = new CustomObjectsApi(client);
+        CustomObjectsApi apiInstance;
 
         CompletableFuture<StatusResponseCommand> completableFuture = new CompletableFuture<>();
         try {
+            apiInstance = new CustomObjectsApi(getClient(requestCommand));
             apiInstance.getClusterCustomObjectAsync(
                     Constants.GROUP,
                     Constants.VERSION,
@@ -113,6 +126,8 @@ public abstract class AbstractChaosBladeChaosInvoker implements ChaosInvoker<Req
             responseCommand.setError(e.getResponseBody());
             responseCommand.setCode(String.valueOf(e.getCode()));
             completableFuture.complete(responseCommand);
+        } catch (IOException e) {
+            completableFuture.completeExceptionally(e);
         }
         return completableFuture;
     }

@@ -34,4 +34,9 @@ public interface ClusterService {
      */
     void closeCollect(ClusterBO clusterBO) throws Exception;
 
+    /**
+     *
+     * @param clusterBO
+     */
+    void updateCluster(ClusterBO clusterBO);
 }

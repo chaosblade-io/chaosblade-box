@@ -19,6 +19,8 @@ package com.alibaba.chaosblade.box.scenario.litmus;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.io.resource.NoResourceException;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
@@ -44,6 +46,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -105,9 +108,10 @@ public class LitmusScenarioParser implements ScenarioParser, InitializingBean {
                             litmus.getVersion());
 
                     String s;
-                    if (FileUtil.exist(file)) {
-                        s = FileUtil.readString(file, SystemPropertiesUtils.getPropertiesFileEncoding());
-                    } else {
+                    try {
+                        s = IoUtil.read(ResourceUtil.getStream(file), Charset.defaultCharset());
+                    } catch (NoResourceException e) {
+                        log.warn("class path not found litmus yaml");
                         log.info("parse scenario yaml from url, name: {}, url: {}", litmus.getName(), litmus.getUrl());
                         HttpRequest request = HttpUtil.createGet(litmus.getUrl());
                         HttpResponse execute = request.execute();

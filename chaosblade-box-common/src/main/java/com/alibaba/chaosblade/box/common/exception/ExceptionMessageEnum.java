@@ -61,8 +61,12 @@ public enum ExceptionMessageEnum {
     FLOW_GROUP_NOT_EXISTS(6700, "流程组不存在"),
 
     // INVOKER
-    INVOKER_NOT_EXISTS(7000, "不存在对应的执行器")
+    INVOKER_NOT_EXISTS(7000, "不存在对应的执行器"),
+
+    // CLUSTER
+    CLUSTER_CONNECT_ERROR(8000, "集群连接异常，请检查 Config")
     ;
+
 
     public Integer code;
 

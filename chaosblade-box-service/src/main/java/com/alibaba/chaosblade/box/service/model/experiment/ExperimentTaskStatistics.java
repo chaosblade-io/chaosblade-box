@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.box.dao.mapper;
+package com.alibaba.chaosblade.box.service.model.experiment;
 
-import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yefei
  */
-@Repository
-public interface ExperimentTaskMapper extends BaseMapper<ExperimentTaskDO> {
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ExperimentTaskStatistics {
 
-    /**
-     *
-     */
-    @Select("select count(*) as taskCount , date_format(gmt_start,'%Y-%m-%d') as `date` from t_chaos_experiment_task group by date(gmt_start)")
-    List<Map<Integer, Object>> queryTaskStatistics();
+    private String date;
+
+    private String taskCount;
 
 }
