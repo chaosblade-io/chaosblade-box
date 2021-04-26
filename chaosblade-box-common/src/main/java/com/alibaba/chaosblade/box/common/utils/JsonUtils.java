@@ -99,6 +99,9 @@ public class JsonUtils {
     }
 
     public static byte[] writeValueAsBytes(Object o) {
+        if (o == null) {
+            return null;
+        }
         try {
             return mapper.writer().writeValueAsBytes(o);
         } catch (JsonProcessingException e) {

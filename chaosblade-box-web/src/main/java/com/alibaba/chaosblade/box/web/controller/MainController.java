@@ -32,7 +32,8 @@ public class MainController {
     @Value("${spring.application.version}")
     private String version;
 
-    @GetMapping(path = {"/", "/experiment/**", "/machine/**", "/scenario/**", "/chaostools/**"})
+    @GetMapping(path = {"/", "/experiment/**", "/machine/**", "/device/**", "/scenario/**",
+            "/scene/**", "/chaostools/**", "/tools/**", "/market/**", "/probe/**"})
     public String root() {
         return "/index.html";
     }
