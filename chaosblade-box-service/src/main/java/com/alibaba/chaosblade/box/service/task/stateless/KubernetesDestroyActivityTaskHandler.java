@@ -20,6 +20,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
+import com.alibaba.chaosblade.box.dao.model.ClusterDO;
+import com.alibaba.chaosblade.box.dao.repository.ClusterRepository;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.alibaba.chaosblade.box.service.task.ActivityTaskExecuteContext;
 import com.alibaba.chaosblade.box.common.TaskLogRecord;
@@ -71,6 +73,9 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
     @Autowired
     private ActivityTaskExecuteContext activityTaskExecuteContext;
 
+    @Autowired
+    private ClusterRepository clusterRepository;
+
     @Override
     public void handle(ActivityTask activityTask) {
         if (!activityTask.canExecuted()) {
@@ -105,6 +110,10 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
         requestCommand.setSceneCode(activityTask.getSceneCode());
         requestCommand.setArguments(activityTask.getArguments());
         requestCommand.setName(records.get(0).getResult());
+        requestCommand.setConfig(clusterRepository
+                .selectById(activityTask.getDeviceMetas().get(0).getClusterId())
+                .map(ClusterDO::getConfig)
+                .orElse(null));
 
         chaosInvokerStrategyContext.invoke(requestCommand).handleAsync((result, e) -> {
             try {

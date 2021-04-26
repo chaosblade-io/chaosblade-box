@@ -19,7 +19,6 @@ package com.alibaba.chaosblade.box.scenario.litmus;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.io.resource.NoResourceException;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.StrUtil;

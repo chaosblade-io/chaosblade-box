@@ -59,8 +59,6 @@ spec:
               name: hosts
 
       dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: true
-      hostPID: true
       tolerations:
         - effect: NoSchedule
           operator: Exists
