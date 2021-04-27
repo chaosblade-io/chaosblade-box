@@ -14,6 +14,7 @@ import com.alibaba.chaosblade.box.service.model.cluster.ClusterBO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,8 +36,11 @@ public class ClusterServiceImpl implements ClusterService, InitializingBean {
     @Autowired
     private CollectorTimer collectorTimer;
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         List<ClusterDO> clusters = clusterRepository.selectList(ClusterDO.builder()
                 .isCollector(true)
                 .build());
@@ -64,8 +68,9 @@ public class ClusterServiceImpl implements ClusterService, InitializingBean {
         clusterRepository.insert(clusterDO);
 
         String home = SystemPropertiesUtils.getPropertiesValue("user.home");
+
         FileUtil.writeString(clusterBO.getConfig(),
-                home + "/" + clusterDO.getId() + "/config",
+                String.format("%s/%s/%s/config", home, applicationName, clusterDO.getId()),
                 SystemPropertiesUtils.getPropertiesFileEncoding());
     }
 
@@ -85,7 +90,7 @@ public class ClusterServiceImpl implements ClusterService, InitializingBean {
     }
 
     @Override
-    public void activeCollect(ClusterBO clusterBO) throws Exception {
+    public void activeCollect(ClusterBO clusterBO) {
         Optional<ClusterDO> clusterDO = clusterRepository.selectById(clusterBO.getId());
         ClusterDO cluster = clusterDO.get();
 
@@ -100,7 +105,7 @@ public class ClusterServiceImpl implements ClusterService, InitializingBean {
     }
 
     @Override
-    public void closeCollect(ClusterBO clusterBO) throws Exception {
+    public void closeCollect(ClusterBO clusterBO) {
 
         clusterRepository.updateByPrimaryKey(clusterBO.getId(), ClusterDO.builder()
                 .isCollector(false)
@@ -133,7 +138,22 @@ public class ClusterServiceImpl implements ClusterService, InitializingBean {
 
         String home = SystemPropertiesUtils.getPropertiesValue("user.home");
         FileUtil.writeString(clusterBO.getConfig(),
-                home + "/" + clusterDO.getId() + "/config",
+                String.format("%s/%s/%s/config", home, applicationName, clusterDO.getId()),
                 SystemPropertiesUtils.getPropertiesFileEncoding());
+    }
+
+    @Override
+    public String getKubeconfig(ClusterBO clusterBO) {
+        String home = SystemPropertiesUtils.getPropertiesValue("user.home");
+        String kubeconfig = String.format("%s/%s/%s/config", home, applicationName, clusterBO.getId());
+        if (!FileUtil.exist(kubeconfig)) {
+            Optional<ClusterDO> clusterDO = clusterRepository.selectById(clusterBO.getId());
+            ClusterDO cluster = clusterDO.get();
+
+            FileUtil.writeString(cluster.getConfig(),
+                    String.format("%s/%s/%s/config", home, applicationName, cluster.getId()),
+                    SystemPropertiesUtils.getPropertiesFileEncoding());
+        }
+        return kubeconfig;
     }
 }
