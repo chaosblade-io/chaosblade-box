@@ -88,12 +88,12 @@ public class MachineResponse {
             case HOST:
                 return hostname;
             case NODE:
-                return String.format("%s/%s", clusterId, nodeName);
+                return String.format("%s/%s", clusterId == null ? "-" : clusterId, nodeName);
             case POD:
                 if (StrUtil.isBlank(containerName)) {
-                    return String.format("%s/%s/%s/%s", clusterId, nodeName, namespace, podName);
+                    return String.format("%s/%s/%s/%s", clusterId == null ? "-" : clusterId, nodeName, namespace, podName);
                 } else {
-                    return String.format("%s/%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
+                    return String.format("%s/%s/%s/%s/%s/%s", clusterId == null ? "-" : clusterId, nodeName, namespace, podName, containerName);
                 }
             default:
                 return null;

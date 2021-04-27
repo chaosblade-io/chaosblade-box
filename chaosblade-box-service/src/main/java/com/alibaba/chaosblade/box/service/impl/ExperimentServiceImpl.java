@@ -188,7 +188,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                                         .nodeName(pod.getNodeName())
                                         .namespace(pod.getNamespace())
                                         .podName(pod.getPodName())
-                                        .containerName(pod.getContainerName())
+                                        .containerName(machine.getContainerName())
                                         .ip(pod.getPodIp()).build();
                             } else {
                                 return DeviceMeta.builder().deviceId(machine.getDeviceId())
@@ -204,7 +204,10 @@ public class ExperimentServiceImpl implements ExperimentService {
                 ).collect(Collectors.toList());
                 if (original.equals(ChaosTools.CHAOS_BLADE.getName())) {
                     createExperimentRequest.getParameters().put("names", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining()));
-                    createExperimentRequest.getParameters().put("container-names", list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining()));
+                    String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining());
+                    if (StrUtil.isNotBlank(containerNames)) {
+                        createExperimentRequest.getParameters().put("container-names", containerNames);
+                    }
                 }
                 return list;
             case APPLICATION:

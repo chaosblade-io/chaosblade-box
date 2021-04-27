@@ -500,7 +500,7 @@ public class DeviceServiceImpl implements DeviceService {
                 () -> new BizException(DEVICE_NOT_FOUNT)
         );
 
-        DeviceNodeDO deviceNodeDO = deviceNodeRepository.selectById(devicePodDO.getDeviceId()).orElseThrow(
+        DeviceNodeDO deviceNodeDO = deviceNodeRepository.selectById(devicePodDO.getNodeId()).orElseThrow(
                 () -> new BizException(DEVICE_NOT_FOUNT)
         );
 
@@ -533,6 +533,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .setHeartbeatTime(deviceDO.getLastOnlineTime())
                 .setChaosTime(deviceDO.getLastExperimentTime())
                 .setTaskId(deviceDO.getLastTaskId())
+                .setType(deviceDO.getType())
                 .setTaskStatus(deviceDO.getLastTaskStatus());
 
         return devicePodResponse;

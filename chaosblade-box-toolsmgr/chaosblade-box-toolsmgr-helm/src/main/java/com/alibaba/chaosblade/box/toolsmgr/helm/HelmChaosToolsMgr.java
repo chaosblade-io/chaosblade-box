@@ -100,7 +100,7 @@ public class HelmChaosToolsMgr implements ChaosToolsMgr<HelmRequest>, Initializi
     @Override
     public Response<String> unDeployTools(HelmRequest helmRequest) {
 
-        Process process = RuntimeUtil.exec("helm uninstall %s --kubeconfig=%s", helmRequest.getName(), helmRequest.getKubeconfig());
+        Process process = RuntimeUtil.exec(String.format("helm uninstall %s --kubeconfig=%s", helmRequest.getName(), helmRequest.getKubeconfig()));
 
         try {
             process.waitFor();

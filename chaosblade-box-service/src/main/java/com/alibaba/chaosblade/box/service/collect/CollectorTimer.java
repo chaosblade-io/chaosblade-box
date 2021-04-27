@@ -294,6 +294,14 @@ public class CollectorTimer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        timer = new HashedWheelTimer(r -> {
+            Thread thread = new Thread(r);
+            thread.setName("collector timer");
+            return thread;
+        });
+
+        log.info("init collector timer");
+
         Map<String, Collector> beansOfType = applicationContext.getBeansOfType(Collector.class);
         for (Map.Entry<String, Collector> entry : beansOfType.entrySet()) {
             Collector value = entry.getValue();
@@ -345,11 +353,5 @@ public class CollectorTimer implements InitializingBean {
                             .build()));
 
         }, 30, 30, TimeUnit.SECONDS);
-
-        timer = new HashedWheelTimer(r -> {
-            Thread thread = new Thread(r);
-            thread.setName("collector timer");
-            return thread;
-        });
     }
 }
