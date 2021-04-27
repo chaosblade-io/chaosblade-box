@@ -2,14 +2,16 @@ package com.alibaba.chaosblade.box.toolsmgr.helm;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.RuntimeUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.utils.SystemPropertiesUtils;
-import com.alibaba.chaosblade.box.toolsmgr.api.*;
+import com.alibaba.chaosblade.box.toolsmgr.api.ChannelStrategy;
+import com.alibaba.chaosblade.box.toolsmgr.api.ChannelType;
+import com.alibaba.chaosblade.box.toolsmgr.api.ChaosToolsMgr;
+import com.alibaba.chaosblade.box.toolsmgr.api.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -68,10 +70,12 @@ public class HelmChaosToolsMgr implements ChaosToolsMgr<HelmRequest>, Initializi
     @Override
     public Response<String> deployTools(HelmRequest helmRequest) {
 
-        String command = String.format("helm install %s %s %s",
+        String command = String.format("helm install %s %s %s --kubeconfig=%s",
                 helmRequest.getName(),
                 helmRequest.getToolsName(),
-                helmRequest.getCommandOptions());
+                helmRequest.getCommandOptions(),
+                helmRequest.getKubeconfig()
+        );
 
         Process process = RuntimeUtil.exec(command);
 
@@ -96,7 +100,7 @@ public class HelmChaosToolsMgr implements ChaosToolsMgr<HelmRequest>, Initializi
     @Override
     public Response<String> unDeployTools(HelmRequest helmRequest) {
 
-        Process process = RuntimeUtil.exec("helm uninstall " + helmRequest.getName());
+        Process process = RuntimeUtil.exec("helm uninstall %s --kubeconfig=%s", helmRequest.getName(), helmRequest.getKubeconfig());
 
         try {
             process.waitFor();

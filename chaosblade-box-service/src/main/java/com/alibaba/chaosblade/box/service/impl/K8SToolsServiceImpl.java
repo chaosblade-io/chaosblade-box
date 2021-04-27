@@ -5,7 +5,9 @@ import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.box.dao.model.ToolsDO;
 import com.alibaba.chaosblade.box.dao.repository.ToolsRepository;
+import com.alibaba.chaosblade.box.service.ClusterService;
 import com.alibaba.chaosblade.box.service.K8SToolsService;
+import com.alibaba.chaosblade.box.service.model.cluster.ClusterBO;
 import com.alibaba.chaosblade.box.service.model.tools.ToolsRequest;
 import com.alibaba.chaosblade.box.toolsmgr.api.Response;
 import com.alibaba.chaosblade.box.toolsmgr.helm.HelmChaosToolsMgr;
@@ -38,6 +40,12 @@ public class K8SToolsServiceImpl implements K8SToolsService {
     @Autowired
     private ToolsRepository toolsRepository;
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
+    @Autowired
+    private ClusterService clusterService;
+
     private final static Map<String, String> TGZ_NAME = new HashMap<>();
 
     static {
@@ -61,6 +69,7 @@ public class K8SToolsServiceImpl implements K8SToolsService {
 
     @Override
     public String deployChaostoolsToK8S(ToolsRequest toolsRequest) {
+
         ToolsDO toolsDO = toolsRepository.selectByNameAndVersion(
                 toolsRequest.getMachineId(),
                 toolsRequest.getName(),
@@ -78,6 +87,9 @@ public class K8SToolsServiceImpl implements K8SToolsService {
         helmRequest.setName(TGZ_NAME.get(toolsRequest.getName()));
         helmRequest.setToolsName(helmRepoName + "/" + helmRequest.getName());
         helmRequest.setToolsVersion(toolsRequest.getVersion());
+
+        String kubeconfig = clusterService.getKubeconfig(ClusterBO.builder().id(toolsRequest.getMachineId()).build());
+        helmRequest.setKubeconfig(kubeconfig);
 
         StringBuilder commandOptions = new StringBuilder("--set ");
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -107,6 +119,9 @@ public class K8SToolsServiceImpl implements K8SToolsService {
         helmRequest.setName(TGZ_NAME.get(toolsRequest.getName()));
         helmRequest.setToolsName(helmRepoName + "/" + helmRequest.getName());
         helmRequest.setToolsVersion(toolsRequest.getVersion());
+
+        String kubeconfig = clusterService.getKubeconfig(ClusterBO.builder().id(toolsRequest.getMachineId()).build());
+        helmRequest.setKubeconfig(kubeconfig);
 
         Response<String> response = helmChaosToolsMgr.unDeployTools(helmRequest);
         if (response.isSuccess()) {

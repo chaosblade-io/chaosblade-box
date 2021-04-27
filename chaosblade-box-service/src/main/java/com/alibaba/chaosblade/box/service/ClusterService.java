@@ -26,17 +26,22 @@ public interface ClusterService {
      *
      * @param clusterBO
      */
-    void activeCollect(ClusterBO clusterBO) throws Exception;
+    void activeCollect(ClusterBO clusterBO);
 
     /**
      *
      * @param clusterBO
      */
-    void closeCollect(ClusterBO clusterBO) throws Exception;
+    void closeCollect(ClusterBO clusterBO);
 
     /**
      *
      * @param clusterBO
      */
     void updateCluster(ClusterBO clusterBO);
+
+    /**
+     *
+     */
+    String getKubeconfig(ClusterBO clusterBO);
 }
