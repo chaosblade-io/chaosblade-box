@@ -61,8 +61,6 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.alibaba.chaosblade.box.common.constants.ChaosConstant.DEFAULT_TOOLS;
-
 /**
  * @author yefei
  */
@@ -180,7 +178,7 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
                         ChaosConstant.DOT,
                         prepare.getType()).toString();
 
-                prepareId = sceneRepository.selectByCodeAndVersion(sconeCode, version).map(SceneDO::getId)
+                sceneRepository.selectByCodeAndVersion(sconeCode, version).map(SceneDO::getId)
                         .orElseGet(() -> {
                             SceneDO sceneDO = SceneDO.builder()
                                     .sceneName(sconeCode)
@@ -189,22 +187,19 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
                                     .original(source)
                                     .build();
                             sceneRepository.insert(sceneDO);
+
+                            if (CollUtil.isNotEmpty(prepare.getFlags())) {
+                                prepare.getFlags().forEach(flag ->
+                                        sceneParamRepository.insert(SceneParamDO.builder()
+                                                .sceneId(sceneDO.getId())
+                                                .alias(flag.getName())
+                                                .paramName(flag.getName())
+                                                .description(flag.getDesc())
+                                                .isRequired(flag.isRequired())
+                                                .build()));
+                            }
                             return sceneDO.getId();
                         });
-
-                if (CollUtil.isNotEmpty(prepare.getFlags())) {
-                    Long finalPrepareId = prepareId;
-                    prepare.getFlags().forEach(flag -> {
-
-                        sceneParamRepository.insert(SceneParamDO.builder()
-                                .sceneId(finalPrepareId)
-                                .alias(flag.getName())
-                                .paramName(flag.getName())
-                                .description(flag.getDesc())
-                                .isRequired(flag.isRequired())
-                                .build());
-                    });
-                }
             }
 
             for (Action action : scenario.getActions()) {

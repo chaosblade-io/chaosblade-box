@@ -48,7 +48,7 @@ public class ProbesController {
 
     @PostMapping("/GetAnsibleHosts")
     public List<ProbesResponse> getMachinesForHost() {
-       return probesService.getAnsibleHosts();
+        return probesService.getAnsibleHosts();
     }
 
     @PostMapping("/GetAnsibleHostsRegister")
@@ -67,19 +67,14 @@ public class ProbesController {
         return probesService.installProbes(installProbesRequest);
     }
 
-    @PostMapping("/InstallProbeByAnsible")
-    public ProbesResponse installProbeByAnsible(@RequestBody ProbesRequest probesRequest) {
-        return probesService.installProbe(probesRequest);
-    }
-
-    @PostMapping("/InstallProbeBySSH")
-    public ProbesResponse installProbeBySSH(@RequestBody ProbesRequest probesRequest) {
-        return probesService.installProbeBySSH(probesRequest);
+    @PostMapping("/InstallProbe")
+    public void installProbe(@RequestBody ProbesRequest probesRequest) {
+        probesService.installProbe(probesRequest);
     }
 
     @PostMapping("/UninstallProbe")
-    public ProbesResponse uninstallProbe(@RequestBody InstallProbesRequest installProbesRequest) {
-        return probesService.uninstallProbe(installProbesRequest);
+    public void uninstallProbe(@RequestBody InstallProbesRequest installProbesRequest) {
+        probesService.uninstallProbe(installProbesRequest);
     }
 
     @PostMapping("/QueryProbesInstallation")
@@ -95,6 +90,11 @@ public class ProbesController {
     @PostMapping("/UnbanProbe")
     public ProbesResponse unbanProbe(@RequestBody ProbesRequest probesRequest) {
         return probesService.unbanProbe(probesRequest);
+    }
+
+    @PostMapping("/DeleteProbe")
+    public void deleteProbe(@RequestBody ProbesRequest probesRequest) {
+        probesService.deleteProbe(probesRequest);
     }
 
     @PostMapping("/QueryCollectStatus")

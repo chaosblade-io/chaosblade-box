@@ -32,6 +32,20 @@
         "level": 1,
         "code": "metric.prometheus.disk",
         "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true, \"defaultValue\": \"node_filesystem_size_bytes\"}]"
+      },
+      {
+        "name": "Pod-CPU 使用率",
+        "parentId": 1381787810201034754,
+        "level": 1,
+        "code": "metric.prometheus.pod.cpu",
+        "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true, \"defaultValue\": \"sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate{cluster=''}) by (pod)\"}]"
+      },
+      {
+        "name": "Pod-CPU 内存使用量",
+        "parentId": 1381787810201034754,
+        "level": 1,
+        "code": "metric.prometheus.pod.mem",
+        "params": "[{\"name\":\"url\", \"desc\":\"prometheus url\", \"type\":\"text\", \"required\": true},{\"name\":\"query\", \"desc\":\"prometheus query\", \"type\":\"text\", \"required\": true, \"defaultValue\": \"sum(node_namespace_pod_container:container_memory_working_set_bytes{cluster='', container!=''}) by (pod)\"}]"
       }
     ]
   }

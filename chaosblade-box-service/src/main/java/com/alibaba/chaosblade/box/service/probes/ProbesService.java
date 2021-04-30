@@ -75,20 +75,20 @@ public interface ProbesService {
      * @param installProbesRequest
      * @return
      */
-    ProbesResponse uninstallProbe(InstallProbesRequest installProbesRequest);
+    void uninstallProbe(InstallProbesRequest installProbesRequest);
 
     /**
      *
      * @param probesRequest
      * @return
      */
-    ProbesResponse installProbe(ProbesRequest probesRequest);
+    void installProbe(ProbesRequest probesRequest);
 
     /**
      *
      * @param probesRequest
-     * @return
      */
-    ProbesResponse installProbeBySSH(ProbesRequest probesRequest);
+    void deleteProbe(ProbesRequest probesRequest);
+
 }
 
