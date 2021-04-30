@@ -9,7 +9,7 @@ logging:
 spring:
   application:
     name: chaosblade-box
-    version: 0.4.0
+    version: 0.4.1
   datasource:
     url: jdbc:mysql:///chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username:
