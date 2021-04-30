@@ -78,7 +78,9 @@ public class AnsibleChaosToolsMgr implements ChaosToolsMgr<Request> {
     public Response<String> unDeployAgent(Request request) {
         String command = String.format("wget %s -O chaosagentctl.sh " +
                 "&& chmod +x chaosagentctl.sh " +
-                "&& ./chaosagentctl.sh uninstall", agentCtl);
+                "&& ./chaosagentctl.sh uninstall " +
+                "&& rm -rf chaosagentctl.sh " +
+                "&& rm -f /opt/chaos/* ", agentCtl);
         return getStringResponse(request, command);
     }
 

@@ -64,7 +64,7 @@ public class DeviceMeta {
                 if (StrUtil.isBlank(containerName)) {
                     return String.format("%s/%s/%s/%s", clusterId, nodeName, namespace, podName);
                 } else {
-                    return String.format("%s/%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
+                    return String.format("%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
                 }
             default:
                 return null;

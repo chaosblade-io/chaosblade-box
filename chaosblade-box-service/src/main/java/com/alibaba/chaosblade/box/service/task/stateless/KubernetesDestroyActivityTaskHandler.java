@@ -16,7 +16,6 @@
 
 package com.alibaba.chaosblade.box.service.task.stateless;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
@@ -28,7 +27,6 @@ import com.alibaba.chaosblade.box.common.TaskLogRecord;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
 import com.alibaba.chaosblade.box.common.enums.ExperimentDimension;
 import com.alibaba.chaosblade.box.common.exception.BizException;
-import com.alibaba.chaosblade.box.common.utils.AnyThrow;
 import com.alibaba.chaosblade.box.dao.model.ExperimentActivityTaskRecordDO;
 import com.alibaba.chaosblade.box.dao.repository.ExperimentActivityTaskRecordRepository;
 import com.alibaba.chaosblade.box.dao.repository.ExperimentActivityTaskRepository;
@@ -43,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yefei
@@ -93,6 +90,7 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
                     .experimentTaskId(activityTask.getExperimentTaskId())
                     .deviceId(record.getDeviceId())
                     .flowId(activityTask.getFlowId())
+                    .ip(record.getIp())
                     .hostname(record.getHostname())
                     .activityTaskId(activityTask.getActivityTaskId())
                     .sceneCode(activityTask.getSceneCode())
@@ -101,7 +99,6 @@ public class KubernetesDestroyActivityTaskHandler extends DestroyActivityTaskHan
                     .build();
             experimentActivityTaskRecordRepository.insert(experimentActivityTaskRecordDO);
         });
-
 
         ExperimentDimension experimentDimension = activityTask.getExperimentDimension();
         RequestCommand requestCommand = new RequestCommand();

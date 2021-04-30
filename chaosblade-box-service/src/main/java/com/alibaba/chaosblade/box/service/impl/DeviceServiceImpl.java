@@ -533,7 +533,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .setHeartbeatTime(deviceDO.getLastOnlineTime())
                 .setChaosTime(deviceDO.getLastExperimentTime())
                 .setTaskId(deviceDO.getLastTaskId())
-                .setType(deviceDO.getType())
+                .setType(DeviceType.POD.getCode())
                 .setTaskStatus(deviceDO.getLastTaskStatus());
 
         return devicePodResponse;

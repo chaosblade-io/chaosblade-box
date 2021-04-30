@@ -34,4 +34,12 @@ public class InstallProbesRequest {
 
     private boolean deployBlade;
 
+    private String host;
+
+    private String username;
+
+    private String password;
+
+    private int port;
+
 }

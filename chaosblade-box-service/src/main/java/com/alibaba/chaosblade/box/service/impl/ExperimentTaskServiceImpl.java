@@ -38,6 +38,7 @@ import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentAc
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 import com.alibaba.chaosblade.box.service.model.scene.SceneRequest;
 import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
+import com.alibaba.chaosblade.box.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -215,7 +216,6 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .orElseThrow(() -> new BizException(EXPERIMENT_TASK_NOT_FOUNT));
 
         List<ExperimentActivityTask> experimentActivityTasks = experimentActivityTaskService.selectExperimentActivityTask(experimentRequest.getTaskId());
-        //List<ExperimentActivityTaskRecordDO> taskRecords = experimentActivityTaskRecordRepository.selectExperimentTaskId(experimentTaskDO.getId());
 
         return ExperimentTaskResponse.builder()
                 .experimentId(experimentTaskDO.getExperimentId())
@@ -229,6 +229,16 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .activityTasks(experimentActivityTasks.stream().map(experimentActivityTask -> {
                     ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivityTask.getRunParam());
                     SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
+
+                    scenario.setParameters(scenario.getParameters().stream().map(
+                            sceneParamResponse -> SceneParamResponse.builder()
+                                    .parameterId(sceneParamResponse.getParameterId())
+                                    .paramName(sceneParamResponse.getParamName())
+                                    .name(sceneParamResponse.getParamName())
+                                    .value(Optional.ofNullable(activityTask.getArguments())
+                                            .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
+                                    .build()).collect(Collectors.toList()));
+
                     experimentActivityTask.setScene(scenario);
                     return experimentActivityTask;
                 }).collect(Collectors.toList()))

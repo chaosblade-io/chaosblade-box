@@ -174,6 +174,8 @@ public class ExperimentServiceImpl implements ExperimentService {
                 ).collect(Collectors.toList());
                 if (original.equals(ChaosTools.CHAOS_BLADE.getName())) {
                     createExperimentRequest.getParameters().put("names", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining()));
+                } else if (original.equals(ChaosTools.LITMUS_CHAOS.getName())) {
+                    createExperimentRequest.getParameters().put("TARGET_NODES", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining()));
                 }
                 return nodes;
             case POD:
@@ -207,6 +209,12 @@ public class ExperimentServiceImpl implements ExperimentService {
                     String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining());
                     if (StrUtil.isNotBlank(containerNames)) {
                         createExperimentRequest.getParameters().put("container-names", containerNames);
+                    }
+                } else if (original.equals(ChaosTools.LITMUS_CHAOS.getName())) {
+                    createExperimentRequest.getParameters().put("TARGET_PODS", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining()));
+                    String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining());
+                    if (StrUtil.isNotBlank(containerNames)) {
+                        createExperimentRequest.getParameters().put("TARGET_CONTAINER", containerNames);
                     }
                 }
                 return list;
@@ -350,6 +358,7 @@ public class ExperimentServiceImpl implements ExperimentService {
                             .parameterId(sceneParamResponse.getParameterId())
                             .paramName(sceneParamResponse.getParamName())
                             .name(sceneParamResponse.getParamName())
+                            .description(sceneParamResponse.getDescription())
                             .value(Optional.ofNullable(activityTask.getArguments())
                                     .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
                             .build()).collect(Collectors.toList()));
@@ -371,9 +380,11 @@ public class ExperimentServiceImpl implements ExperimentService {
                                     .original(scenario.getOriginal())
                                     .version(scenario.getVersion())
                                     .categories(scenario.getCategories())
+                                    .description(scenario.getDescription())
                                     .parameters(scenario.getParameters().stream().map(
                                             sceneParamResponse -> SceneParamResponse.builder()
                                                     .parameterId(sceneParamResponse.getParameterId())
+                                                    .description(sceneParamResponse.getDescription())
                                                     .name(sceneParamResponse.getName())
                                                     .value(Optional.ofNullable(activityTask.getArguments())
                                                             .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))

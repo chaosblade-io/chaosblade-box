@@ -16,13 +16,34 @@
 
 package com.alibaba.chaosblade.box.toolsmgr.api;
 
+import com.alibaba.chaosblade.box.common.enums.ProbesInstallModel;
+
 /**
  * @author yefei
  */
 public enum ChannelType {
 
-    SSH,
-    ANSIBLE,
-    PUPPET,
-    HELM
+    SSH(ProbesInstallModel.SSH.getCode()),
+    ANSIBLE(ProbesInstallModel.ANSIBLE.getCode()),
+    PUPPET(-1),
+    HELM((ProbesInstallModel.K8S_HELM.getCode()));
+
+    private int code;
+
+    public int getCode() {
+        return code;
+    }
+
+    ChannelType(int code) {
+        this.code = code;
+    }
+
+    public static ChannelType parseCode(int code) {
+        for (ChannelType value : ChannelType.values()) {
+            if (code == value.code) {
+                return value;
+            }
+        }
+        return null;
+    }
 }
