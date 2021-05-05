@@ -18,7 +18,9 @@ package com.alibaba.chaosblade.box.service.model.scene;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -37,4 +39,6 @@ public class SceneImportRequest {
     private List<Scene> scenarios;
 
     private boolean active;
+
+    private List<MultipartFile> scenarioFiles;
 }

@@ -97,7 +97,7 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
 
             TaskLogUtil.info(log, TaskLogType.CHECK_SUB_TASK_STATUS, activityTask.getExperimentTaskId(), subRunStatus.name());
 
-            if (subRunStatus == RunStatus.READY) {
+            if (subRunStatus == RunStatus.READY || activityTask.isRetry()) {
                 TaskLogUtil.info(log, TaskLogType.EXECUTE_SUB_TASK, activityTask.getExperimentTaskId(), activityTask.getPhase(),
                         String.valueOf(activityTask.getActivityTaskId()));
 
@@ -109,7 +109,7 @@ public class DefaultActivityTaskPhaseHandler implements ActivityTaskHandler {
                         .build());
 
                 experimentTaskRepository.updateByPrimaryKey(activityTask.getExperimentTaskId(), ExperimentTaskDO.builder()
-                        .activityTaskId(activityTask.getActivityId())
+                        .activityTaskId(activityTask.getActivityTaskId())
                         .activityId(activityTask.getActivityId())
                         .build());
 

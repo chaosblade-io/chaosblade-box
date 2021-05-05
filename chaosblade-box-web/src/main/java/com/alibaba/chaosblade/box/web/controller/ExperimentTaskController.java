@@ -22,6 +22,7 @@ import com.alibaba.chaosblade.box.service.model.experiment.ExperimentRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskRequest;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskResponse;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentTaskStatistics;
+import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTask;
 import com.alibaba.chaosblade.box.service.model.experiment.activity.ExperimentActivityTaskRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -77,4 +78,9 @@ public class ExperimentTaskController {
         return experimentTaskService.failRetryExperiment(experimentRequest);
     }
 
+    @RequestMapping("/FailRetryActivityTask")
+    public ExperimentActivityTask FailRetryActivityTask(@RequestBody ExperimentTaskRequest experimentRequest) {
+        Preconditions.checkNotNull(experimentRequest.getActivityTaskId(), ID_IS_NULL);
+        return experimentTaskService.failRetryActivityTask(experimentRequest);
+    }
 }

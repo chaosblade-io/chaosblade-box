@@ -17,9 +17,11 @@
 package com.alibaba.chaosblade.box.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.DeviceMeta;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
+import com.alibaba.chaosblade.box.common.enums.ExperimentDimension;
 import com.alibaba.chaosblade.box.common.enums.ResultStatus;
 import com.alibaba.chaosblade.box.common.enums.RunStatus;
 import com.alibaba.chaosblade.box.common.exception.BizException;
@@ -40,7 +42,7 @@ import com.alibaba.chaosblade.box.service.model.scene.SceneRequest;
 import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.box.service.model.scene.param.SceneParamResponse;
 import com.alibaba.chaosblade.box.service.task.ActivityTask;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.alibaba.chaosblade.box.service.task.ActivityTaskExecuteContext;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,8 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum.EXPERIMENT_TASK_END;
-import static com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum.EXPERIMENT_TASK_NOT_FOUNT;
+import static com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum.*;
 
 /**
  * @author yefei
@@ -89,6 +90,9 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
 
     @Autowired
     private ExperimentTaskMapper experimentTaskMapper;
+
+    @Autowired
+    private ActivityTaskExecuteContext activityTaskExecuteContext;
 
     @Override
     public ExperimentTaskResponse createExperimentTask(Long experimentId) {
@@ -225,6 +229,7 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .taskName(experimentTaskDO.getTaskName())
                 .status(experimentTaskDO.getRunStatus())
                 .resultStatus(experimentTaskDO.getResultStatus())
+                .activityTaskId(experimentTaskDO.getActivityTaskId())
                 .error(experimentTaskDO.getErrorMessage())
                 .activityTasks(experimentActivityTasks.stream().map(experimentActivityTask -> {
                     ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivityTask.getRunParam());
@@ -288,7 +293,13 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
 
         Map<String, ExperimentActivityTaskRecordDO> map = experimentActivityTaskRecordRepository
                 .selectActivityTaskId(experimentRequest.getActivityTaskId())
-                .stream().collect(Collectors.toMap(ExperimentActivityTaskRecordDO::getIp, v -> v));
+                .stream().collect(Collectors.toMap(ExperimentActivityTaskRecordDO::getIp, v -> v,
+                        (v1, v2) -> {
+                            if (v2.getGmtStart().after(v1.getGmtStart())) {
+                                return v2;
+                            }
+                            return v1;
+                        }));
 
         return deviceMetas.stream().map(deviceMeta -> {
             ExperimentActivityTaskRecordDO experimentActivityTaskRecordDO = map.get(deviceMeta.getIp());
@@ -311,5 +322,32 @@ public class ExperimentTaskServiceImpl implements ExperimentTaskService {
                 .date(String.valueOf(map.get("date")))
                 .taskCount(String.valueOf(map.get("taskCount")))
                 .build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public ExperimentActivityTask failRetryActivityTask(ExperimentTaskRequest experimentRequest) {
+        ExperimentActivityTaskDO experimentActivityTask = experimentActivityTaskRepository.selectById(experimentRequest.getActivityTaskId())
+                .orElseThrow(() -> new BizException(EXPERIMENT_SUB_TASK_NOT_FOUNT));
+
+        List<DeviceMeta> deviceMetas = experimentMiniFlowService.selectExperimentDeviceByFlowId(experimentActivityTask.getFlowId());
+        String activityDefinition = experimentActivityTask.getRunParam();
+
+        ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, activityDefinition);
+
+        activityTask.setDeviceMetas(deviceMetas);
+        activityTask.setFlowId(experimentActivityTask.getFlowId());
+        activityTask.setExperimentTaskId(experimentActivityTask.getExperimentTaskId());
+        activityTask.setActivityId(experimentActivityTask.getActivityId());
+        activityTask.setActivityTaskId(experimentActivityTask.getId());
+        activityTask.setPreActivityTaskId(experimentActivityTask.getPreActivityTaskId());
+        activityTask.setNextActivityTaskId(experimentActivityTask.getNextActivityTaskId());
+        activityTask.setPhase(experimentActivityTask.getPhase());
+        activityTask.setRetry(true);
+
+        activityTask.setExperimentDimension(EnumUtil.fromString(ExperimentDimension.class, "HOST"));
+
+        //
+        activityTaskExecuteContext.executeActivityTask(activityTask);
+        return null;
     }
 }

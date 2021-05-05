@@ -84,4 +84,10 @@ public interface ExperimentTaskService {
      */
     List<ExperimentTaskStatistics> queryTaskStatistics();
 
+    /**
+     *
+     * @param experimentRequest
+     * @return
+     */
+    ExperimentActivityTask failRetryActivityTask(ExperimentTaskRequest experimentRequest);
 }

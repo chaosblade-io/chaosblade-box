@@ -31,11 +31,6 @@ import java.util.List;
 public interface SceneService {
 
     /**
-     * @param inputStream
-     */
-    void inputScene(InputStream inputStream);
-
-    /**
      *
      * @param sceneRequest
      * @return
@@ -76,4 +71,10 @@ public interface SceneService {
      */
     SceneResponse unbanScenario(SceneRequest sceneRequest);
 
+    /**
+     *
+     * @param sceneImportRequest
+     * @return
+     */
+    SceneImportResponse uploadScenarios(SceneImportRequest sceneImportRequest);
 }

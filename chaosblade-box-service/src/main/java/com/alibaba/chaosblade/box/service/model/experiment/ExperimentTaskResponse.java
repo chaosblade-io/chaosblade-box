@@ -54,6 +54,8 @@ public class ExperimentTaskResponse {
 
     private String error;
 
+    private Long activityTaskId;
+
     private List<ExperimentActivityTask> activityTasks;
 
     private List<ExperimentActivityTaskRecord> activityTaskRecords;
