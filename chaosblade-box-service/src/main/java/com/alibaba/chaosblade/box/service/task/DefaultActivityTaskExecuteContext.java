@@ -131,19 +131,18 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
                     return;
                 }
             }
-            executeActivityTask(activityTaskExecutePipeline, internalTask);
+            executeActivityTask(activityTask);
         } catch (Throwable throwable) {
             log.error("fireExecute error!", throwable);
             activityTaskHandlerStrategyContext.postHandle(
                     internalTask.getTask(),
                     throwable);
-
         }
     }
 
-    private void executeActivityTask(ActivityTaskExecutePipeline activityTaskExecutePipeline, TaskNode<ActivityTask> internalTask) {
+    @Override
+    public void executeActivityTask(ActivityTask activityTask) {
 
-        ActivityTask activityTask = internalTask.getTask();
         Long waitOfBefore = activityTask.getWaitOfBefore();
         if (waitOfBefore != null) {
 
@@ -154,38 +153,26 @@ public class DefaultActivityTaskExecuteContext implements ActivityTaskExecuteCon
 
             timer.newTimeout(timeout ->
                             executor.execute(() -> {
-                                try {
-                                    executeActivityTask0(activityTask);
-                                } catch (Throwable throwable) {
-                                    activityTaskHandlerStrategyContext.postHandle(
-                                            internalTask.getTask(),
-                                            throwable);
-                                }
+                                executeActivityTask0(activityTask);
                             }),
                     waitOfBefore,
                     TimeUnit.MILLISECONDS);
         } else {
             // todo Ensuring transaction commit
             executor.execute(() -> {
-                try {
-                    executeActivityTask0(activityTask);
-                } catch (Throwable throwable) {
-                    activityTaskHandlerStrategyContext.postHandle(
-                            internalTask.getTask(),
-                            throwable);
-                }
+                executeActivityTask0(activityTask);
             });
         }
     }
 
-    public void executeActivityTask0(ActivityTask activityTask) {
+    private void executeActivityTask0(ActivityTask activityTask) {
         try {
             boolean b = activityTaskHandlerStrategyContext.preHandle(activityTask);
             if (b) {
                 activityTaskHandlerStrategyContext.handle(activityTask);
             }
-        } catch (Exception e) {
-            activityTaskHandlerStrategyContext.postHandle(activityTask, e);
+        } catch (Throwable throwable) {
+            activityTaskHandlerStrategyContext.postHandle(activityTask, throwable);
         }
     }
 

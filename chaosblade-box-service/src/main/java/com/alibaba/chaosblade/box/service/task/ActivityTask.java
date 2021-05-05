@@ -75,6 +75,8 @@ public class ActivityTask {
 
     private List<DeviceMeta> deviceMetas;
 
+    private boolean retry;
+
     public boolean isRecoverPhase() {
         return ChaosConstant.PHASE_RECOVER.equals(phase);
     }

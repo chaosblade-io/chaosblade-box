@@ -51,9 +51,9 @@ public class ActivityTaskHandlerStrategyContext implements ActivityTaskHandler, 
     }
 
     @Override
-    public void postHandle(ActivityTask activityTask, Throwable e) {
+    public void postHandle(ActivityTask activityTask, Throwable throwable) {
         ActivityTaskHandler activityTaskPhaseHandler = select(activityTask);
-        activityTaskPhaseHandler.postHandle(activityTask, e);
+        activityTaskPhaseHandler.postHandle(activityTask, throwable);
     }
 
     @Override

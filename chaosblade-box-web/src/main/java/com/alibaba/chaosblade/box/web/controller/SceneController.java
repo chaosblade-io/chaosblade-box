@@ -25,12 +25,14 @@ import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.box.service.model.scene.SceneImportRequest;
 import com.alibaba.chaosblade.box.service.model.scene.SceneImportResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yefei
@@ -47,6 +49,13 @@ public class SceneController {
         Preconditions.checkNotNull(sceneImportRequest, ExceptionMessageEnum.SCENE_IS_NULL);
         Preconditions.checkArgument(CollUtil.isEmpty(sceneImportRequest.getScenarios()), ExceptionMessageEnum.SCENE_IS_NULL);
         return sceneService.importScenarios(sceneImportRequest);
+    }
+
+    @PostMapping("/UploadScenarios")
+    public SceneImportResponse uploadScenarios(@RequestParam("scenarios") MultipartFile[] files) {
+        SceneImportRequest request = SceneImportRequest.builder().build();
+        request.setScenarioFiles(Arrays.stream(files).collect(Collectors.toList()));
+        return sceneService.uploadScenarios(request);
     }
 
     @PostMapping("/GetScenarioById")

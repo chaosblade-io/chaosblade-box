@@ -36,6 +36,6 @@ public interface ActivityTaskHandler {
     /**
      * @param activityTask
      */
-    void postHandle(ActivityTask activityTask, Throwable e);
+    void postHandle(ActivityTask activityTask, Throwable throwable);
 
 }
