@@ -37,4 +37,8 @@ public class SceneParamRequest {
     private String description;
 
     private Component component;
+
+    private String defaultValue;
+
+    private Boolean isRequired;
 }

@@ -36,9 +36,13 @@ public class SceneParamController {
     @Autowired
     private SceneParamService sceneParamService;
 
-    @RequestMapping("/sceneparam/select")
+    @RequestMapping("/SelectSceneParam")
     public List<SceneParamResponse> selectSceneParam(@RequestBody SceneParamRequest sceneParamRequest) {
         return sceneParamService.selectSceneParam(sceneParamRequest);
     }
 
+    @RequestMapping("/UpdateSceneParam")
+    public void updateSceneParam(@RequestBody SceneParamRequest sceneParamRequest) {
+        sceneParamService.updateSceneParam(sceneParamRequest);
+    }
 }

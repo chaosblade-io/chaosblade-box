@@ -16,14 +16,20 @@
 
 package com.alibaba.chaosblade.box.service.model.scene.param;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author yefei
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Component {
 
     private String type;
@@ -31,4 +37,10 @@ public class Component {
     private boolean required;
 
     private boolean editable;
+
+    private String minValue;
+
+    private String maxValue;
+
+    private List<ComponentValue> values;
 }

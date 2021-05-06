@@ -40,4 +40,9 @@ public interface SceneParamService {
      */
     List<SceneParamResponse> selectSceneParamBySceneId(Long sceneId);
 
+    /**
+     *
+     * @param sceneParamRequest
+     */
+    void updateSceneParam(SceneParamRequest sceneParamRequest);
 }

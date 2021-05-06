@@ -72,6 +72,12 @@ public class SceneRepository extends ServiceImpl<SceneMapper, SceneDO> implement
         return Optional.ofNullable(sceneMapper.selectOne(queryWrapper));
     }
 
+    public List<SceneDO> selectByCode(String code) {
+        QueryWrapper<SceneDO> queryWrapper = QueryWrapperBuilder.build();
+        queryWrapper.lambda().like(SceneDO::getSceneCode, code);
+        return sceneMapper.selectList(queryWrapper);
+    }
+
     public void insertBatch(Collection<SceneDO> collection) {
         saveBatch(collection);
     }

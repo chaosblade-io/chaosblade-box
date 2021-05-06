@@ -354,13 +354,15 @@ public class ExperimentServiceImpl implements ExperimentService {
             ActivityTask activityTask = JsonUtils.readValue(ActivityTask.class, experimentActivity.getActivityDefinition());
             SceneResponse scenario = sceneService.getScenarioById(SceneRequest.builder().scenarioId(activityTask.getSceneId()).build());
             scenario.setParameters(scenario.getParameters().stream().map(
-                    sceneParamResponse -> SceneParamResponse.builder()
-                            .parameterId(sceneParamResponse.getParameterId())
-                            .paramName(sceneParamResponse.getParamName())
-                            .name(sceneParamResponse.getParamName())
-                            .description(sceneParamResponse.getDescription())
+                    sceneParam -> SceneParamResponse.builder()
+                            .parameterId(sceneParam.getParameterId())
+                            .paramName(sceneParam.getParamName())
+                            .name(sceneParam.getParamName())
+                            .alias(sceneParam.getAlias())
+                            .description(sceneParam.getDescription())
                             .value(Optional.ofNullable(activityTask.getArguments())
-                                    .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
+                                    .map(arguments -> arguments.get(sceneParam.getParamName())).orElse(null))
+                            .component(sceneParam.getComponent())
                             .build()).collect(Collectors.toList()));
             experimentActivity.setScene(scenario);
         });
@@ -382,12 +384,14 @@ public class ExperimentServiceImpl implements ExperimentService {
                                     .categories(scenario.getCategories())
                                     .description(scenario.getDescription())
                                     .parameters(scenario.getParameters().stream().map(
-                                            sceneParamResponse -> SceneParamResponse.builder()
-                                                    .parameterId(sceneParamResponse.getParameterId())
-                                                    .description(sceneParamResponse.getDescription())
-                                                    .name(sceneParamResponse.getName())
+                                            sceneParam -> SceneParamResponse.builder()
+                                                    .parameterId(sceneParam.getParameterId())
+                                                    .description(sceneParam.getDescription())
+                                                    .component(sceneParam.getComponent())
+                                                    .name(sceneParam.getName())
+                                                    .alias(sceneParam.getAlias())
                                                     .value(Optional.ofNullable(activityTask.getArguments())
-                                                            .map(arguments -> arguments.get(sceneParamResponse.getParamName())).orElse(null))
+                                                            .map(arguments -> arguments.get(sceneParam.getParamName())).orElse(null))
                                                     .build()).collect(Collectors.toList()))
                                     .build();
                         }

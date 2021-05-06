@@ -18,6 +18,7 @@ package com.alibaba.chaosblade.box.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.constants.ChaosConstant;
@@ -26,8 +27,7 @@ import com.alibaba.chaosblade.box.common.enums.ExperimentDimension;
 import com.alibaba.chaosblade.box.common.enums.SceneStatus;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
-import com.alibaba.chaosblade.box.common.model.chaos.*;
-import com.alibaba.chaosblade.box.common.utils.AnyThrow;
+import com.alibaba.chaosblade.box.common.model.chaos.PluginSpecBean;
 import com.alibaba.chaosblade.box.common.utils.JsonUtils;
 import com.alibaba.chaosblade.box.dao.model.SceneCategoryDO;
 import com.alibaba.chaosblade.box.dao.model.SceneDO;
@@ -54,11 +54,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -490,11 +493,28 @@ public class SceneServiceImpl implements SceneService, InitializingBean {
     }
 
     @Override
-    public SceneImportResponse uploadScenarios(SceneImportRequest sceneImportRequest) {
-        sceneImportRequest.getScenarioFiles().forEach((file) -> {
-            String name = file.getName();
+    public SceneImportResponse uploadScenarios(SceneImportRequest sceneImportRequest) throws Exception {
+        long count = 0;
+        for (MultipartFile file : sceneImportRequest.getScenarioFiles()) {
+            String name = file.getOriginalFilename();
+            String[] split = name.split("-");
+            if (split.length != 4 || !name.endsWith(".yaml")) {
+                throw new BizException(ExceptionMessageEnum.SCENE_FILE_NAME_PARSE_FAIL);
+            }
+            Representer representer = new Representer();
+            representer.getPropertyUtils().setSkipMissingProperties(true);
+            Yaml yaml = new Yaml(representer);
+            PluginSpecBean pluginSpecBean = yaml.loadAs(IoUtil.read(file.getInputStream(), Charset.defaultCharset()), PluginSpecBean.class);
 
-        });
-        return null;
+            List<Scene> scenes = pluginSpecBeanToSpec(pluginSpecBean);
+
+            SceneImportResponse sceneImportResponse = importScenarios(SceneImportRequest.builder()
+                    .name(split[0])
+                    .version(split[3].replace(".yaml", ""))
+                    .active(true)
+                    .scenarios(scenes).build());
+            count = count + sceneImportResponse.getScenarioCount();
+        }
+        return SceneImportResponse.builder().scenarioCount(count).build();
     }
 }
