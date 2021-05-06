@@ -20,16 +20,14 @@ import cn.hutool.core.collection.CollUtil;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
 import com.alibaba.chaosblade.box.common.utils.Preconditions;
 import com.alibaba.chaosblade.box.service.SceneService;
-import com.alibaba.chaosblade.box.service.model.scene.SceneRequest;
-import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import com.alibaba.chaosblade.box.service.model.scene.SceneImportRequest;
 import com.alibaba.chaosblade.box.service.model.scene.SceneImportResponse;
+import com.alibaba.chaosblade.box.service.model.scene.SceneRequest;
+import com.alibaba.chaosblade.box.service.model.scene.SceneResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +50,7 @@ public class SceneController {
     }
 
     @PostMapping("/UploadScenarios")
-    public SceneImportResponse uploadScenarios(@RequestParam("scenarios") MultipartFile[] files) {
+    public SceneImportResponse uploadScenarios(@RequestParam("scenarios") MultipartFile[] files) throws Exception {
         SceneImportRequest request = SceneImportRequest.builder().build();
         request.setScenarioFiles(Arrays.stream(files).collect(Collectors.toList()));
         return sceneService.uploadScenarios(request);

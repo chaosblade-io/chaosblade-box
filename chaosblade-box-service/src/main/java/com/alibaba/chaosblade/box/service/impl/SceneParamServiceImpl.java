@@ -72,7 +72,7 @@ public class SceneParamServiceImpl implements SceneParamService {
             return Collections.emptyList();
         }
         return sceneParamDOS.stream().map(sceneParamDO -> SceneParamResponse.builder()
-                .parameterId(sceneParamDO.getSceneId())
+                .parameterId(sceneParamDO.getId())
                 .alias(sceneParamDO.getAlias())
                 .paramName(sceneParamDO.getParamName())
                 .name(sceneParamDO.getParamName())
@@ -84,5 +84,16 @@ public class SceneParamServiceImpl implements SceneParamService {
                         .orElse(null))
                 .build()
         ).collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateSceneParam(SceneParamRequest sceneParamRequest) {
+        sceneParamRepository.updateByPrimaryKey(sceneParamRequest.getParameterId(),
+                SceneParamDO.builder().alias(sceneParamRequest.getAlias())
+                        .description(sceneParamRequest.getDescription())
+                        .defaultValue(sceneParamRequest.getDefaultValue())
+                        .isRequired(sceneParamRequest.getIsRequired())
+                        .component(JsonUtils.writeValueAsString(sceneParamRequest.getComponent()))
+                        .build());
     }
 }

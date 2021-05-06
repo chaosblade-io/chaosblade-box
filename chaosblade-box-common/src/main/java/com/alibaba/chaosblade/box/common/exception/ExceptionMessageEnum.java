@@ -46,6 +46,7 @@ public enum ExceptionMessageEnum {
     // SCENE
     SCENE_IS_NULL(6400, "场景不存在"),
     SCENE_EXISTS(6401, "场景已经存在"),
+    SCENE_FILE_NAME_PARSE_FAIL(6402, "场景名称解析错误"),
 
     // PROBES
     PROBES_NO_FOUND(6500, "探针不存在"),

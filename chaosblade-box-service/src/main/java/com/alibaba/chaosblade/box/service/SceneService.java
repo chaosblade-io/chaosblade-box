@@ -76,5 +76,5 @@ public interface SceneService {
      * @param sceneImportRequest
      * @return
      */
-    SceneImportResponse uploadScenarios(SceneImportRequest sceneImportRequest);
+    SceneImportResponse uploadScenarios(SceneImportRequest sceneImportRequest) throws Exception;
 }

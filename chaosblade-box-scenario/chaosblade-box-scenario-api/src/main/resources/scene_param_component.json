@@ -1,0 +1,168 @@
+[
+  {
+    "sceneCode": "chaosblade.cpu.fullload",
+    "sceneParams": [
+      {
+        "name": "cpu-count",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false
+        }
+      },
+      {
+        "name": "cpu-percent",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "range",
+          "required": false,
+          "minValue": "0",
+          "maxValue": "100",
+          "values": []
+        }
+      }
+    ]
+  },
+  {
+    "sceneCode": "chaosblade.mem.load",
+    "sceneParams": [
+      {
+        "name": "reserve",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false
+        }
+      },
+      {
+        "name": "rate",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false
+        }
+      },
+      {
+        "name": "mem-percent",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "range",
+          "required": false,
+          "minValue": "0",
+          "maxValue": "100",
+          "values": []
+        }
+      },
+      {
+        "name": "mode",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "select",
+          "required": false,
+          "minValue": "0",
+          "maxValue": "100",
+          "values": [
+            {
+              "key": 0,
+              "label": "ram",
+              "value": "ram"
+            },
+            {
+              "key": 1,
+              "label": "cache",
+              "value": "cache"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "sceneCode": "chaosblade.jvm.script",
+    "sceneParams": [
+      {
+        "name": "script-type",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "select",
+          "required": false,
+          "values": [
+            {
+              "key": 0,
+              "label": "java",
+              "value": "java"
+            },
+            {
+              "key": 1,
+              "label": "groovy",
+              "value": "groovy"
+            }
+          ]
+        }
+      },
+      {
+        "name": "script-content",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "script",
+          "required": false
+        }
+      }
+    ]
+  },
+  {
+    "sceneCode": "chaosblade.dubbo.delay",
+    "sceneParams": [
+      {
+        "name": "consumer",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "radio",
+          "required": false,
+          "values": [
+            {
+              "key": 0,
+              "label": "是",
+              "value": "true"
+            },
+            {
+              "key": 1,
+              "label": "否",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      {
+        "name": "provider",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "radio",
+          "required": false,
+          "values": [
+            {
+              "key": 0,
+              "label": "是",
+              "value": "true"
+            },
+            {
+              "key": 1,
+              "label": "否",
+              "value": "false"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
