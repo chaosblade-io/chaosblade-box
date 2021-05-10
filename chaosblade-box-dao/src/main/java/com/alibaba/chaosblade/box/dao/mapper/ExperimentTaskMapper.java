@@ -33,7 +33,7 @@ public interface ExperimentTaskMapper extends BaseMapper<ExperimentTaskDO> {
     /**
      *
      */
-    @Select("select count(*) as taskCount , date_format(gmt_start,'%Y-%m-%d') as `date` from t_chaos_experiment_task group by date(gmt_start)")
+    @Select("select count(*) as taskCount , max(date_format(gmt_start,'%Y-%m-%d')) as `date` from t_chaos_experiment_task group by date(gmt_start)")
     List<Map<Integer, Object>> queryTaskStatistics();
 
 }

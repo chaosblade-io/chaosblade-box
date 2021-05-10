@@ -1,7 +1,68 @@
 [
   {
-    "sceneCode": "chaosblade.cpu.fullload",
+    "sceneCode": "chaosblade",
     "sceneParams": [
+      {
+        "name": "debug",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "radio",
+          "required": false,
+          "values": [
+            {
+              "key": 0,
+              "label": "开启",
+              "value": "true"
+            },
+            {
+              "key": 1,
+              "label": "关闭",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      {
+        "name": "timeout",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false,
+          "values": []
+        }
+      },
+      {
+        "name": "time",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false,
+          "values": []
+        }
+      },
+      {
+        "name": "effect-percent",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false,
+          "values": []
+        }
+      },
+      {
+        "name": "effect-count",
+        "alias": "",
+        "description": "",
+        "component": {
+          "type": "number",
+          "required": false,
+          "values": []
+        }
+      },
       {
         "name": "cpu-count",
         "alias": "",
@@ -22,13 +83,7 @@
           "maxValue": "100",
           "values": []
         }
-      }
-    ]
-  },
-  {
-    "sceneCode": "chaosblade.mem.load",
-    "sceneParams": [
-      {
+      },{
         "name": "reserve",
         "alias": "",
         "description": "",
@@ -119,7 +174,7 @@
     ]
   },
   {
-    "sceneCode": "chaosblade.dubbo.delay",
+    "sceneCode": "chaosblade.dubbo",
     "sceneParams": [
       {
         "name": "consumer",

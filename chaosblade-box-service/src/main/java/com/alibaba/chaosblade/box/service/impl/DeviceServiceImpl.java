@@ -273,7 +273,7 @@ public class DeviceServiceImpl implements DeviceService {
                         .type(DeviceType.POD.getCode())
                         .build()))
                 .namespaces(devicePodMapper.selectList(QueryWrapperBuilder.<DevicePodDO>build()
-                        .groupBy("namespace")).size())
+                        .groupBy("namespace").select("max(id)")).size())
                 .containers(devicePodRepository.selectList(DevicePodDO.builder().build()).stream().flatMap(devicePodDO ->
                         Optional.ofNullable(devicePodDO.getContainers()).map(
                                 containers -> {
