@@ -44,7 +44,7 @@ public class ArgumentsToMapDeserializer extends JsonDeserializer<Map<String, Str
                     if (jsonNode.get("value") != null && !jsonNode.get("value").isNull()) {
                         String value = jsonNode.get("value").asText();
                         if (StrUtil.isBlank(value)) {
-                            value = jsonNode.get("value").toString();
+                            value = jsonNode.get("value").toString().replace("\"","");
                         }
                         if (StrUtil.isNotBlank(value)) {
                             map.put(jsonNode.get("name").asText(), value);

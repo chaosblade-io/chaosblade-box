@@ -74,7 +74,7 @@ public class SceneRepository extends ServiceImpl<SceneMapper, SceneDO> implement
 
     public List<SceneDO> selectByCode(String code) {
         QueryWrapper<SceneDO> queryWrapper = QueryWrapperBuilder.build();
-        queryWrapper.lambda().like(SceneDO::getSceneCode, code);
+        queryWrapper.lambda().likeRight(SceneDO::getSceneCode, code);
         return sceneMapper.selectList(queryWrapper);
     }
 
