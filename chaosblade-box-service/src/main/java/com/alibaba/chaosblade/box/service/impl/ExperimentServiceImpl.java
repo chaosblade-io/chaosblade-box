@@ -173,9 +173,9 @@ public class ExperimentServiceImpl implements ExperimentService {
                         }
                 ).collect(Collectors.toList());
                 if (original.equals(ChaosTools.CHAOS_BLADE.getName())) {
-                    createExperimentRequest.getParameters().put("names", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining()));
+                    createExperimentRequest.getParameters().put("names", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining(",")));
                 } else if (original.equals(ChaosTools.LITMUS_CHAOS.getName())) {
-                    createExperimentRequest.getParameters().put("TARGET_NODES", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining()));
+                    createExperimentRequest.getParameters().put("TARGET_NODES", nodes.stream().map(DeviceMeta::getNodeName).collect(Collectors.joining(",")));
                 }
                 return nodes;
             case POD:
@@ -205,15 +205,15 @@ public class ExperimentServiceImpl implements ExperimentService {
                         }
                 ).collect(Collectors.toList());
                 if (original.equals(ChaosTools.CHAOS_BLADE.getName())) {
-                    createExperimentRequest.getParameters().put("names", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining()));
-                    String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining());
-                    if (StrUtil.isNotBlank(containerNames)) {
+                    createExperimentRequest.getParameters().put("names", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining(",")));
+                    String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining(","));
+                    if (StrUtil.isNotBlank(containerNames) && !"null".equals(containerNames)) {
                         createExperimentRequest.getParameters().put("container-names", containerNames);
                     }
                 } else if (original.equals(ChaosTools.LITMUS_CHAOS.getName())) {
-                    createExperimentRequest.getParameters().put("TARGET_PODS", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining()));
-                    String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining());
-                    if (StrUtil.isNotBlank(containerNames)) {
+                    createExperimentRequest.getParameters().put("TARGET_PODS", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining(",")));
+                    String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining(","));
+                    if (StrUtil.isNotBlank(containerNames) && !"null".equals(containerNames)) {
                         createExperimentRequest.getParameters().put("TARGET_CONTAINER", containerNames);
                     }
                 }

@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.web.controller;
 
+import com.alibaba.chaosblade.box.scenario.api.init.SceneParamComponentLoader;
 import com.alibaba.chaosblade.box.service.ClusterService;
 import com.alibaba.chaosblade.box.service.K8SToolsService;
 import com.alibaba.chaosblade.box.web.ChaosbladeBoxApplication;
@@ -64,6 +65,9 @@ public class MainControllerTest {
 
     @MockBean
     private SceneCategoryLoader sceneCategoryLoader;
+
+    @MockBean
+    private SceneParamComponentLoader sceneParamComponentLoader;
 
     @MockBean
     private MetricCateGoryLoader metricCateGoryLoader;
