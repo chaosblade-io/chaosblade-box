@@ -17,6 +17,7 @@
 package com.alibaba.chaosblade.box.web.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.chaosblade.box.scenario.api.init.SceneParamComponentLoader;
 import com.alibaba.chaosblade.box.service.ClusterService;
 import com.alibaba.chaosblade.box.service.K8SToolsService;
 import com.alibaba.chaosblade.box.service.model.device.*;
@@ -71,6 +72,9 @@ public class MachineControllerTest {
 
     @MockBean
     private MetricCateGoryLoader metricCateGoryLoader;
+
+    @MockBean
+    private SceneParamComponentLoader sceneParamComponentLoader;
 
     @MockBean
     private ClusterService clusterService;

@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.service.collect;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
@@ -310,23 +311,27 @@ public class CollectorTimer implements InitializingBean {
             if (strategy.value() == collectorType) {
                 if (value instanceof NodeCollector) {
                     nodeCollector = (NodeCollector) value;
-                    if (enableCollect) {
-                        nodeCollect(nodeCollector, Query.builder().build());
-                    }
                 }
                 if (value instanceof PodCollector) {
                     podCollector = (PodCollector) value;
-                    if (enableCollect) {
-                        podCollect(podCollector, Query.builder().build());
-                    }
                 }
                 if (value instanceof ContainerCollector) {
                     containerCollector = (ContainerCollector) value;
-                    if (enableCollect) {
-                        containerCollect(containerCollector, Query.builder().build());
-                    }
                 }
             }
+        }
+
+        // todo
+        if (enableCollect) {
+            ClusterDO clusterDO;
+            List<ClusterDO> aDefault = clusterRepository.selectList(ClusterDO.builder().clusterName("default").build());
+            if (CollUtil.isEmpty(aDefault)) {
+                clusterDO = ClusterDO.builder().clusterName("default").build();
+                clusterRepository.insert(clusterDO);
+            } else {
+                clusterDO = aDefault.get(0);
+            }
+            collect(Query.builder().clusterId(clusterDO.getId()).build());
         }
 
         ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
