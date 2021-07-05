@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -145,13 +146,13 @@ public class ClusterServiceImpl implements ClusterService, InitializingBean {
     @Override
     public String getKubeconfig(ClusterBO clusterBO) {
         String home = SystemPropertiesUtils.getPropertiesValue("user.home");
-        String kubeconfig = String.format("%s/%s/%s/config", home, applicationName, clusterBO.getId());
+        String kubeconfig = String.format("%s%s%s%s%s%sconfig", home, File.separatorChar, applicationName, File.separatorChar, clusterBO.getId(), File.separatorChar);
         if (!FileUtil.exist(kubeconfig)) {
             Optional<ClusterDO> clusterDO = clusterRepository.selectById(clusterBO.getId());
             ClusterDO cluster = clusterDO.get();
 
             FileUtil.writeString(cluster.getConfig(),
-                    String.format("%s/%s/%s/config", home, applicationName, cluster.getId()),
+                    String.format("%s%s%s%s%s%sconfig", home, File.separatorChar, applicationName, File.separatorChar, cluster.getId(), File.separatorChar),
                     SystemPropertiesUtils.getPropertiesFileEncoding());
         }
         return kubeconfig;

@@ -2,6 +2,7 @@ package com.alibaba.chaosblade.box.toolsmgr.helm;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.RuntimeUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -100,7 +101,10 @@ public class HelmChaosToolsMgr implements ChaosToolsMgr<HelmRequest>, Initializi
     @Override
     public Response<String> unDeployTools(HelmRequest helmRequest) {
 
-        Process process = RuntimeUtil.exec(String.format("helm uninstall %s --kubeconfig=%s", helmRequest.getName(), helmRequest.getKubeconfig()));
+        Process process = RuntimeUtil.exec(String.format("helm uninstall %s %s --kubeconfig=%s",
+                helmRequest.getName(),
+                StrUtil.isBlank(helmRequest.getNamespace()) ? "" : "-n " + helmRequest.getNamespace(),
+                helmRequest.getKubeconfig()));
 
         try {
             process.waitFor();

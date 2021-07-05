@@ -1,5 +1,6 @@
 package com.alibaba.chaosblade.box.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.chaosblade.box.common.enums.DeviceType;
 import com.alibaba.chaosblade.box.common.exception.BizException;
 import com.alibaba.chaosblade.box.common.exception.ExceptionMessageEnum;
@@ -20,6 +21,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * @author yefei
@@ -78,11 +80,6 @@ public class K8SToolsServiceImpl implements K8SToolsService {
             throw new BizException(ExceptionMessageEnum.CHAOS_TOOLS_EXISTS, toolsRequest.getName() + ":" + toolsRequest.getVersion());
         }
 
-        Yaml yaml = new Yaml();
-        Map<String, Object> yamlMap = yaml.load(toolsRequest.getHelmValues());
-        Map<String, String> params = new HashMap<>();
-        trans(yamlMap, params, null);
-
         HelmRequest helmRequest = new HelmRequest();
         helmRequest.setName(TGZ_NAME.get(toolsRequest.getName()));
         helmRequest.setToolsName(helmRepoName + "/" + helmRequest.getName());
@@ -91,11 +88,28 @@ public class K8SToolsServiceImpl implements K8SToolsService {
         String kubeconfig = clusterService.getKubeconfig(ClusterBO.builder().id(toolsRequest.getMachineId()).build());
         helmRequest.setKubeconfig(kubeconfig);
 
-        StringBuilder commandOptions = new StringBuilder("--set ");
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            commandOptions.append(entry.getKey() + "=" + entry.getValue() + ",");
+        StringJoiner commandOptions = new StringJoiner(" ");
+
+        //append helmValues if existed
+        String helmValues = toolsRequest.getHelmValues();
+        if (!StrUtil.isBlank(helmValues)) {
+            Yaml yaml = new Yaml();
+            Map<String, Object> yamlMap = yaml.load(helmValues);
+            Map<String, String> params = new HashMap<>();
+            trans(yamlMap, params, null);
+            StringBuilder setOptions = new StringBuilder("--set ");
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                setOptions.append(entry.getKey() + "=" + entry.getValue() + ",");
+            }
+            commandOptions.add(setOptions.substring(0, setOptions.length() - 1));
         }
-        helmRequest.setCommandOptions(commandOptions.toString().substring(0, commandOptions.length() - 1));
+
+        //append namespace if existed
+        if (!StrUtil.isBlank(toolsRequest.getNamespace())) {
+            commandOptions.add("-n " + toolsRequest.getNamespace());
+        }
+
+        helmRequest.setCommandOptions(commandOptions.toString());
 
         Response<String> response = helmChaosToolsMgr.deployTools(helmRequest);
         if (response.isSuccess()) {
@@ -119,6 +133,7 @@ public class K8SToolsServiceImpl implements K8SToolsService {
         helmRequest.setName(TGZ_NAME.get(toolsRequest.getName()));
         helmRequest.setToolsName(helmRepoName + "/" + helmRequest.getName());
         helmRequest.setToolsVersion(toolsRequest.getVersion());
+        helmRequest.setNamespace(toolsRequest.getNamespace());
 
         String kubeconfig = clusterService.getKubeconfig(ClusterBO.builder().id(toolsRequest.getMachineId()).build());
         helmRequest.setKubeconfig(kubeconfig);

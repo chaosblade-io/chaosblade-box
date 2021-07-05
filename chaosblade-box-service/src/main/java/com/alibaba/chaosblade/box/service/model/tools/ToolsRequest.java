@@ -39,6 +39,8 @@ public class ToolsRequest extends PageQuery {
 
     private String helmValues;
 
+    private String namespace;
+
     private Byte deviceType;
 
     private Byte status;
