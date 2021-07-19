@@ -60,7 +60,7 @@ chaos:
   collector:
     enable: false
     type: kube_api
-    period: 30
+    period: 300
     prometheus:
       api:
   metric:

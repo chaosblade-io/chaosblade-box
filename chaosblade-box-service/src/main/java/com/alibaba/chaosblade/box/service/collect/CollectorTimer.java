@@ -131,6 +131,10 @@ public class CollectorTimer implements InitializingBean {
     private void nodeCollect(NodeCollector collector, Query query) {
         timer.newTimeout(timeout -> {
             try {
+
+                Thread.sleep(50);
+                log.info("nodeCollect: collect node info ! ");
+
                 CompletableFuture<List<Node>> future = collector.collect(query);
                 QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
                 queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.NODE.getCode());
@@ -194,6 +198,9 @@ public class CollectorTimer implements InitializingBean {
                     q.setConfig(query.getConfig());
                     q.setNodeName(node.getNodeName());
                     CompletableFuture<List<Pod>> future = collector.collect(q);
+
+                    Thread.sleep(50);
+                    log.info("podCollect: collect node pods  container ; clusterId:{}, node name :{}",node.getClusterId(),node.getNodeName());
 
                     QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
                     queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.POD.getCode());
@@ -260,7 +267,8 @@ public class CollectorTimer implements InitializingBean {
                     q.setClusterId(query.getClusterId());
                     q.setConfig(query.getConfig());
                     q.setPodName(devicePod.getPodName());
-
+                    Thread.sleep(50);
+                    log.info("containerCollect: collect pods container ; clusterId:{}, pods name :{}",query.getClusterId(),devicePod.getPodName());
                     CompletableFuture<List<Container>> future = collector.collect(q);
                     future.handle((containers, e) -> {
                         if (e != null) {
