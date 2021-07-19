@@ -30,6 +30,10 @@ public class Query {
 
     private String podName;
 
+    private String fieldSelector;
+
+    private String labelSelector;
+
     private Long clusterId;
 
     private String config;

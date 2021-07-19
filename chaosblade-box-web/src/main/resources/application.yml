@@ -61,6 +61,9 @@ chaos:
     enable: false
     type: kube_api
     period: 30
+    search:
+      fieldSelector:
+      labelSelector:
     prometheus:
       api:
   metric:

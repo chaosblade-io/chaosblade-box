@@ -63,7 +63,7 @@ public class KubeApiPodCollector implements PodCollector, InitializingBean {
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(query.getConfig().getBytes());
                 api = new CoreV1Api(Config.fromConfig(byteArrayInputStream));
             }
-            api.listPodForAllNamespacesAsync(null, null, null, null,
+            api.listPodForAllNamespacesAsync(null, null, query.getFieldSelector(), query.getLabelSelector(),
                     null, null, null, null, null,
                     new ApiCallback<V1PodList>() {
                         @Override
