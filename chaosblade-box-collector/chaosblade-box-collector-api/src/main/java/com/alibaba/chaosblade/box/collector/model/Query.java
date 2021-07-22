@@ -34,5 +34,9 @@ public class Query {
 
     private String config;
 
+    private String fieldSelector;
+
+    private String labelSelector;
+
     private volatile boolean stop;
 }
