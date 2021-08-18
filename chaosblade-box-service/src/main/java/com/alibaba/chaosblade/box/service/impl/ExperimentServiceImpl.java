@@ -210,6 +210,9 @@ public class ExperimentServiceImpl implements ExperimentService {
                     if (StrUtil.isNotBlank(containerNames) && !"null".equals(containerNames)) {
                         createExperimentRequest.getParameters().put("container-names", containerNames);
                     }
+                    if (createExperimentRequest.getParameters().get("namespace") == null) {
+                        createExperimentRequest.getParameters().put("namespace", list.get(0).getNamespace());
+                    }
                 } else if (original.equals(ChaosTools.LITMUS_CHAOS.getName())) {
                     createExperimentRequest.getParameters().put("TARGET_PODS", list.stream().map(DeviceMeta::getPodName).distinct().collect(Collectors.joining(",")));
                     String containerNames = list.stream().map(DeviceMeta::getContainerName).distinct().collect(Collectors.joining(","));
