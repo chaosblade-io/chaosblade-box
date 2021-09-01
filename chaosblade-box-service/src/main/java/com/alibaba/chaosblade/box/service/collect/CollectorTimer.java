@@ -62,6 +62,8 @@ import java.util.stream.Collectors;
 @Component
 public class CollectorTimer implements InitializingBean {
 
+    public static final int OFFSET = -10;
+
     private Timer timer;
 
     @Autowired
@@ -112,9 +114,7 @@ public class CollectorTimer implements InitializingBean {
     }
 
     public void collect(Query query) {
-
         map.put(query.getClusterId(), query);
-
         nodeCollect(nodeCollector, query);
         podCollect(podCollector, query);
         containerCollect(containerCollector, query);
@@ -135,6 +135,7 @@ public class CollectorTimer implements InitializingBean {
                 Thread.sleep(50);
                 log.info("nodeCollect: collect node info ! ");
 
+                // update ping time
                 CompletableFuture<List<Node>> future = collector.collect(query);
                 QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
                 queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.NODE.getCode());
@@ -334,6 +335,7 @@ public class CollectorTimer implements InitializingBean {
             ClusterDO clusterDO;
             List<ClusterDO> aDefault = clusterRepository.selectList(ClusterDO.builder().clusterName("default").build());
             if (CollUtil.isEmpty(aDefault)) {
+                // init default cluster
                 clusterDO = ClusterDO.builder().clusterName("default").build();
                 clusterRepository.insert(clusterDO);
             } else {
@@ -341,6 +343,7 @@ public class CollectorTimer implements InitializingBean {
             }
             collect(Query.builder().clusterId(clusterDO.getId()).build());
         }
+
 
         ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
@@ -350,7 +353,7 @@ public class CollectorTimer implements InitializingBean {
                     .status(DeviceStatus.ONLINE.getStatus())
                     .build())
                     .stream()
-                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, -1).after(deviceDO.getLastOnlineTime()))
+                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, OFFSET).after(deviceDO.getLastOnlineTime()))
                     .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
                             .status(DeviceStatus.OFFLINE.getStatus())
                             .build()));
@@ -360,11 +363,11 @@ public class CollectorTimer implements InitializingBean {
                     .status(DeviceStatus.ONLINE.getStatus())
                     .build())
                     .stream()
-                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, -1).after(deviceDO.getLastOnlineTime()))
+                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, OFFSET).after(deviceDO.getLastOnlineTime()))
                     .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
                             .status(DeviceStatus.OFFLINE.getStatus())
                             .build()));
 
-        }, 30, 30, TimeUnit.SECONDS);
+        }, this.period, this.period, TimeUnit.SECONDS);
     }
 }
