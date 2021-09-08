@@ -50,7 +50,7 @@ Notes: You must replace the follow parameters: DATASOURCE_URL, DATASOURCE_USERNA
 Then run the application, run method is as follows:
 
 ```bash
-nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box-web-0.4.1.jar --spring.datasource.url=DATASOURCE_URL --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD > chaosblade-box.log 2>&1 &
+nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box-web-0.4.2.jar --spring.datasource.url=DATASOURCE_URL --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD > chaosblade-box.log 2>&1 &
 ```
 
 You can use a browser to access the http://127.0.0.1:8080 website to use the platform.
@@ -58,7 +58,7 @@ You can use a browser to access the http://127.0.0.1:8080 website to use the pla
 If you're deployed on kubernetes, the usage method is as follows:
 
 ```bash
-helm install chaosblade-box chaosblade-box-0.4.1.tgz --set spring.datasource.password=DATASOURCE_PASSWORD --namespace chaosblade
+helm install chaosblade-box chaosblade-box-0.4.2.tgz --set spring.datasource.password=DATASOURCE_PASSWORD --namespace chaosblade
 ```
 
 ## Bugs and Feedback

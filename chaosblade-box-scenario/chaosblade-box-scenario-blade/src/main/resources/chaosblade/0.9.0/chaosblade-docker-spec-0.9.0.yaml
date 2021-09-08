@@ -723,7 +723,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -792,7 +792,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -870,7 +870,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -966,7 +966,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1045,7 +1045,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1130,7 +1130,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1227,7 +1227,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1295,7 +1295,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1369,7 +1369,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1437,7 +1437,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
@@ -1509,7 +1509,7 @@ items:
       requiredWhenDestroyed: false
     - name: blade-tar-file
       desc: The pull path of the ChaosBlade tar package, for example, --blade-tar-file
-        /opt/chaosblade-0.4.1.tar.gz
+        /opt/chaosblade-0.4.2.tar.gz
       noArgs: false
       required: false
       requiredWhenDestroyed: false
