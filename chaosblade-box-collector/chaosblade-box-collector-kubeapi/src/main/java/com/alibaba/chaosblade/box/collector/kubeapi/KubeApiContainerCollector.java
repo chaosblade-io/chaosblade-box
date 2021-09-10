@@ -55,6 +55,11 @@ public class KubeApiContainerCollector implements ContainerCollector, Initializi
 
     @Override
     public CompletableFuture<List<Container>> collect(Query query) {
+        String fieldSelector = StrUtil.isBlank(query.getFieldSelector()) ?
+                String.format("metadata.name=%s", query.getPodName()) :
+                String.format("metadata.name=%s,%s", query.getPodName(), query.getFieldSelector());
+        String labelSelector = query.getLabelSelector();
+
         CompletableFuture<List<Container>> future = new CompletableFuture<>();
         CoreV1Api api;
         try {
@@ -64,7 +69,8 @@ public class KubeApiContainerCollector implements ContainerCollector, Initializi
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(query.getConfig().getBytes());
                 api = new CoreV1Api(Config.fromConfig(byteArrayInputStream));
             }
-            api.listPodForAllNamespacesAsync(null, null, String.format("metadata.name=%s", query.getPodName()), null,
+
+            api.listPodForAllNamespacesAsync(null, null, fieldSelector, labelSelector,
                     null, null, null, null, null,
                     new ApiCallback<V1PodList>() {
                         @Override

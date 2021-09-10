@@ -61,6 +61,9 @@ chaos:
     enable: false
     type: kube_api
     period: 300
+    search:
+      fieldSelector:
+      labelSelector:
     prometheus:
       api:
   metric:
@@ -77,7 +80,4 @@ chaos:
       enable: false
       name: chaos
       url: http://localhost:9001
-
-
-
 

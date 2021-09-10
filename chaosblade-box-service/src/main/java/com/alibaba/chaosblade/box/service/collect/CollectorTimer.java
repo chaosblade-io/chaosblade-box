@@ -90,6 +90,12 @@ public class CollectorTimer implements InitializingBean {
     @Value("${chaos.collector.period}")
     private Integer period;
 
+    @Value("${chaos.collector.search.fieldSelector}")
+    private String fieldSelector;
+
+    @Value("${chaos.collector.search.labelSelector}")
+    private String labelSelector;
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -198,11 +204,13 @@ public class CollectorTimer implements InitializingBean {
                     q.setClusterId(query.getClusterId());
                     q.setConfig(query.getConfig());
                     q.setNodeName(node.getNodeName());
-                    CompletableFuture<List<Pod>> future = collector.collect(q);
+                    q.setFieldSelector(fieldSelector) ;
+                    q.setLabelSelector(labelSelector);
 
                     Thread.sleep(50);
                     log.info("podCollect: collect node pods  container ; clusterId:{}, node name :{}",node.getClusterId(),node.getNodeName());
 
+                    CompletableFuture<List<Pod>> future = collector.collect(q);
                     QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
                     queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.POD.getCode());
                     deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
@@ -268,8 +276,12 @@ public class CollectorTimer implements InitializingBean {
                     q.setClusterId(query.getClusterId());
                     q.setConfig(query.getConfig());
                     q.setPodName(devicePod.getPodName());
+                    q.setFieldSelector(fieldSelector) ;
+                    q.setLabelSelector(labelSelector);
+
                     Thread.sleep(50);
                     log.info("containerCollect: collect pods container ; clusterId:{}, pods name :{}",query.getClusterId(),devicePod.getPodName());
+
                     CompletableFuture<List<Container>> future = collector.collect(q);
                     future.handle((containers, e) -> {
                         if (e != null) {
