@@ -60,7 +60,9 @@ chaos:
   collector:
     enable: false
     type: kube_api
-    period: 300
+    period: 3600
+    interval: 500
+    collectLimiter: 15
     search:
       fieldSelector:
       labelSelector:

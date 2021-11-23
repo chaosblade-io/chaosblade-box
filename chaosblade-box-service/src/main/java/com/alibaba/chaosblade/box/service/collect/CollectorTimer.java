@@ -20,6 +20,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.EnumUtil;
+
 import com.alibaba.chaosblade.box.collector.*;
 import com.alibaba.chaosblade.box.collector.model.Container;
 import com.alibaba.chaosblade.box.collector.model.Node;
@@ -42,7 +43,9 @@ import com.alibaba.chaosblade.box.dao.repository.DeviceNodeRepository;
 import com.alibaba.chaosblade.box.dao.repository.DevicePodRepository;
 import com.alibaba.chaosblade.box.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.box.service.model.device.ContainerBO;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,11 +93,19 @@ public class CollectorTimer implements InitializingBean {
     @Value("${chaos.collector.period}")
     private Integer period;
 
+    @Value("${chaos.collector.interval}")
+    private Integer interval;
+
+    @Value("${chaos.collector.collectLimiter}")
+    private Integer collectLimiter;
+
     @Value("${chaos.collector.search.fieldSelector}")
     private String fieldSelector;
 
     @Value("${chaos.collector.search.labelSelector}")
     private String labelSelector;
+
+    private RateLimiter rateLimiter ;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -106,6 +117,8 @@ public class CollectorTimer implements InitializingBean {
     private ContainerCollector containerCollector;
 
     private ConcurrentHashMap<Long, Query> map = new ConcurrentHashMap<>(64);
+
+    private ThreadPoolExecutor executor = new  ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new ArrayBlockingQueue<>(1));
 
     public void dryRun() throws Exception {
         Preconditions.checkNotNull(nodeCollector, "collector is null");
@@ -124,6 +137,17 @@ public class CollectorTimer implements InitializingBean {
         nodeCollect(nodeCollector, query);
         podCollect(podCollector, query);
         containerCollect(containerCollector, query);
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                //start exec once
+                nodeCollectTask(nodeCollector,query);
+                podCollectTask(podCollector,query);
+                containerCollectTask(containerCollector,query);
+            }
+        });
+
     }
 
     public void stop(Query query) {
@@ -136,182 +160,207 @@ public class CollectorTimer implements InitializingBean {
 
     private void nodeCollect(NodeCollector collector, Query query) {
         timer.newTimeout(timeout -> {
-            try {
-
-                Thread.sleep(50);
-                log.info("nodeCollect: collect node info ! ");
-
-                // update ping time
-                CompletableFuture<List<Node>> future = collector.collect(query);
-                QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
-                queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.NODE.getCode());
-                deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
-
-                future.handle((nodes, e) -> {
-                    if (e != null) {
-                        log.error("collect node fail!", e);
-                        return null;
-                    }
-                    nodes.forEach(node -> {
-                        DeviceDO deviceDO = deviceRepository.selectOneByUnique(DeviceType.NODE.getCode(), node.getName())
-                                .orElseGet(() -> {
-                                    DeviceDO aDo = DeviceDO.builder()
-                                            .hostname(node.getName())
-                                            .ip(node.getIp())
-                                            .status(DeviceStatus.ONLINE.getStatus())
-                                            .lastOnlineTime(DateUtil.date())
-                                            .type(DeviceType.NODE.getCode())
-                                            .build();
-                                    Long deviceId = deviceRepository.insert(aDo);
-                                    deviceNodeRepository.insert(DeviceNodeDO.builder()
-                                            .clusterId(query.getClusterId())
-                                            .deviceId(deviceId)
-                                            .nodeIp(node.getIp())
-                                            .nodeName(node.getName())
-                                            .build());
-                                    return aDo;
-                                });
-
-                        deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
-                                .ip(node.getIp())
-                                .status(DeviceStatus.ONLINE.getStatus())
-                                .lastOnlineTime(DateUtil.date())
-                                .build());
-
-                    });
-                    return null;
-                });
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            } finally {
-                if (query.getClusterId() != null) {
-                    clusterRepository.updateByPrimaryKey(query.getClusterId(),
-                            ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
-                }
-            }
+            nodeCollectTask(collector, query);
             if (!query.isStop()) {
                 nodeCollect(collector, query);
             }
-        }, period, TimeUnit.SECONDS);
+        }, interval, TimeUnit.SECONDS);
+    }
+
+    private void nodeCollectTask(NodeCollector collector, Query query) {
+        long nodeCollectStart = System.currentTimeMillis();
+        try {
+            double acquire = rateLimiter.acquire();
+            log.debug("nodeCollect: collect node info ! time:{} ", acquire);
+            // update ping time
+            CompletableFuture<List<Node>> future = collector.collect(query);
+            QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
+            queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.NODE.getCode());
+            deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
+
+            future.handle((nodes, e) -> {
+                if (e != null) {
+                    log.error("collect node fail!", e);
+                    return null;
+                }
+                nodes.forEach(node -> {
+                    DeviceDO deviceDO = deviceRepository.selectOneByUnique(DeviceType.NODE.getCode(),
+                            node.getName())
+                        .orElseGet(() -> {
+                            DeviceDO aDo = DeviceDO.builder()
+                                .hostname(node.getName())
+                                .ip(node.getIp())
+                                .status(DeviceStatus.ONLINE.getStatus())
+                                .lastOnlineTime(DateUtil.date())
+                                .type(DeviceType.NODE.getCode())
+                                .build();
+                            Long deviceId = deviceRepository.insert(aDo);
+                            deviceNodeRepository.insert(DeviceNodeDO.builder()
+                                .clusterId(query.getClusterId())
+                                .deviceId(deviceId)
+                                .nodeIp(node.getIp())
+                                .nodeName(node.getName())
+                                .build());
+                            return aDo;
+                        });
+
+                    deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                        .ip(node.getIp())
+                        .status(DeviceStatus.ONLINE.getStatus())
+                        .lastOnlineTime(DateUtil.date())
+                        .build());
+
+                });
+                return null;
+            });
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            if (query.getClusterId() != null) {
+                clusterRepository.updateByPrimaryKey(query.getClusterId(),
+                    ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
+            }
+        }
+        long nodeCollectEnd = System.currentTimeMillis();
+        log.info("nodeCollect cost:{}", (nodeCollectEnd - nodeCollectStart));
     }
 
     private void podCollect(PodCollector collector, Query query) {
         timer.newTimeout(timeout -> {
-            try {
-                List<DeviceNodeDO> nodes = deviceNodeRepository.selectList(DeviceNodeDO.builder().build());
-                for (DeviceNodeDO node : nodes) {
-                    Query q = Query.builder().build();
-                    q.setClusterId(query.getClusterId());
-                    q.setConfig(query.getConfig());
-                    q.setNodeName(node.getNodeName());
-                    q.setFieldSelector(fieldSelector) ;
-                    q.setLabelSelector(labelSelector);
-
-                    Thread.sleep(50);
-                    log.info("podCollect: collect node pods  container ; clusterId:{}, node name :{}",node.getClusterId(),node.getNodeName());
-
-                    CompletableFuture<List<Pod>> future = collector.collect(q);
-                    QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
-                    queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.POD.getCode());
-                    deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
-
-                    future.handle((pods, e) -> {
-                        if (e != null) {
-                            log.error("collect pod fail!", e);
-                            return null;
-                        }
-                        pods.forEach(pod -> {
-                            Long deviceId = devicePodRepository.selectByNameAndNamespace(pod.getNamespace(), pod.getName())
-                                    .map(DevicePodDO::getDeviceId)
-                                    .orElseGet(() -> {
-                                        // insert device pod
-                                        Long id = deviceRepository.insert(DeviceDO.builder()
-                                                .hostname(pod.getName())
-                                                .ip(pod.getIp())
-                                                .status(DeviceStatus.ONLINE.getStatus())
-                                                .lastOnlineTime(DateUtil.date())
-                                                .type(DeviceType.POD.getCode())
-                                                .build());
-
-                                        devicePodRepository.insert(DevicePodDO.builder()
-                                                .nodeId(node.getId())
-                                                .namespace(pod.getNamespace())
-                                                .podName(pod.getName())
-                                                .podIp(pod.getIp())
-                                                .deviceId(id)
-                                                .build());
-                                        return id;
-                                    });
-
-                            deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
-                                    .status(DeviceStatus.ONLINE.getStatus())
-                                    .lastOnlineTime(DateUtil.date())
-                                    .build());
-                        });
-                        return null;
-                    });
-                }
-
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            } finally {
-                if (query.getClusterId() != null) {
-                    clusterRepository.updateByPrimaryKey(query.getClusterId(),
-                            ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
-                }
-            }
+            long podCollectStart = podCollectTask(collector, query);
+            long podCollectEnd = System.currentTimeMillis();
+            log.info("podCollect cost:{}", (podCollectEnd - podCollectStart));
             if (!query.isStop()) {
                 podCollect(collector, query);
             }
-        }, period, TimeUnit.SECONDS);
+        }, interval, TimeUnit.SECONDS);
+    }
+
+    private long podCollectTask(PodCollector collector, Query query) {
+        long podCollectStart = System.currentTimeMillis();
+        try {
+            List<DeviceNodeDO> nodes = deviceNodeRepository.selectList(DeviceNodeDO.builder().build());
+            for (DeviceNodeDO node : nodes) {
+                Query q = Query.builder().build();
+                q.setClusterId(query.getClusterId());
+                q.setConfig(query.getConfig());
+                q.setNodeName(node.getNodeName());
+                q.setFieldSelector(fieldSelector);
+                q.setLabelSelector(labelSelector);
+
+                double acquire = rateLimiter.acquire();
+                log.debug("podCollect: collect node pods  container ; clusterId:{}, node name :{} , time:{}",
+                    node.getClusterId(), node.getNodeName(), acquire);
+
+                CompletableFuture<List<Pod>> future = collector.collect(q);
+                QueryWrapper<DeviceDO> queryWrapper = QueryWrapperBuilder.build();
+                queryWrapper.lambda().eq(DeviceDO::getType, DeviceType.POD.getCode());
+                deviceMapper.update(DeviceDO.builder().lastPingTime(DateUtil.date()).build(), queryWrapper);
+
+                future.handle((pods, e) -> {
+                    if (e != null) {
+                        log.error("collect pod fail!", e);
+                        return null;
+                    }
+                    pods.forEach(pod -> {
+                        Long deviceId = devicePodRepository.selectByNameAndNamespace(pod.getNamespace(),
+                                pod.getName())
+                            .map(DevicePodDO::getDeviceId)
+                            .orElseGet(() -> {
+                                // insert device pod
+                                Long id = deviceRepository.insert(DeviceDO.builder()
+                                    .hostname(pod.getName())
+                                    .ip(pod.getIp())
+                                    .status(DeviceStatus.ONLINE.getStatus())
+                                    .lastOnlineTime(DateUtil.date())
+                                    .type(DeviceType.POD.getCode())
+                                    .build());
+
+                                devicePodRepository.insert(DevicePodDO.builder()
+                                    .nodeId(node.getId())
+                                    .namespace(pod.getNamespace())
+                                    .podName(pod.getName())
+                                    .podIp(pod.getIp())
+                                    .deviceId(id)
+                                    .build());
+                                return id;
+                            });
+
+                        deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
+                            .status(DeviceStatus.ONLINE.getStatus())
+                            .lastOnlineTime(DateUtil.date())
+                            .build());
+                    });
+                    return null;
+                });
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            if (query.getClusterId() != null) {
+                clusterRepository.updateByPrimaryKey(query.getClusterId(),
+                    ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
+            }
+        }
+        return podCollectStart;
     }
 
     private void containerCollect(ContainerCollector collector, Query query) {
         timer.newTimeout(timeout -> {
-
-            try {
-                List<DevicePodDO> devicePods = devicePodRepository.selectList(DevicePodDO.builder().build());
-                for (DevicePodDO devicePod : devicePods) {
-                    Query q = Query.builder().build();
-                    q.setClusterId(query.getClusterId());
-                    q.setConfig(query.getConfig());
-                    q.setPodName(devicePod.getPodName());
-                    q.setFieldSelector(fieldSelector) ;
-                    q.setLabelSelector(labelSelector);
-
-                    Thread.sleep(50);
-                    log.info("containerCollect: collect pods container ; clusterId:{}, pods name :{}",query.getClusterId(),devicePod.getPodName());
-
-                    CompletableFuture<List<Container>> future = collector.collect(q);
-                    future.handle((containers, e) -> {
-                        if (e != null) {
-                            log.error("collect container fail!", e);
-                            return null;
-                        }
-                        List<ContainerBO> list = containers.stream().map(container ->
-                                ContainerBO.builder()
-                                        .containerId(container.getContainerId())
-                                        .containerName(container.getName())
-                                        .build()
-                        ).collect(Collectors.toList());
-
-                        devicePodRepository.updateByPrimaryKey(devicePod.getId(),
-                                DevicePodDO.builder().containers(JsonUtils.writeValueAsString(list)).build());
-                        return null;
-                    });
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            } finally {
-                if (query.getClusterId() != null) {
-                    clusterRepository.updateByPrimaryKey(query.getClusterId(),
-                            ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
-                }
-            }
+            containerCollectTask(collector, query);
             if (!query.isStop()) {
                 containerCollect(collector, query);
             }
-        }, period, TimeUnit.SECONDS);
+        }, interval, TimeUnit.SECONDS);
+    }
+
+    private void containerCollectTask(ContainerCollector collector, Query query) {
+        long containerCollectStart = System.currentTimeMillis();
+        try {
+            List<DevicePodDO> devicePods = devicePodRepository.selectList(DevicePodDO.builder().build());
+            for (DevicePodDO devicePod : devicePods) {
+                Query q = Query.builder().build();
+                q.setClusterId(query.getClusterId());
+                q.setConfig(query.getConfig());
+                q.setPodName(devicePod.getPodName());
+                q.setFieldSelector(fieldSelector);
+                q.setLabelSelector(labelSelector);
+
+                double acquire = rateLimiter.acquire();
+                log.debug("containerCollect: collect pods container ; clusterId:{}, pods name :{}, time:{}",
+                    query.getClusterId(), devicePod.getPodName(), acquire);
+
+                CompletableFuture<List<Container>> future = collector.collect(q);
+                future.handle((containers, e) -> {
+                    if (e != null) {
+                        log.error("collect container fail!", e);
+                        return null;
+                    }
+                    List<ContainerBO> list = containers.stream().map(container ->
+                        ContainerBO.builder()
+                            .containerId(container.getContainerId())
+                            .containerName(container.getName())
+                            .build()
+                    ).collect(Collectors.toList());
+
+                    devicePodRepository.updateByPrimaryKey(devicePod.getId(),
+                        DevicePodDO.builder().containers(JsonUtils.writeValueAsString(list)).build());
+                    return null;
+                });
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            if (query.getClusterId() != null) {
+                clusterRepository.updateByPrimaryKey(query.getClusterId(),
+                    ClusterDO.builder().lastCollectTime(DateUtil.date()).build());
+            }
+        }
+
+        long containerCollectEnd = System.currentTimeMillis();
+        log.info("containerCollect cost:{}", (containerCollectEnd - containerCollectStart));
+
     }
 
     @Override
@@ -322,6 +371,8 @@ public class CollectorTimer implements InitializingBean {
             return thread;
         });
 
+        rateLimiter = RateLimiter.create(collectLimiter);
+
         log.info("init collector timer");
 
         Map<String, Collector> beansOfType = applicationContext.getBeansOfType(Collector.class);
@@ -331,13 +382,13 @@ public class CollectorTimer implements InitializingBean {
             CollectorType collectorType = EnumUtil.fromString(CollectorType.class, this.collectorType.toUpperCase());
             if (strategy.value() == collectorType) {
                 if (value instanceof NodeCollector) {
-                    nodeCollector = (NodeCollector) value;
+                    nodeCollector = (NodeCollector)value;
                 }
                 if (value instanceof PodCollector) {
-                    podCollector = (PodCollector) value;
+                    podCollector = (PodCollector)value;
                 }
                 if (value instanceof ContainerCollector) {
-                    containerCollector = (ContainerCollector) value;
+                    containerCollector = (ContainerCollector)value;
                 }
             }
         }
@@ -356,7 +407,6 @@ public class CollectorTimer implements InitializingBean {
             collect(Query.builder().clusterId(clusterDO.getId()).build());
         }
 
-
         ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
@@ -364,21 +414,23 @@ public class CollectorTimer implements InitializingBean {
                     .type(DeviceType.NODE.getCode())
                     .status(DeviceStatus.ONLINE.getStatus())
                     .build())
-                    .stream()
-                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, OFFSET).after(deviceDO.getLastOnlineTime()))
-                    .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
-                            .status(DeviceStatus.OFFLINE.getStatus())
-                            .build()));
+                .stream()
+                .filter(
+                    deviceDO -> DateUtil.date().offset(DateField.MINUTE, OFFSET).after(deviceDO.getLastOnlineTime()))
+                .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                    .status(DeviceStatus.OFFLINE.getStatus())
+                    .build()));
 
             deviceRepository.selectMachines(DeviceDO.builder()
                     .type(DeviceType.POD.getCode())
                     .status(DeviceStatus.ONLINE.getStatus())
                     .build())
-                    .stream()
-                    .filter(deviceDO -> DateUtil.date().offset(DateField.MINUTE, OFFSET).after(deviceDO.getLastOnlineTime()))
-                    .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
-                            .status(DeviceStatus.OFFLINE.getStatus())
-                            .build()));
+                .stream()
+                .filter(
+                    deviceDO -> DateUtil.date().offset(DateField.MINUTE, OFFSET).after(deviceDO.getLastOnlineTime()))
+                .forEach(deviceDO -> deviceRepository.updateByPrimaryKey(deviceDO.getId(), DeviceDO.builder()
+                    .status(DeviceStatus.OFFLINE.getStatus())
+                    .build()));
 
         }, this.period, this.period, TimeUnit.SECONDS);
     }
