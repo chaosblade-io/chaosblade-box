@@ -16,12 +16,21 @@
 
 package com.alibaba.chaosblade.box.service.collect;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.EnumUtil;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-import com.alibaba.chaosblade.box.collector.*;
+import javax.annotation.Resource;
+
+import com.alibaba.chaosblade.box.collector.ContainerCollector;
+import com.alibaba.chaosblade.box.collector.NodeCollector;
+import com.alibaba.chaosblade.box.collector.PodCollector;
 import com.alibaba.chaosblade.box.collector.model.Container;
 import com.alibaba.chaosblade.box.collector.model.Node;
 import com.alibaba.chaosblade.box.collector.model.Pod;
@@ -44,48 +53,42 @@ import com.alibaba.chaosblade.box.dao.repository.DevicePodRepository;
 import com.alibaba.chaosblade.box.dao.repository.DeviceRepository;
 import com.alibaba.chaosblade.box.service.model.device.ContainerBO;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * @author yefei
  */
 @Slf4j
 @Component
-public class CollectorTimer implements InitializingBean {
+public class CollectorTimer extends AbstractCollect implements InitializingBean {
 
     public static final int OFFSET = -10;
 
     private Timer timer;
 
-    @Autowired
+    @Resource
     private DeviceMapper deviceMapper;
 
-    @Autowired
+    @Resource
     private DeviceRepository deviceRepository;
 
-    @Autowired
+    @Resource
     private DeviceNodeRepository deviceNodeRepository;
 
-    @Autowired
+    @Resource
     private DevicePodRepository devicePodRepository;
 
-    @Autowired
+    @Resource
     private ClusterRepository clusterRepository;
-
-    @Value("${chaos.collector.type}")
-    private String collectorType;
 
     @Value("${chaos.collector.enable}")
     private boolean enableCollect;
@@ -107,18 +110,9 @@ public class CollectorTimer implements InitializingBean {
 
     private RateLimiter rateLimiter ;
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final ConcurrentHashMap<Long, Query> map = new ConcurrentHashMap<>(64);
 
-    private NodeCollector nodeCollector;
-
-    private PodCollector podCollector;
-
-    private ContainerCollector containerCollector;
-
-    private ConcurrentHashMap<Long, Query> map = new ConcurrentHashMap<>(64);
-
-    private ThreadPoolExecutor executor = new  ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new ArrayBlockingQueue<>(1));
+    private final ThreadPoolExecutor executor = new  ThreadPoolExecutor(1,1,1,TimeUnit.SECONDS,new ArrayBlockingQueue<>(1));
 
     public void dryRun() throws Exception {
         Preconditions.checkNotNull(nodeCollector, "collector is null");
@@ -138,15 +132,16 @@ public class CollectorTimer implements InitializingBean {
         podCollect(podCollector, query);
         containerCollect(containerCollector, query);
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
+
+        if (enableCollect){
+            executor.execute(() -> {
                 //start exec once
                 nodeCollectTask(nodeCollector,query);
                 podCollectTask(podCollector,query);
                 containerCollectTask(containerCollector,query);
-            }
-        });
+            });
+        }
+
 
     }
 
@@ -262,35 +257,7 @@ public class CollectorTimer implements InitializingBean {
                         log.error("collect pod fail!", e);
                         return null;
                     }
-                    pods.forEach(pod -> {
-                        Long deviceId = devicePodRepository.selectByNameAndNamespace(pod.getNamespace(),
-                                pod.getName())
-                            .map(DevicePodDO::getDeviceId)
-                            .orElseGet(() -> {
-                                // insert device pod
-                                Long id = deviceRepository.insert(DeviceDO.builder()
-                                    .hostname(pod.getName())
-                                    .ip(pod.getIp())
-                                    .status(DeviceStatus.ONLINE.getStatus())
-                                    .lastOnlineTime(DateUtil.date())
-                                    .type(DeviceType.POD.getCode())
-                                    .build());
-
-                                devicePodRepository.insert(DevicePodDO.builder()
-                                    .nodeId(node.getId())
-                                    .namespace(pod.getNamespace())
-                                    .podName(pod.getName())
-                                    .podIp(pod.getIp())
-                                    .deviceId(id)
-                                    .build());
-                                return id;
-                            });
-
-                        deviceRepository.updateByPrimaryKey(deviceId, DeviceDO.builder()
-                            .status(DeviceStatus.ONLINE.getStatus())
-                            .lastOnlineTime(DateUtil.date())
-                            .build());
-                    });
+                    pods.forEach(pod -> syncDeviceAndPodInfo(node, pod, devicePodRepository, deviceRepository));
                     return null;
                 });
             }
@@ -343,7 +310,9 @@ public class CollectorTimer implements InitializingBean {
                             .containerName(container.getName())
                             .build()
                     ).collect(Collectors.toList());
-
+                    if(list.size() == 0){
+                        return null;
+                    }
                     devicePodRepository.updateByPrimaryKey(devicePod.getId(),
                         DevicePodDO.builder().containers(JsonUtils.writeValueAsString(list)).build());
                     return null;
@@ -374,24 +343,7 @@ public class CollectorTimer implements InitializingBean {
         rateLimiter = RateLimiter.create(collectLimiter);
 
         log.info("init collector timer");
-
-        Map<String, Collector> beansOfType = applicationContext.getBeansOfType(Collector.class);
-        for (Map.Entry<String, Collector> entry : beansOfType.entrySet()) {
-            Collector value = entry.getValue();
-            CollectorStrategy strategy = value.getClass().getAnnotation(CollectorStrategy.class);
-            CollectorType collectorType = EnumUtil.fromString(CollectorType.class, this.collectorType.toUpperCase());
-            if (strategy.value() == collectorType) {
-                if (value instanceof NodeCollector) {
-                    nodeCollector = (NodeCollector)value;
-                }
-                if (value instanceof PodCollector) {
-                    podCollector = (PodCollector)value;
-                }
-                if (value instanceof ContainerCollector) {
-                    containerCollector = (ContainerCollector)value;
-                }
-            }
-        }
+        initCollector();
 
         // todo
         if (enableCollect) {

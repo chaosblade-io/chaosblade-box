@@ -16,6 +16,7 @@
 
 package com.alibaba.chaosblade.box.web.controller;
 
+import com.alibaba.chaosblade.box.service.CollectorService;
 import com.alibaba.chaosblade.box.service.DeviceService;
 import com.alibaba.chaosblade.box.service.model.device.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class MachineController {
 
     @Autowired
     private DeviceService deviceService;
+
+    @Autowired
+    private CollectorService collectorService;
 
     @PostMapping("/GetMachinesForHost")
     public List<DeviceResponse> getMachinesForHost(@RequestBody DeviceRequest deviceRequest) {
@@ -69,5 +73,16 @@ public class MachineController {
     @RequestMapping("/GetHostTotalStatistics")
     public HostStatisticsResponse getHostTotalStatistics() {
         return deviceService.getHostTotalStatistics();
+    }
+
+
+    @RequestMapping("/SyncPod")
+    public SyncPodResponse SyncPod(SyncPodRequest request) {
+        return collectorService.syncPodResource(request);
+    }
+
+    @RequestMapping("/SyncContainer")
+    public SyncContainerResponse SyncContainer(SyncContainerRequest request) {
+        return collectorService.syncContainerResource(request);
     }
 }
