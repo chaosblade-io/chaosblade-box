@@ -41,12 +41,13 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @author yefei
@@ -124,10 +125,10 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                             String metric = node.get("metric").toString();
                             MetricChartLineResponse metricChartLineResponse = MetricChartLineResponse.builder().metric(metric)
                                     .build();
-                            // values
-                            ArrayNode values = (ArrayNode) node.get("values");
+                            Iterator<JsonNode> elements = getValuesElements(node);
                             List<MetricChartLine> metricChartLines = new ArrayList<>();
-                            for (JsonNode dot : values) {
+                            while (elements.hasNext()){
+                                JsonNode dot = elements.next();
                                 String date = dot.get(0).asText();
                                 String value = dot.get(1).asText();
                                 metricChartLines.add(MetricChartLine.builder()
@@ -164,6 +165,24 @@ public class PrometheusService implements MetricService, InitializingBean, Dispo
                 } catch (IOException e) {
                     future.completeExceptionally(e);
                 }
+            }
+
+            private Iterator<JsonNode> getValuesElements(JsonNode node) {
+                Iterator<JsonNode> elements;
+                // values
+                ArrayNode values = (ArrayNode) node.get("values");
+                if(values == null) {
+                    List<JsonNode> oneNodeList = new ArrayList<>();
+                    // value
+                    JsonNode valueDot = node.get("value");
+                    if(valueDot != null){
+                        oneNodeList.add(valueDot);
+                    }
+                    elements = oneNodeList.iterator();
+                }else{
+                    elements = values.elements();
+                }
+                return elements;
             }
 
             @Override
