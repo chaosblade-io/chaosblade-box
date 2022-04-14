@@ -1,0 +1,141 @@
+version: v1
+kind: plugin
+items:
+- target: cpu
+  shortDesc: Cpu experiment
+  longDesc: Check the environment of cpu experiment
+  actions:
+  - action: fullload
+    shortDesc: Cpu load
+    longDesc: Check chaos engineering experiments with CPU load
+    example: |2-
+
+      # Check the environment of CPU full load
+      blade check os cpu fullload
+    programs:
+    - taskset
+  scope: operator
+- target: men
+  shortDesc: Mem experiment
+  longDesc: Check the environment of Mem experiment
+  actions:
+  - action: load
+    shortDesc: mem load
+    longDesc: Check chaos engineering experiments with memory load
+    example: |2-
+
+      # Check chaos engineering experiments with memory load
+      blade check os men load
+    programs:
+    - mount
+    - umount
+  scope: operator
+- target: network
+  shortDesc: Network experiment
+  longDesc: Network experiment
+  actions:
+  - action: delay
+    shortDesc: Delay experiment
+    longDesc: Delay experiment
+    example: |2-
+
+      # Delay experiment
+      blade check os network delay
+    programs:
+    - tc
+  - action: drop
+    shortDesc: Drop experiment
+    longDesc: Drop network data
+    example: |2-
+
+      # Check drop network data
+      blade check os network drop
+    programs:
+    - iptables
+  - action: dns
+    shortDesc: Dns experiment
+    longDesc: Dns experiment
+    example: |2-
+
+      # Check Dns experiment
+      blade check os network dns
+    programs:
+    - set
+  - action: loss
+    shortDesc: Loss network package
+    longDesc: Loss network package
+    example: |2-
+
+      # Check Loss network package
+      blade check os network loss
+    programs:
+    - tc
+  - action: duplicate
+    shortDesc: Duplicate experiment
+    longDesc: Duplicate experiment
+    example: |2-
+
+      # Check duplicate experiment
+      blade check os network duplicate
+    programs:
+    - tc
+  - action: corrupt
+    shortDesc: Corrupt experiment
+    longDesc: Corrupt experiment
+    example: |2-
+
+      # Check corrupt experiment
+      blade check os network corrupt
+    programs:
+    - tc
+  - action: reorder
+    shortDesc: Reorder experiment
+    longDesc: Reorder experiment
+    example: |2-
+
+      # Check reorder experiment
+      blade check os network reorder
+    programs:
+    - tc
+  - action: occupy
+    shortDesc: Occupy the specify port
+    longDesc: Occupy the specify port
+    example: |2-
+
+      # Check occupy the specify port
+      blade check os network occupy
+    programs:
+    - ss
+  scope: operator
+- target: disk
+  shortDesc: Check disk experiment
+  longDesc: Check disk experiment contains fill disk or burn io
+  actions:
+  - action: burn
+    shortDesc: Increase disk read and write io load
+    longDesc: Increase disk read and write io load
+    matchers:
+    - name: read
+      desc: Burn io by read, it will create a 600M for reading and delete it when
+        destroy it
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    - name: write
+      desc: Burn io by write, it will create a file by value of the size flag, for
+        example the size default value is 10, then it will create a 10M*100=1000M
+        file for writing, and delete it when destroy
+      noArgs: true
+      required: false
+      requiredWhenDestroyed: false
+    example: |2-
+
+      # Check chaosblede disk burn read command
+      blade check os disk burn --read
+
+      # Check chaosblede disk burn write command
+      blade check os disk burn --write
+
+    programs:
+    - create
+  scope: host

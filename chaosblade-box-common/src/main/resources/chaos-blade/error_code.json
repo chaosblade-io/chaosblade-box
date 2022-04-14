@@ -1,0 +1,141 @@
+{
+  "200": {
+    "type": "OK",
+    "en": "success",
+    "cn": ""
+  },
+  "401": {
+    "type": "InvalidTimestamp",
+    "en": "invalid timestamp"
+  },
+  "403": {
+    "type": "Forbidden",
+    "en": "forbidden"
+  },
+  "404": {
+    "type": "HandlerNotFound",
+    "en": "request handler not found"
+  },
+  "405": {
+    "type": "TokenNotFound",
+    "en": "access token not found"
+  },
+  "406": {
+    "type": "DataNotFound",
+    "en": "data not found"
+  },
+  "407": {
+    "type": "DestroyNotSupported",
+    "en": "destroy not supported"
+  },
+  "500": {
+    "type": "ServerError",
+    "en": "server error",
+    "cn": "执行失败"
+  },
+  "501": {
+    "type": "HandlerClosed",
+    "en": "handler closed"
+  },
+  "502": {
+    "type": "PreHandleError",
+    "en": "pre handle error"
+  },
+  "503": {
+    "type": "COMMAND_NOT_FOUND",
+    "en": "command not found",
+    "cn": "场景不可执行"
+  },
+  "510": {
+    "type": "Timeout",
+    "en": "timeout",
+    "cn": "执行超时"
+  },
+  "511": {
+    "type": "Uninitialized",
+    "en": "uninitialized"
+  },
+  "512": {
+    "type": "EncodeError",
+    "en": "encode error"
+  },
+  "513": {
+    "type": "DecodeError",
+    "en": "decode error"
+  },
+  "514": {
+    "type": "FileNotFound",
+    "en": "file not found"
+  },
+  "515": {
+    "type": "DownloadError",
+    "en": "download file error"
+  },
+  "516": {
+    "type": "DeployError",
+    "en": "deploy file error"
+  },
+  "517": {
+    "type": "ServiceSwitchError",
+    "en": "service switch error"
+  },
+  "518": {
+    "type": "DiskNotFound",
+    "en": "disk not found",
+    "cn": "未找到目标磁盘"
+  },
+  "520": {
+    "type": "DatabaseError",
+    "en": "execute db error"
+  },
+  "522": {
+    "type": "NoWritePermission",
+    "en": "no write permission",
+    "cn": "没有操作目标机器权限"
+  },
+  "600": {
+    "type": "ParameterEmpty",
+    "en": "parameter is empty"
+  },
+  "601": {
+    "type": "ParameterTypeError",
+    "en": "parameter type error"
+  },
+  "602": {
+    "type": "IllegalParameters",
+    "en": "illegal parameters",
+    "cn": "参数有误"
+  },
+  "603": {
+    "type": "IllegalCommand",
+    "en": "illegal command"
+  },
+  "604": {
+    "type": "ExecCommandError",
+    "en": "exec command error"
+  },
+  "701": {
+    "type": "FaultInjectCmdError",
+    "en": "cannot handle the faultInject cmd"
+  },
+  "702": {
+    "type": "FaultInjectExecuteError",
+    "en": "execute faultInject error"
+  },
+  "703": {
+    "type": "FaultInjectNotSupport",
+    "en": "the inject type not support"
+  },
+  "704": {
+    "type": "JavaAgentCmdError",
+    "en": "cannot handle the javaagent cmd"
+  },
+  "800": {
+    "type": "K8sInvokeError",
+    "en": "invoke k8s server api error"
+  },
+  "801": {
+    "type": "K8sInvokeError",
+    "en": "invoke docker command error"
+  }
+}

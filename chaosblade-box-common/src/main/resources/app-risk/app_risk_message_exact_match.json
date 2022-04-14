@@ -1,0 +1,87 @@
+[
+  {
+    "appCode": "chaos.jvm.OutOfMemoryError",
+    "appName": "主机内JavaOutOfMemoryError",
+    "message": "会导致应用进程无法响应,需重启应用恢复"
+  },
+  {
+    "appCode": "chaos.container-jvm.OutOfMemoryError",
+    "appName": "K8s容器内JavaOutOfMemoryError",
+    "message": "会导致应用进程无法响应,需重启应用恢复"
+  },
+  {
+    "appCode": "chaos.docker-file.append",
+    "appName": "Docker内文件追加",
+    "message": "已经追加的内容不支持恢复"
+  },
+  {
+    "appCode": "chaos.container-file.append",
+    "appName": "K8s容器内文件追加",
+    "message": "已经追加的内容不支持恢复"
+  },
+  {
+    "appCode": "chaos.pod-file.append",
+    "appName": "K8sPod内文件追加",
+    "message": "已经追加的内容不支持恢复"
+  },
+  {
+    "appCode": "chaos.node-file.append",
+    "appName": "K8s节点内文件追加",
+    "message": "已经追加的内容不支持恢复"
+  },
+  {
+    "appCode": "mkapp.switch.set",
+    "appName": "修改Switch开关",
+    "message": "可能会触碰安全生产红线，详见故障原理文档"
+  },
+  {
+    "appCode": "chaos.disk.iohang",
+    "appName": "磁盘注入IOHang",
+    "message": "可能无法正常恢复演练，需手动恢复"
+  },
+  {
+    "appCode": "chaos.jvm.CodeCacheFilling",
+    "appName": "主机内JavaCodeCache填满",
+    "message": "会导致CPU占用率升高，有概率导致OOM"
+  },
+  {
+    "appCode": "chaos.container-jvm.CodeCacheFilling",
+    "appName": "K8s容器内JavaCodeCache填满",
+    "message": "会导致CPU占用率升高，有概率导致OOM"
+  },
+  {
+    "appCode": "chaos.container-tddl.updatecolumnchange",
+    "appName": "K8s容器内Tddl篡改列值",
+    "message": "会导致持久化的数据产生查错，需要数据订正"
+  },
+  {
+    "appCode": "chaos.tddl.updatecolumnchange",
+    "appName": "主机内Tddl篡改列值",
+    "message": "会导致持久化的数据产生查错，需要数据订正"
+  },
+  {
+    "appCode": "chaos.pod-process.kill",
+    "appName": "K8sPod内进程杀死",
+    "message": "进程退出后无法通过平台恢复"
+  },
+  {
+    "appCode": "chaos.container-process.kill",
+    "appName": "K8s容器内进程杀死",
+    "message": "进程退出后无法通过平台恢复"
+  },
+  {
+    "appCode": "chaos.docker-process.kill",
+    "appName": "Docker内进程杀死",
+    "message": "进程退出后无法通过平台恢复"
+  },
+  {
+    "appCode": "chaos.node-process.kill",
+    "appName": "K8s节点内进程杀死",
+    "message": "进程退出后无法通过平台恢复"
+  },
+  {
+    "appCode": "chaos.process.kill",
+    "appName": "主机内进程杀死",
+    "message": "进程退出后无法通过平台恢复！"
+  }
+]

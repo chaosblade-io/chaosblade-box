@@ -1,0 +1,11 @@
+name: "litmuschaos"
+title: "Litmuschaos"
+subTitle: "Find defects on your Kubernetes clusters and applications"
+description: "Litmus is a toolset to do cloud-native chaos engineering. Litmus provides tools to orchestrate chaos on Kubernetes to help SREs find weaknesses in their deployments. SREs use Litmus to run chaos experiments initially in the staging environment and eventually in production to find bugs, vulnerabilities. Fixing the weaknesses leads to increased resilience of the system."
+webSite: "https://hub.litmuschaos.io/"
+logo: "https://camo.githubusercontent.com/05101bf070f7cf00caa0241e188ff270df6d8d166f2e82ad008d99086f12f5cd/68747470733a2f2f6c616e6473636170652e636e63662e696f2f6c6f676f732f6c69746d75732e737667"
+latest: "1.13.0"
+copyright: "litmuschaos"
+readme: "Find defects on your Kubernetes clusters and applications"
+supportScope:
+  - k8s

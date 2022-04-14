@@ -1,0 +1,60 @@
+package com.alibaba.chaosblade.box.service.model.cluster;
+
+import lombok.Data;
+
+@Data
+public class DeviceRealDTO {
+    private String userId;
+    private String environment;
+    private String vpcId;
+    private String provider;
+    private String clusterId;
+    private String clusterName;
+    private String clusterNamespace;
+    private String zoneId;
+    private String version;
+    private String chaosVersion;
+    private String publicIp;
+    private String privateIp;
+    private String parentIp;
+    private String deviceId;
+    private Integer deviceType;
+    private String deviceName;
+    private String deviceRole;
+    private String serialNumber;
+    private String osVersion;
+    private String hostname;
+    private String spec;
+    private Integer cpu;
+    private Integer mem;
+    private String configurationId;
+    private String hostConfigurationId;
+    private String podConfigurationId;
+    private String hostInstanceId;
+    private String parentConfigurationId;
+    private String parentDeviceName;
+    private Integer parentDeviceType;
+    private String parentDeviceSpace;
+    private String applicationName;
+    private Integer status;
+    private String state;
+    private Boolean enable;
+    private String installMode;
+    private String ports;
+    private String deviceCreateTime;
+    private String uptime;
+    private Long connectTime;
+    private String commandId;
+    private String requestId;
+    private Long commandTime;
+    private String requestResult;
+    private String reason;
+    private String reasonCode;
+    private String md5;
+    private String daemonSetConfigurationId;
+    private String replicaSetConfigurationId;
+    private String deploymentConfigurationId;
+    private String serviceConfigurationId;
+    private String extInfo;
+    private Long leaseTime;
+}

@@ -1,0 +1,87 @@
+[
+  {
+    "error_part": "an hsf timeout exception happens while gateway's calling server or server's calling gateway",
+    "should_fail": true,
+    "cn_desc": "命令执行超时,无法获取执行结果,可以尝试如下解决办法:1.如果机器上面故障已生效，则可以手动确认通过,此时恢复需要手动恢复或者重新运行则会停止上一个注入任务 2.如果未生效，则可以重试演练 3.如果是故障恢复阶段出错,可以重试"
+  },
+  {
+    "error_part": "agw rpc exception [code: 8029, message: server can not find the provider of gateway]",
+    "should_fail": true,
+    "cn_desc": "无法执行故障注入，chaos无法获取目标服务器的地址，请稍后再试"
+  },
+  {
+    "error_part": "/bin/sh: docker: not found",
+    "should_fail": true,
+    "cn_desc": "目标机器没有安装docker，无法执行docker命令"
+  },
+  {
+    "error_part": "dd: invalid argument",
+    "should_fail": true,
+    "cn_desc": "目标系统版本无法支持磁盘场景,相关命令:",
+    "showOriginError": true
+  },
+  {
+    "error_part": "required flag(s)",
+    "should_fail": true,
+    "cn_desc": "缺少必要参数,请设置",
+    "showOriginError": true
+  },
+  {
+    "error_part": "The file system named tmpfs is not supported or dd",
+    "should_fail": true,
+    "cn_desc": "目标机器文件系统不支持磁盘相关命令,无法注入故障",
+    "showOriginError": true
+  },
+  {
+    "error_part": "cannot get port from local",
+    "should_fail": true,
+    "cn_desc": "Jvm类故障场景需要往指定进程挂载Agent,目标机器agent未安装或者安装失败,请在准备阶段配置java agent的节点(提示:这里的JavaAgent非Chaos探针)"
+  },
+  {
+    "error_part": "chaosblade file not found",
+    "should_fail": true,
+    "cn_desc": "目标机器探针安装异常，缺少故障注入相关组件，请重新安装Chaos探针"
+  },
+  {
+    "error_part": "the server does not allow this method on the requested resource",
+    "should_fail": true,
+    "cn_desc": "当前机器不允许执行故障注入操作,请确保当前k8s机器已经正确安装chaos agent,如果agent正常运行，说明您的机器当前不支持k8s相关演练",
+    "showOriginError": true
+  },
+  {
+    "error_part": "Unable to open socket file: target process not responding or HotSpot VM not loaded",
+    "should_fail": true,
+    "cn_desc": "当前Java进程启动用户和ChaosAgent用户不一致，无权限挂载JavaAgent(ChaosAgent用户为Root)",
+    "showOriginError": false
+  },
+  {
+    "error_part": "Get http://127.0.0.1:46837/sandbox/default/module/http/chaosblade/create",
+    "should_fail": true,
+    "cn_desc": "JavaAgent没有正确安装，请重新挂载JavaAgent(重新运行演练)",
+    "showOriginError": false
+  },
+  {
+    "error_part": "too many process",
+    "should_fail": true,
+    "cn_desc": "找到多个符合条件的进程,请重新填写关键词",
+    "showOriginError": false
+  },
+  {
+    "error_part": "process not found",
+    "should_fail": true,
+    "cn_desc": "无法找到指定进程,请确认进程存在,进程查找方式 ps -ef",
+    "showOriginError": false
+  },
+  {
+    "error_part": "java:command not found",
+    "should_fail": true,
+    "cn_desc": "无法找到Java命令，请手动填写Java_Home参数",
+    "showOriginError": false
+  },
+  {
+    "error_part": "must specify one flag in container-ids container-names container-index",
+    "should_fail": true,
+    "cn_desc": "Pod上无法找到符合条件的容器,请重新填写容器名称或者容器ID",
+    "showOriginError": false
+  }
+]

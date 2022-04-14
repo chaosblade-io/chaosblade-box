@@ -1,0 +1,187 @@
+[
+  {
+    "error_part": "http/sandbox-control/shutdown",
+    "should_fail": false,
+    "cn_desc": "目标java应用发生变化，请重新执行准备环节"
+  },
+  {
+    "error_part": "task sent successfully, but executing timeout",
+    "should_fail": true,
+    "cn_desc": "成功下发命令到目标机器，但是执行超时，未返回结果,请检查目标机器是否处于网络拥堵或者负载繁忙状态"
+  },
+  {
+    "error_part": "cannot get port from local",
+    "should_fail": true,
+    "cn_desc": "java故障场景依赖java agent,目标机器agent未安装或者安装失败，请在准备阶段配置java agent的节点"
+  },
+  {
+    "error_part": "unable to upgrade connection: container not found",
+    "should_fail": true,
+    "cn_desc": "无法找到目标容器"
+  },
+  {
+    "error_part": "get sandbox port err",
+    "should_fail": true,
+    "cn_desc": "和目标机器agent端口通讯失败，请检查本地hosts绑定，可以尝试添加:127.0.0.1 localhost 解决"
+  },
+  {
+    "error_part": "chaosblade/destroy",
+    "should_fail": false,
+    "cn_desc": "javaAgent已经卸载"
+  },
+  {
+    "error_part": "chaosagent has been attached",
+    "should_fail": false,
+    "cn_desc": "目标机器已经安装了chaos1的javaAgent,无法再安装新的Agent,请重启应用之后再执行演练"
+  },
+  {
+    "error_part": "the experiment exists",
+    "should_fail": true,
+    "cn_desc": "该演练场景在目标机器已经存在"
+  },
+  {
+    "error_part": "pandorajs/chaosblade/prepare",
+    "should_fail": true,
+    "cn_desc": "node install失败,无法连接指定的端口"
+  },
+  {
+    "error_part": "module/http/sandbox-module-mgr/active?",
+    "should_fail": true,
+    "cn_desc": "无法下发命令到JavaAgent，可能JavaAgent已经被卸载,请确认应用没有重启"
+  },
+  {
+    "error_part": "less necessary matcher is consumer or provider for hsf",
+    "should_fail": true,
+    "cn_desc": "Hsf故障场景需要选择是消费方还是服务提供方"
+  },
+  {
+    "error_part": "unknown flag",
+    "should_fail": true,
+    "cn_desc": "目标机器Agent暂时不支持当前配置",
+    "showOriginError": true
+  },
+  {
+    "error_part": "required flag",
+    "should_fail": true,
+    "cn_desc": "必填参数值不能为空",
+    "showOriginError": true
+  },
+  {
+    "error_part": "process not found",
+    "should_fail": true,
+    "cn_desc": "无法找到指定进程，请确认进程存在或者进程关键词填写正确"
+  },
+  {
+    "error_part": "/bin/sh: docker: not found",
+    "should_fail": true,
+    "cn_desc": "目标机器没有安装docker，无法执行docker命令"
+  },
+  {
+    "error_part": "dd: invalid argument",
+    "should_fail": true,
+    "cn_desc": "目标系统版本无法支持磁盘场景,相关命令:",
+    "showOriginError": true
+  },
+  {
+    "error_part": "required flag(s)",
+    "should_fail": true,
+    "cn_desc": "缺少必要参数,请设置",
+    "showOriginError": true
+  },
+  {
+    "error_part": "The file system named tmpfs is not supported or dd",
+    "should_fail": true,
+    "cn_desc": "目标机器文件系统不支持磁盘相关命令,无法注入故障",
+    "showOriginError": true
+  },
+  {
+    "error_part": "invalid argument 'fullblock' to 'iflag'",
+    "should_fail": true,
+    "showOriginError": true,
+    "cn_desc": "无法在机器上执行填充磁盘操作"
+  },
+  {
+    "error_part": "chaosblade/blade not found",
+    "should_fail": true,
+    "showOriginError": true,
+    "cn_desc": "探针安装异常,无法注入故障,请在探针管理页面重新安装架构感知探针"
+  },
+  {
+    "error_part": "chaosblade file not found",
+    "should_fail": true,
+    "showOriginError": true,
+    "cn_desc": "探针安装异常,无法注入故障,请在探针管理页面重新安装架构感知探针"
+  },
+  {
+    "error_part": "/bin/sh: tc: command not found",
+    "should_fail": true,
+    "showOriginError": true,
+    "cn_desc": "注入故障失败,缺少必要系统组件"
+  },
+  {
+    "error_part": "java/bin/java: command not found",
+    "should_fail": true,
+    "showOriginError": true,
+    "cn_desc": "注入故障失败,请指名JAVA_HOME地址"
+  },
+  {
+    "error_part": "handler closed",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "故障命令下发错误:目标机器探针状态异常,请重新安装探针"
+  },
+  {
+    "error_part": "too many process",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "发现多个java进程,请缩小Java进程查找关键词以确定唯一进程"
+  },
+  {
+    "error_part": "an hsf timeout exception happens",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "执行故障注入命令超时,请重试"
+  },
+  {
+    "error_part": "the gateway holding the connection that the server",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "目标机器探针出现异常，请重新安装探针"
+  },
+  {
+    "error_part": "agw rpc exception [code: 8008",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "目标机器探针出现异常，请重新安装探针"
+  },
+  {
+    "error_part": "chaosblades.chaosblade.io",
+    "should_fail": false,
+    "showOriginError": false,
+    "cn_desc": "chaosblades已经不存在"
+  },
+  {
+    "error_part": "Error: dd",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "执行磁盘相关命令失败"
+  },
+  {
+    "error_part": "less --process or --pid flags",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "请指定进程名或者进程ID里面的一个"
+  },
+  {
+    "error_part": "Unable to get pid of LinuxThreads manager thread",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "目标Java进程PID=1,受Jvm限制无法进行进程内注入,解决办法:1.使用进程外场景,比如网络延迟 2.在Dockerfile修改Java进程启动方式,比如tini等,使得Java进程PID不为1"
+  },
+  {
+    "error_part": "signal: killed",
+    "should_fail": true,
+    "showOriginError": false,
+    "cn_desc": "注入失败,Agent内存不足,可以通过调大chaos-agent内存限制(集群namespace为chaosblade)解决."
+  }
+]

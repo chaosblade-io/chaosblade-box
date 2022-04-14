@@ -1,0 +1,248 @@
+[
+  {
+    "keyCode": "cpu.fullload",
+    "appCode": "chaos.cpu.fullload",
+    "description": "cpu满载可以通过top命令查看到CPU的利用率是否达到指定值。"
+  },
+  {
+    "keyCode": "mem.load",
+    "appCode": "chaos.mem.load",
+    "description": "占用指定百分比的系统内存，如果当前系统内存百分比占用少于目标百分比，则会占用直到指定百分比。"
+  },
+  {
+    "keyCode": "disk.burn",
+    "appCode": "chaos.disk.burn",
+    "description": "提高硬盘负载，可考察硬盘性能不足时应用服务的表现。"
+  },
+  {
+    "keyCode": "disk.fill",
+    "appCode": "chaos.disk.fill",
+    "description": "填充指定硬盘目录，模拟硬盘剩余空间不足时，应用服务的表现。"
+  },
+  {
+    "keyCode": "file.append",
+    "appCode": "chaos.file.append",
+    "description": "文件内容追加，可以模拟异常日志注入，应用读取文件内容异常的容错策略等。"
+  },
+  {
+    "keyCode": "file.move",
+    "appCode": "chaos.file.move",
+    "description": "文件移动，模拟文件丢失，存放位置错误等场景。"
+  },
+  {
+    "keyCode": "file.delete",
+    "appCode": "chaos.file.delete",
+    "description": "模拟文件被删除场景，可以模拟文件被删除后，应用读取文件的容错策略。"
+  },
+  {
+    "keyCode": "file.add",
+    "appCode": "chaos.file.add",
+    "description": "支持目录创建，文件创建，文件创建初始化内容，自动创建不存在的文件路径。"
+  },
+  {
+    "keyCode": "file.chmod",
+    "appCode": "chaos.file.chmod",
+    "description": "文件权限修改，模拟文件权限的修改。"
+  },
+  {
+    "keyCode": "network.duplicate",
+    "appCode": "chaos.network.duplicate",
+    "description": "模拟网络包的重复，可模拟重复请求场景。"
+  },
+  {
+    "keyCode": "network.reorder",
+    "appCode": "chaos.network.reorder",
+    "description": "网络包乱序，模拟网络情况不稳定是，请求顺序错乱情况下的场景。"
+  },
+  {
+    "keyCode": "network.loss",
+    "appCode": "chaos.network.loss",
+    "description": "模拟在网络环境不稳定的情况下，网络包丢失的场景，如果设置丢包率为100%，则可以模拟“网络不通”的场景。"
+  },
+  {
+    "keyCode": "network.dns",
+    "appCode": "chaos.network.dns",
+    "description": "模拟dns被篡改，或dns配置错误场景。"
+  },
+  {
+    "keyCode": "network.delay",
+    "appCode": "chaos.network.delay",
+    "description": "模拟网络环境较差，请求出现延迟的等场景，可进一步模拟访问外部资源延迟等。"
+  },
+  {
+    "keyCode": "network.occupy",
+    "appCode": "chaos.network.occupy",
+    "description": "模拟指定端口被占用的场景。"
+  },
+  {
+    "keyCode": "process.kill",
+    "appCode": "chaos.process.kill",
+    "description": "杀掉指定进程，模拟进程直接停宕后的场景，该场景不可恢复，请慎用！！！。"
+  },
+  {
+    "keyCode": "process.stop",
+    "appCode": "chaos.process.stop",
+    "description": "指定进程挂起，模拟进程挂起后对自身服务的影响。"
+  },
+  {
+    "keyCode": "druid.delay",
+    "appCode": "chaos.druid.delay",
+    "description": "模拟druid连接池的延迟场景。"
+  },
+  {
+    "keyCode": "notify.delay",
+    "appCode": "chaos.notify.delay",
+    "description": "模拟notify延迟的场景。"
+  },
+  {
+    "keyCode": "psql.delay",
+    "appCode": "chaos.psql.delay",
+    "description": "模拟psql延迟的场景。"
+  },
+  {
+    "keyCode": "jedis.delay",
+    "appCode": "chaos.jedis.delay",
+    "description": "模拟jedis延迟的场景。"
+  },
+  {
+    "keyCode": "rocketmq.delay",
+    "appCode": "chaos.rocketmq.delay",
+    "description": "模拟rocketmq延迟的场景。"
+  },
+  {
+    "keyCode": "dubbo.delay",
+    "appCode": "chaos.dubbo.delay",
+    "description": "模拟dubbo延迟的场景。"
+  },
+  {
+    "keyCode": "hsf.delay",
+    "appCode": "chaos.hsf.delay",
+    "description": "模拟hsf延迟的场景。"
+  },
+  {
+    "keyCode": "mysql.delay",
+    "appCode": "chaos.mysql.delay",
+    "description": "模拟mysql延迟的场景。"
+  },
+  {
+    "keyCode": "jvm.delay",
+    "appCode": "chaos.jvm.delay",
+    "description": "模拟jvm延迟的场景。"
+  },
+  {
+    "keyCode": "servlet.delay",
+    "appCode": "chaos.servlet.delay",
+    "description": "模拟servlet延迟的场景。"
+  },
+  {
+    "keyCode": "tddl.delay",
+    "appCode": "chaos.tddl.delay",
+    "description": "模拟tddl延迟的场景。"
+  },
+  {
+    "keyCode": "tair.delay",
+    "appCode": "chaos.tair.delay",
+    "description": "模拟tair延迟的场景。"
+  },
+  {
+    "keyCode": "druid.throwCustomException",
+    "appCode": "chaos.druid.throwCustomException",
+    "description": "模拟druid抛出自定义异常的场景。"
+  },
+  {
+    "keyCode": "notify.throwCustomException",
+    "appCode": "chaos.notify.throwCustomException",
+    "description": "模拟notify抛出自定义异常的场景。"
+  },
+  {
+    "keyCode": "rocketmq.throwCustomException",
+    "appCode": "chaos.rocketmq.throwCustomException",
+    "description": "模拟rocketmq抛出自定义异常的场景。"
+  },
+  {
+    "keyCode": "psql.throwCustomException",
+    "appCode": "chaos.psql.throwCustomException",
+    "description": "模拟psql抛出自定义异常的场景。"
+  },  {
+  "keyCode": "jedis.throwCustomException",
+  "appCode": "chaos.jedis.throwCustomException",
+  "description": "模拟jedis抛出自定义异常的场景。"
+},
+  {
+    "keyCode": "tair.throwCustomException",
+    "appCode": "chaos.tair.throwCustomException",
+    "description": "模拟tair抛出自定义异常的场景。"
+  },
+  {
+    "keyCode": "hsf.throwCustomException",
+    "appCode": "chaos.hsf.throwCustomException",
+    "description": "模拟hsf抛出自定义异常的场景。"
+  },
+  {
+    "keyCode": "mysql.throwCustomException",
+    "appCode": "chaos.mysql.throwCustomException",
+    "description": "模拟mysql延迟的场景。"
+  },
+  {
+    "keyCode": "tddl.throwCustomException",
+    "appCode": "chaos.tddl.throwCustomException",
+    "description": "模拟tddl延迟的场景。"
+  },
+  {
+    "keyCode": "jvm.throwCustomException",
+    "appCode": "chaos.jvm.throwCustomException",
+    "description": "模拟jvm延迟的场景。"
+  },
+  {
+    "keyCode": "servlet.throwCustomException",
+    "appCode": "chaos.servlet.throwCustomException",
+    "description": "模拟servlet延迟的场景。"
+  },
+  {
+    "keyCode": "jvm.throwDeclaredException",
+    "appCode": "chaos.jvm.throwDeclaredException",
+    "description": "抛出JAVA方法上声明的异常，异常类型为所有声明的异常的第一个。"
+  },
+  {
+    "keyCode": "jvm.script",
+    "appCode": "chaos.jvm.script",
+    "description": "自定义jvm脚本，可灵活模拟各种jvm场景：日志、异常、参数篡改等。"
+  },
+  {
+    "keyCode": "druid.sql",
+    "appCode": "chaos.druid.sql",
+    "description": "修改sql的更新字段的值或者插入字段的值，可模拟资损等场景。"
+  },
+  {
+    "keyCode": "hsf.return",
+    "appCode": "chaos.hsf.return",
+    "description": "篡改hsf接口的返回值，模拟接口返回异常场景。"
+  },
+  {
+    "keyCode": "jvm.return",
+    "appCode": "chaos.jvm.return",
+    "description": "修改jvm的返回值，模拟接口内返回内容异常的场景。"
+  },
+  {
+    "keyCode": "jvm.cpufullload",
+    "appCode": "chaos.jvm.cpufullload",
+    "description": "jvm进程的cpu满载场景，模拟应用cpu占用过高的场景，多用于触发监控。"
+  },
+  {
+    "keyCode": "jvm.CodeCacheFilling",
+    "appCode": "chaos.jvm.CodeCacheFilling",
+    "description": "CodeCache主要用于存放native code，其中主要是JIT编译后的代码。被JIT编译的一般都是“热代码”，简单说就是调用频率比较高的代码，JIT编译后，代码的执行效率会变高，CodeCache满会导致JVM关闭JIT编译且不可再开启，那么CodeCache满会引起系统运行效率降低，导致系统最大负载下降，当系统流量较大时，可表现为RT增高、QPS下降等。"
+  },
+  {
+    "keyCode": "jvm.OutOfMemoryError",
+    "appCode": "chaos.jvm.OutOfMemoryError",
+    "description": "jvm没有足够的内存来进行分配，并且尝试gc之后无法回收内存，所以就会抛出OOM。"
+  },
+  {
+    "appCode": "mkapp.k8s-dockerd.stop",
+    "description": "停止主机dockerd服务，模拟docker宕机。"
+  }
+
+
+
+]

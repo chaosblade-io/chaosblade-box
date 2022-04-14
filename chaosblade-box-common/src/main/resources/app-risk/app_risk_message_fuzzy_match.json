@@ -1,0 +1,6 @@
+[
+  {
+    "startWith": "chaos.container-jvm",
+    "message": "请注意！容器JVM场景，会在注入阶段，对您配置的java进程挂在JavaAgent以实现故障注入，挂在期间内存及CPU使用率会有一定提升"
+  }
+]

@@ -1,0 +1,1774 @@
+items:
+- actions:
+  - action: drain
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Drain the node where application pod is scheduled
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: node
+- actions:
+  - action: hog
+    aliases: null
+    categories:
+    - system_cpu
+    example: null
+    flags:
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NODE_CPU_CORE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODES
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NODES_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Give a cpu spike on a node belonging to a deployment
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: cpu
+- actions:
+  - action: stress
+    aliases: null
+    categories:
+    - system_disk
+    example: null
+    flags:
+    - defaultValue: '120'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: '10'
+      desc: null
+      name: FILESYSTEM_UTILIZATION_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: FILESYSTEM_UTILIZATION_BYTES
+      noArgs: false
+      required: false
+    - defaultValue: '4'
+      desc: null
+      name: NUMBER_OF_WORKERS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: VOLUME_MOUNT_PATH
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: pumba
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    IO stress on a app pods belonging to an app deployment
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: io
+- actions:
+  - action: taint
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TAINTS
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Taint the node where application pod is scheduled
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: node
+- actions:
+  - action: loss
+    aliases: null
+    categories:
+    - system_disk
+    example: null
+    flags:
+    - defaultValue: default
+      desc: null
+      name: ANSIBLE_STDOUT_CALLBACK
+      noArgs: false
+      required: false
+    - defaultValue: '15'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: 'true'
+      desc: null
+      name: APP_CHECK
+      noArgs: false
+      required: false
+    - defaultValue: GKE
+      desc: null
+      name: CLOUD_PLATFORM
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PROJECT_ID
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NODE_NAME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DISK_NAME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: ZONE_NAME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DEVICE_NAME
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Detaching a persistent disk from a node/instance. Supports only for AWS and GCP
+  prepare: null
+  scope: disk
+  shortDesc: null
+  target: disk
+- actions:
+  - action: hog
+    aliases: null
+    categories:
+    - system_cpu
+    example: null
+    flags:
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: '10'
+      desc: null
+      name: CHAOS_INTERVAL
+      noArgs: false
+      required: false
+    - defaultValue: '1'
+      desc: null
+      name: CPU_CORES
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Injects cpu consumption on pods belonging to an app deployment
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: cpu
+- actions:
+  - action: delete
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: '15'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: 'true'
+      desc: null
+      name: FORCE
+      noArgs: false
+      required: false
+    - defaultValue: '5'
+      desc: null
+      name: CHAOS_INTERVAL
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Deletes a pod belonging to a deployment/statefulset/daemonset
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: pod
+- actions:
+  - action: hog
+    aliases: null
+    categories:
+    - system_mem
+    example: null
+    flags:
+    - defaultValue: '120'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: MEMORY_CONSUMPTION_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: MEMORY_CONSUMPTION_MEBIBYTES
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODES
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NODES_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Give a memory hog on a node belonging to a deployment
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: memory
+- actions:
+  - action: loss
+    aliases: null
+    categories:
+    - system_network
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_CONTAINER
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: eth0
+      desc: null
+      name: NETWORK_INTERFACE
+      noArgs: false
+      required: false
+    - defaultValue: gaiadocker/iproute2
+      desc: null
+      name: TC_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: '100'
+      desc: null
+      name: NETWORK_PACKET_LOSS_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: docker
+      desc: null
+      name: CONTAINER_RUNTIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_IPS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_HOSTS
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Injects network packet loss on pods belonging to an app deployment
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: network
+- actions:
+  - action: poweroff
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: root
+      desc: null
+      name: SSH_USER
+      noArgs: false
+      required: false
+    - defaultValue: '360'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: node-poweroff
+      desc: null
+      name: EXPERIMENT_NAME
+      noArgs: false
+      required: false
+    - defaultValue: -o ServerAliveInterval=1 -o ServerAliveCountMax=1 "sudo systemctl
+        poweroff --force --force" ; true
+      desc: null
+      name: REBOOT_COMMAND
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE_IP
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    poweroff node
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: node
+- actions:
+  - action: autoscaler
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: '5'
+      desc: null
+      name: REPLICA_COUNT
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Scale the application replicas and test the node autoscaling on cluster
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: pod
+- actions:
+  - action: kill
+    aliases: null
+    categories:
+    - system_process
+    example: null
+    flags:
+    - defaultValue: '90'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ubuntu:16.04
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Kills the kubelet service on the application node to check the resiliency.
+  prepare: null
+  scope: kubelet
+  shortDesc: null
+  target: service
+- actions:
+  - action: kill
+    aliases: null
+    categories:
+    - system_process
+    example: null
+    flags:
+    - defaultValue: default
+      desc: null
+      name: ANSIBLE_STDOUT_CALLBACK
+      noArgs: false
+      required: false
+    - defaultValue: '90'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Kills the docker service on the application node to check the resiliency.
+  prepare: null
+  scope: docker
+  shortDesc: null
+  target: service
+- actions:
+  - action: kill
+    aliases: null
+    categories:
+    - system_process
+    example: null
+    flags:
+    - defaultValue: 'true'
+      desc: null
+      name: CHAOSTOOLKIT_IN_POD
+      noArgs: false
+      required: false
+    - defaultValue: service-app-kill-health.json
+      desc: null
+      name: FILE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NAME_SPACE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: LABEL_NAME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: APP_ENDPOINT
+      noArgs: false
+      required: false
+    - defaultValue: '50'
+      desc: null
+      name: PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: 'true'
+      desc: null
+      name: REPORT
+      noArgs: false
+      required: false
+    - defaultValue: none
+      desc: null
+      name: REPORT_ENDPOINT
+      noArgs: false
+      required: false
+    - defaultValue: default
+      desc: null
+      name: TEST_NAMESPACE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Deletes a pod belonging to a deployment/statefulset/daemonset
+  prepare: null
+  scope: k8
+  shortDesc: null
+  target: service
+- actions:
+  - action: restart
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: root
+      desc: null
+      name: SSH_USER
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODE_IP
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Restart node
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: node
+- actions:
+  - action: delete
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: 'true'
+      desc: null
+      name: CHAOSTOOLKIT_IN_POD
+      noArgs: false
+      required: false
+    - defaultValue: pod-app-kill-count.json
+      desc: null
+      name: FILE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NAME_SPACE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: LABEL_NAME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: APP_ENDPOINT
+      noArgs: false
+      required: false
+    - defaultValue: '50'
+      desc: null
+      name: PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: 'true'
+      desc: null
+      name: REPORT
+      noArgs: false
+      required: false
+    - defaultValue: none
+      desc: null
+      name: REPORT_ENDPOINT
+      noArgs: false
+      required: false
+    - defaultValue: default
+      desc: null
+      name: TEST_NAMESPACE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Deletes a pod belonging to a deployment/statefulset/daemonset
+  prepare: null
+  scope: k8
+  shortDesc: null
+  target: pod
+- actions:
+  - action: stress
+    aliases: null
+    categories:
+    - system_disk
+    example: null
+    flags:
+    - defaultValue: '120'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: '10'
+      desc: null
+      name: FILESYSTEM_UTILIZATION_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: FILESYSTEM_UTILIZATION_BYTES
+      noArgs: false
+      required: false
+    - defaultValue: '4'
+      desc: null
+      name: NUMBER_OF_WORKERS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_NODES
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: NODES_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Give IO disk stress on a node belonging to a deployment
+  prepare: null
+  scope: node
+  shortDesc: null
+  target: io
+- actions:
+  - action: duplication
+    aliases: null
+    categories:
+    - system_network
+    example: null
+    flags:
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_CONTAINER
+      noArgs: false
+      required: false
+    - defaultValue: gaiadocker/iproute2
+      desc: null
+      name: TC_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: eth0
+      desc: null
+      name: NETWORK_INTERFACE
+      noArgs: false
+      required: false
+    - defaultValue: '100'
+      desc: null
+      name: NETWORK_PACKET_DUPLICATION_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: docker
+      desc: null
+      name: CONTAINER_RUNTIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_IPS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_HOSTS
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Injects network packet duplication on pods belonging to an app deployment
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: network
+- actions:
+  - action: kill
+    aliases: null
+    categories:
+    - system_container
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_CONTAINER
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: '10'
+      desc: null
+      name: CHAOS_INTERVAL
+      noArgs: false
+      required: false
+    - defaultValue: SIGKILL
+      desc: null
+      name: SIGNAL
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: docker
+      desc: null
+      name: CONTAINER_RUNTIME
+      noArgs: false
+      required: false
+    - defaultValue: '20'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: "Kills a container belonging to an application pod \n"
+  prepare: null
+  scope: container
+  shortDesc: null
+  target: container
+- actions:
+  - action: latency
+    aliases: null
+    categories:
+    - system_network
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_CONTAINER
+      noArgs: false
+      required: false
+    - defaultValue: eth0
+      desc: null
+      name: NETWORK_INTERFACE
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: gaiadocker/iproute2
+      desc: null
+      name: TC_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: '2000'
+      desc: null
+      name: NETWORK_LATENCY
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: docker
+      desc: null
+      name: CONTAINER_RUNTIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_IPS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_HOSTS
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Injects network latency on pods belonging to an app deployment
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: network
+- actions:
+  - action: hog
+    aliases: null
+    categories:
+    - system_mem
+    example: null
+    flags:
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: '10'
+      desc: null
+      name: CHAOS_INTERVAL
+      noArgs: false
+      required: false
+    - defaultValue: '500'
+      desc: null
+      name: MEMORY_CONSUMPTION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Injects memory consumption on pods belonging to an app deployment
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: memory
+- actions:
+  - action: fill
+    aliases: null
+    categories:
+    - system_disk
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_CONTAINER
+      noArgs: false
+      required: false
+    - defaultValue: '80'
+      desc: null
+      name: FILL_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: /var/lib/docker/containers
+      desc: null
+      name: CONTAINER_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Fillup Ephemeral Storage of a Resource
+  prepare: null
+  scope: disk
+  shortDesc: null
+  target: disk
+- actions:
+  - action: corruption
+    aliases: null
+    categories:
+    - system_network
+    example: null
+    flags:
+    - defaultValue: ''
+      desc: null
+      name: TARGET_CONTAINER
+      noArgs: false
+      required: false
+    - defaultValue: litmuschaos/go-runner:1.13.0
+      desc: null
+      name: LIB_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: eth0
+      desc: null
+      name: NETWORK_INTERFACE
+      noArgs: false
+      required: false
+    - defaultValue: gaiadocker/iproute2
+      desc: null
+      name: TC_IMAGE
+      noArgs: false
+      required: false
+    - defaultValue: '100'
+      desc: null
+      name: NETWORK_PACKET_CORRUPTION_PERCENTAGE
+      noArgs: false
+      required: false
+    - defaultValue: '60'
+      desc: null
+      name: TOTAL_CHAOS_DURATION
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: RAMP_TIME
+      noArgs: false
+      required: false
+    - defaultValue: litmus
+      desc: null
+      name: LIB
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: PODS_AFFECTED_PERC
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: TARGET_PODS
+      noArgs: false
+      required: false
+    - defaultValue: docker
+      desc: null
+      name: CONTAINER_RUNTIME
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_IPS
+      noArgs: false
+      required: false
+    - defaultValue: ''
+      desc: null
+      name: DESTINATION_HOSTS
+      noArgs: false
+      required: false
+    - defaultValue: /var/run/docker.sock
+      desc: null
+      name: SOCKET_PATH
+      noArgs: false
+      required: false
+    - defaultValue: parallel
+      desc: null
+      name: SEQUENCE
+      noArgs: false
+      required: false
+    longDesc: null
+    matchers:
+    - desc: null
+      name: appns
+      noArgs: false
+      required: false
+    - desc: null
+      name: applabel
+      noArgs: false
+      required: false
+    - desc: null
+      name: appkind
+      noArgs: false
+      required: false
+    programs: null
+    shortDesc: null
+  example: null
+  longDesc: |
+    Inject network packet corruption into application pod
+  prepare: null
+  scope: pod
+  shortDesc: null
+  target: network
+kind: litmuschaos
+type: generic
+version: 1.13.0

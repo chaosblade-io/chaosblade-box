@@ -1,0 +1,992 @@
+{
+  "chaos.container-process.kill": [
+    {
+      "alias": "count",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": "",
+        "linkage": {
+          "defaultState": false
+        }
+      },
+      "description": "杀掉的进程数，0 表示不做限制",
+      "isDelete": false,
+      "name": "限制进程数量",
+      "sequence": 0,
+      "type": 0
+    },
+    {
+      "alias": "local-port",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": false
+        },
+        "unit": ""
+      },
+      "description": "本机暴露服务的端口",
+      "isDelete": false,
+      "name": "本地监听端口",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaos.process.kill": [
+    {
+      "alias": "count",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": ""
+      },
+      "description": "杀掉的进程数，0 表示不做限制",
+      "isDelete": false,
+      "name": "限制进程数量",
+      "sequence": 0,
+      "type": 0
+    },
+    {
+      "alias": "timeout",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": "",
+        "linkage": {
+          "defaultState": false
+        }
+      },
+      "description": "演练执行的超时时间，当演练的执行时长超过设定的超时时间，演练会自动恢复。单位：秒。",
+      "isDelete": false,
+      "name": "故障注入后自动超时恢复时间",
+      "sequence": 0,
+      "type": 1
+    },
+    {
+      "alias": "local-port",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": false
+        },
+        "unit": ""
+      },
+      "description": "本机暴露服务的端口",
+      "isDelete": false,
+      "name": "本地监听端口",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaos.file.delete": [
+    {
+      "alias": "force",
+      "description": "强制删除文件，停止演练时不恢复被删除的文件",
+      "name": "强制删除文件",
+      "cipherText": "",
+      "defaultValue": "false",
+      "opLevel": 0,
+      "component": {
+        "cipherText": "",
+        "defaultValue": "false",
+        "opLevel": 0,
+        "options": [
+          {
+            "key": "true",
+            "value": "是"
+          },
+          {
+            "key": "false",
+            "value": "否"
+          }
+        ],
+        "requestUrl": "",
+        "required": false,
+        "type": "radio",
+        "unit": ""
+      }
+    }
+  ],
+  "chaos.jvm.install": [
+    {
+      "alias": "process",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": true,
+        "type": "input",
+        "unit": ""
+      },
+      "description": "用于识别唯一的关键字，可以通过该关键字查找到唯一进程，使用`ps -ef | grep <key>`来尝试查找进程，能找到唯一进程则正确。",
+      "isDelete": false,
+      "name": "进程关键字",
+      "sequence": 0,
+      "type": 1
+    }
+  ],
+  "chaos.widows-jvm.install": [
+    {
+      "alias": "process",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": true,
+        "type": "input",
+        "unit": ""
+      },
+      "description": "用于识别唯一的关键字，可以通过该关键字查找到唯一进程。",
+      "isDelete": false,
+      "name": "进程关键字",
+      "sequence": 0,
+      "type": 1
+    },
+    {
+      "alias": "javaHome",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "unit": ""
+      },
+      "description": "javaHome,如果不填,会默认从 JAVA_HOME 去获取。注意: windows的javahome路径不允许有空格！",
+      "isDelete": false,
+      "name": "javaHome，如果不填,会默认从 JAVA_HOME 去获取",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaos.container-jvm.OutOfMemoryError": [
+    {
+      "alias": "interval",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": ""
+      },
+      "description": "到 oom 之间的时间误差，时间单位是 millis，默认是500毫秒，仅在 wild-mode 不正确时使用",
+      "isDelete": false,
+      "name": "到 oom 之间的时间误差，时间单位是 millis，默认是500毫秒，仅在 wild-mode 不正确时使用",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaos.jvm.OutOfMemoryError": [
+    {
+      "alias": "interval",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": ""
+      },
+      "description": "到 oom 之间的时间误差，时间单位是 millis，默认是500毫秒，仅在 wild-mode 不正确时使用",
+      "isDelete": false,
+      "name": "到 oom 之间的时间误差，时间单位是 millis，默认是500毫秒，仅在 wild-mode 不正确时使用",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaos.container-disk.fill": [
+    {
+      "alias": "size",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": "",
+        "constraint": {
+          "checkerTemplate": "one_only",
+          "range": [
+            "percent"
+          ]
+        }
+      },
+      "description": "磁盘填充大小,单位MB",
+      "isDelete": false,
+      "name": "磁盘填充大小",
+      "sequence": 0,
+      "type": 0
+    },
+    {
+      "alias": "percent",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": ""
+      },
+      "description": "磁盘填充百分比",
+      "isDelete": false,
+      "name": "磁盘填充百分比",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaos.disk.fill": [
+    {
+      "alias": "size",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": "",
+        "constraint": {
+          "checkerTemplate": "one_only",
+          "range": [
+            "percent"
+          ]
+        }
+      },
+      "description": "磁盘填充大小,单位MB",
+      "isDelete": false,
+      "name": "磁盘填充大小",
+      "sequence": 0,
+      "type": 0
+    },
+    {
+      "alias": "percent",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "number",
+        "unit": ""
+      },
+      "description": "磁盘填充百分比",
+      "isDelete": false,
+      "name": "磁盘填充百分比",
+      "sequence": 0,
+      "type": 0
+    }
+  ],
+  "chaosapp.probe.http": [
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "1",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "重试次数",
+      "alias": "failureThreshold",
+      "description": "探测失败后的重试次数",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "options": [
+          {
+            "value": "get",
+            "key": "get"
+          },
+          {
+            "value": "post",
+            "key": "post"
+          }
+        ],
+        "type": "radio",
+        "required": true
+      },
+      "name": "请求类型",
+      "alias": "method",
+      "description": "请求类型，如 post,get",
+      "type": 0
+    },
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "探测间隔",
+      "alias": "periodSeconds",
+      "description": "执行探测的时间间隔（单位是秒,默认是1秒.",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "options": [
+          {
+            "value": "http",
+            "key": "http"
+          },
+          {
+            "value": "https",
+            "key": "https"
+          }
+        ],
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "radio",
+        "required": false
+      },
+      "name": "schema",
+      "alias": "schema",
+      "description": "http/https",
+      "type": 2
+    },
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "1",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "最小连续成功数",
+      "alias": "successThreshold",
+      "description": "最小连续成功数,满足连续成功数才会被认定成功",
+      "type": 2
+    },
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "2",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "访问超时时间",
+      "alias": "timeoutSeconds",
+      "description": "访问超时时间,默认2秒",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "input",
+        "required": true
+      },
+      "name": "URL",
+      "alias": "url",
+      "description": "探测的地址",
+      "type": 2
+    }
+  ],
+  "chaosapp.probe.tcp": [
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "1",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "重试次数",
+      "alias": "failureThreshold",
+      "description": "探测失败后的重试次数",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "options": [
+          {
+            "value": "get",
+            "key": "get"
+          },
+          {
+            "value": "post",
+            "key": "post"
+          }
+        ],
+        "type": "radio",
+        "required": true
+      },
+      "name": "请求类型",
+      "alias": "method",
+      "description": "请求类型，如 post,get",
+      "type": 0
+    },
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "1",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "探测间隔",
+      "alias": "periodSeconds",
+      "description": "执行探测的时间间隔（单位是秒）。默认是 1秒。",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "options": [
+          {
+            "value": "http",
+            "key": "http"
+          },
+          {
+            "value": "https",
+            "key": "https"
+          }
+        ],
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "radio",
+        "required": false
+      },
+      "name": "schema",
+      "alias": "schema",
+      "description": "http/https",
+      "type": 2
+    },
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "1",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "最小连续成功数",
+      "alias": "successThreshold",
+      "description": "最小连续成功数,满足连续成功数才会被认定成功",
+      "type": 2
+    },
+    {
+      "sequence": 5,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "2",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": false
+      },
+      "name": "访问超时时间",
+      "alias": "timeoutSeconds",
+      "description": "访问超时时间,默认2秒,",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "input",
+        "required": true
+      },
+      "name": "host",
+      "alias": "host",
+      "description": "探测的地址",
+      "type": 2
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "number",
+        "required": true
+      },
+      "name": "port",
+      "alias": "port",
+      "description": "探测的端口",
+      "type": 2
+    }
+  ],
+  "chaos.windows-win-network.delay": [
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "inbound",
+        "requestUrl": "",
+        "options": [
+          {
+            "value": "inbound",
+            "key": "inbound"
+          },
+          {
+            "value": "outbound",
+            "key": "outbound"
+          }
+        ],
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "radio",
+        "required": true
+      },
+      "name": "出入规则",
+      "alias": "direction",
+      "description": "出入规则",
+      "type": 2
+    },
+    {
+      "alias": "dst-ip",
+      "name": "目标IP",
+      "description": "目标端IP",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 1,
+      "type": 0
+    },
+    {
+      "alias": "dst-port",
+      "name": "目标端口",
+      "description": "目标端口",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 2,
+      "type": 0
+    },
+    {
+      "alias": "src-ip",
+      "name": "源端IP",
+      "description": "源端IP",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 3,
+      "type": 0
+    },
+    {
+      "alias": "src-port",
+      "name": "源端端口",
+      "description": "源端端口",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 4,
+      "type": 0
+    },
+    {
+      "alias": "exclude-dst-ip",
+      "name": "排除目标IP",
+      "description": "排除目标IP",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 5,
+      "type": 0
+    },
+    {
+      "alias": "exclude-dst-port",
+      "name": "排除目标端口",
+      "description": "排除目标端口",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 6,
+      "type": 0
+    },
+    {
+      "alias": "exclude-src-port",
+      "name": "排除源端端口",
+      "description": "排除源端端口",
+      "component": {
+        "cipherText": "",
+        "defaultValue": "",
+        "opLevel": 0,
+        "requestUrl": "",
+        "required": false,
+        "type": "input",
+        "linkage": {
+          "defaultState": true
+        },
+        "unit": ""
+      },
+      "isDelete": false,
+      "sequence": 7,
+      "type": 0
+    }
+  ],
+  "chaosapp.k8s.pod.recovery": [
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "input",
+        "required": false
+      },
+      "name": "集群ID",
+      "alias": "clusterId",
+      "description": "非必填,只有当从上下文无法获取时可填",
+      "type": 2
+    },
+    {
+      "sequence": 30,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "input",
+        "required": false
+      },
+      "name": "集群namespace",
+      "alias": "namespace",
+      "description": "非必填,只有当从上下文无法获取时可填",
+      "type": 1
+    },
+    {
+      "sequence": 0,
+      "component": {
+        "opLevel": 0,
+        "unit": "",
+        "cipherText": "",
+        "defaultValue": "",
+        "requestUrl": "",
+        "linkage": {
+          "condition": "",
+          "defaultState": true,
+          "depends": ""
+        },
+        "type": "input",
+        "required": false
+      },
+      "name": "ReplicaSet 名称",
+      "alias": "rs",
+      "description": "非必填,只有当从上下文无法获取时可填",
+      "type": 2
+    }
+  ],
+  "chaosapp.probe.biz-successRate": [
+    {
+      "sequence":5,
+      "component":{
+        "opLevel":0,
+        "unit":"",
+        "cipherText":"",
+        "defaultValue":"",
+        "requestUrl":"",
+        "type":"input",
+        "required":false
+      },
+      "name":"文本内容",
+      "alias":"content",
+      "description":"当返回值里面包含了指定内容才认为是成功",
+      "type":0
+    },
+    {
+      "sequence":5,
+      "component":{
+        "opLevel":0,
+        "unit":"",
+        "cipherText":"",
+        "defaultValue":"",
+        "requestUrl":"",
+        "linkage":{
+          "condition":"",
+          "defaultState":true,
+          "depends":""
+        },
+        "type":"input",
+        "required":false
+      },
+      "name":"headers",
+      "alias":"headers",
+      "description":"http headers,格式为: header1:values1;header2:values2",
+      "type":2
+    },
+    {
+      "sequence":0,
+      "component":{
+        "opLevel":0,
+        "unit":"",
+        "cipherText":"",
+        "defaultValue":"",
+        "requestUrl":"",
+        "options":[
+          {
+            "value":"get",
+            "key":"get"
+          },
+          {
+            "value":"post",
+            "key":"post"
+          }
+        ],
+        "type":"radio",
+        "required":true
+      },
+      "name":"请求类型",
+      "alias":"method",
+      "description":"请求类型，如 post,get",
+      "type":0
+    },
+    {
+      "sequence":0,
+      "component":{
+        "opLevel":0,
+        "unit":"",
+        "cipherText":"",
+        "defaultValue":"",
+        "requestUrl":"",
+        "linkage":{
+          "condition":"",
+          "defaultState":true,
+          "depends":""
+        },
+        "type":"input",
+        "required":true
+      },
+      "name":"URL",
+      "alias":"url",
+      "description":"探测的地址",
+      "type":2
+    }
+  ]
+}

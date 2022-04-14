@@ -1,0 +1,5 @@
+{
+  "B_APPLICATION_HOST_NOT_ALIVE": {
+    "solution": "当前应用机器的心跳异常,您可以再次尝试,如果依旧失败,请检查探针状态"
+  }
+}

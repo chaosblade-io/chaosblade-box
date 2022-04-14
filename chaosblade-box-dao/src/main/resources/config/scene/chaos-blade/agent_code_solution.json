@@ -1,0 +1,206 @@
+{
+  "43000": {
+    "solution": "使用root账号"
+  },
+  "44000": {
+    "solution": "切换其他action"
+  },
+  "45000": {
+    "solution": "“%s”：参数缺失，请将缺失的参数补全"
+  },
+  "46000": {
+    "solution": "“%s”：参数格式非法，使用合法参数，参数格式可参考填写位置的要求"
+  },
+  "47000": {
+    "solution": "“%s”：无效参数，可替换有效参数"
+  },
+  "47001": {
+    "solution": "“%s”：无效参数port，请先执行prepare命令"
+  },
+  "47002": {
+    "solution": "“%s”：无效参数，根据该进程ID或进程名无法获取进程，可换有效进程ID或进程名"
+  },
+  "47003": {
+    "solution": "“%s”：无效参数，利用进程名获取到的进程ID，不包含输入参数进程ID，可换匹配的进程ID或进程名"
+  },
+  "47004": {
+    "solution": "“%s”：无效参数，该参数在数据库中没有记录，可换该参数"
+  },
+  "47005": {
+    "solution": "“%s”：无效参数，该target演练不支持，可以换演练来执行"
+  },
+  "47006": {
+    "solution": "演练工具在容器内的部署失败，请编辑演练，并修改演练内容中的部署路径参数"
+  },
+  "47007": {
+    "solution": "请编辑演练，并修改演练内容中的namespace参数，改为一个"
+  },
+  "47008": {
+    "solution": "请编辑演练，并修改演练内容中的namespace或labels参数"
+  },
+  "47009": {
+    "solution": "请编辑演练，并修改演练内容中的labels参数"
+  },
+  "47010": {
+    "solution": "请编辑演练，并修改演练内容中的container-id参数"
+  },
+  "48000": {
+    "solution": "获取请求参数失败，可能是网络等原因，请稍后或页面刷新后重试"
+  },
+  "49000": {
+    "solution": "缺少target命令，补全target命令"
+  },
+  "49001": {
+    "solution": "有两种处理方式：\n\n&nbsp;&nbsp;1.重新编辑演练规则，将“强制覆盖tc规则”选择为是\n\n&nbsp;&nbsp;2.登陆目标机器，将现有的规则删除 sudo tc qdisc del dev 网卡名 root"
+  },
+  "51000": {
+    "solution": "chaosblade文件缺失，需在安装目录下，将该文件补全，或重装探针"
+  },
+  "52000": {
+    "solution": "安装taskset，taskset工具在linux是 util-linux 包的一部分:\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install util-linux  \nCentOS、Fedora 或 RHEL\nsudo yum install util-linux"
+  },
+  "52001": {
+    "solution": "安装mount，mount工具在linux是 util-linux 包的一部分:\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install util-linux\nCentOS、Fedora 或 RHEL\nsudo yum install util-linux"
+  },
+  "52002": {
+    "solution": "安装umount，umount工具在linux是 util-linux 包的一部分:\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install util-linux\nCentOS、Fedora 或 RHEL\nsudo yum install util-linux"
+  },
+  "52003": {
+    "solution": "安装tc，tc工具是绑定在iproute而来的，所以安装 iproute即可\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install iproute\nCentOS、Fedora 或 RHEL\nsudo yum install iproute"
+  },
+  "52004": {
+    "solution": "安装iptables\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install iptables\nCentOS、Fedora 或 RHEL\nsudo yum install iptables"
+  },
+  "52005": {
+    "solution": "安装sed\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install sed\nCentOS、Fedora 或 RHEL\nsudo yum install sed"
+  },
+  "52006": {
+    "solution": "安装cat，cat在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52007": {
+    "solution": "安装ss，ss工具是绑定在iproute而来的，所以安装iproute即可\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install iproute\nCentOS、Fedora 或 RHEL\nsudo yum install iproute"
+  },
+  "52008": {
+    "solution": "安装dd，dd在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52009": {
+    "solution": "安装rm，rm在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52010": {
+    "solution": "安装touch，touch在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52011": {
+    "solution": "安装mkdir，mkdir在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52012": {
+    "solution": "安装echo，echo在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52013": {
+    "solution": "安装kill，kill工具在linux是 util-linux 包的一部分:\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint，有以下两种方式进行安装\nsudo apt-get install util-linux  \nCentOS、Fedora 或 RHEL\nsudo yum install util-linux"
+  },
+  "52014": {
+    "solution": "安装mv，mv在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52015": {
+    "solution": "安装head，head在coreutils包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "52016": {
+    "solution": "安装grep\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install grep\nCentOS、Fedora 或 RHEL\nsudo yum install grep"
+  },
+  "52017": {
+    "solution": "安装awk，awk在gawk包内，所以安装命令如下\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install gawk\nCentOS、Fedora 或 RHEL\nsudo yum install gawk"
+  },
+  "52018": {
+    "solution": "安装tar\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install tar\nCentOS、Fedora 或 RHEL\nsudo yum install tar"
+  },
+  "53000": {
+    "solution": "目标故障注入已经注入过,无法再次注入,请停止上一次注入"
+  },
+  "54000": {
+    "solution": "场景状态不匹配，请稍后再试"
+  },
+  "55000": {
+    "solution": "镜像拉取失败，请稍后再试"
+  },
+  "55001": {
+    "solution": "docker时，该场景命令不存在，可换其他场景"
+  },
+  "56000": {
+    "solution": "该场景对应的handler不存在，可换其他场景"
+  },
+  "56001": {
+    "solution": "c++时，该场景命令不存在，可换其他场景"
+  },
+  "60000": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "60001": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "61000": {
+    "solution": "chaosblade故障注入服务已经停止，请重新发起一次演练"
+  },
+  "63010": {
+    "solution": "通过进程名获取进程id失败，可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63011": {
+    "solution": "通过进程名获取进程id失败，可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63014": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63020": {
+    "solution": "可可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63030": {
+    "solution": "可能是本地没有空闲端口号，可以释放被占用的端口号：\n\n&nbsp;&nbsp;查看系统当前所有被占用端口 netstat -tln \n确定可以被释放的端口号，如9090，输入 lsof -i:9090 ,查看当前被占用端口的进程号，假设进程号为3340\n直接杀死该进程，kill -9 3340\n确认9090端口号已经被释放，执行 netstat -tln 查看9090 是否没有被占用"
+  },
+  "63031": {
+    "solution": "进入执行演练的机器内，查看具体日志从而排除原因，或是进入该进去中执行 command -v date , 如果没有该命令则安装`date`，安装命令如下：\n\n&nbsp;&nbsp;Debian、Ubuntu 或 Linux Mint\nsudo apt-get install coreutils\nCentOS、Fedora 或 RHEL\nsudo yum install coreutils"
+  },
+  "63040": {
+    "solution": "可进入执行演练的机器内，查看日志文件是否存在"
+  },
+  "63041": {
+    "solution": "可进入执行演练的机器内，查看该不能打开的日志文件是否存在"
+  },
+  "63042": {
+    "solution": "可进入执行演练的机器内，查看该不能打开的日志文件的权限，执行 chmod 777 filepath，其中filepath是该日志文件的路径地址"
+  },
+  "63050": {
+    "solution": "演练可能正在执行，请稍后再试"
+  },
+  "63060": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63061": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63062": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63063": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63064": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "63070": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因，亦或更换其他演练场景，如果还是存在相同问题，可直接重新安装探针"
+  },
+  "64000": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "64001": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "64002": {
+    "solution": "可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "65000": {
+    "solution": "ssh执行故障注入失败，可进入执行演练的机器内，查看具体日志从而排除原因"
+  },
+  "65001": {
+    "solution": "ssh执行结果为空，请稍后重试"
+  }
+}

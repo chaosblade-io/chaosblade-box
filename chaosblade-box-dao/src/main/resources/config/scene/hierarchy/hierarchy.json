@@ -1,0 +1,116 @@
+{
+  "chaos.node-cpu.fullload": {
+    "defaultCode": "chaos.node-cpu.fullload",
+    "children": [
+      "chaos.node-cpu.fullload",
+      "litmuschaos.node-cpu.hog"
+    ]
+  },
+  "chaos.node-mem.load": {
+    "defaultCode": "chaos.node-mem.load",
+    "children": [
+      "chaos.node-mem.load",
+      "litmuschaos.node-memory.hog"
+    ]
+  },
+  "chaos.node-disk.fill": {
+    "defaultCode": "chaos.node-disk.fill",
+    "children": [
+      "chaos.node-disk.fill",
+      "litmuschaos.node-io.stress"
+    ]
+  },
+  "chaos.node-node.drain": {
+    "defaultCode": "litmuschaos.node-node.drain",
+    "children": [
+      "litmuschaos.node-node.drain"
+    ]
+  },
+  "chaos.node-node.taint": {
+    "defaultCode": "litmuschaos.node-node.taint",
+    "children": [
+      "litmuschaos.node-node.taint"
+    ]
+  },
+  "chaos.node-node.poweroff": {
+    "defaultCode": "litmuschaos.node-node.poweroff",
+    "children": [
+      "litmuschaos.node-node.poweroff"
+    ]
+  },
+  "chaos.node-node.restart": {
+    "defaultCode": "litmuschaos.node-node.restart",
+    "children": [
+      "litmuschaos.node-node.restart"
+    ]
+  },
+  "chaos.pod-cpu.fullload": {
+    "defaultCode": "chaos.pod-cpu.fullload",
+    "children": [
+      "chaos.pod-cpu.fullload",
+      "litmuschaos.pod-cpu.hog"
+    ]
+  },
+  "chaos.pod-mem.load": {
+    "defaultCode": "chaos.pod-mem.load",
+    "children": [
+      "chaos.pod-mem.load",
+      "litmuschaos.pod-memory.hog"
+    ]
+  },
+  "chaos.pod-disk.fill": {
+    "defaultCode": "chaos.pod-disk.fill",
+    "children": [
+      "chaos.pod-disk.fill",
+      "litmuschaos.pod-io.stress"
+    ]
+  },
+  "chaos.pod-network.delay": {
+    "defaultCode": "chaos.pod-network.delay",
+    "children": [
+      "chaos.pod-network.delay",
+      "litmuschaos.pod-network.latency"
+    ]
+  },
+  "chaos.pod-network.loss": {
+    "defaultCode": "chaos.pod-network.loss",
+    "children": [
+      "chaos.pod-network.loss",
+      "litmuschaos.pod-network.loss"
+    ]
+  },
+  "chaos.pod-network.duplicate": {
+    "defaultCode": "chaos.pod-network.duplicate",
+    "children": [
+      "chaos.pod-network.duplicate",
+      "litmuschaos.pod-network.duplication"
+    ]
+  },
+  "chaos.pod-network.occupy": {
+    "defaultCode": "chaos.pod-network.occupy",
+    "children": [
+      "chaos.pod-network.occupy",
+      "litmuschaos.pod-network.corruption"
+    ]
+  },
+  "chaos.pod-pod.delete": {
+    "defaultCode": "chaos.pod-pod.delete",
+    "children": [
+      "chaos.pod-pod.delete",
+      "litmuschaos.pod-pod.delete"
+    ]
+  },
+  "chaos.pod-pod.autoscaler": {
+    "defaultCode": "litmuschaos.pod-pod.autoscaler",
+    "children": [
+      "litmuschaos.pod-pod.autoscaler"
+    ]
+  },
+  "chaos.container-container.remove": {
+    "defaultCode": "chaos.container-container.remove",
+    "children": [
+      "chaos.container-container.remove",
+      "litmuschaos.container-container.kill"
+    ]
+  }
+}

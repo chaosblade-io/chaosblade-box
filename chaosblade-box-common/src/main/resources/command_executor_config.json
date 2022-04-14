@@ -1,0 +1,26 @@
+{
+  "executor": {
+    "activity-task-flow-execution": {
+      "coreSize": 50,
+      "maxPoolSize": 100,
+      "executorClass": "com.alibaba.chaosblade.box.common.experiment.activity.execute.ActivityTaskFlowExecutionCommandExecutor"
+    },
+    "activity-task-execution": {
+      "maxPoolSize": 100
+    },
+    "experiment": {
+      "maxPoolSize": 100
+    },
+    "system": {
+      "maxPoolSize": 50,
+      "coreSize": 10
+    },
+    "default": {
+      "maxPoolSize": 200,
+      "coreSize": 100
+    },
+    "spring-pool": {
+      "maxPoolSize": 100
+    }
+  }
+}

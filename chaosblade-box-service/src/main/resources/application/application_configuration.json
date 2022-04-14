@@ -1,0 +1,76 @@
+[
+  {
+    "alias": "config.k8s.container.name",
+    "functionParamAlias": "container-names",
+    "appType": 1,
+    "component": {
+      "required": false,
+      "type": "input"
+    },
+    "name": "K8S进行容器场景演练时候的容器名(container-names)",
+    "priority": 1,
+    "scope": {
+      "appCodes": [
+        "chaos.pod-",
+        "chaos.container-"
+      ]
+    },
+    "phaseFlag": 3,
+    "description": "对于K8S的应用，在容器相关的演练场景下面会需要配置容器资源名,通过这个配置，在每次执行演练时候，会自动填充容器名,多个容器名之间请用,(英文逗号)进行分割."
+  },
+  {
+    "alias": "config.java.process.name",
+    "functionParamAlias": "process",
+    "component": {
+      "defaultValue": "project.name",
+      "required": true,
+      "type": "input"
+    },
+    "name": "Java场景默认进程关键词(process)",
+    "priority": 1,
+    "phaseFlag": 1,
+    "scope": {
+      "appCodes": [
+        "jvm.install"
+      ]
+    },
+    "description": "Java相关的演练场景需要填写进程关键词来找到目标进程，通过这个配置，在每次执行演练时候，会自动填充进程关键词"
+  },
+  {
+    "alias": "config.k8s.namespace",
+    "functionParamAlias": "namespace",
+    "component": {
+      "defaultValue": "default",
+      "required": true,
+      "type": "input"
+    },
+    "name": "集群namespace，默认是default(namespace)",
+    "priority": 1,
+    "phaseFlag": 1,
+    "scope": {
+      "appCodes": [
+        "chaos.pod-",
+        "chaos.container-"
+      ]
+    },
+    "description": "对于K8s应用，需要选择资源所在集群环境的namespace。"
+  },
+  {
+    "alias": "config.k8s.chaosblade.deployed.path",
+    "functionParamAlias": "chaosblade-path",
+    "component": {
+      "required": true,
+      "type": "input"
+    },
+    "name": "演练工具在容器内的部署路径，默认值为/opt(chaosblade-path)",
+    "priority": 1,
+    "phaseFlag": 1,
+    "scope": {
+      "appCodes": [
+        "chaos.pod-",
+        "chaos.container-"
+      ]
+    },
+    "description": "演练工具在容器内的部署路径，如果该路径无权限可手动指定。"
+  }
+]
