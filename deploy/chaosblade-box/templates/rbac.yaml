@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: chaosblade-box
+  labels:
+    name: chaosblade-box
+  namespace: {{ .Release.Namespace }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: chaosblade-box
+  labels:
+    name: chaosblade-box
+rules:
+  - apiGroups:
+      - ''
+      - batch
+      - apps
+    resources:
+      - nodes
+      - events
+      - jobs
+      - pods
+      - pods/log
+      - pods/eviction
+      - pods/exec
+      - configmaps
+      - daemonsets
+      - deployments
+      - replicationcontrollers
+      - secrets
+      - statefulsets
+      - replicasets
+      - services
+      - serviceaccounts
+    verbs:
+      - "*"
+  - apiGroups:
+      - chaosblade.io
+    resources:
+      - chaosblades
+      - chaosblades/status
+    verbs:
+      - "*"
+  - apiGroups:
+      - apps.openshift.io
+    resources:
+      - deploymentconfigs
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - rollouts
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - litmuschaos.io
+    resources:
+      - chaosengines
+      - chaosexperiments
+      - chaosresults
+    verbs:
+      - get
+      - create
+      - update
+      - patch
+      - delete
+      - list
+      - watch
+      - deletecollection
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - "*"
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - "*"
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: chaosblade-box
+  labels:
+    name: chaosblade-box
+roleRef:
+  kind: ClusterRole
+  name: chaosblade-box
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: chaosblade-box
+    namespace: {{ .Release.Namespace }}
