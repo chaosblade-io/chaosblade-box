@@ -25,9 +25,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
-    - port: 8080
+    - port: 7001
       protocol: TCP
-      targetPort: 8080
+      targetPort: 7001
   selector:
     app: chaosblade-box
   sessionAffinity: None

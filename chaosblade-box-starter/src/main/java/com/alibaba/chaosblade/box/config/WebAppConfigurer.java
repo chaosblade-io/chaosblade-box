@@ -14,37 +14,29 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.box.web.config;
+package com.alibaba.chaosblade.box.config;
 
-import com.alibaba.chaosblade.box.web.interceptor.AttachRequestIdInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.validation.MessageCodesResolver;
+import org.springframework.validation.Validator;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.config.annotation.*;
+
+import java.util.List;
 
 /**
  *
  * @author yefei
  */
 @Configuration
-public class WebAppConfigurer implements WebMvcConfigurer {
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-
-        registry.addInterceptor(new AttachRequestIdInterceptor())
-                .addPathPatterns("/api/**")
-                .excludePathPatterns("/favicon.ico")
-                .excludePathPatterns("/*.html")
-                .excludePathPatterns("/webjars/**");
-
-    }
+public class WebAppConfigurer extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
-//        registry.addResourceHandler("/swagger-ui.html")
-//                .addResourceLocations("classpath:/META-INF/resources/");
 
         registry.addResourceHandler("/*/**")
                 .addResourceLocations("classpath:/web/build/");

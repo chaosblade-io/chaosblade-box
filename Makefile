@@ -1,11 +1,11 @@
 .PHONY: build clean
 
-export CHAOS_PLATFORM_VERSION=0.4.1
+export CHAOS_PLATFORM_VERSION=0.5.0
 SRC_ROOT=$(shell pwd)
 
 # chaosblade-box-fe
-CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaosblade-box-fe.git
-CHAOS_PLATFORM_FE_BRANCH=main
+CHAOS_PLATFORM_FE=git@github.com:chaosblade-io/chaosblade-box-fe.git
+CHAOS_PLATFORM_FE_BRANCH=v0.6.0-dev
 
 mysql:
 	docker run --rm -d -it \
@@ -19,11 +19,11 @@ mysql:
 
 build_fe:
 	rm -rf ./cache
-	rm -rf chaosblade-box-web/src/main/resources/web/build/*
+	rm -rf chaosblade-box-starter/src/main/resources/web/build/*
 	mkdir -p ./cache/chaosblade-box-fe
 	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaosblade-box-fe
-	cd cache/chaosblade-box-fe && yarn add react-app-rewired && yarn build
-	cp -r cache/chaosblade-box-fe/build/* $(SRC_ROOT)/chaosblade-box-web/src/main/resources/web/build
+	cd cache/chaosblade-box-fe && npm install && npm run build
+	cp -r cache/chaosblade-box-fe/dist/* $(SRC_ROOT)/chaosblade-box-starter/src/main/resources/web/build
 
 build:
 	docker run -it \
@@ -35,7 +35,7 @@ build:
 app:
 	docker run -it -d --rm \
     		--name chaosblade-box \
-    		-v $(shell pwd)/chaosblade-box-web/target:/root/ \
+    		-v $(shell pwd)/chaosblade-box-starter/target:/root/ \
     		-v /etc/localtime:/etc/localtime:ro \
     		-p 8080:8080 \
     		-p 8000:8000 \
