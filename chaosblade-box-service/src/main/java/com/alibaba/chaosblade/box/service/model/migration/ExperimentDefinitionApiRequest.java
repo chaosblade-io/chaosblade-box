@@ -2,7 +2,6 @@ package com.alibaba.chaosblade.box.service.model.migration;
 
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import com.alibaba.chaosblade.box.common.common.enums.ExperimentRunModeEnum;
-import com.aliyuncs.ahas_openapi.domain.FlowGroup;
 import lombok.Data;
 
 import java.util.List;
