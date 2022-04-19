@@ -17,7 +17,7 @@ target/
 
 ### NetBeans ###
 nbproject/private/
-build/
+chaosblade-box-starter/src/main/resources/build/
 nbbuild/
 dist/
 nbdist/

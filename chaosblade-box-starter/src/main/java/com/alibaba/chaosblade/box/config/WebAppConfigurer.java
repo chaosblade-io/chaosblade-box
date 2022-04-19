@@ -33,13 +33,113 @@ import java.util.List;
  * @author yefei
  */
 @Configuration
-public class WebAppConfigurer extends WebMvcConfigurerAdapter {
+public class WebAppConfigurer implements WebMvcConfigurer {
+
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+
+    }
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+
+    }
+
+    @Override
+    public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+
+    }
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+
+        registry.addInterceptor(new AttachRequestIdInterceptor())
+                .addPathPatterns("/chaos/**")
+                .excludePathPatterns("/favicon.ico")
+                .excludePathPatterns("/*.html")
+                .excludePathPatterns("/webjars/**");
+
+    }
+
+
+
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+
+    }
+
+    @Override
+    public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
+
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+    }
+
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+    }
+
+    @Override
+    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
+
+    }
+
+    @Override
+    public void extendHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
+
+    }
+
+    @Override
+    public Validator getValidator() {
+        return null;
+    }
+
+    @Override
+    public MessageCodesResolver getMessageCodesResolver() {
+        return null;
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
+//        registry.addResourceHandler("/swagger-ui.html")
+//                .addResourceLocations("classpath:/META-INF/resources/");
+
         registry.addResourceHandler("/*/**")
-                .addResourceLocations("classpath:/web/build/");
+                .addResourceLocations("classpath:/build/");
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+
+        registry.addViewController("/").setViewName("/index.html");
+
+    }
+
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+
     }
 
 }
