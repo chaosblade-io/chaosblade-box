@@ -18,6 +18,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.chaosblade</groupId>
             <artifactId>chaosblade-box-common</artifactId>
             <version>${project.version}</version>
