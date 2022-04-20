@@ -1,6 +1,6 @@
 .PHONY: build clean
 
-export CHAOS_PLATFORM_VERSION=0.5.0
+export CHAOS_PLATFORM_VERSION=1.0.0
 SRC_ROOT=$(shell pwd)
 
 # chaosblade-box-fe
@@ -19,11 +19,11 @@ mysql:
 
 build_fe:
 	rm -rf ./cache
-	rm -rf chaosblade-box-starter/src/main/resources/web/build/*
+	rm -rf chaosblade-box-starter/src/main/resources/build/*
 	mkdir -p ./cache/chaosblade-box-fe
 	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) ./cache/chaosblade-box-fe
 	cd cache/chaosblade-box-fe && npm install && npm run build
-	cp -r cache/chaosblade-box-fe/dist/* $(SRC_ROOT)/chaosblade-box-starter/src/main/resources/web/build
+	cp -r cache/chaosblade-box-fe/dist/* $(SRC_ROOT)/chaosblade-box-starter/src/main/resources/build
 
 build:
 	docker run -it \
