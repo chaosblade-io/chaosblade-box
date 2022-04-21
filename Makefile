@@ -40,7 +40,7 @@ app:
     		-p 8080:8080 \
     		-p 8000:8000 \
     		openjdk:8 \
-    		java -Duser.timezone=Asia/Shanghai -jar /root/chaosblade-box-web-${CHAOS_PLATFORM_VERSION}.jar
+    		java -Duser.timezone=Asia/Shanghai -jar /root/chaosblade-box-${CHAOS_PLATFORM_VERSION}.jar
 
 build_image:
 	docker build --rm -t chaosblade-box:${CHAOS_PLATFORM_VERSION} .

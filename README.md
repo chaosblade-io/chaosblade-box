@@ -78,7 +78,7 @@ Notes: You must replace the follow parameters: DATASOURCE_HOST, DATASOURCE_USERN
 Then run the application, run method is as follows:
 
 ```bash
-nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box.jar --spring.datasource.url="jdbc:mysql://DATASOURCE_HOST:3306/chaosblade?characterEncoding=utf8&useSSL=false" --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD --chaos.server.domain=BOX-HOST> chaosblade-box.log 2>&1 &
+nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box-1.0.0.jar --spring.datasource.url="jdbc:mysql://DATASOURCE_HOST:3306/chaosblade?characterEncoding=utf8&useSSL=false" --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD --chaos.server.domain=BOX-HOST> chaosblade-box.log 2>&1 &
 ```
 
 You can use a browser to access the http://127.0.0.1:7001 website to use the platform.
@@ -97,6 +97,17 @@ NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP      POR
 chaosblade-box              LoadBalancer   192.168.255.01   10.10.10.03     7001:32250/TCP    12h
 chaosblade-box-mysql        ClusterIP      192.168.168.02    <none>           3306/TCP          12h
 ```
+
+## Parameter Parsing
+* spring.datasource.url: Mysql url.If helm starts, no assignment is required.
+* spring.datasource.username: Mysql username.If helm starts, no assignment is required.
+* spring.datasource.password: Mysql password.Required.
+* chaos.function.sync.type: Init chaos data.If the first start,can use `ALL`.Available values `ALL`,`ChaosBlade`,`UserApp`,`None`,`LITMUS_CHAOS`. Default is `ALL`.
+* chaos.agent.version: chaosblade-box-agent version.Default is `1.0.0`.
+* chaos.agent.repository: chaosblade-box-agent image repository.Default is `chaosbladeio/chaosblade-agent`.
+* chaos.agent.url: chaosblade-box-agent binary package url.Default is `https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosagent.tar.gz`.
+* chaos.agent.helm: chaosblade-box-agent helm package url.Default is `https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosblade-box-agent-1.0.0.tgz`.
+
 
 ## Bugs and Feedback
 For bug report, questions and discussions please submit [GitHub Issues](https://github.com/chaosblade-io/chaosblade-box/issues). 

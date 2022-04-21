@@ -1,6 +1,6 @@
 # Default values for chaosblade-box.
 box:
-  repository: registry.cn-hangzhou.aliyuncs.com/chaosblade/chaosblade-box
+  repository: chaosbladeio/chaosblade-box
   version: 1.0.0
   pullPolicy: IfNotPresent
 
@@ -12,9 +12,9 @@ spring:
 chaos:
   agent:
     version: 1.0.0
-    repository: registry.cn-hangzhou.aliyuncs.com/chaosblade/chaos-agent
-    url: https://ahas-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/agent/pre/test/community/chaos.tar.gz
-    helm: https://ahas-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/agent/pre/test/community/chaos-1.0.0.tgz
+    repository: chaosbladeio/chaosblade-agent
+    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosagent.tar.gz
+    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosblade-box-agent-1.0.0.tgz
   function:
     sync:
       type: ALL

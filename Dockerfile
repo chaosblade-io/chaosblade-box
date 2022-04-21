@@ -8,6 +8,7 @@ WORKDIR /app
 #    && mv linux-amd64/helm /usr/local/bin/helm \
 #    && rm -rf helm-v3.5.3-linux-amd64.tar.gz
 
-COPY ./chaosblade-box-starter/target/chaosblade-box.jar .
 
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "chaosblade-box.jar"]
+COPY ./chaosblade-box-starter/target/chaosblade-box-1.0.0.jar .
+
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "chaosblade-box-1.0.0.jar"]
