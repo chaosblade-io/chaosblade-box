@@ -5,7 +5,7 @@ SRC_ROOT=$(shell pwd)
 
 # chaosblade-box-fe
 CHAOS_PLATFORM_FE=git@github.com:chaosblade-io/chaosblade-box-fe.git
-CHAOS_PLATFORM_FE_BRANCH=v0.6.0-dev
+CHAOS_PLATFORM_FE_BRANCH=main
 
 mysql:
 	docker run --rm -d -it \
