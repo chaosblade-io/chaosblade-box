@@ -38,16 +38,11 @@ spec:
             - '--spring.datasource.url={{ .Values.spring.datasource.url }}'
             - '--spring.datasource.username={{ .Values.spring.datasource.username }}'
             - '--spring.datasource.password={{ .Values.spring.datasource.password }}'
-            - '--chaos.server.domain={{  }}'
-            - '--logging.level.root={{ .Values.logging.level.root }}'
-            - '--logging.level.com.alibaba.chaosblade.box={{ .Values.logging.level.box }}'
-            - '--chaos.agent.port={{ .Values.chaos.agent.port }}'
-            {{ if .Values.chaos.scene.market }}
-            - '--chaos.scene.market={{ .Values.chaos.scene.market }}'
-            {{ end }}
-            - '--chaos.scene.originals.litmus[0].name={{ .Values.chaos.scene.originals.litmus.generic.name }}'
-            - '--chaos.scene.originals.litmus[0].version={{ .Values.chaos.scene.originals.litmus.generic.version }}'
-            - '--chaos.scene.originals.litmus[0].url={{ .Values.chaos.scene.originals.litmus.generic.url }}'
+            - '--chaos.function.sync.type={{ .Values.chaos.function.sync.type }}'
+            - '--chaos.agent.version={{ .Values.chaos.agent.version }}'
+            - '--chaos.agent.repository={{ .Values.chaos.agent.repository }}'
+            - '--chaos.agent.url={{ .Values.chaos.agent.url }}'
+            - '--chaos.agent.helm={{ .Values.chaos.agent.helm }}'
           securityContext:
             privileged: true
           volumeMounts:

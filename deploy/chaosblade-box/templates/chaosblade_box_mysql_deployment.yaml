@@ -36,6 +36,8 @@ spec:
               value: chaosblade
             - name: MYSQL_ROOT_PASSWORD
               value: {{ .Values.spring.datasource.password }}
+          args:
+            - '--lower_case_table_names=1'
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: chaosblade-box-mysql-volume

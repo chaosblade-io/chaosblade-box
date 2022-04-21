@@ -105,6 +105,7 @@ public class AnsibleChaosToolsMgr implements ChaosToolsMgr<MgrRequest> {
      * @return
      */
     private static Response<String> sendSSHKeyIfNotExitOnPassword(MgrRequest mgrRequest) {
+        log.info("[ansible] send ssh key, starting...");
         if (StringUtils.isBlank(mgrRequest.getInstancePassword())) {
             return Response.ofFailure(Response.Code.INVALID_Parameter, "SSH password must be input");
         }
@@ -113,6 +114,7 @@ public class AnsibleChaosToolsMgr implements ChaosToolsMgr<MgrRequest> {
 
         String[] cmds = new String[] {"/usr/bin/expect", SSH_FILE_COPY_DEFAULT_PATH, mgrRequest.getInstanceIp(),
                 mgrRequest.getInstanceUser(), mgrRequest.getInstancePassword(), port};
+
         try {
             Process process = Runtime.getRuntime().exec(cmds, null, null);
             process.waitFor(DEFAULT_TIME_OUT, TimeUnit.MICROSECONDS);
@@ -178,7 +180,7 @@ public class AnsibleChaosToolsMgr implements ChaosToolsMgr<MgrRequest> {
              * [WARNING]: Could not match supplied host pattern, ignoring: 47.99.143.216
              */
             if (process.getErrorStream().available() > 0) {
-                log.warn("[ansible executor] failed, err: " + IoUtil.read(process.getErrorStream(), SystemPropertiesUtils.getPropertiesFileEncoding()));
+                log.warn("[ansible executor] failed, command: {}, err: {}",ansibleCommand, IoUtil.read(process.getErrorStream(), SystemPropertiesUtils.getPropertiesFileEncoding()));
                 Response<String> re =  Response.ofFailure(Response.Code.Deploy_Error, IoUtil.read(process.getErrorStream(), SystemPropertiesUtils.getPropertiesFileEncoding()));
                 return re;
             } else {
@@ -186,7 +188,7 @@ public class AnsibleChaosToolsMgr implements ChaosToolsMgr<MgrRequest> {
                 IoUtil.readLines(new InputStreamReader(process.getInputStream()), content);
 
                 if (!ansibleCommandd.resultPredicate(content, true)) {
-                    log.warn("[ansible executor] failed, err: " + JSON.toJSONString(content));
+                    log.warn("[ansible executor] failed, command: {}, err: {}", ansibleCommand, JSON.toJSONString(content));
                     return Response.ofFailure(Response.Code.Deploy_Error, JSON.toJSONString(content));
                 }
                 log.info("ansible success! command: {}", ansibleCommand);

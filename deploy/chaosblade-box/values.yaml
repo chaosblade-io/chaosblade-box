@@ -1,7 +1,7 @@
 # Default values for chaosblade-box.
 box:
   repository: registry.cn-hangzhou.aliyuncs.com/chaosblade/chaosblade-box
-  version: 0.5.0
+  version: 1.0.0
   pullPolicy: IfNotPresent
 
 spring:
@@ -10,22 +10,14 @@ spring:
     username: root
     password:
 chaos:
-  collector:
-    enable: true
-    period: 30
-    type: kube_api
   agent:
-    port: 19527
-  scene:
-    import: true
-    market: #https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/market/chaostools/
-    originals:
-      litmus:
-        generic:
-          name: generic
-          version: 1.13.0
-          url: https://hub.litmuschaos.io/api/chaos/1.13.0?file=charts/generic/experiments.yaml
-
+    version: 1.0.0
+    repository: registry.cn-hangzhou.aliyuncs.com/chaosblade/chaos-agent
+    url: https://ahas-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/agent/pre/test/community/chaos.tar.gz
+    helm: https://ahas-cn-hangzhou.oss-cn-hangzhou.aliyuncs.com/agent/pre/test/community/chaos-1.0.0.tgz
+  function:
+    sync:
+      type: ALL
 logging:
   level:
     root: info

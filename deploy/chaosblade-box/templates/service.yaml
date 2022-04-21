@@ -25,10 +25,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
-    - port: 7001
-      protocol: TCP
+    - name: http
+      port: 7001
       targetPort: 7001
   selector:
     app: chaosblade-box
   sessionAffinity: None
-  type: ClusterIP
+  type: LoadBalancer

@@ -56,11 +56,6 @@ public class SettingServiceImpl implements SettingService {
     @Value("${chaos.agent.repository:}")
     private String chaosAgentRepository;
 
-    @Value("${agent.blade.version:}")
-    private String bladeVersion;
-
-    @Value("${agent.operator.version:}")
-    private String operatorVersion;
 
     @Value("${chaos.server.domain:}")
     private String boxServerDomain;
@@ -126,7 +121,12 @@ public class SettingServiceImpl implements SettingService {
         sb.append(" [agent端口号] ");
 
         sb.append(" -t ");
-        sb.append(boxServerDomain);
+        if (boxServerDomain.isEmpty()) {
+            sb.append(" [chaosblade-box ip:port] ");
+        } else {
+            sb.append(boxServerDomain);
+        }
+
         return sb;
     }
 
@@ -151,8 +151,8 @@ public class SettingServiceImpl implements SettingService {
                     sb.append(
                             " --set controller.cluster_id={替换为集群id，取值无特殊要求} --set controller"
                                     + ".cluster_name={替换为集群名字，取值无特殊要求}");
-                    sb.append(" --set transport.endpoint=");
-                    sb.append(boxServerDomain);
+                    sb.append(" --set transport.endpoint={替换为box的 ip:port}");
+
                     if (StringUtils.isNotBlank(chaosAgentRepository)) {
                         sb.append(" --set images.chaos.repository=").append(chaosAgentRepository);
                         sb.append(" --set images.chaos.version=").append(chaosAgentVersion);
@@ -169,8 +169,8 @@ public class SettingServiceImpl implements SettingService {
                         sb.append(",images.chaos.repository=").append(chaosAgentRepository);
                         sb.append(",images.chaos.version=").append(chaosAgentVersion);
                     }
-                    sb.append(",transport.endpoint=");
-                    sb.append(boxServerDomain);
+                    sb.append(",transport.endpoint={替换为box的 ip:port}");
+
                     sb.append(",controller.cluster_id={替换为集群id，取值无特殊要求},controller.cluster_name={替换为集群名字，取值无特殊要求}");
                     break;
                 default:

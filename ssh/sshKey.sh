@@ -15,6 +15,10 @@ expect {
     send "yes\n"
     expect "*password:" { send "$password\n"}
   }
+  "Are you sure you want to continue connecting" {
+    send "yes\n"
+    expect "*password:" { send "$password\n"}
+  }
  "*password:"
   {
     send "$password\n"
