@@ -34,6 +34,33 @@ helm package:
 helm package deploy/chaosblade-box
 ```
 
+## Pre Run Application For Host
+1. If don't have ansible installed, you need install `ansible`
+```bash
+# Check if there is already installed
+ansible --version
+
+# install ansible, eg: Fedora || RedHat 
+yum install ansible -y
+```
+2. If don't have expect installed, you need install `expect`
+```bash
+# Check if there is already installed
+expect -v
+
+# install expect, eg: Fedora || RedHat 
+yum install expect -y
+```
+3. Generate public key
+```bash
+# Check if there is already a key, if there is, delete the previous backup
+ls ~/.ssh
+rm -rf ~/.ssh/*
+
+# generate public key
+ssh-keygen -t rsa
+```
+
 ## Run Application
 If you already have MySQL installed, you need to create a schema named `chaosblade`, if you don't have MySQL installed, you can run it via Docker, run method is as follows:
 ```bash
