@@ -38,27 +38,37 @@ helm package deploy/chaosblade-box
 If you already have MySQL installed, you need to create a schema named `chaosblade`, if you don't have MySQL installed, you can run it via Docker, run method is as follows:
 ```bash
 docker run -d -it -p 3306:3306 \
-			-e MYSQL_DATABASE=chaosblade \
-			-e MYSQL_ROOT_PASSWORD=DATASOURCE_PASSWORD \
-			--name mysql-5.6 mysql:5.6 \
+            -e MYSQL_DATABASE=chaosblade \
+            -e MYSQL_ROOT_PASSWORD=[DATASOURCE_PASSWORD] \
+            --name mysql-5.6 mysql:5.6 \
             --character-set-server=utf8mb4 \
             --collation-server=utf8mb4_unicode_ci \
-            --default-time_zone='+8:00'
+            --default-time_zone='+8:00' \
+            --lower_case_table_names=1
 ```
-Notes: You must replace the follow parameters: DATASOURCE_URL, DATASOURCE_USERNAME, DATASOURCE_PASSWORD
+Notes: You must replace the follow parameters: DATASOURCE_HOST, DATASOURCE_USERNAME, DATASOURCE_PASSWORD, BOX-HOST(localHostIP:port, eg:*.*.*.*:7001)
 
 Then run the application, run method is as follows:
 
 ```bash
-nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box-web-0.4.1.jar --spring.datasource.url=DATASOURCE_URL --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD > chaosblade-box.log 2>&1 &
+nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box.jar --spring.datasource.url="jdbc:mysql://DATASOURCE_HOST:3306/chaosblade?characterEncoding=utf8&useSSL=false" --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD --chaos.server.domain=BOX-HOST> chaosblade-box.log 2>&1 &
 ```
 
-You can use a browser to access the http://127.0.0.1:8080 website to use the platform.
+You can use a browser to access the http://127.0.0.1:7001 website to use the platform.
 
 If you're deployed on kubernetes, the usage method is as follows:
 
 ```bash
-helm install chaosblade-box chaosblade-box-0.4.1.tgz --set spring.datasource.password=DATASOURCE_PASSWORD --namespace chaosblade
+helm install chaosblade-box chaosblade-box-1.0.0.tgz --namespace chaosblade --set spring.datasource.password=DATASOURCE_PASSWORD
+```
+
+You can get BOX-HOST by services. You can use a browser to access the http://10.10.10.03:7001 website to use the platform.
+
+```bash
+➜  shell kubectl get services -n chaosblade
+NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)           AGE
+chaosblade-box              LoadBalancer   192.168.255.01   10.10.10.03     7001:32250/TCP    12h
+chaosblade-box-mysql        ClusterIP      192.168.168.02    <none>           3306/TCP          12h
 ```
 
 ## Bugs and Feedback
