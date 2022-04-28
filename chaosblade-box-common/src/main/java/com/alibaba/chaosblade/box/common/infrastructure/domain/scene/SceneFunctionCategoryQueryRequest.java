@@ -23,4 +23,6 @@ public class SceneFunctionCategoryQueryRequest {
     String cloudServiceType;
     Integer osType;
 
+    String lang;
+
 }

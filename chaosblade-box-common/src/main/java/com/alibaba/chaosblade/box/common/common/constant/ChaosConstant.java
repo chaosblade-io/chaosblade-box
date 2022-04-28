@@ -24,6 +24,7 @@ public class ChaosConstant {
     public final static String DEFAULT_TOOLS = "chaosblade";
 
     public final static String LANGUAGE_EN = "en";
+    public final static String LANGUAGE_ZH = "zh";
 
     public final static String DOT = ".";
     public final static String COLON = ":";

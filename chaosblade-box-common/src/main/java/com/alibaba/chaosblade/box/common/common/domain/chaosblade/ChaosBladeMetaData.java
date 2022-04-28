@@ -132,10 +132,13 @@ public class ChaosBladeMetaData {
 
     public String getFunctionNameByChaosBladeAction(String originName, ChaosBladeAction chaosBladeAction) {
         if (ChaosBladeActionType.ATTACK.equals(chaosBladeAction.getActionType())) {
-            return scopeDict.get(chaosBladeAction.getScope()).trim() + StringUtils.capitalize(
-                subTargetDict.getOrDefault(
-                    chaosBladeAction.getSubTarget(), chaosBladeAction.getSubTarget()))
-                + actionDict.getOrDefault(chaosBladeAction.getAction(),chaosBladeAction.getAction());
+            // todo camix : 先试一下，这样就需要在前端进行翻译了，酱紫比较好
+//            return scopeDict.get(chaosBladeAction.getScope()).trim() + StringUtils.capitalize(
+//                subTargetDict.getOrDefault(
+//                    chaosBladeAction.getSubTarget(), chaosBladeAction.getSubTarget()))
+//                + actionDict.getOrDefault(chaosBladeAction.getAction(),chaosBladeAction.getAction());
+            return chaosBladeAction.getScope().trim().toUpperCase() + " " + chaosBladeAction.getSubTarget().trim().toUpperCase()
+                    + " " + chaosBladeAction.getAction().trim().toUpperCase();
         } else {
             return originName;
         }

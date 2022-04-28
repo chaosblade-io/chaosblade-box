@@ -114,17 +114,17 @@ public class ExperimentTaskGuardInstanceCreatedListener extends BaseChaosEventLi
             experimentGuardInstanceDO.setExperimentTaskId(experimentTaskDO.getTaskId());
             experimentGuardInstanceDO.setGuardId("-1");
             experimentGuardInstanceDO.setAppCode("chaosapp.timeout.recovery");
-            experimentGuardInstanceDO.setName("超时恢复");
+            experimentGuardInstanceDO.setName("Timeout-Recovery");
             experimentGuardInstanceDO.setActionType(ExperimentGuardDO.ACTION_TYPE_TIMEOUT_RECOVERY);
             ExperimentGuardArgument experimentGuardArgument = new ExperimentGuardArgument();
             RecoveryStrategyToleranceArgumentDefinition recoveryStrategyToleranceArgumentDefinition
                 = new RecoveryStrategyToleranceArgumentDefinition();
-            recoveryStrategyToleranceArgumentDefinition.setName("自动恢复时间");
+            recoveryStrategyToleranceArgumentDefinition.setName("Auto-Recovery-Time");
             String timeDesc = convertTime(experimentTaskDO.getDuration());
             recoveryStrategyToleranceArgumentDefinition.setValue(timeDesc);
             RecoveryStrategyFieldArgumentDefinition recoveryStrategyFieldArgumentDefinition
                 = new RecoveryStrategyFieldArgumentDefinition();
-            recoveryStrategyFieldArgumentDefinition.setName("自动恢复时间");
+            recoveryStrategyFieldArgumentDefinition.setName("Auto-Recovery-Time");
             recoveryStrategyFieldArgumentDefinition.setValue(timeDesc);
             experimentGuardArgument.setFields(Lists.newArrayList(recoveryStrategyFieldArgumentDefinition));
             experimentGuardArgument.setTolerance(Lists.newArrayList(recoveryStrategyToleranceArgumentDefinition));
@@ -149,7 +149,7 @@ public class ExperimentTaskGuardInstanceCreatedListener extends BaseChaosEventLi
                 experimentGuardInstanceDO.setGuardId("-1");
                 experimentGuardInstanceDO.setAppCode(MiniAppUtils.JVM_HIT_COUNT);
                 experimentGuardInstanceDO.setActivityTaskId(activityTaskDO.getTaskId());
-                experimentGuardInstanceDO.setName("[影响请求数目]" + activityTaskDO.getActivityName());
+                experimentGuardInstanceDO.setName("[Affect the number of requests]" + activityTaskDO.getActivityName());
                 experimentGuardInstanceDO.setActionType(ExperimentGuardDO.ACTION_TYPE_MONITOR);
                 ExperimentGuardArgument experimentGuardArgument = new ExperimentGuardArgument();
                 SceneArgumentDefinition sceneArgumentDefinition = new SceneArgumentDefinition();
@@ -164,9 +164,9 @@ public class ExperimentTaskGuardInstanceCreatedListener extends BaseChaosEventLi
 
     private String convertTime(Long duration) {
         if (duration <= 60 * 3) {
-            return duration + "秒";
+            return duration + "sec";
         } else {
-            return (TimeUnit.SECONDS.toMinutes(duration)) + "分";
+            return (TimeUnit.SECONDS.toMinutes(duration)) + "min";
         }
     }
 

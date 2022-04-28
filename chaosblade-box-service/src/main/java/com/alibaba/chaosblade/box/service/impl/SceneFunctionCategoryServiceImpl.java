@@ -1,5 +1,6 @@
 package com.alibaba.chaosblade.box.service.impl;
 
+import com.alibaba.chaosblade.box.common.common.constant.ChaosConstant;
 import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneFunctionCategoryQueryRequest;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneFunctionCategoryUpdateRequest;
@@ -10,6 +11,7 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.interceptor.Scen
 import com.alibaba.chaosblade.box.dao.model.SceneFunctionCategoryDO;
 import com.alibaba.chaosblade.box.dao.repository.SceneFunctionCategoryRepository;
 import com.alibaba.chaosblade.box.service.SceneFunctionCategoryService;
+import com.alibaba.chaosblade.box.service.TranslateService;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.google.common.base.Strings;
 import lombok.AccessLevel;
@@ -17,6 +19,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,26 +43,32 @@ public class SceneFunctionCategoryServiceImpl implements SceneFunctionCategorySe
     @Resource
     private List<SceneFunctionCategoryInterceptor> sceneFunctionCategoryInterceptors;
 
+    @Autowired
+    private TranslateService translateService;
+
     @Override
     public SceneFunctionCategoryDO getCategoryById(String categoryId) {
         return sceneFunctionCategoryRepository.findById(categoryId).orElse(null);
     }
 
     @Override
-    public List<SceneFunctionCategoryDO> getCategoriesByPhase(Integer phase, Integer scopeType, Integer osType, CategoryFilterCondition condition) {
-        List<SceneFunctionCategoryDO> categories = this.getCategoriesByPhaseAndType(phase, null, scopeType, osType);
+    public List<SceneFunctionCategoryDO> getCategoriesByPhase(Integer phase, Integer scopeType, Integer osType, String lang, CategoryFilterCondition condition) {
+        List<SceneFunctionCategoryDO> categories = this.getCategoriesByPhaseAndType(phase, null, scopeType, osType, lang);
         sceneFunctionCategoryInterceptors.forEach(sceneFunctionCategoryInterceptor -> sceneFunctionCategoryInterceptor.filterCategory(categories,condition));
         return categories;
     }
 
     @Override
-    public List<SceneFunctionCategoryDO> getCategoriesByPhaseAndType(Integer phase, Integer type, Integer scopeType, Integer osType) {
+    public List<SceneFunctionCategoryDO> getCategoriesByPhaseAndType(Integer phase, Integer type, Integer scopeType, Integer osType, String lang) {
         SceneFunctionCategoryQueryRequest request = new SceneFunctionCategoryQueryRequest();
         request.setPhase(phase);
         request.setType(type);
         request.setScopeType(scopeType);
         request.setOsType(osType);
         List<SceneFunctionCategoryDO> parallel = sceneFunctionCategoryRepository.getSceneFunctionCategories(request);
+        if (!Strings.isNullOrEmpty(lang) && lang.equals(ChaosConstant.LANGUAGE_EN)){
+            translateNameToEn(parallel);
+        }
         if (parallel.isEmpty()) { return new ArrayList<>();}
         //过滤操作系统类型 1表示windows
 //        if(null != osType && osType == 1) {
@@ -68,6 +77,14 @@ public class SceneFunctionCategoryServiceImpl implements SceneFunctionCategorySe
 //            }).collect(Collectors.toList());
 //        }
         return buildTrees(parallel);
+    }
+
+    public void translateNameToEn(List<SceneFunctionCategoryDO> categories) {
+
+        for (SceneFunctionCategoryDO categoryDO : categories) {
+            categoryDO.setName(translateService.translateToEn(categoryDO.getName()));
+        }
+
     }
 
     @Override

@@ -37,7 +37,7 @@ class SettingController extends BaseController {
             return RestResponseUtil.failed(ChaosError.withCode(CommonErrorCode.P_ARGUMENT_ILLEGAL));
         }
         Map<String, String> returnT = settingService.queryAgentInstallCommandByMode(userId, settingQueryInstallRequest.getNamespace(), installMode, deviceOsType,
-                settingQueryInstallRequest.getHelmVersion());
+                settingQueryInstallRequest.getHelmVersion(), settingQueryInstallRequest.getLang());
 
         return RestResponseUtil.okWithData(returnT);
     }

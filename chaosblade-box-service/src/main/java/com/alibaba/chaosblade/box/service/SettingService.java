@@ -13,7 +13,7 @@ import java.util.Map;
 
 public interface SettingService {
 
-    Map<String, String> queryAgentInstallCommandByMode(String var1, String var2, InstallMode var3, DeviceOsType var4, String var5);
+    Map<String, String> queryAgentInstallCommandByMode(String var1, String var2, InstallMode var3, DeviceOsType var4, String var5, String var6);
 
     public String queryHelmAgentInstallPackageAddress();
 

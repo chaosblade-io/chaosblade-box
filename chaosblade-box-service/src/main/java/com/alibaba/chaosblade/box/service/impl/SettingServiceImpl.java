@@ -1,6 +1,7 @@
 package com.alibaba.chaosblade.box.service.impl;
 
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
+import com.alibaba.chaosblade.box.common.common.constant.ChaosConstant;
 import com.alibaba.chaosblade.box.common.common.domain.response.Response;
 import com.alibaba.chaosblade.box.common.common.enums.DeviceOsType;
 import com.alibaba.chaosblade.box.common.common.enums.DeviceType;
@@ -77,22 +78,22 @@ public class SettingServiceImpl implements SettingService {
 
     @Override
     public Map<String, String> queryAgentInstallCommandByMode(String userId, String namespace, InstallMode mode,
-                                                              DeviceOsType osType, String helmVersion) {
+                                                              DeviceOsType osType, String helmVersion, String lang) {
         Map<String, String> result = new HashMap<>();
 
         if (InstallMode.host.name().equalsIgnoreCase(mode.name())) {
-            StringBuilder sb = buildBasicAgentInstallCommandForHost(userId, namespace);
+            StringBuilder sb = buildBasicAgentInstallCommandForHost(userId, namespace, lang);
             result.put(COMMAND_INSTALL, sb.toString());
             return result;
         } else if (InstallMode.isKubernetes(mode.name())) {
-            StringBuilder sb = buildAgentInstallCommandByHelmVersion(userId, namespace, helmVersion);
+            StringBuilder sb = buildAgentInstallCommandByHelmVersion(userId, namespace, helmVersion, lang);
             result.put(COMMAND_INSTALL, sb.toString());
             return result;
         }
         return null;
     }
 
-    private StringBuilder buildBasicAgentInstallCommandForHost(String userId, String namespace) {
+    private StringBuilder buildBasicAgentInstallCommandForHost(String userId, String namespace, String lang) {
         Preconditions.checkArgument(StringUtils.isNotBlank(userId));
         Preconditions.checkArgument(StringUtils.isNotBlank(namespace));
         UserDo userDo = userRepository.getById(userId);
@@ -112,13 +113,24 @@ public class SettingServiceImpl implements SettingService {
         sb.append(" -k ");
         sb.append(licenseKey);
 
-        sb.append(" -p ");
-        sb.append(" [应用名] ");
-        sb.append(" -g ");
-        sb.append(" [应用分组] ");
+        if (lang.equals(ChaosConstant.LANGUAGE_EN)) {
+            sb.append(" -p ");
+            sb.append(" [application name] ");
+            sb.append(" -g ");
+            sb.append(" [application group] ");
 
-        sb.append(" -P ");
-        sb.append(" [agent端口号] ");
+            sb.append(" -P ");
+            sb.append(" [agent port] ");
+        } else {
+            sb.append(" -p ");
+            sb.append(" [应用名] ");
+            sb.append(" -g ");
+            sb.append(" [应用分组] ");
+
+            sb.append(" -P ");
+            sb.append(" [agent端口号] ");
+        }
+
 
         sb.append(" -t ");
         if (boxServerDomain.isEmpty()) {
@@ -130,7 +142,7 @@ public class SettingServiceImpl implements SettingService {
         return sb;
     }
 
-    private StringBuilder buildAgentInstallCommandByHelmVersion(String userId, String namespace, String helmVersion) {
+    private StringBuilder buildAgentInstallCommandByHelmVersion(String userId, String namespace, String helmVersion, String lang) {
         UserDo userDo = userRepository.getById(userId);
         if (userDo == null){
             return new StringBuilder();
@@ -148,10 +160,18 @@ public class SettingServiceImpl implements SettingService {
                     sb.append(" --set license=");
                     sb.append(license);
 
-                    sb.append(
-                            " --set controller.cluster_id={替换为集群id，取值无特殊要求} --set controller"
-                                    + ".cluster_name={替换为集群名字，取值无特殊要求}");
-                    sb.append(" --set transport.endpoint={替换为box的 ip:port}");
+                    if (lang.equals(ChaosConstant.LANGUAGE_EN)) {
+                        sb.append(
+                                " --set controller.cluster_id={replace with cluster id, value No special requirements} --set controller"
+                                        + ".cluster_name={replace with cluster name, value No special requirements}");
+                        sb.append(" --set transport.endpoint={replace with ip:port of box}");
+                    } else {
+                        sb.append(
+                                " --set controller.cluster_id={替换为集群id，取值无特殊要求} --set controller"
+                                        + ".cluster_name={替换为集群名字，取值无特殊要求}");
+                        sb.append(" --set transport.endpoint={替换为box的 ip:port}");
+                    }
+
 
                     if (StringUtils.isNotBlank(chaosAgentRepository)) {
                         sb.append(" --set images.chaos.repository=").append(chaosAgentRepository);
@@ -169,9 +189,16 @@ public class SettingServiceImpl implements SettingService {
                         sb.append(",images.chaos.repository=").append(chaosAgentRepository);
                         sb.append(",images.chaos.version=").append(chaosAgentVersion);
                     }
-                    sb.append(",transport.endpoint={替换为box的 ip:port}");
 
-                    sb.append(",controller.cluster_id={替换为集群id，取值无特殊要求},controller.cluster_name={替换为集群名字，取值无特殊要求}");
+                    if (lang.equals(ChaosConstant.LANGUAGE_EN)) {
+                        sb.append(",transport.endpoint={replace with ip:port of box}");
+
+                        sb.append(",controller.cluster_id={replace with cluster id, value No special requirements},controller.cluster_name={replace with cluster name, value No special requirements}");
+                    } else {
+                        sb.append(",transport.endpoint={替换为box的 ip:port}");
+
+                        sb.append(",controller.cluster_id={替换为集群id，取值无特殊要求},controller.cluster_name={替换为集群名字，取值无特殊要求}");
+                    }
                     break;
                 default:
                     return buildAgentInstallCommandByHelm(userId, namespace, license);

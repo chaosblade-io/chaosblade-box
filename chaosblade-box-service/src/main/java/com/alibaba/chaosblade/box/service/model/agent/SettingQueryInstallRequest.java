@@ -13,4 +13,6 @@ public class SettingQueryInstallRequest extends SettingRequest {
     String RegionId;
 
     String HelmVersion;
+
+    String Lang;
 }

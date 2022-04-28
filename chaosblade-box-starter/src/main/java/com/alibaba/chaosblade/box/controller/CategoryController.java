@@ -88,7 +88,7 @@ public class CategoryController extends BaseController {
         CategoryFilterCondition condition = new CategoryFilterCondition();
         condition.setCloudServiceType(request.getCloudServiceType());
         condition.setFilterNoChild(request.getFilterNoChild());
-        List<SceneFunctionCategoryDO> categories = sceneFunctionCategoryService.getCategoriesByPhase(phase, request.getScopeType(), request.getOsType(), condition);
+        List<SceneFunctionCategoryDO> categories = sceneFunctionCategoryService.getCategoriesByPhase(phase, request.getScopeType(), request.getOsType(),request.getLang(), condition);
 
         if (CollectionUtil.isNullOrEmpty(categories)) {
             return RestResponseUtil.okWithData(Lists.newArrayList());
@@ -106,6 +106,7 @@ public class CategoryController extends BaseController {
         List<SceneFunctionCategoryDO> categories = sceneFunctionCategoryService.getCategoriesByPhaseAndType(
                 ChaosFunctionConstant.PHASE_FLAG_GLOBAL,
                 SceneFunctionCategoryDO.GLOBAL_MONITOR_CATEGORY_TYPE,
+                null,
                 null,
                 null
         );
@@ -126,6 +127,7 @@ public class CategoryController extends BaseController {
         List<SceneFunctionCategoryDO> categories = sceneFunctionCategoryService.getCategoriesByPhaseAndType(
                 ChaosFunctionConstant.PHASE_FLAG_GLOBAL,
                 SceneFunctionCategoryDO.GLOBAL_GUARD_ROOT_CATEGORY_TYPE,
+                null,
                 null,
                 null
         );
