@@ -66,10 +66,11 @@ public class SceneFunctionCategoryServiceImpl implements SceneFunctionCategorySe
         request.setScopeType(scopeType);
         request.setOsType(osType);
         List<SceneFunctionCategoryDO> parallel = sceneFunctionCategoryRepository.getSceneFunctionCategories(request);
+
+        if (parallel.isEmpty()) { return new ArrayList<>();}
         if (!Strings.isNullOrEmpty(lang) && lang.equals(ChaosConstant.LANGUAGE_EN)){
             translateNameToEn(parallel);
         }
-        if (parallel.isEmpty()) { return new ArrayList<>();}
         //过滤操作系统类型 1表示windows
 //        if(null != osType && osType == 1) {
 //            parallel = parallel.stream().filter(sceneFunctionCategoryDO -> {

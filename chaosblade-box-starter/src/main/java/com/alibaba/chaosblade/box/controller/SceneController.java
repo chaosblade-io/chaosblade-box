@@ -10,6 +10,7 @@ import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneQueryR
 import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneDescriptionParser;
+import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneFunctionNameParser;
 import com.alibaba.chaosblade.box.dao.model.SceneFunctionDO;
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
 import com.alibaba.chaosblade.box.model.RestResponseUtil;
@@ -44,6 +45,9 @@ public class SceneController extends BaseController {
 
     @Autowired
     private SceneDescriptionParser sceneDescriptionParser;
+
+    @Autowired
+    private SceneFunctionNameParser sceneFunctionNameParser;
 
     @PostMapping("QuerySceneFunctionByCategoryId")
     public RestResponse<PageableResponse<SceneFunctionVO>> querySceneFunctionByCategoryId(@LoginUser ChaosUser user,
@@ -118,6 +122,7 @@ public class SceneController extends BaseController {
         //重新构造小程序描述
         if (Strings.isNullOrEmpty(lang) || lang.equals(ChaosConstant.LANGUAGE_ZH)) {
             sceneDescriptionParser.parseSceneDescription(functions);
+            sceneFunctionNameParser.parseSceneFunction(functions);
         }
         return PageableResponse.clone(pageableResponse,
                 convertSceneFunctions(functions));
