@@ -3,6 +3,7 @@ package com.alibaba.chaosblade.box.service.command.experiment;
 import com.alibaba.chaosblade.box.common.app.sdk.constants.PhaseType;
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
 import com.alibaba.chaosblade.box.common.commands.SpringBeanCommand;
+import com.alibaba.chaosblade.box.common.common.constant.ChaosConstant;
 import com.alibaba.chaosblade.box.common.common.domain.Response;
 import com.alibaba.chaosblade.box.common.common.domain.definition.ExperimentActivityDefinition;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
@@ -433,7 +434,12 @@ public abstract class AbstractExperimentDefinitionCommand
 			experimentActivityDefinition.setScope(hosts);
 			if (!Strings.isNullOrEmpty(attackName) && MiniAppUtils.isChaosRecovery(
 					experimentActivityDefinition.getAppCode())) {
-				experimentActivityDefinition.setActivityName("恢复(" + attackName + ")");
+				if (experimentDefinitionContext.getExperimentDefinitionRequest().getLang().equals(ChaosConstant.LANGUAGE_EN)) {
+					experimentActivityDefinition.setActivityName("recovery(" + attackName + ")");
+				}else {
+					experimentActivityDefinition.setActivityName("恢复(" + attackName + ")");
+				}
+
 			}
 			ExperimentActivityDefinition temp = new ExperimentActivityDefinition();
 			BeanUtils.copyProperties(experimentActivityDefinition, temp, "arguments");

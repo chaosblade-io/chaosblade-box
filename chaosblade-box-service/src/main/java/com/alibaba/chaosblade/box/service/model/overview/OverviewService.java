@@ -1,5 +1,7 @@
 package com.alibaba.chaosblade.box.service.model.overview;
 
+import com.alibaba.chaosblade.box.common.common.constant.ChaosConstant;
+import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import com.alibaba.chaosblade.box.common.common.domain.ChaosError;
 import com.alibaba.chaosblade.box.common.common.domain.PageQueryResponse;
 import com.alibaba.chaosblade.box.common.common.domain.Response;
@@ -7,6 +9,7 @@ import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
 import com.alibaba.chaosblade.box.common.common.enums.ExperimentStateEnum;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
+import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneFunctionNameParser;
 import com.alibaba.chaosblade.box.dao.mapper.CloudManualMapper;
 import com.alibaba.chaosblade.box.dao.model.*;
 import com.alibaba.chaosblade.box.dao.query.ExperimentQuery;
@@ -57,11 +60,21 @@ public class OverviewService {
     @Autowired
     private ExperimentTaskRepository experimentTaskRepository;
 
+    @Autowired
+    private SceneFunctionNameParser sceneFunctionNameParser;
+
     private List<OverviewScene> defaultUserScene = new ArrayList<OverviewScene>() {{
         add(new OverviewScene("主机内Cpu满载", "chaos.cpu.fullload", 1, "系统资源", "CPU资源"));
         add(new OverviewScene("主机内网络延迟", "chaos.network.delay", 2, "系统资源", "网络延迟"));
         add(new OverviewScene("主机内Java抛出自定义异常", "chaos.jvm.throwCustomException", 3, "JAVA应用", "抛异常"));
         add(new OverviewScene("主机内Java脚本", "chaos.jvm.script", 4, "JAVA应用", "自定义故障"));
+    }};
+
+    private List<OverviewScene> defaultUserSceneEn = new ArrayList<OverviewScene>() {{
+        add(new OverviewScene("HOST CPU FULLLOAD", "chaos.cpu.fullload", 1, "System Resources", "CPU Resources"));
+        add(new OverviewScene("HOST NETWORK DELAY", "chaos.network.delay", 2, "System Resources", "Network Delay"));
+        add(new OverviewScene("HOST JVM THROWCUSTOMEXCEPTION", "chaos.jvm.throwCustomException", 3, "JAVA In-process", "Throw Exception"));
+        add(new OverviewScene("HOST JVM SCRIPT", "chaos.jvm.script", 4, "JAVA In-process", "custom fault"));
     }};
 
     private Cache<String, List<OverviewScene>> sceneCache = CacheBuilder.newBuilder().maximumSize(1000)
@@ -179,34 +192,35 @@ public class OverviewService {
         return Response.okWithData(overviewProduct);
     }
 
-    public Response<List<OverviewScene>> getUserScene(ChaosUser chaosUser) {
+    public Response<List<OverviewScene>> getUserScene(ChaosUser chaosUser, BaseRequest baseRequest) {
         try {
-            List<OverviewScene> result = sceneCache.get(chaosUser.getUserId(), new Callable<List<OverviewScene>>() {
-                @Override
-                public List<OverviewScene> call() throws Exception {
-                    return cloudManualMapper.countAppCodeByUserId(chaosUser.getUserId(), getStartTime())
-                            .stream()
-                            .sorted((o1, o2) -> Integer.parseInt(o2.get("total").toString()) - Integer.parseInt(o1.get("total").toString()))
-                            .limit(4)
-                            .map(stringObjectMap -> {
-                                OverviewScene overviewScene = new OverviewScene();
-                                String appCode = String.valueOf(stringObjectMap.get("app_code"));
-                                overviewScene.setAppCode(appCode);
-                                overviewScene.setSceneTarget(getSceneTarget(appCode));
-                                overviewScene.setSceneType(getSceneType(appCode));
-                                overviewScene.setName(sceneFunctionRepository.findByCode(appCode).map(
-                                        new Function<SceneFunctionDO, String>() {
-                                            @Override
-                                            public String apply(SceneFunctionDO sceneFunctionDO) {
-                                                return sceneFunctionDO.getName();
-                                            }
-                                        }).orElse(null));
-                                return overviewScene;
-                            })
-                            .collect(Collectors.toList());
-                }
-            });
-            return Response.okWithData(CollectionUtil.isNullOrEmpty(result) ? defaultUserScene : result);
+            String lang = Strings.isNullOrEmpty(baseRequest.getLang()) ? ChaosConstant.LANGUAGE_ZH: baseRequest.getLang();
+
+            List<OverviewScene> result = cloudManualMapper.countAppCodeByUserId(chaosUser.getUserId(), getStartTime())
+                    .stream()
+                    .sorted((o1, o2) -> Integer.parseInt(o2.get("total").toString()) - Integer.parseInt(o1.get("total").toString()))
+                    .limit(4)
+                    .map(stringObjectMap -> {
+                        OverviewScene overviewScene = new OverviewScene();
+                        String appCode = String.valueOf(stringObjectMap.get("app_code"));
+                        overviewScene.setAppCode(appCode);
+                        overviewScene.setSceneTarget(getSceneTarget(appCode, lang));
+                        overviewScene.setSceneType(getSceneType(appCode, lang));
+                        overviewScene.setName(sceneFunctionNameParser.parseFunctionName(sceneFunctionRepository.findByCode(appCode).map(
+                                new Function<SceneFunctionDO, String>() {
+                                    @Override
+                                    public String apply(SceneFunctionDO sceneFunctionDO) {
+                                        return sceneFunctionDO.getName();
+                                    }
+                                }).orElse(null), lang));
+                        return overviewScene;
+                    })
+                    .collect(Collectors.toList());
+            if (Strings.isNullOrEmpty(lang) || lang.equals(ChaosConstant.LANGUAGE_ZH)){
+                return Response.okWithData(CollectionUtil.isNullOrEmpty(result) ? defaultUserScene : result);
+            } else {
+                return Response.okWithData(CollectionUtil.isNullOrEmpty(result) ? defaultUserSceneEn : result);
+            }
         } catch (Exception e) {
             return Response.failedWith(ChaosError.withCode(CommonErrorCode.B_OVERVIEW_USER_SCENE_QUERY_ERROR));
         }
@@ -254,53 +268,51 @@ public class OverviewService {
         return monthDate;
     }
 
-    private String getSceneTarget(String appCode) {
+    private String getSceneTarget(String appCode, String lang) {
         //todo 整理个工具类
         if (Strings.isNullOrEmpty(appCode)) {
             return "";
         }
         if (appCode.contains("jvm")) {
-            return "JAVA应用";
+            return lang.equals(ChaosConstant.LANGUAGE_EN)? "JAVA In-process": "JAVA应用";
         }
-        return "系统资源";
+
+        return lang.equals(ChaosConstant.LANGUAGE_EN)? "System Resources": "系统资源";
     }
 
-    private String getSceneType(String appCode) {
+    private String getSceneType(String appCode, String lang) {
         if (Strings.isNullOrEmpty(appCode)) {
             return "";
         }
         if (appCode.contains("cpu")) {
-            return "CPU资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("cpu", lang);
         }
         if (appCode.contains("disk")) {
-            return "磁盘资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("disk", lang);
         }
         if (appCode.contains("delay")) {
-            return "延迟";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("delay", lang);
         }
         if (appCode.contains("network")) {
-            return "网络资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("network", lang);
         }
         if (appCode.contains("mem")) {
-            return "内存资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("mem", lang);
         }
         if (appCode.contains("script")) {
-            return "自定义故障";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("script", lang);
         }
         if (appCode.contains("sql")) {
-            return "数据库";
-        }
-        if (appCode.contains("cloud")) {
-            return "云服务";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("sql", lang);
         }
         if (appCode.contains("node")) {
-            return "集群资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("node", lang);
         }
         if (appCode.contains("pod")) {
-            return "集群资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("pod", lang);
         }
         if (appCode.contains("container")) {
-            return "集群资源";
+            return sceneFunctionNameParser.getSceneTypeByTypeAndLang("container", lang);
         }
         return "";
     }

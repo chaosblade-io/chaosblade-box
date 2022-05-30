@@ -1,6 +1,7 @@
 package com.alibaba.chaosblade.box.controller;
 
 import com.alibaba.chaosblade.box.annotation.LoginUser;
+import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import com.alibaba.chaosblade.box.common.common.domain.PageQueryResponse;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.model.RestResponseUtil;
@@ -46,8 +47,8 @@ public class OverviewController extends BaseController {
     }
 
     @PostMapping("UserSceneOverview")
-    public RestResponse<List<OverviewScene>> userSceneOverview(@LoginUser ChaosUser chaosUser) {
-        return RestResponseUtil.initWithServiceResponse(overviewService.getUserScene(chaosUser));
+    public RestResponse<List<OverviewScene>> userSceneOverview(@LoginUser ChaosUser chaosUser, @RequestBody BaseRequest baseRequest) {
+        return RestResponseUtil.initWithServiceResponse(overviewService.getUserScene(chaosUser, baseRequest));
     }
 
     @PostMapping("UserExpertiseOverview")

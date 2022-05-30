@@ -39,5 +39,6 @@ public class BaseRequest implements Serializable {
 		to.setUser(from.getUser());
 //		to.setRegionId(from.getRegionId());
 		to.setRequestId(from.getRequestId());
+		to.setLang(from.getLang());
 	}
 }

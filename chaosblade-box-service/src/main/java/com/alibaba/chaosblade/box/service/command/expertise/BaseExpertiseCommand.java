@@ -107,6 +107,7 @@ public abstract class BaseExpertiseCommand<ExpertiseOperationRequest extends Bas
         experimentDefinitionRequest.setUser(expertiseOperationRequest.getUser());
         experimentDefinitionRequest.setExpertise(true);
         experimentDefinitionRequest.setSchedulerConfig(experimentFlowInfo.getSchedulerConfig());
+        experimentDefinitionRequest.setLang(expertiseOperationRequest.getLang());
         return experimentDefinitionRequest;
     }
 
