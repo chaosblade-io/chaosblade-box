@@ -911,8 +911,8 @@ CREATE TABLE IF NOT EXISTS `t_mk_m_quartz_simple_triggers`
     REPEAT_COUNT    bigint(7)    not null,
     REPEAT_INTERVAL bigint(12)   not null,
     TIMES_TRIGGERED bigint(10)   not null,
-    primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
+    PRIMARY KEY (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
     constraint t_mk_m_quartz_simple_triggers_ibfk_1
         foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references `t_chaos_m_quartz_triggers` (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-);
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
