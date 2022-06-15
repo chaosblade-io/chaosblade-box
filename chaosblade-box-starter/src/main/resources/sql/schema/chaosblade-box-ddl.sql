@@ -903,7 +903,7 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_fired_triggers` (
   PRIMARY KEY (`SCHED_NAME`,`ENTRY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `t_mk_m_quartz_simple_triggers`
+CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_simple_triggers`
 (
     SCHED_NAME      varchar(120) not null,
     TRIGGER_NAME    varchar(200) not null,
