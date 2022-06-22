@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExperimentToExpertiseConvertCommand extends SpringBeanCommand<BaseExperimentRequest, Response<String>> {
 
-    private final static String DEFAULT = "待补充";
+    private final static String DEFAULT = "To be added";
 
 
     @Override
@@ -47,6 +47,7 @@ public class ExperimentToExpertiseConvertCommand extends SpringBeanCommand<BaseE
         experimentExpertiseCreateRequest.setNamespace(baseExperimentRequest.getNamespace());
         experimentExpertiseCreateRequest.setBasicInfo(basicInfo);
         experimentExpertiseCreateRequest.setExecutableInfo(executableInfo);
+        experimentExpertiseCreateRequest.setLang(baseExperimentRequest.getLang());
         return commandBus.syncRun(ExpertiseCreateCommand.class, experimentExpertiseCreateRequest);
 
     }

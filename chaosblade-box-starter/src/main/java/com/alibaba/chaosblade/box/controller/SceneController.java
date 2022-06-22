@@ -1,6 +1,7 @@
 package com.alibaba.chaosblade.box.controller;
 
 import com.alibaba.chaosblade.box.annotation.LoginUser;
+import com.alibaba.chaosblade.box.common.common.constant.ChaosConstant;
 import com.alibaba.chaosblade.box.common.common.domain.PageableRequest;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.common.infrastructure.constant.PermissionTypes;
@@ -9,6 +10,7 @@ import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneQueryR
 import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneDescriptionParser;
+import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneFunctionNameParser;
 import com.alibaba.chaosblade.box.dao.model.SceneFunctionDO;
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
 import com.alibaba.chaosblade.box.model.RestResponseUtil;
@@ -17,6 +19,7 @@ import com.alibaba.chaosblade.box.service.SceneFunctionService;
 import com.alibaba.chaosblade.box.service.model.RestResponse;
 import com.alibaba.chaosblade.box.service.model.scene.SceneFunctionParameterVO;
 import com.alibaba.chaosblade.box.service.model.scene.SceneFunctionVO;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,9 @@ public class SceneController extends BaseController {
     @Autowired
     private SceneDescriptionParser sceneDescriptionParser;
 
+    @Autowired
+    private SceneFunctionNameParser sceneFunctionNameParser;
+
     @PostMapping("QuerySceneFunctionByCategoryId")
     public RestResponse<PageableResponse<SceneFunctionVO>> querySceneFunctionByCategoryId(@LoginUser ChaosUser user,
                                                                                           @RequestBody PageableSceneQueryRequest pageableRequest) {
@@ -58,7 +64,7 @@ public class SceneController extends BaseController {
         queryRequest.setIsPublic(true);
 
         PageableResponse<SceneFunctionVO> functions = convertSceneFunctions(sceneFunctionService
-                .querySceneFunctions(pageableRequest.getPage(), pageableRequest.getSize(), queryRequest));
+                .querySceneFunctions(pageableRequest.getPage(), pageableRequest.getSize(), queryRequest), pageableRequest.getLang());
         return wrapResponse(
                 functions,
                 PageableResponse.of(pageableRequest.getPage(), pageableRequest.getSize(), Lists.newArrayList())
@@ -89,7 +95,7 @@ public class SceneController extends BaseController {
         queryRequest.setPhase(null);
 
         PageableResponse<SceneFunctionVO> functions = convertSceneFunctions(
-                sceneFunctionService.querySceneFunctions(pageableRequest.getPage(), DEFAULT_PAGE_SIZE, queryRequest));
+                sceneFunctionService.querySceneFunctions(pageableRequest.getPage(), DEFAULT_PAGE_SIZE, queryRequest), pageableRequest.getLang());
 
         return wrapResponse(
                 functions,
@@ -108,13 +114,16 @@ public class SceneController extends BaseController {
     }
 
     private PageableResponse<SceneFunctionVO> convertSceneFunctions(
-            PageableResponse<SceneFunctionDO> pageableResponse) {
+            PageableResponse<SceneFunctionDO> pageableResponse, String lang) {
         if (CollectionUtil.isNullOrEmpty(pageableResponse.data())) {
             return PageableResponse.clone(pageableResponse, Lists.newArrayList());
         }
         List<SceneFunctionDO> functions = Lists.newArrayList(pageableResponse.data());
         //重新构造小程序描述
-        sceneDescriptionParser.parseSceneDescription(functions);
+        if (Strings.isNullOrEmpty(lang) || lang.equals(ChaosConstant.LANGUAGE_ZH)) {
+            sceneDescriptionParser.parseSceneDescription(functions);
+            sceneFunctionNameParser.parseSceneFunction(functions);
+        }
         return PageableResponse.clone(pageableResponse,
                 convertSceneFunctions(functions));
     }

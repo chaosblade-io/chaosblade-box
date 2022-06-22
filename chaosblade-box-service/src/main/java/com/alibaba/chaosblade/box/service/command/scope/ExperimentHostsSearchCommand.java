@@ -76,7 +76,7 @@ public class ExperimentHostsSearchCommand
         return experimentScope;
     }
 
-
+    //todo. 这里应该改成如果是host,再通过ping的方式，如果能通才能返回true
     private void canAutoInstall(ExperimentScope experimentScope, DeviceDO deviceDO) {
         if (StringUtils.isBlank(deviceDO.getInstallMode()) || InstallMode.host.name().equalsIgnoreCase(deviceDO.getInstallMode())) {
             experimentScope.setCanAutoInstall(Boolean.TRUE);

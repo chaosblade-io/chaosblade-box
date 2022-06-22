@@ -17,6 +17,8 @@ public class BaseRequest implements Serializable {
 	private String namespace;
 	
 	private String requestId;
+
+	private String lang;
 	
 //	@JSONField(serialize = false, name = "region")
 //	private String regionId;
@@ -37,5 +39,6 @@ public class BaseRequest implements Serializable {
 		to.setUser(from.getUser());
 //		to.setRegionId(from.getRegionId());
 		to.setRequestId(from.getRequestId());
+		to.setLang(from.getLang());
 	}
 }

@@ -2,10 +2,12 @@ package com.alibaba.chaosblade.box.service.command.experiment;
 
 import com.alibaba.chaosblade.box.common.app.sdk.constants.PhaseType;
 import com.alibaba.chaosblade.box.common.commands.SpringBeanCommand;
+import com.alibaba.chaosblade.box.common.common.constant.ChaosConstant;
 import com.alibaba.chaosblade.box.common.common.constant.ChaosFunctionConstant;
 import com.alibaba.chaosblade.box.common.common.domain.Response;
 import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
 import com.alibaba.chaosblade.box.common.common.util.MiniAppUtils;
+import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneFunctionNameParser;
 import com.alibaba.chaosblade.box.dao.infrastructure.convertor.ArgumentDefinitionConvertor;
 import com.alibaba.chaosblade.box.common.infrastructure.SceneArgumentGradeConverter;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.flow.ExperimentActivityInfo;
@@ -56,8 +58,13 @@ public class InitMiniFlowByAppCodeCommand
 	@Autowired
 	private SceneArgumentGradeConverter sceneArgumentGradeConverter;
 
+	@Autowired
+	private SceneFunctionNameParser sceneFunctionNameParser;
+
 	public InitMiniFlowByAppCodeCommand() {
 	}
+
+	private static String lang = "";
 
 	@Override
 	public Response<Map<String, List<ExperimentActivityInfo>>> execute(
@@ -71,6 +78,8 @@ public class InitMiniFlowByAppCodeCommand
 		if (!sceneFunctionDO.isSupport(ChaosFunctionConstant.PHASE_FLAG_ATTACK)) {
 			return Response.failedWith(CommonErrorCode.B_ONLY_SUPPORT_ATTACK);
 		}
+		lang = initMiniFlowRequest.getLang();
+
 		Map<String, List<ExperimentActivityInfo>> phaseToActivities = new HashMap<>();
 		initAttachActivity(initMiniFlowRequest, sceneFunctionDO, phaseToActivities);
 		fillDependencies(initMiniFlowRequest, appCode, sceneFunctionDO, phaseToActivities);
@@ -193,6 +202,10 @@ public class InitMiniFlowByAppCodeCommand
 
 	private ExperimentActivityInfo createBySceneFunctionDO(SceneFunctionDO sceneFunctionDO,
 														   InitMiniFlowRequest initMiniFlowRequest) {
+		if (Strings.isNullOrEmpty(lang) || lang.equals(ChaosConstant.LANGUAGE_ZH)) {
+			sceneFunctionNameParser.parseSceneFunctionOne(sceneFunctionDO);
+		}
+
 		ExperimentActivityInfo experimentActivityInfo = new ExperimentActivityInfo();
 		experimentActivityInfo.setActivityName(sceneFunctionDO.getName());
 		experimentActivityInfo.setAppCode(sceneFunctionDO.getCode());

@@ -2,13 +2,13 @@ package com.alibaba.chaosblade.box.common.common.enums;
 
 public enum SceneFunctionParameterGradeEnum implements IEnum<Integer> {
 
-    HIDE(0, "隐藏参数",0, false),
+    HIDE(0, "Hidden Parameter(隐藏参数)",0, false),
 
-    NORMAL(1, "故障配置",1, true),
+    NORMAL(1, "Fault Configuration(故障配置)",1, true),
 
-    RANGE(2, "影响范围",2, true),
+    RANGE(2, "Sphere of Influence(影响范围)",2, true),
 
-    PRO(3, "通用配置",3, false),
+    PRO(3, "General Configuration(通用配置)",3, false),
 
     ;
 

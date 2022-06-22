@@ -89,7 +89,7 @@ public class ChaosBladeMetaData {
 
     private ChaosBladeMetaData() {
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-            "chaos-blade/function_word_segmentation_dict.json");
+            "chaos-blade/function_word_segmentation_dict_up.json");
         try {
             functionWordDict = JSON.parseObject(inputStream,
                 new TypeReference<Map<String, Map<String, String>>>() {}.getType());
@@ -132,13 +132,30 @@ public class ChaosBladeMetaData {
 
     public String getFunctionNameByChaosBladeAction(String originName, ChaosBladeAction chaosBladeAction) {
         if (ChaosBladeActionType.ATTACK.equals(chaosBladeAction.getActionType())) {
-            return scopeDict.get(chaosBladeAction.getScope()).trim() + StringUtils.capitalize(
-                subTargetDict.getOrDefault(
-                    chaosBladeAction.getSubTarget(), chaosBladeAction.getSubTarget()))
-                + actionDict.getOrDefault(chaosBladeAction.getAction(),chaosBladeAction.getAction());
+
+            return chaosBladeAction.getScope().trim().toUpperCase() + " " + chaosBladeAction.getSubTarget().trim().toUpperCase()
+                    + " " + chaosBladeAction.getAction().trim().toUpperCase();
         } else {
             return originName;
         }
+    }
+
+    public String getFunctionNameParser(String originName) {
+        String needParser = originName;
+        if (originName.contains("recovery(")) {
+            needParser = originName.substring(9, originName.length()-1);
+        }
+
+        String[] originNames = needParser.split(" ");
+        if (originNames.length < 3) {
+            return originName;
+        }
+
+        String parserdFunctionName = scopeDict.get(originNames[0]) + StringUtils.capitalize(
+                subTargetDict.getOrDefault(originNames[1], originNames[1]) +
+                        actionDict.getOrDefault(originNames[2], originNames[2])
+        );
+        return needParser.equals(originName) ? parserdFunctionName : "恢复(" + parserdFunctionName + ")";
     }
 
     public List<ChaosBladeAction> getChaosBladeActions() {

@@ -86,7 +86,7 @@ public final class MiniAppUtils {
     }
 
     public static String getRecoverName(String activityName) {
-        return "恢复(" + activityName + ")";
+        return "recovery(" + activityName + ")";
     }
 
     public static boolean isJvmAgentInstall(String appCode) {

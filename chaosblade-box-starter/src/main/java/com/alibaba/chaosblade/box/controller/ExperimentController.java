@@ -199,7 +199,7 @@ public class ExperimentController extends BaseController {
 		flowInfo.setRunMode(ExperimentRunModeEnum.SEQUENCE);
 		List<MiniFlowGroup> miniFlowGroups = new ArrayList<>();
 		MiniFlowGroup miniFlowGroup = new MiniFlowGroup();
-		miniFlowGroup.setGroupName("默认分组");
+		miniFlowGroup.setGroupName("Default Group");
 		miniFlowGroup.setScopeType(scopeTypeSelector.selectByAppCode(initMiniFlowRequest.getAppCode()));
 		miniFlowGroup.setOsType(OsTypeEnum.ofAppCode(initMiniFlowRequest.getAppCode()).getType());
 		List<MiniFlow> miniFlows = new ArrayList<>();

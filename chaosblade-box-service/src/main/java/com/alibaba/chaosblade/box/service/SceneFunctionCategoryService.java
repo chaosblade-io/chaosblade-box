@@ -31,7 +31,7 @@ public interface SceneFunctionCategoryService {
      * @param condition
      * @return
      */
-    List<SceneFunctionCategoryDO> getCategoriesByPhase(Integer phase, Integer scopeType, Integer osType, CategoryFilterCondition condition);
+    List<SceneFunctionCategoryDO> getCategoriesByPhase(Integer phase, Integer scopeType, Integer osType, String lang, CategoryFilterCondition condition);
 
     /**
      * 根据演练阶段,支持类型以及类目类型
@@ -41,7 +41,7 @@ public interface SceneFunctionCategoryService {
      * @param scopeType
      * @return
      */
-    List<SceneFunctionCategoryDO> getCategoriesByPhaseAndType(Integer phase, Integer type, Integer scopeType, Integer opType);
+    List<SceneFunctionCategoryDO> getCategoriesByPhaseAndType(Integer phase, Integer type, Integer scopeType, Integer opType, String lang);
 
     /**
      * 新增类目
