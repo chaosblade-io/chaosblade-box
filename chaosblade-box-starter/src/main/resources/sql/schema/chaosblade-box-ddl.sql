@@ -845,6 +845,16 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_job_details` (
   PRIMARY KEY (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_cron_triggers` (
+  `SCHED_NAME` varchar(120) NOT NULL,
+  `TRIGGER_NAME` varchar(200) NOT NULL,
+  `TRIGGER_GROUP` varchar(200) NOT NULL,
+  `CRON_EXPRESSION` varchar(200) NOT NULL,
+  `TIME_ZONE_ID` varchar(80) DEFAULT NULL,
+  PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+  CONSTRAINT `t_chaos_m_quartz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `t_chaos_m_quartz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_scheduler_state` (
   `SCHED_NAME` varchar(120) NOT NULL,
   `INSTANCE_NAME` varchar(200) NOT NULL,
@@ -876,16 +886,6 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_triggers` (
   CONSTRAINT `t_chaos_m_quartz_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `t_chaos_m_quartz_job_details` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_cron_triggers` (
-  `SCHED_NAME` varchar(120) NOT NULL,
-  `TRIGGER_NAME` varchar(200) NOT NULL,
-  `TRIGGER_GROUP` varchar(200) NOT NULL,
-  `CRON_EXPRESSION` varchar(200) NOT NULL,
-  `TIME_ZONE_ID` varchar(80) DEFAULT NULL,
-  PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-  CONSTRAINT `t_chaos_m_quartz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `t_chaos_m_quartz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_fired_triggers` (
   `SCHED_NAME` varchar(120) NOT NULL,
   `ENTRY_ID` varchar(95) NOT NULL,
@@ -903,8 +903,113 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_fired_triggers` (
   PRIMARY KEY (`SCHED_NAME`,`ENTRY_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `t_chaos_m_quartz_paused_trigger_grps` (
-  `SCHED_NAME` varchar(120) NOT NULL,
-  `TRIGGER_GROUP` varchar(200) NOT NULL,
-  PRIMARY KEY (`SCHED_NAME`,`TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_simple_triggers`
+(
+    SCHED_NAME      varchar(120) not null,
+    TRIGGER_NAME    varchar(200) not null,
+    TRIGGER_GROUP   varchar(200) not null,
+    REPEAT_COUNT    bigint(7)    not null,
+    REPEAT_INTERVAL bigint(12)   not null,
+    TIMES_TRIGGERED bigint(10)   not null,
+    PRIMARY KEY (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
+    constraint t_chaos_m_quartz_simple_triggers_ibfk_1
+        foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references `t_chaos_m_quartz_triggers` (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_paused_trigger_grps`
+(
+    SCHED_NAME    varchar(120) not null,
+    TRIGGER_GROUP varchar(200) not null,
+    primary key (SCHED_NAME, TRIGGER_GROUP)
+);
+
+CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_blob_triggers
+(
+    SCHED_NAME    varchar(120) not null,
+    TRIGGER_NAME  varchar(200) not null,
+    TRIGGER_GROUP varchar(200) not null,
+    BLOB_DATA     blob         null,
+    primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
+    constraint t_chaos_m_quartz_blob_triggers_ibfk_1
+        foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references t_chaos_m_quartz_triggers (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
+);
+
+CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_calendars
+(
+    SCHED_NAME    varchar(120) not null,
+    CALENDAR_NAME varchar(200) not null,
+    CALENDAR      blob         not null,
+    primary key (SCHED_NAME, CALENDAR_NAME)
+);
+
+CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_job_info
+(
+    id               bigint auto_increment
+        primary key,
+    source_key       varchar(128) default '' null comment '任务来源ID',
+    job_group        varchar(255) default '' not null comment '执行器主键ID，可以存储租户ID',
+    job_cron         varchar(128)            not null comment '任务执行CRON',
+    job_desc         varchar(255) default '' null comment '任务描述',
+    job_type         int                     null comment '任务类型',
+    concurrent       tinyint      default 1  not null comment '是否支持并发',
+    author           varchar(64)  default '' not null comment '作者',
+    route_strategy   varchar(64)             null,
+    executor_handler varchar(255) default '' not null comment '执行器任务handler',
+    executor_param   text                    null comment '执行器任务参数',
+    job_status       int                     null,
+    gmt_create       datetime                not null,
+    gmt_modified     datetime                not null,
+    constraint uk
+        unique (job_group, job_cron, executor_handler)
+);
+
+CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_simprop_triggers
+(
+    SCHED_NAME    varchar(120)   not null,
+    TRIGGER_NAME  varchar(200)   not null,
+    TRIGGER_GROUP varchar(200)   not null,
+    STR_PROP_1    varchar(512)   null,
+    STR_PROP_2    varchar(512)   null,
+    STR_PROP_3    varchar(512)   null,
+    INT_PROP_1    int            null,
+    INT_PROP_2    int            null,
+    LONG_PROP_1   bigint         null,
+    LONG_PROP_2   bigint         null,
+    DEC_PROP_1    decimal(13, 4) null,
+    DEC_PROP_2    decimal(13, 4) null,
+    BOOL_PROP_1   varchar(1)     null,
+    BOOL_PROP_2   varchar(1)     null,
+    primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
+    constraint t_chaos_m_quartz_simprop_triggers_ibfk_1
+        foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references t_chaos_m_quartz_triggers (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
+);
+
+CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_trigger_log
+(
+    id               bigint auto_increment
+        primary key,
+    job_group        varchar(255) default ''  not null comment '执行器主键ID',
+    job_id           bigint                   not null comment '任务，主键ID',
+    executor_address varchar(255)             null comment '执行器地址，本次执行的地址',
+    executor_handler varchar(255)             null comment '执行器任务handler',
+    executor_param   varchar(512)             null comment '执行器任务参数',
+    trigger_time     datetime                 null comment '调度-时间',
+    trigger_code     varchar(255) default '0' null comment '调度-结果',
+    trigger_msg      varchar(2048)            null comment '调度-日志',
+    handle_time      datetime                 null comment '执行-时间',
+    handle_code      varchar(255) default '0' null comment '执行-状态',
+    handle_msg       varchar(2048)            null comment '执行-日志',
+    gmt_create       datetime                 not null,
+    gmt_modified     datetime                 not null
+);
+
+create index idx_gmt_create
+    on t_chaos_m_quartz_trigger_log (gmt_create);
+
+
+
+
+
+
+
+
