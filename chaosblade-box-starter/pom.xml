@@ -41,12 +41,15 @@
                     <artifactId>log4j-over-slf4j</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>2.8.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jackson-annotations</artifactId>
@@ -62,6 +65,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>1.5.9.RELEASE</version>
                 <configuration>
                     <mainClass>com.alibaba.chaosblade.box.Application</mainClass>
                     <excludeDevtools>false</excludeDevtools>
