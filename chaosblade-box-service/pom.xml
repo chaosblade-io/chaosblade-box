@@ -14,10 +14,18 @@
 
         <dependency>
             <groupId>io.chaosblade</groupId>
+            <artifactId>chaosblade-box-common</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.chaosblade</groupId>
             <artifactId>chaosblade-box-dao</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>io.chaosblade</groupId>
             <artifactId>chaosblade-box-toolsmgr</artifactId>
@@ -26,22 +34,22 @@
         </dependency>
 
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.chaosblade</groupId>
-            <artifactId>chaosblade-box-common</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>io.chaosblade</groupId>
             <artifactId>chaosblade-box-agent-sdk</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.chaosblade</groupId>
+            <artifactId>chaosblade-box-cache</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -74,14 +82,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>io.chaosblade</groupId>
-            <artifactId>chaosblade-box-cache</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
