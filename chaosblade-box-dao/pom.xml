@@ -12,6 +12,13 @@
     <artifactId>chaosblade-box-dao</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.chaosblade</groupId>
+            <artifactId>chaosblade-box-agent-sdk</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>io.chaosblade</groupId>
             <artifactId>chaosblade-box-common</artifactId>
@@ -21,51 +28,39 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.1.2</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>5.5.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl3</artifactId>
-            <version>3.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
-            <version>2.1.0.RELEASE</version>
         </dependency>
+
         <dependency>
             <groupId>org.jodd</groupId>
             <artifactId>jodd-bean</artifactId>
-            <version>5.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.chaosblade</groupId>
-            <artifactId>chaosblade-box-agent-sdk</artifactId>
-            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>2.5.1</version>
         </dependency>
         <dependency>
             <groupId>io.kubernetes</groupId>
             <artifactId>client-java-api</artifactId>
-            <version>12.0.0</version>
         </dependency>
+
     </dependencies>
 
     <properties>
