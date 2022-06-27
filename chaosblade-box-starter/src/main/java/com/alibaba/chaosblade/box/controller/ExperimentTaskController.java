@@ -2,6 +2,7 @@ package com.alibaba.chaosblade.box.controller;
 
 import com.alibaba.chaosblade.box.annotation.LoginUser;
 import com.alibaba.chaosblade.box.annotation.SwaggerDoc;
+import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
 import com.alibaba.chaosblade.box.common.common.domain.PageQueryResponse;
 import com.alibaba.chaosblade.box.common.common.domain.Response;
 import com.alibaba.chaosblade.box.common.common.domain.experiment.BaseExperimentRequest;
@@ -10,26 +11,34 @@ import com.alibaba.chaosblade.box.common.common.domain.task.BaseExperimentTaskRe
 import com.alibaba.chaosblade.box.common.common.domain.task.ExperimentTask;
 import com.alibaba.chaosblade.box.common.common.domain.task.ExperimentTaskStopOption;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
+import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
 import com.alibaba.chaosblade.box.common.experiment.clientobject.ExperimentStat;
 import com.alibaba.chaosblade.box.common.experiment.clientobject.ExperimentTaskResult;
 import com.alibaba.chaosblade.box.common.experiment.request.ExperimentPageableQueryRequest;
 import com.alibaba.chaosblade.box.common.experiment.request.ExperimentTaskRequest;
+import com.alibaba.chaosblade.box.common.experiment.request.OrderQueryRequest;
 import com.alibaba.chaosblade.box.common.experiment.request.UserExperimentStatRequest;
+import com.alibaba.chaosblade.box.common.experiment.task.flow.util.Pair;
 import com.alibaba.chaosblade.box.common.infrastructure.constant.PermissionTypes;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.ExperimentTaskControl;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.ExperimentTaskLog;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.ExperimentTaskSimple;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard.ExperimentTaskGuardsResult;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.response.ExperimentTaskSummary;
+import com.alibaba.chaosblade.box.common.infrastructure.exception.ChaosException;
 import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
+import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
+import com.alibaba.chaosblade.box.dao.infrastructure.experiment.definition.ExperimentFlowDefinitionManager;
 import com.alibaba.chaosblade.box.model.RestResponseUtil;
 import com.alibaba.chaosblade.box.service.ExperimentReadService;
 import com.alibaba.chaosblade.box.service.ExperimentTaskService;
 import com.alibaba.chaosblade.box.service.auth.perimission.PermissionResult;
 import com.alibaba.chaosblade.box.service.auth.perimission.UserPermissionService;
 import com.alibaba.chaosblade.box.service.model.RestResponse;
+import com.google.common.base.Strings;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +46,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author haibin
@@ -56,6 +68,9 @@ public class ExperimentTaskController extends BaseController {
 
     @Resource
     private UserPermissionService userPermissionService;
+
+    @Autowired
+    protected ExperimentFlowDefinitionManager experimentFlowDefinitionManager;
 
     @ApiOperation(value = "演练任务详情")
     @PostMapping(value = "QueryExperimentTask")
@@ -226,6 +241,41 @@ public class ExperimentTaskController extends BaseController {
         return RestResponseUtil.initWithServiceResponse(
             experimentTaskService.queryExperimentTaskGuardInfo(baseExperimentTaskRequest)
         );
+    }
+
+    @PostMapping("QueryExperimentAmount")
+    public RestResponse<Map<String, Integer>> queryExperimentAmount(@LoginUser ChaosUser chaosUser,
+                                                                    @RequestBody OrderQueryRequest request) {
+        if (null == request || Strings.isNullOrEmpty(request.getExperimentId())) {
+            throw new ChaosException(CommonErrorCode.P_ARGUMENT_ILLEGAL, "experimentId cannot be null or empty.");
+        }
+
+        Supplier<Pair<String, Integer>> forecastAmountSupplier = () -> Pair.of("forecastAmount",
+                forecastExperimentAmount(request).getResult());
+
+        return RestResponseUtil.okWithData(
+                Stream.of(forecastAmountSupplier)
+                        .parallel()
+                        .map(Supplier::get)
+                        .collect(Collectors.toMap(
+                                Pair::getLeft,
+                                Pair::getRight
+                        ))
+        );
+    }
+
+    @PostMapping("ForecastExperimentAmount")
+    public RestResponse<Integer> forecastExperimentAmount(@RequestBody OrderQueryRequest request) {
+        if (null == request || Strings.isNullOrEmpty(request.getExperimentId())) {
+            throw new ChaosException(CommonErrorCode.P_ARGUMENT_ILLEGAL, "experimentId cannot be null or empty.");
+        }
+
+        List<Host> hosts = experimentFlowDefinitionManager.findAllHostsByExperimentId(request.getExperimentId());
+        if (!CollectionUtil.isNullOrEmpty(hosts)) {
+            return RestResponseUtil.okWithData(hosts.size());
+        }
+
+        return RestResponseUtil.okWithData(0);
     }
 
 }
