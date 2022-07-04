@@ -845,16 +845,6 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_job_details` (
   PRIMARY KEY (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_cron_triggers` (
-  `SCHED_NAME` varchar(120) NOT NULL,
-  `TRIGGER_NAME` varchar(200) NOT NULL,
-  `TRIGGER_GROUP` varchar(200) NOT NULL,
-  `CRON_EXPRESSION` varchar(200) NOT NULL,
-  `TIME_ZONE_ID` varchar(80) DEFAULT NULL,
-  PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-  CONSTRAINT `t_chaos_m_quartz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `t_chaos_m_quartz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_scheduler_state` (
   `SCHED_NAME` varchar(120) NOT NULL,
   `INSTANCE_NAME` varchar(200) NOT NULL,
@@ -884,6 +874,16 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_triggers` (
   PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
   KEY `SCHED_NAME` (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
   CONSTRAINT `t_chaos_m_quartz_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `t_chaos_m_quartz_job_details` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_cron_triggers` (
+  `SCHED_NAME` varchar(120) NOT NULL,
+  `TRIGGER_NAME` varchar(200) NOT NULL,
+  `TRIGGER_GROUP` varchar(200) NOT NULL,
+  `CRON_EXPRESSION` varchar(200) NOT NULL,
+  `TIME_ZONE_ID` varchar(80) DEFAULT NULL,
+  PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
+  CONSTRAINT `t_chaos_m_quartz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `t_chaos_m_quartz_triggers` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_fired_triggers` (
@@ -921,7 +921,7 @@ CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_paused_trigger_grps`
     SCHED_NAME    varchar(120) not null,
     TRIGGER_GROUP varchar(200) not null,
     primary key (SCHED_NAME, TRIGGER_GROUP)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_blob_triggers
 (
@@ -932,7 +932,7 @@ CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_blob_triggers
     primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
     constraint t_chaos_m_quartz_blob_triggers_ibfk_1
         foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references t_chaos_m_quartz_triggers (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_calendars
 (
@@ -940,7 +940,7 @@ CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_calendars
     CALENDAR_NAME varchar(200) not null,
     CALENDAR      blob         not null,
     primary key (SCHED_NAME, CALENDAR_NAME)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_job_info
 (
@@ -961,7 +961,7 @@ CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_job_info
     gmt_modified     datetime                not null,
     constraint uk
         unique (job_group, job_cron, executor_handler)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_simprop_triggers
 (
@@ -982,7 +982,7 @@ CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_simprop_triggers
     primary key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP),
     constraint t_chaos_m_quartz_simprop_triggers_ibfk_1
         foreign key (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP) references t_chaos_m_quartz_triggers (SCHED_NAME, TRIGGER_NAME, TRIGGER_GROUP)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_trigger_log
 (
@@ -1001,7 +1001,7 @@ CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_trigger_log
     handle_msg       varchar(2048)            null comment '执行-日志',
     gmt_create       datetime                 not null,
     gmt_modified     datetime                 not null
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create index idx_gmt_create
     on t_chaos_m_quartz_trigger_log (gmt_create);
