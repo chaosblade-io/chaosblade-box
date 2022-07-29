@@ -7,7 +7,7 @@
     <groupId>io.chaosblade</groupId>
     <artifactId>chaosblade-box</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <modules>
         <module>chaosblade-box-agent-sdk</module>
         <module>chaosblade-box-cache</module>
