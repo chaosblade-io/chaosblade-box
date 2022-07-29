@@ -1,6 +1,7 @@
 package com.alibaba.chaosblade.box.scheduler;
 
 import com.alibaba.chaosblade.box.common.experiment.task.flow.util.concurrent.ThreadPoolExecutors;
+import com.alibaba.chaosblade.box.common.infrastructure.constant.DeviceStatus;
 import com.alibaba.chaosblade.box.dao.model.DeviceDO;
 import com.alibaba.chaosblade.box.dao.model.base.PageableQueryWrapper;
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
@@ -40,7 +41,7 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
     private SettingService settingService;
 
 
-    private final ThreadPoolExecutor rejectedThreadPool = new ThreadPoolExecutor(
+    static private final ThreadPoolExecutor rejectedThreadPool = new ThreadPoolExecutor(
             3,
             3,
             10,
@@ -48,7 +49,7 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
             new LinkedBlockingQueue<>(),
             ThreadPoolExecutors.defaultThreadFactory("AgentPingScheduleJob"));
 
-    private final ExecutorService countDeviceExecutor = new ThreadPoolExecutor(
+    static private final ExecutorService countDeviceExecutor = new ThreadPoolExecutor(
             3,
             5,
             0,
@@ -75,7 +76,7 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
         //查询所有禁用的应用，验证应用下是否有机器，若存在机器，则将disabled置为false
         List<Future<Boolean>> futureList = new ArrayList<>();
         for(int page = 1;;page ++) {
-            //改分页，一次查1w条
+            //改分页，一次查10条
             CloudDeviceQuery cloudDeviceQuery = new CloudDeviceQuery();
             PageableQueryWrapper<CloudDeviceQuery> pageableQueryWrapper = PageableQueryWrapper.of(cloudDeviceQuery);
             pageableQueryWrapper.pageNumber(page);
@@ -108,7 +109,12 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
     }
 
     private Boolean pingAgent (DeviceDO deviceDO) {
-        return settingService.pingAgent(deviceDO);
+        if (settingService.pingAgent(deviceDO)) {
+            return true;
+        }
+
+        deviceDO.setStatus(DeviceStatus.OFFLINE.getStatus());
+        return deviceRepository.update(deviceDO);
     }
 
     @Override

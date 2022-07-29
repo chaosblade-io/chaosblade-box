@@ -43,7 +43,7 @@ ansible --version
 # install ansible, eg: Fedora || RedHat 
 yum install ansible -y
 ```
-2. If don't have expect installed, you need install `expect`, put [sshKey.sh](https://github.com/chaosblade-io/chaosblade-box/blob/main/ssh/sshKey.sh) and chaosblade-box-1.0.1.jar in a directory
+2. If don't have expect installed, you need install `expect`, put [sshKey.sh](https://github.com/chaosblade-io/chaosblade-box/blob/main/ssh/sshKey.sh) and chaosblade-box-1.0.2.jar in a directory
 ```bash
 # Check if there is already installed
 expect -v
