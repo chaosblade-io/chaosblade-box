@@ -11,10 +11,10 @@ spring:
     password:
 chaos:
   agent:
-    version: 1.0.0
+    version: 1.0.2
     repository: chaosbladeio/chaosblade-agent
-    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosagent.tar.gz
-    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosblade-box-agent-1.0.0.tgz
+    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.2/chaosagent.tar.gz
+    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.2/chaosblade-box-agent-1.0.2.tgz
   function:
     sync:
       type: ALL

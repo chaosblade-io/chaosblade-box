@@ -43,6 +43,6 @@ app:
     		java -Duser.timezone=Asia/Shanghai -jar /root/chaosblade-box-${CHAOS_PLATFORM_VERSION}.jar
 
 build_image:
-	docker build --rm -t chaosblade-box:${CHAOS_PLATFORM_VERSION} .
+	docker build --rm -t chaosbladeio/chaosblade-box:${CHAOS_PLATFORM_VERSION} .
 
 
