@@ -49,7 +49,9 @@ public class ChaosBladeMetaData {
         scopeToScopeType.put("pod", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_K8S);
         scopeToScopeType.put("docker", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_HOST);
         scopeToScopeType.put("host", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_HOST);
+
         SubTargetToCategory.put("container", "1217716899703644162");
+        SubTargetToCategory.put("pod", "1217716899703644162");
         SubTargetToCategory.put("network", "1216672245176541185");
         SubTargetToCategory.put("cpu", "1216606329818566658");
         SubTargetToCategory.put("file", "1216606480226308098");
