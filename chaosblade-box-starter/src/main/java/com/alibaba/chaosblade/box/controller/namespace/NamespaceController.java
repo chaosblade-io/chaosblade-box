@@ -54,7 +54,7 @@ public class NamespaceController extends BaseController {
 
     @PostMapping("DeleteNamespace")
     public RestResponse<Boolean> deleteNamespace(@LoginUser ChaosUser user, @RequestBody Map<String, String> params) {
-        String name = params.get("name");
+        String name = params.get("NamespaceId");
 
         if (null == user || Strings.isNullOrEmpty(name)) {
             return RestResponseUtil.okWithData(false);
