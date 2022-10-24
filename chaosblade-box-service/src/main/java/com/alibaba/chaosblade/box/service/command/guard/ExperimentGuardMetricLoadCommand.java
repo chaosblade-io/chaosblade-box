@@ -70,6 +70,7 @@ public class ExperimentGuardMetricLoadCommand
         experimentGuardMonitorMetricResultEntity = monitorStrategy.monitor(experimentGuardResultLoadRequest);
         saveExperimentGuardMonitorMetricResultEntity(experimentGuardInstanceDO,
                 experimentGuardMonitorMetricResultEntity);
+        experimentGuardInstanceDO.setValue(experimentGuardMonitorMetricResultEntity);
         return experimentGuardMonitorMetricResultEntity;
     }
 

@@ -23,13 +23,13 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * 查询演练活动对应的全局节点状态
  *
  * @author haibin
- *
- *
  */
 @Slf4j
 @Component
@@ -55,9 +55,8 @@ public class ExperimentTaskGuardInfoQueryCommand
         ExperimentTaskDO experimentTaskDO = experimentTaskDOResponse.getResult();
         ExperimentTaskGuardsResult experimentTaskGuardsResult = new ExperimentTaskGuardsResult();
         List<ExperimentGuardInstanceDO> experimentGuardInstanceDOS = experimentGuardInstanceRepository
-                .findByExperimentTaskId(
-                        experimentTaskDO.getTaskId());
-        commandBus.asyncRun(ExperimentGuardInstanceExecutionCommand.class,
+                .findByExperimentTaskId(experimentTaskDO.getTaskId());
+        commandBus.syncRun(ExperimentGuardInstanceExecutionCommand.class,
                 new ExperimentGuardInstanceExecutionRequest(experimentTaskDO, experimentGuardInstanceDOS, false));
         transferMetrics(experimentTaskGuardsResult, experimentGuardInstanceDOS);
         return Response.okWithData(experimentTaskGuardsResult);
@@ -116,7 +115,7 @@ public class ExperimentTaskGuardInfoQueryCommand
         ExperimentGuardMonitorMetricResultEntity experimentGuardMonitorMetricResultEntity = experimentGuardInstanceDO
                 .getValue();
 
-        if(null == experimentGuardMonitorMetricResultEntity) {
+        if (null == experimentGuardMonitorMetricResultEntity) {
             experimentGuardMonitorMetricResultEntity = getExperimentGuardMonitorMetricResultEntityFormRedis(experimentGuardInstanceDO);
         }
         if (experimentGuardMonitorMetricResultEntity != null) {
@@ -130,9 +129,9 @@ public class ExperimentTaskGuardInfoQueryCommand
     }
 
     private ExperimentGuardMonitorMetricResultEntity getExperimentGuardMonitorMetricResultEntityFormRedis(ExperimentGuardInstanceDO experimentGuardInstanceDO) {
-        Serializable serializable = redisTemplate.prefixGet(ExperimentGuardInstanceServiceImpl.PRE,experimentGuardInstanceDO.getInstanceId());
-        if(null != serializable) {
-            return (ExperimentGuardMonitorMetricResultEntity)serializable;
+        Serializable serializable = redisTemplate.prefixGet(ExperimentGuardInstanceServiceImpl.PRE, experimentGuardInstanceDO.getInstanceId());
+        if (null != serializable) {
+            return (ExperimentGuardMonitorMetricResultEntity) serializable;
         }
         return new ExperimentGuardMonitorMetricResultEntity();
     }

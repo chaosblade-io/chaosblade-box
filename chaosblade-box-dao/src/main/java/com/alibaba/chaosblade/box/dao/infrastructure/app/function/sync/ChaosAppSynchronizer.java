@@ -146,6 +146,8 @@ public class ChaosAppSynchronizer extends BaseSceneSynchronizer {
 
         for (SceneFunctionDO function : functions) {
             if (ignoreSyncSceneFunction(function)) { continue; }
+            // todo
+            function.setEnabled(2);
             try {
                 log.info("[ChaosAppSynchronizer] Update function. Name: " + function.getName());
 

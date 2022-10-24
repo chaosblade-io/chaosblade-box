@@ -4,21 +4,17 @@ import com.alibaba.chaosblade.box.common.app.sdk.ChaosAppContext;
 import com.alibaba.chaosblade.box.common.app.sdk.ChaosAppRequest;
 import com.alibaba.chaosblade.box.common.app.sdk.ChaosAppResponse;
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Scope;
-import com.alibaba.chaosblade.box.common.common.util.MiniAppUtils;
-import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.invoker.ChaosAppInvoker;
-import com.alibaba.chaosblade.box.common.infrastructure.constant.CommonConstant;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.SceneArgumentDefinition;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard.ExperimentGuardMetricDataItem;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard.ExperimentGuardMonitorMetricResultEntity;
 import com.alibaba.chaosblade.box.common.infrastructure.metric.ChaosMetricEntity;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.guard.ExperimentGuardResultLoadRequest;
-import com.alibaba.chaosblade.box.dao.model.ChaosBladeExpUidDO;
+import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.invoker.ChaosAppInvoker;
 import com.alibaba.chaosblade.box.dao.model.ExperimentGuardInstanceDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
-import com.alibaba.chaosblade.box.dao.repository.ChaosBladeExpUidRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -38,10 +34,13 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Component
-public class DefaultMetricMonitorStrategy implements MonitorStrategy, GuardExecutableInterface {
+public class PrometheusMetricMonitorStrategy implements MonitorStrategy, GuardExecutableInterface {
 
-    @Autowired
-    private ChaosBladeExpUidRepository chaosBladeExpUidRepository;
+    @Value("${chaos.prometheus.api}")
+    private String api;
+
+    @Value("${chaos.prometheus.job}")
+    private String job;
 
     /**
      * metric的采集时间偏移量
@@ -56,7 +55,7 @@ public class DefaultMetricMonitorStrategy implements MonitorStrategy, GuardExecu
 
     @Override
     public boolean support(ExperimentGuardResultLoadRequest guardResultLoadRequest) {
-        return false;
+        return guardResultLoadRequest.getExperimentGuardInstanceDO().getAppCode().startsWith("chaosapp.metrics-prometheus");
     }
 
     private ExperimentGuardMonitorMetricResultEntity requireExperimentGuardMonitorMetricResultEntity(
@@ -69,6 +68,19 @@ public class DefaultMetricMonitorStrategy implements MonitorStrategy, GuardExecu
         Date startTime = experimentGuardInstanceDO.getValue().getLastRecordPoint() == null ? experimentTaskDO
             .getGmtCreate() : new Date(experimentGuardInstanceDO.getValue().getLastRecordPoint());
         Date toTime = experimentTaskDO.getGmtEnd() == null ? new Date() : experimentTaskDO.getGmtEnd();
+
+        // api
+        SceneArgumentDefinition apiSceneArgumentDefinition = new SceneArgumentDefinition();
+        apiSceneArgumentDefinition.setAlias("api");
+        apiSceneArgumentDefinition.setValue(api);
+        experimentGuardInstanceDO.getArgument().getArguments().add(apiSceneArgumentDefinition);
+
+        // job
+        SceneArgumentDefinition jobSceneArgumentDefinition = new SceneArgumentDefinition();
+        jobSceneArgumentDefinition.setAlias("job");
+        jobSceneArgumentDefinition.setValue(job);
+        experimentGuardInstanceDO.getArgument().getArguments().add(jobSceneArgumentDefinition);
+
         Map<Scope, List<ChaosMetricEntity>> metricEntities = invokeMetricMiniApp(
             experimentGuardResultLoadRequest.getExperimentTaskDO(), experimentGuardInstanceDO.getAppCode(),
             experimentGuardInstanceDO,
@@ -109,39 +121,7 @@ public class DefaultMetricMonitorStrategy implements MonitorStrategy, GuardExecu
     @Override
     public ChaosAppResponse internalInvoke(ChaosAppContext chaosAppContext, ChaosAppRequest chaosAppRequest, String appCode,
                                         ExperimentGuardInstanceDO experimentGuardInstanceDO) {
-        if (MiniAppUtils.JVM_HIT_COUNT.equals(appCode)) {
-            return handleJvmHitCount(chaosAppContext, chaosAppRequest, appCode, experimentGuardInstanceDO);
-        } else {
-            return handleCommonInternalInvoke(chaosAppContext, chaosAppRequest, appCode, experimentGuardInstanceDO);
-        }
-    }
-
-    /**
-     * jvm的需要特殊处理一下,只有注入成功了才去请求，并且参数增加expId
-     *
-     * @param chaosAppContext
-     * @param chaosAppRequest
-     * @param appCode
-     * @param experimentGuardInstanceDO
-     * @return
-     */
-    private ChaosAppResponse handleJvmHitCount(ChaosAppContext chaosAppContext, ChaosAppRequest chaosAppRequest, String appCode,
-                                            ExperimentGuardInstanceDO experimentGuardInstanceDO) {
-        ChaosBladeExpUidDO chaosBladeExpUidDO = chaosBladeExpUidRepository.findLastByActivityTaskIdAndHost(
-            experimentGuardInstanceDO.getActivityTaskId(),
-            chaosAppRequest.getScope().getIp());
-        if (chaosBladeExpUidDO == null) {
-            return null;
-        }
-        //参数增加expId
-        chaosAppRequest.getUserArgs().put(CommonConstant.METRIC_EXP_ID, chaosBladeExpUidDO.getExpUid());
-        chaosAppContext.addData(CommonConstant.METRIC_CHAOSBLADE_EXP_OBJECT, chaosBladeExpUidDO);
-        return handleCommonInternalInvoke(chaosAppContext, chaosAppRequest, appCode, experimentGuardInstanceDO);
-    }
-
-    public ChaosAppResponse handleCommonInternalInvoke(ChaosAppContext chaosAppContext, ChaosAppRequest chaosAppRequest,
-                                                    String appCode,
-                                                    ExperimentGuardInstanceDO experimentGuardInstanceDO) {
         return ChaosAppInvoker.invokeByGuard(chaosAppContext, chaosAppRequest, appCode, experimentGuardInstanceDO);
     }
+
 }

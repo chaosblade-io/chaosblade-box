@@ -26,6 +26,9 @@ public class Scope implements Serializable {
      */
     String type;
 
+    public Scope() {
+    }
+
     public Scope(String type, String ip, Integer port) {
         this.type = type;
         this.ip = ip;
