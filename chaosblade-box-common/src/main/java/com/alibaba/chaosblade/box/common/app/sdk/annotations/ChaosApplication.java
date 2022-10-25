@@ -16,7 +16,7 @@ public @interface ChaosApplication {
 
     String description() default "";
 
-    String version() default "1.0.2";
+    String version() default "1.0.3";
 
     ChaosAppType type() default ChaosAppType.CHAOS_APP;
 

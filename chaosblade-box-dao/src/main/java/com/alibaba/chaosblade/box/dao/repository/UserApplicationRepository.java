@@ -199,7 +199,7 @@ public class UserApplicationRepository {
         ApplicationDO query = new ApplicationDO();
         query.setAppName(requestApplicationDO.getAppName());
         query.setUserId(requestApplicationDO.getUserId());
-        query.setNamespace(requestApplicationDO.getNamespace());
+//        query.setNamespace(requestApplicationDO.getNamespace());
         query.setDimension(requestApplicationDO.getDimension());
         ApplicationDO chaosApplicationDO = applicationMapper.selectOne(new QueryWrapper<>(query));
         if (chaosApplicationDO != null) {
