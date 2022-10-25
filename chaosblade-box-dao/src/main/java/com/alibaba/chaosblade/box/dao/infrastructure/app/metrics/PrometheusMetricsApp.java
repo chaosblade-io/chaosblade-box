@@ -57,9 +57,9 @@ public class PrometheusMetricsApp extends BaseChaosApp {
     }
 
     @ChaosFunction(
-            name = "主机CPU使用率",
+            name = "HOST CPU USAGERATE",
             code = "cpu-usage",
-            description = "主机CPU使用率",
+            description = "",
             categories = "1216627609183686658",
             mode = InvokeMode.ONCE
     )
@@ -74,9 +74,9 @@ public class PrometheusMetricsApp extends BaseChaosApp {
     }
 
     @ChaosFunction(
-            name = "主机内存使用率",
+            name = "HOST MEM USAGERATE",
             code = "memory-usage",
-            description = "主机内存使用率",
+            description = "",
             categories = "1216627609183686658",
             mode = InvokeMode.ONCE
     )
@@ -94,9 +94,9 @@ public class PrometheusMetricsApp extends BaseChaosApp {
     }
 
     @ChaosFunction(
-            name = "主机磁盘IO负载",
+            name = "HOST DISK LOAD",
             code = "io-load",
-            description = "主机磁盘IO负载",
+            description = "",
             categories = "1216627609183686658",
             mode = InvokeMode.ONCE
     )
@@ -114,7 +114,7 @@ public class PrometheusMetricsApp extends BaseChaosApp {
     }
 
     @ChaosFunction(
-            name = "主机磁盘使用率",
+            name = "HOST DISK USAGERATE",
             code = "disk-usage",
             description = "主机磁盘使用率",
             categories = "1216627609183686658",
