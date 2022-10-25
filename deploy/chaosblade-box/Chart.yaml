@@ -1,6 +1,6 @@
 apiVersion: v1
-appVersion: "1.0.2"
+appVersion: "1.0.3"
 description: chaosblade-box
 name: chaosblade-box
-version: 1.0.2
+version: 1.0.3
 home: https://github.com/chaosblade-io
