@@ -3,7 +3,7 @@ chaos:
     helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}.tgz
     repository: chaosbladeio/chaosblade-agent
     url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent.tar.gz
-    version: 1.0.2
+    version: 1.0.3
   cache:
     auto-sync: true
     distributed-cache:
