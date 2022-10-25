@@ -71,7 +71,7 @@ public class NamespaceRepository {
             namespaces.stream().filter(namespaceDO -> DELETED_FLAG.equals(namespaceDO.getIsDelete())).forEach(
                 namespaceDO -> {
                     namespaceDO.setIsDelete(0);
-                    namespaceMapper.updateById(namespace);
+                    namespaceMapper.updateById(namespaceDO);
                 });
             return true;
         }
