@@ -30,7 +30,7 @@ public abstract class BaseExperimentGuardLoadCommand<T> extends SpringBeanComman
         try {
             return internalExecute(experimentGuardResultLoadRequest);
         } catch (Throwable throwable) {
-            log.error("handle guard instance failed,experiment taskId:{},guard instanceId:{}",
+            log.error("handle guard instance failed,experiment taskId:{}",
                 experimentGuardResultLoadRequest.getExperimentTaskDO().getTaskId(),
                 experimentGuardResultLoadRequest.getExperimentGuardInstanceDO().getInstanceId(), throwable);
         }

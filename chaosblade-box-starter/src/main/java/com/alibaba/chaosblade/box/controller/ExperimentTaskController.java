@@ -238,9 +238,8 @@ public class ExperimentTaskController extends BaseController {
     public RestResponse<ExperimentTaskGuardsResult> QueryExperimentTaskGuardInfoqueryExperimentTaskGuardInfo(
             @LoginUser ChaosUser chaosUser, @RequestBody BaseExperimentTaskRequest baseExperimentTaskRequest) {
         baseExperimentTaskRequest.setUser(chaosUser);
-        return RestResponseUtil.initWithServiceResponse(
-            experimentTaskService.queryExperimentTaskGuardInfo(baseExperimentTaskRequest)
-        );
+        Response<ExperimentTaskGuardsResult> response = experimentTaskService.queryExperimentTaskGuardInfo(baseExperimentTaskRequest);
+        return RestResponseUtil.initWithServiceResponse(response);
     }
 
     @PostMapping("QueryExperimentAmount")

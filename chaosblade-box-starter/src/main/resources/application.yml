@@ -1,0 +1,94 @@
+chaos:
+  agent:
+    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}.tgz
+    repository: chaosbladeio/chaosblade-agent
+    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent.tar.gz
+    version: 1.0.3
+  cache:
+    auto-sync: true
+    distributed-cache:
+      expire-after-access: 900
+      expire-after-write: 900
+      name: redis
+    enable: true
+    local-cache:
+      expire-after-access: 900
+      expire-after-write: 900
+      max-size: 100
+      name: heap
+    spring:
+      enable: true
+  env: daily
+  function:
+    sync:
+      type: 'UserApp'
+  server:
+    domain: ''
+  sync:
+    chaosblade:
+      on-startup: true
+  prometheus:
+    api:
+    job: xhas
+cloud:
+  agent:
+    version: '"1.16.3"'
+management:
+  port: 7002
+module:
+  scope: Chaos
+mybatis:
+  mapperLocations: classpath*:mapper/*.xml
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mybatis/*.xml
+  type-enums-package: com.alibaba.chaosblade.box.common.common.enums
+  type-handlers-package: com.alibaba.chaosblade.box.dao.mapper.type
+product:
+  type: public
+regionId:
+  default: '"cn-hangzhou"'
+scheduler:
+  engine: quartz
+security:
+  basic:
+    enabled: false
+server:
+  port: 7001
+
+logging:
+  level:
+    root: info
+    org.springframework: info
+    com.alibaba.chaosblade.box: debug
+
+spring:
+  aop:
+    proxy-target-class: true
+  data:
+    cassandra:
+      cluster-name: ''
+  datasource:
+    continue-on-error: true
+    data: classpath:sql/data/*.sql
+    driver-class-name: com.mysql.jdbc.Driver
+    initialization-mode: always
+    initialize: true
+    password: 123456
+    schema: classpath:sql/schema/chaosblade-box-ddl.sql
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://10.10.222.103:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+  mcms:
+    enabled: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  thymeleaf:
+    mode: HTML5
+    prefix: classpath:/build
+  velocity:
+    enabled: false

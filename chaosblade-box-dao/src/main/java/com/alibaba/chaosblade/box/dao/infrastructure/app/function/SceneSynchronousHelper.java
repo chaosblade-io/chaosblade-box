@@ -301,6 +301,10 @@ public abstract class SceneSynchronousHelper implements InitializingBean {
         ChaosBladeAction attackChaosBladeAction = null;
         boolean recovery = false;
         ChaosBladeAction chaosBladeAction = ChaosBladeMetaData.getInstance().getChaosBladeAction(code);
+        if (chaosBladeAction == null) {
+            return;
+        }
+
         if (ChaosBladeActionType.STOP_ATTACK.equals(chaosBladeAction.getActionType())) {
             attackChaosBladeAction = ChaosBladeMetaData.getInstance().getChaosBladeAction(
                 MiniAppUtils.getAttackCodeByRecoveryCode(code));
@@ -570,7 +574,7 @@ public abstract class SceneSynchronousHelper implements InitializingBean {
     private List<String> getDefaultOnlineApp() {
         return defaultOnlineFunctions;
     }
-    
+
     private static class Hierarchy {
 
         private String defaultCode;

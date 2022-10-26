@@ -41,7 +41,8 @@
     "drain": "drain",
     "taint": "污点",
     "poweroff": "关机",
-    "restart": "重启"
+    "restart": "重启",
+    "usagerate": "使用率"
   },
   "scope": {
     "container": "容器内",
