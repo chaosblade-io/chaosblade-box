@@ -43,6 +43,9 @@ spec:
             - '--chaos.agent.repository={{ .Values.chaos.agent.repository }}'
             - '--chaos.agent.url={{ .Values.chaos.agent.url }}'
             - '--chaos.agent.helm={{ .Values.chaos.agent.helm }}'
+            {{- if .Values.chaos.prometheus.api }}
+            - '--chaos.prometheus.api={{ .Values.chaos.prometheus.api }}'
+            {{ end }}
           securityContext:
             privileged: true
           volumeMounts:
