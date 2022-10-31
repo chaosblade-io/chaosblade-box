@@ -21,7 +21,7 @@ chaos:
   env: daily
   function:
     sync:
-      type: 'UserApp'
+      type: ALL
   server:
     domain: ''
   sync:
