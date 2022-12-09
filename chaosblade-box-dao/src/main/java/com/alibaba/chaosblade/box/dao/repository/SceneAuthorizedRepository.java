@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author sunju
@@ -157,13 +158,16 @@ public class SceneAuthorizedRepository implements IRepository<String, SceneAutho
     }
 
     public List<SceneAuthorizedDO> getAuthorizedRecordsGroupBy(SceneAuthorizedQueryRequest query) {
-        return sceneAuthorizedMapper.selectList(buildQueryWrapper(query)
-            .groupBy(
-                "function_id"
-            )
-            .orderByDesc(
-                "function_create_time"
-            ));
+        List<SceneAuthorizedDO> sceneAuthorizedDoList = sceneAuthorizedMapper.selectList(buildQueryWrapper(query)
+                .select("max(id) id")
+                .groupBy(
+                        "function_id"
+                ));
+        if (CollectionUtil.isNullOrEmpty(sceneAuthorizedDoList)) {
+            return Lists.newArrayList();
+        }
+        List<Long> collect = sceneAuthorizedDoList.stream().map(SceneAuthorizedDO::getId).filter(Objects::nonNull).collect(Collectors.toList());
+        return sceneAuthorizedMapper.selectList(new QueryWrapper<SceneAuthorizedDO>().lambda().in(SceneAuthorizedDO::getId, collect));
     }
 
     private QueryWrapper<SceneAuthorizedDO> buildQueryWrapper(
