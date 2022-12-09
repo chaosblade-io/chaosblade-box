@@ -13,12 +13,12 @@ import com.alibaba.chaosblade.box.dao.query.ApplicationDeviceQuery;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author haibin
@@ -354,6 +354,7 @@ public class ApplicationDeviceRepository implements IRepository<String, Applicat
 
 	public List<ApplicationDeviceDO> findUserDeviceGroupByAppId(String userId,List<Long> appIds) {
 		QueryWrapper<ApplicationDeviceDO> queryWrapper = new QueryWrapper<>();
+		queryWrapper.select("max(id) id");
 		queryWrapper.eq("status", DeviceStatus.ONLINE.getStatus());
 		queryWrapper.eq("is_deleted", 0);
 		if (CollectionUtil.isNullOrEmpty(appIds)) {
@@ -362,7 +363,19 @@ public class ApplicationDeviceRepository implements IRepository<String, Applicat
 			queryWrapper.and(wrapper -> wrapper.eq("user_id", userId).or().in("app_id", appIds));
 		}
 		queryWrapper.groupBy("app_id");
-		return applicationDeviceMapper.selectList(queryWrapper);
+		List<ApplicationDeviceDO> applicationDeviceIdList = applicationDeviceMapper.selectList(queryWrapper);
+		if (CollectionUtil.isNullOrEmpty(applicationDeviceIdList)) {
+			return Lists.newArrayList();
+		}
+		return applicationDeviceMapper.selectList(
+				new QueryWrapper<ApplicationDeviceDO>()
+						.lambda()
+						.in(ApplicationDeviceDO::getId,
+								applicationDeviceIdList
+										.stream()
+										.map(ApplicationDeviceDO::getId)
+										.filter(Objects::nonNull)
+										.collect(Collectors.toList())));
 	}
 
 	public List<ApplicationDeviceDO> findByClusterId(String user_id, String clusterId, boolean online) {
@@ -386,8 +399,4 @@ public class ApplicationDeviceRepository implements IRepository<String, Applicat
 		return applicationDeviceMapper.update(applicationDeviceDO, queryWrapper) > 0;
 	}
 
-	public static void main(String[] args) {
-
-		System.out.println(System.currentTimeMillis() - 60000);
-	}
 }
