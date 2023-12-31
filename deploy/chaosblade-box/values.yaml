@@ -1,7 +1,7 @@
 # Default values for chaosblade-box.
 box:
   repository: chaosbladeio/chaosblade-box
-  version: 1.0.3
+  version: 1.0.4
   pullPolicy: IfNotPresent
 
 spring:
