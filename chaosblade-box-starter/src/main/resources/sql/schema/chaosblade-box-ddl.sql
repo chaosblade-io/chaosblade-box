@@ -809,22 +809,6 @@ CREATE TABLE IF NOT EXISTS `t_chaos_scheduler_trigger_log` (
   KEY `t_chaos_scheduler_trigger_log_fire_instance_id_index` (`fire_instance_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `t_chaos_migration_configuration` (
-  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` varchar(20) NOT NULL DEFAULT '' COMMENT 'chaos_user表中的user_id',
-  `gmt_create` datetime NOT NULL COMMENT '创建时间',
-  `gmt_modified` datetime NOT NULL COMMENT '更新时间',
-  `cloud_ak` varchar(32) NOT NULL DEFAULT '' COMMENT '阿里云账号',
-  `cloud_sk` varchar(32) NOT NULL DEFAULT '' COMMENT '阿里云密码',
-  `metric_migration` int(11) NOT NULL COMMENT '数据迁移配置转换为二进制：01演练数据，10演练经验库',
-  `db_url` varchar(32) NOT NULL DEFAULT '' COMMENT '数据库url格式，host:port',
-  `db_account` varchar(32) NOT NULL DEFAULT '' COMMENT '数据库账号',
-  `db_password` varchar(32) NOT NULL DEFAULT '' COMMENT '数据库密码',
-  `migration_result` varchar(128) NOT NULL DEFAULT '' COMMENT '迁移结果',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `userdb` (`user_id`,`db_url`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `t_chaos_m_quartz_LOCKS` (
   `SCHED_NAME` varchar(120) NOT NULL,
   `LOCK_NAME` varchar(40) NOT NULL,
