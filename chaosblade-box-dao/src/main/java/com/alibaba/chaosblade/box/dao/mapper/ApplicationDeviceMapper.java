@@ -18,9 +18,10 @@ public interface ApplicationDeviceMapper extends BaseMapper<ApplicationDeviceDO>
 
 
     @Select("<script>" +
-            "select tmp.* from ( " +
+            "select tmp.* from (" +
+            "SELECT t.* FROM t_chaos_application_device t where t.id in ( " +
             "select " +
-            "ad.* " +
+            "max(ad.id) " +
             "from t_chaos_application_device ad WHERE 1=1 " +
             "<if test='null != query.appId and query.appId != \"\" '>" +
             "AND ad.app_id = #{query.appId} " +
@@ -55,7 +56,7 @@ public interface ApplicationDeviceMapper extends BaseMapper<ApplicationDeviceDO>
             ")" +
             "</if>" +
             "group by ad.private_ip " +
-            ") tmp " +
+            ")) tmp " +
             "ORDER BY tmp.gmt_create DESC" +
             "</script>")
     IPage<ApplicationDeviceDO> selectPageByTagsForHost(IPage<ApplicationDeviceDO> page, @Param("query") ApplicationDeviceQuery query);
