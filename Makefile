@@ -1,6 +1,6 @@
 .PHONY: build clean
 
-export CHAOS_PLATFORM_VERSION=1.0.4
+export CHAOS_PLATFORM_VERSION=1.0.5
 SRC_ROOT=$(shell pwd)
 
 # chaosblade-box-fe
@@ -43,6 +43,6 @@ app:
     		java -Duser.timezone=Asia/Shanghai -jar /root/chaosblade-box-${CHAOS_PLATFORM_VERSION}.jar
 
 build_image:
-	docker build --rm -t chaosbladeio/chaosblade-box:${CHAOS_PLATFORM_VERSION} .
+	docker build --rm -t ghcr.io/chaosblade-io/chaosblade-box:${CHAOS_PLATFORM_VERSION} .
 
 

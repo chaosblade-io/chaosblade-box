@@ -64,6 +64,7 @@ public class ScopeController extends BaseController {
     @PostMapping("PageableQueryExperimentScopes")
     public RestResponse<PageableResponse<ExperimentScope>> pageableQueryExperimentScopes(@LoginUser ChaosUser chaosUser,
                                                                                          @RequestBody ExperimentScopePageableRequest experimentScopePageableRequest) {
+        experimentScopePageableRequest.setUser(chaosUser);
         return RestResponseUtil.initWithServiceResponse(
             cloudScopeService.pageableQueryExperimentScopes(experimentScopePageableRequest));
     }

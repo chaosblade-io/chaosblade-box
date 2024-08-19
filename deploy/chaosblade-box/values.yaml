@@ -1,7 +1,7 @@
 # Default values for chaosblade-box.
 box:
-  repository: chaosbladeio/chaosblade-box
-  version: 1.0.4
+  repository: ghcr.io/chaosblade-io/chaosblade-box
+  version: 1.0.5
   pullPolicy: IfNotPresent
 
 spring:
@@ -11,10 +11,10 @@ spring:
     password:
 chaos:
   agent:
-    version: 1.0.2
-    repository: chaosbladeio/chaosblade-agent
-    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.2/chaosagent.tar.gz
-    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.2/chaosblade-box-agent-1.0.2.tgz
+    version: 1.0.3
+    repository: ghcr.io/chaosblade-io/chaosblade-agent
+    url: https://github.com/chaosblade-io/chaosblade-box-agent/releases/download/v1.0.3/chaos-1.7.3-linux-amd64.tar.gz
+    helm: https://github.com/chaosblade-io/chaosblade-box-agent/releases/download/v1.0.3/chaosblade-box-agent-amd64-1.0.3.tgz
   function:
     sync:
       type: ALL
