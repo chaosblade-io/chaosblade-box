@@ -77,11 +77,11 @@ spring:
     data: classpath:sql/data/*.sql
     driver-class-name: com.mysql.jdbc.Driver
     initialization-mode: always
-    initialize: true
+    initialize: false
     password: 123456
     schema: classpath:sql/schema/chaosblade-box-ddl.sql
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://10.10.222.103:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://116.63.51.45:3307/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
   mcms:
     enabled: false
