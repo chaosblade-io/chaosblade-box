@@ -1,11 +1,16 @@
 package com.alibaba.chaosblade.box.controller;
 
+import com.alibaba.chaosblade.box.common.common.domain.ChaosError;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
+import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
 import com.alibaba.chaosblade.box.annotation.LoginUser;
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
 import com.alibaba.chaosblade.box.model.RestResponseUtil;
 import com.alibaba.chaosblade.box.service.LoadTestDefinitionService;
 import com.alibaba.chaosblade.box.service.model.RestResponse;
+import com.alibaba.chaosblade.box.service.model.loadtest.FileUploadData;
+import com.alibaba.chaosblade.box.service.model.loadtest.JmxFileUploadRequest;
+import com.alibaba.chaosblade.box.service.model.loadtest.JmxFileUploadResponse;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestDefinitionCreateRequest;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestDefinitionQueryRequest;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestDefinitionUpdateRequest;
@@ -15,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -93,8 +99,40 @@ public class LoadTestDefinitionController  {
     public RestResponse<List<LoadTestDefinitionVO>> listAllLoadTestDefinitions(
             @LoginUser ChaosUser user,
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
-        
+
         return RestResponseUtil.initWithServiceResponse(
                 loadTestDefinitionService.listAllLoadTestDefinitions(user.getUserId(), namespace));
+    }
+
+    @PostMapping("/UploadJmxFile")
+    @ApiOperation(value = "上传JMX文件到压测引擎")
+    public RestResponse<JmxFileUploadResponse> uploadJmxFile(
+            @LoginUser ChaosUser user,
+            @ApiParam(value = "JMX文件", required = true) @RequestParam("file") MultipartFile file,
+            @ApiParam(value = "压测引擎端点", required = true) @RequestParam("endpoint") String endpoint,
+            @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
+
+        try {
+            // 转换MultipartFile为FileUploadData
+            FileUploadData fileData = new FileUploadData(
+                    file.getOriginalFilename(),
+                    file.getBytes(),
+                    file.getContentType()
+            );
+
+            // 创建请求对象
+            JmxFileUploadRequest request = new JmxFileUploadRequest();
+            request.setFile(fileData);
+            request.setEndpoint(endpoint);
+            request.setNamespace(namespace);
+            request.setUser(user);
+
+            return RestResponseUtil.initWithServiceResponse(
+                    loadTestDefinitionService.uploadJmxFile(request));
+
+        } catch (Exception e) {
+            log.error("处理文件上传请求失败", e);
+            return RestResponseUtil.failed(new ChaosError(CommonErrorCode.S_SYSTEM_ERROR, "文件上传失败: " + e.getMessage()));
+        }
     }
 }
