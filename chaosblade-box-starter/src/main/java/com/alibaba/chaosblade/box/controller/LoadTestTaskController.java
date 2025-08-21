@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Api(description = "压测任务管理")
-public class LoadTestTaskController {
+public class LoadTestTaskController extends BaseController {
 
     @Resource
     private LoadTestTaskService loadTestTaskService;
@@ -105,6 +105,17 @@ public class LoadTestTaskController {
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
         return loadTestTaskService.getLoadTestResults(taskId, experimentTaskId, user.getUserId(), namespace);
+    }
+
+    @GetMapping("/chaos/GetLoadTestResults")
+    @ApiOperation(value = "获取压测结果（Chaos接口）")
+    public Response<LoadTestResultResponse> getChaosLoadTestResults(
+            @LoginUser ChaosUser user,
+            @ApiParam(value = "压测任务ID") @RequestParam(required = false) String taskId,
+            @ApiParam(value = "演练任务ID") @RequestParam(required = false) String experiment_task_id,
+            @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
+
+        return loadTestTaskService.getLoadTestResultsWithEndpoint(taskId, experiment_task_id, user.getUserId(), namespace);
     }
 
     @GetMapping("/GetLoadTestEvents")

@@ -34,7 +34,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Api(description = "压测定义管理")
-public class LoadTestDefinitionController {
+public class LoadTestDefinitionController extends BaseController {
 
     @Resource
     private LoadTestDefinitionService loadTestDefinitionService;

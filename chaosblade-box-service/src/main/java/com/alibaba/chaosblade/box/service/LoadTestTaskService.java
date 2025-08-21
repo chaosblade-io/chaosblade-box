@@ -106,4 +106,15 @@ public interface LoadTestTaskService {
      * @return 性能指标时序数据
      */
     Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId, String userId, String namespace);
+
+    /**
+     * 获取压测结果（包含endpoint信息）
+     *
+     * @param taskId 任务ID（可选）
+     * @param experimentTaskId 演练任务ID（可选）
+     * @param userId 用户ID
+     * @param namespace 命名空间
+     * @return 压测结果（包含endpoint）
+     */
+    Response<LoadTestResultResponse> getLoadTestResultsWithEndpoint(String taskId, String experimentTaskId, String userId, String namespace);
 }

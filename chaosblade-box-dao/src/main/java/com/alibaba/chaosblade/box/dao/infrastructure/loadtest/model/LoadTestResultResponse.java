@@ -44,4 +44,9 @@ public class LoadTestResultResponse {
      * 供浏览器访问的报告首页（/reports/.../index.html）
      */
     private String reportUrl;
+
+    /**
+     * 压测定义的目标端点
+     */
+    private String endpoint;
 }

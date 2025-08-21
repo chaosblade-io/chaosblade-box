@@ -257,6 +257,53 @@ curl "http://localhost:7001/GetLoadTestResults?taskId=task_123456"
 curl "http://localhost:7001/GetLoadTestResults?experimentTaskId=exp_789012"
 ```
 
+#### 3.1.1 获取压测结果（Chaos接口）
+
+**接口描述：** 专为Chaos系统设计的压测结果获取接口，支持通过任务ID或演练任务ID查询，返回结果包含压测定义的endpoint信息
+
+**请求信息：**
+```
+GET /chaos/GetLoadTestResults
+```
+
+**请求参数：**
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+|--------|------|------|--------|------|
+| taskId | String | 否 | - | 压测任务ID |
+| experiment_task_id | String | 否 | - | 演练任务ID |
+| namespace | String | 否 | default | 命名空间 |
+
+**注意：** taskId 和 experiment_task_id 必须提供其中一个
+
+**响应数据：**
+```json
+{
+  "success": true,
+  "result": {
+    "executionId": "eebe508d",
+    "status": "STOPPED",
+    "resultPath": "results/20250821_192833_eebe508d/results.jtl",
+    "reportPath": "reports/20250821_192833_eebe508d",
+    "logPath": "results/20250821_192833_eebe508d/jmeter.log",
+    "resultUrl": "/results/20250821_192833_eebe508d/results.jtl",
+    "reportUrl": "/reports/20250821_192833_eebe508d/index.html",
+    "endpoint": "http://example.com/api"
+  }
+}
+```
+
+**数据说明：**
+- `endpoint`: 压测定义中配置的目标端点，从压测任务关联的压测策略和压测定义中获取
+
+**使用示例：**
+```bash
+# 通过压测任务ID获取（包含endpoint）
+curl "http://localhost:7001/chaos/GetLoadTestResults?taskId=1958612202743332866"
+
+# 通过演练任务ID获取（包含endpoint）
+curl "http://localhost:7001/chaos/GetLoadTestResults?experiment_task_id=1958598136545050625"
+```
+
 #### 3.2 获取压测事件流水
 
 **接口描述：** 获取压测任务的事件流水日志，支持通过任务ID或演练ID查询
