@@ -76,8 +76,9 @@ spring:
     continue-on-error: true
     data: classpath:sql/data/*.sql
     driver-class-name: com.mysql.jdbc.Driver
+    # initialization-mode: never
     initialization-mode: always
-    initialize: false
+    initialize: true
     password: 123456
     schema: classpath:sql/schema/chaosblade-box-ddl.sql
     type: com.zaxxer.hikari.HikariDataSource
