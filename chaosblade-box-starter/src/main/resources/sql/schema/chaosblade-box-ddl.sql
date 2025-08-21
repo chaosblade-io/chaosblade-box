@@ -1037,10 +1037,30 @@ CREATE TABLE IF NOT EXISTS t_chaos_m_quartz_trigger_log
 create index idx_gmt_create
     on t_chaos_m_quartz_trigger_log (gmt_create);
 
-
-
-
-
-
-
-
+CREATE TABLE IF NOT EXISTS `t_chaos_load_test_task` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '修改时间',
+  `task_id` varchar(64) NOT NULL COMMENT '压测任务ID',
+  `strategy_id` varchar(64) NOT NULL COMMENT '压测策略ID，关联t_chaos_load_test_strategy表',
+  `experiment_task_id` varchar(64) NOT NULL COMMENT '演练任务ID，关联t_chaos_experiment_task表',
+  `execution_id` varchar(128) DEFAULT NULL COMMENT '压测引擎执行ID',
+  `status` varchar(32) NOT NULL DEFAULT 'PENDING' COMMENT '任务状态：PENDING|RUNNING|SUCCEEDED|FAILED|STOPPED|TIMEOUT',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `error_message` text COMMENT '错误信息',
+  `result_path` varchar(512) DEFAULT NULL COMMENT '结果文件路径',
+  `report_path` varchar(512) DEFAULT NULL COMMENT '报告路径',
+  `log_path` varchar(512) DEFAULT NULL COMMENT '日志路径',
+  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
+  `namespace` varchar(64) NOT NULL DEFAULT 'default' COMMENT '命名空间',
+  `is_delete` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_task_id` (`task_id`),
+  KEY `idx_strategy_id` (`strategy_id`),
+  KEY `idx_experiment_task_id` (`experiment_task_id`),
+  KEY `idx_execution_id` (`execution_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_user_namespace` (`user_id`, `namespace`),
+  KEY `idx_gmt_create` (`gmt_create`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='压测任务表';
