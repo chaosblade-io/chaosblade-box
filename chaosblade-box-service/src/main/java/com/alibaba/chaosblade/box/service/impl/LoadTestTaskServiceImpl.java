@@ -158,12 +158,12 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
     }
 
     @Override
-    public Response<LoadTestResultResponse> getLoadTestResults(String taskId, String experimentId, String userId, String namespace) {
+    public Response<LoadTestResultResponse> getLoadTestResults(String taskId, String experimentTaskId, String userId, String namespace) {
         try {
             // 根据参数确定实际的 taskId
-            String actualTaskId = resolveTaskId(taskId, experimentId, userId, namespace);
+            String actualTaskId = resolveTaskId(taskId, experimentTaskId, userId, namespace);
             if (actualTaskId == null) {
-                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentId 中的一个");
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentTaskId 中的一个");
             }
 
             // 权限检查
@@ -182,12 +182,12 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
     }
 
     @Override
-    public Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, String experimentId, Integer tail, String userId, String namespace) {
+    public Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, String experimentTaskId, Integer tail, String userId, String namespace) {
         try {
             // 根据参数确定实际的 taskId
-            String actualTaskId = resolveTaskId(taskId, experimentId, userId, namespace);
+            String actualTaskId = resolveTaskId(taskId, experimentTaskId, userId, namespace);
             if (actualTaskId == null) {
-                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentId 中的一个");
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentTaskId 中的一个");
             }
 
             // 权限检查
@@ -242,21 +242,21 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
     }
 
     /**
-     * 根据 taskId 或 experimentId 解析出实际的 taskId
+     * 根据 taskId 或 experimentTaskId 解析出实际的 taskId
      */
-    private String resolveTaskId(String taskId, String experimentId, String userId, String namespace) {
+    private String resolveTaskId(String taskId, String experimentTaskId, String userId, String namespace) {
         // 如果直接提供了 taskId，直接返回
         if (taskId != null && !taskId.trim().isEmpty()) {
             return taskId;
         }
 
-        // 如果提供了 experimentId，查找对应的压测任务
-        if (experimentId != null && !experimentId.trim().isEmpty()) {
+        // 如果提供了 experimentTaskId，查找对应的压测任务
+        if (experimentTaskId != null && !experimentTaskId.trim().isEmpty()) {
             try {
-                // 通过 experimentId 查找演练任务，然后查找关联的压测任务
-                return loadTestTaskManager.findTaskIdByExperimentId(experimentId, userId, namespace);
+                // 通过 experimentTaskId 查找演练任务，然后查找关联的压测任务
+                return loadTestTaskManager.findTaskIdByExperimentId(experimentTaskId, userId, namespace);
             } catch (Exception e) {
-                log.error("根据 experimentId 查找压测任务失败: experimentId={}", experimentId, e);
+                log.error("根据 experimentTaskId 查找压测任务失败: experimentTaskId={}", experimentTaskId, e);
             }
         }
 

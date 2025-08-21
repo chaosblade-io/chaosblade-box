@@ -100,23 +100,23 @@ public class LoadTestTaskController {
     @ApiOperation(value = "获取压测结果")
     public Response<LoadTestResultResponse> getLoadTestResults(
             @LoginUser ChaosUser user,
-            @ApiParam(value = "任务ID") @RequestParam(required = false) String taskId,
-            @ApiParam(value = "演练ID") @RequestParam(required = false) String experimentId,
+            @ApiParam(value = "压测任务ID") @RequestParam(required = false) String taskId,
+            @ApiParam(value = "演练任务ID") @RequestParam(required = false) String experimentTaskId,
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
-        return loadTestTaskService.getLoadTestResults(taskId, experimentId, user.getUserId(), namespace);
+        return loadTestTaskService.getLoadTestResults(taskId, experimentTaskId, user.getUserId(), namespace);
     }
 
     @GetMapping("/GetLoadTestEvents")
     @ApiOperation(value = "获取压测事件流水")
     public Response<LoadTestEventsResponse> getLoadTestEvents(
             @LoginUser ChaosUser user,
-            @ApiParam(value = "任务ID") @RequestParam(required = false) String taskId,
-            @ApiParam(value = "演练ID") @RequestParam(required = false) String experimentId,
+            @ApiParam(value = "压测任务ID") @RequestParam(required = false) String taskId,
+            @ApiParam(value = "演练任务ID") @RequestParam(required = false) String experimentTaskId,
             @ApiParam(value = "返回最近N条记录") @RequestParam(required = false, defaultValue = "100") Integer tail,
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
-        return loadTestTaskService.getLoadTestEvents(taskId, experimentId, tail, user.getUserId(), namespace);
+        return loadTestTaskService.getLoadTestEvents(taskId, experimentTaskId, tail, user.getUserId(), namespace);
     }
 
     @PostMapping("/SyncLoadTestTaskStatus")

@@ -68,24 +68,24 @@ public interface LoadTestTaskService {
      * 获取压测结果
      *
      * @param taskId 任务ID（可选）
-     * @param experimentId 演练ID（可选）
+     * @param experimentTaskId 演练任务ID（可选）
      * @param userId 用户ID
      * @param namespace 命名空间
      * @return 压测结果
      */
-    Response<LoadTestResultResponse> getLoadTestResults(String taskId, String experimentId, String userId, String namespace);
+    Response<LoadTestResultResponse> getLoadTestResults(String taskId, String experimentTaskId, String userId, String namespace);
 
     /**
      * 获取压测事件流水
      *
      * @param taskId 任务ID（可选）
-     * @param experimentId 演练ID（可选）
+     * @param experimentTaskId 演练任务ID（可选）
      * @param tail 返回最近N条记录
      * @param userId 用户ID
      * @param namespace 命名空间
      * @return 事件流水
      */
-    Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, String experimentId, Integer tail, String userId, String namespace);
+    Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, String experimentTaskId, Integer tail, String userId, String namespace);
 
     /**
      * 同步压测任务状态
