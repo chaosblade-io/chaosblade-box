@@ -664,6 +664,30 @@ CREATE TABLE IF NOT EXISTS `t_chaos_application_group` (
   UNIQUE KEY `uk_uid_cid` (`app_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='chaos应用表';
 
+CREATE TABLE IF NOT EXISTS `t_chaos_load_test_definition` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '修改时间',
+  `definition_id` varchar(64) NOT NULL COMMENT '压测定义ID',
+  `name` varchar(256) NOT NULL COMMENT '压测定义名称',
+  `engine_type` varchar(32) NOT NULL COMMENT '引擎类型：JMETER、K6、LOCUST、CUSTOM',
+  `endpoint` varchar(512) NOT NULL COMMENT '目标端点',
+  `entry` varchar(32) NOT NULL COMMENT '入口类型：JMX、SCRIPT、URL',
+  `content_ref` varchar(1024) DEFAULT NULL COMMENT '文件URL引用',
+  `url_case` longtext COMMENT 'URL型用例配置（JSON格式）',
+  `created_by` varchar(64) NOT NULL COMMENT '创建者',
+  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
+  `namespace` varchar(64) NOT NULL DEFAULT 'default' COMMENT '命名空间',
+  `is_delete` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_definition_id` (`definition_id`),
+  KEY `idx_user_namespace` (`user_id`, `namespace`),
+  KEY `idx_name` (`name`),
+  KEY `idx_engine_type` (`engine_type`),
+  KEY `idx_created_by` (`created_by`),
+  KEY `idx_gmt_create` (`gmt_create`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='压测定义表';
+
 CREATE TABLE IF NOT EXISTS `t_chaos_experiment_task_feedback` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `feedback_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'feedback_id',
