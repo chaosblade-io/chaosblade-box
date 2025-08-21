@@ -64,7 +64,7 @@ logging:
   level:
     root: info
     org.springframework: info
-    com.alibaba.chaosblade.box: debug
+    com.alibaba.chaosblade.box: info
 
 spring:
   aop:
@@ -93,3 +93,9 @@ spring:
     prefix: classpath:/build
   velocity:
     enabled: false
+
+# 压测引擎配置
+chaosblade:
+  loadtest:
+    engine:
+      host: localhost:8008

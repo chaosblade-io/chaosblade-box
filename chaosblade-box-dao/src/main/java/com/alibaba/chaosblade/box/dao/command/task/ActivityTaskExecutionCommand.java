@@ -88,20 +88,33 @@ public class ActivityTaskExecutionCommand extends BasePoolCommand<ActivityTaskEx
     @Override
     public ActivityTaskExecutionResponse execute() {
         ActivityTaskExecutionResponse activityTaskExecutionResponse = new ActivityTaskExecutionResponse();
+
+        logger.info("开始执行活动任务: activityTaskId={}, phase={}, activityName={}, state={}, experimentTaskId={}",
+                currentActivityTaskDO.getTaskId(),
+                currentActivityTaskDO.getPhase(),
+                currentActivityTaskDO.getActivityName(),
+                currentActivityTaskDO.getState(),
+                currentActivityTaskDO.getExperimentTaskId());
+
         try {
             //演练上下文需要提前准备
             prepareExperimentExecuteContext(experimentExecuteContext);
             //校验是否可以运行
             if (forbidRun()) {
+                logger.warn("活动任务被禁止执行: activityTaskId={}", currentActivityTaskDO.getTaskId());
                 activityTaskExecutionResponse.setExecuted(false);
             } else {
                 //开始运行之前做一些拦截
                 beforeRun();
                 ActivityExecuteResult activityExecuteResult = runActivity();
                 activityTaskExecutionResponse.setActivityExecuteResult(activityExecuteResult);
+
+                logger.info("活动任务执行完成: activityTaskId={}, success={}",
+                        currentActivityTaskDO.getTaskId(),
+                        activityExecuteResult != null ? activityExecuteResult.isSuccess() : "null");
             }
         } catch (Throwable throwable) {
-            logger.error("execute activity task failed", throwable);
+            logger.error("execute activity task failed: activityTaskId=" + currentActivityTaskDO.getTaskId(), throwable);
             activityTaskExecutionResponse.setExecuted(true);
             onError(throwable);
         }

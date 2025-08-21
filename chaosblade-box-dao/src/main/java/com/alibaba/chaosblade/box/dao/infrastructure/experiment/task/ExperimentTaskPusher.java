@@ -55,18 +55,33 @@ public class ExperimentTaskPusher {
     public void push(ActivityTaskDO activityTaskDO, ExperimentTaskDO experimentTaskDO,
                      ExperimentTaskRunnableSettings taskRunnableSettings) {
         Preconditions.checkArgument(experimentTaskDO != null, "experimentTaskId Not Null");
+
+        log.info("任务推进检查: currentActivityTaskId={}, phase={}, activityName={}, state={}, result={}, experimentTaskId={}",
+                activityTaskDO.getTaskId(),
+                activityTaskDO.getPhase(),
+                activityTaskDO.getActivityName(),
+                activityTaskDO.getState(),
+                activityTaskDO.getResult(),
+                experimentTaskDO.getTaskId());
+
         if (ignorePush(activityTaskDO, experimentTaskDO, taskRunnableSettings)) {
-            log.info(
-                "Not Push experiment task:" + experimentTaskDO.getTaskId());
+            log.info("任务推进被忽略: experimentTaskId={}, currentActivityTaskId={}",
+                    experimentTaskDO.getTaskId(), activityTaskDO.getTaskId());
             return;
         }
+
         ActivityTaskDO nextActivityTaskDO = acquireNextTask(experimentTaskDO,
             activityTaskDO, taskRunnableSettings);
         if (nextActivityTaskDO != null) {
-            log.info(
-                "Push experiment task:" + experimentTaskDO.getTaskId());
+            log.info("推进到下一个活动任务: experimentTaskId={}, currentTaskId={}, nextTaskId={}, nextPhase={}, nextActivityName={}",
+                    experimentTaskDO.getTaskId(),
+                    activityTaskDO.getTaskId(),
+                    nextActivityTaskDO.getTaskId(),
+                    nextActivityTaskDO.getPhase(),
+                    nextActivityTaskDO.getActivityName());
             executeNextActivityTask(nextActivityTaskDO, taskRunnableSettings);
         } else {
+            log.info("没有下一个活动任务，演练任务完成: experimentTaskId={}", experimentTaskDO.getTaskId());
             commandBus.syncRun(ExperimentTaskFinishedCommand.class, experimentTaskDO.getTaskId());
         }
     }
@@ -91,16 +106,31 @@ public class ExperimentTaskPusher {
     private ActivityTaskDO acquireNextTask(ExperimentTaskDO experimentTaskDO, ActivityTaskDO currentActivityTask,
         ExperimentTaskRunnableSettings taskRunnableSettings) {
         String experimentTaskId = experimentTaskDO.getTaskId();
+
+        log.info("获取下一个任务: experimentTaskId={}, currentTaskId={}, currentPhase={}, nextTaskId={}, isStopping={}, isInterrupted={}",
+                experimentTaskId,
+                currentActivityTask.getTaskId(),
+                currentActivityTask.getPhase(),
+                currentActivityTask.getNextActivityTaskId(),
+                experimentTaskDO.isStopping(),
+                taskRunnableSettings.isInterruptedExperimentTaskNow());
+
         //如果演练已经在停止当中了或者立即停止
         if (experimentTaskDO.isStopping() || taskRunnableSettings.isInterruptedExperimentTaskNow()) {
             //只允许恢复阶段操作
             if (currentActivityTask.inPhase(PhaseType.RECOVER)) {
-                return findNextRecoveryActivityTaskDO(currentActivityTask);
+                ActivityTaskDO nextTask = findNextRecoveryActivityTaskDO(currentActivityTask);
+                log.info("演练停止中，查找下一个恢复任务: nextTaskId={}", nextTask != null ? nextTask.getTaskId() : "null");
+                return nextTask;
             } else {
-                return getFirstRecoveryActivityTask(experimentTaskId);
+                ActivityTaskDO firstRecoveryTask = getFirstRecoveryActivityTask(experimentTaskId);
+                log.info("演练停止中，跳转到第一个恢复任务: firstRecoveryTaskId={}", firstRecoveryTask != null ? firstRecoveryTask.getTaskId() : "null");
+                return firstRecoveryTask;
             }
         } else {
-            return getActivityTaskByTaskId(currentActivityTask.getNextActivityTaskId());
+            ActivityTaskDO nextTask = getActivityTaskByTaskId(currentActivityTask.getNextActivityTaskId());
+            log.info("正常推进到下一个任务: nextTaskId={}", nextTask != null ? nextTask.getTaskId() : "null");
+            return nextTask;
         }
     }
 

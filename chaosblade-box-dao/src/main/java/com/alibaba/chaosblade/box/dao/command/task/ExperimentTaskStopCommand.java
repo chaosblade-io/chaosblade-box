@@ -10,20 +10,23 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.ActivityTas
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.request.ExperimentTaskStopRequest;
 import com.alibaba.chaosblade.box.common.infrastructure.util.ChaosTraceUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.checker.ExperimentChecker;
+import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.LoadTestTaskManager;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.ExperimentTaskRunnableSettings;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.activity.ExperimentExecuteContext;
 import com.alibaba.chaosblade.box.dao.model.ActivityTaskDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
 import com.alibaba.chaosblade.box.dao.repository.ActivityTaskRepository;
 import com.alibaba.chaosblade.box.dao.repository.ExperimentTaskRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * @author haibin
- * 
+ *
  *
  */
+@Slf4j
 @Component
 public class ExperimentTaskStopCommand extends SpringBeanCommand<ExperimentTaskStopRequest, Response<Void>> {
 
@@ -38,6 +41,9 @@ public class ExperimentTaskStopCommand extends SpringBeanCommand<ExperimentTaskS
 
     @Autowired
     private ActivityTaskTerminator activityTaskTerminator;
+
+    @Autowired
+    private LoadTestTaskManager loadTestTaskManager;
 
     @Override
     public Response<Void> execute(ExperimentTaskStopRequest experimentTaskStopRequest) {
@@ -60,6 +66,8 @@ public class ExperimentTaskStopCommand extends SpringBeanCommand<ExperimentTaskS
             experimentTaskRepository.updateRunState(experimentTaskId, StateEnum.STOPPING);
             //强行终止正在运行的任务
             killRunningActivityTaskIfNeed(experimentTaskDO.getActivityTaskId());
+            //停止关联的压测任务
+            stopLoadTestTaskIfNeed(experimentTaskId);
         }
         //执行恢复操作
         recoverTasks(experimentTaskStopRequest, experimentTaskDO);
@@ -104,6 +112,26 @@ public class ExperimentTaskStopCommand extends SpringBeanCommand<ExperimentTaskS
             activityTaskDO -> {
                 activityTaskTerminator.terminateRunningTask(activityTaskDO);
             });
+    }
+
+    /**
+     * 停止关联的压测任务
+     *
+     * @param experimentTaskId 演练任务ID
+     */
+    private void stopLoadTestTaskIfNeed(String experimentTaskId) {
+        try {
+            Response<Boolean> stopResponse = loadTestTaskManager.stopLoadTestTaskByExperimentTaskId(experimentTaskId);
+            if (stopResponse.isSuccess()) {
+                log.info("演练任务停止时成功停止关联的压测任务: experimentTaskId={}", experimentTaskId);
+            } else {
+                log.warn("演练任务停止时停止压测任务失败: experimentTaskId={}, error={}",
+                        experimentTaskId, stopResponse.getError().getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error("演练任务停止时停止压测任务异常: experimentTaskId={}", experimentTaskId, e);
+            // 不抛出异常，避免影响演练任务停止流程
+        }
     }
 
 }

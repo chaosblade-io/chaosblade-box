@@ -19,6 +19,8 @@ import com.alibaba.chaosblade.box.dao.repository.*;
 import com.alibaba.chaosblade.box.dao.infrastructure.manager.MiniAppTaskManager;
 import com.alibaba.chaosblade.box.common.commands.SpringBeanCommand;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +35,8 @@ import java.util.stream.Collectors;
 @Component
 public class ActivityTaskBatchCreatedCommand
     extends SpringBeanCommand<ActivityTasksCreateRequest, List<ActivityTaskDO>> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ActivityTaskBatchCreatedCommand.class);
 
     @Autowired
     private ActivityTaskRepository activityTaskRepository;
@@ -85,6 +89,8 @@ public class ActivityTaskBatchCreatedCommand
         //依次创建每个活动的任务
         int activityTaskOrder = 0;
         Map<String, ExperimentActivityDO> taskIdToActivity = new HashMap<>();
+        logger.info("开始创建活动任务，演练任务ID: {}, 活动数量: {}", experimentTaskId, experimentActivityDOS.size());
+
         for (ExperimentActivityDO experimentActivityDO : experimentActivityDOS) {
             ActivityTaskDO activityTaskDO = buildBaseActivityTaskDO(experimentTaskDO, experimentActivityDO,
                 activityIdToRunParam.get(experimentActivityDO.getActivityId()), activityTaskOrder);
@@ -96,6 +102,16 @@ public class ActivityTaskBatchCreatedCommand
             activityTaskDO.setTaskMode(ActivityTaskMode.EXPERIMENT.getValue());
             preActivityTaskDO = activityTaskDO;
             activityTaskDOS.add(activityTaskDO);
+
+            logger.info("创建活动任务: taskId={}, activityId={}, activityName={}, phase={}, order={}, preTaskId={}, nextTaskId={}",
+                    activityTaskDO.getTaskId(),
+                    activityTaskDO.getActivityId(),
+                    activityTaskDO.getActivityName(),
+                    activityTaskDO.getPhase(),
+                    activityTaskOrder,
+                    activityTaskDO.getPreActivityTaskId(),
+                    activityTaskDO.getNextActivityTaskId());
+
             activityTaskOrder++;
         }
 
@@ -120,6 +136,15 @@ public class ActivityTaskBatchCreatedCommand
         activityTaskRepository.saveBatch(activityTaskDOS);
         activityTargetExecutionResultRepository.saveBatch(experimentMiniAppTaskDOS);
         experimentTaskHostRecorder.record(experimentTaskDO, uniqueHosts);
+
+        // 记录活动任务创建完成的总结信息
+        logger.info("活动任务创建完成，演练任务ID: {}, 总共创建了{}个活动任务", experimentTaskId, activityTaskDOS.size());
+        for (int i = 0; i < activityTaskDOS.size(); i++) {
+            ActivityTaskDO task = activityTaskDOS.get(i);
+            logger.info("活动任务[{}]: taskId={}, phase={}, activityName={}, nextTaskId={}",
+                    i, task.getTaskId(), task.getPhase(), task.getActivityName(), task.getNextActivityTaskId());
+        }
+
         return activityTaskDOS;
     }
 
