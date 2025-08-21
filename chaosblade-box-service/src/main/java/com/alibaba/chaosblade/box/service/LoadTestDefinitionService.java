@@ -2,6 +2,8 @@ package com.alibaba.chaosblade.box.service;
 
 import com.alibaba.chaosblade.box.common.common.domain.Response;
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
+import com.alibaba.chaosblade.box.service.model.loadtest.JmxFileUploadRequest;
+import com.alibaba.chaosblade.box.service.model.loadtest.JmxFileUploadResponse;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestDefinitionCreateRequest;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestDefinitionQueryRequest;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestDefinitionUpdateRequest;
@@ -68,4 +70,12 @@ public interface LoadTestDefinitionService {
      * @return 压测定义列表
      */
     Response<List<LoadTestDefinitionVO>> listAllLoadTestDefinitions(String userId, String namespace);
+
+    /**
+     * 上传JMX文件到压测引擎
+     *
+     * @param request 文件上传请求
+     * @return 上传结果
+     */
+    Response<JmxFileUploadResponse> uploadJmxFile(JmxFileUploadRequest request);
 }
