@@ -35,6 +35,7 @@ public class LoadTestEngineClientImpl implements LoadTestEngineClient {
     private static final String STATUS_API = "/api/loadtest/status/{executionId}";
     private static final String RESULTS_API = "/api/loadtest/results/{executionId}";
     private static final String EVENTS_API = "/api/loadtest/events/{executionId}";
+    private static final String METRICS_API = "/api/metrics/performance/{executionId}/series";
 
     @Override
     public Response<LoadTestExecutionResponse> startLoadTest(LoadTestStartRequest request) {
@@ -260,5 +261,61 @@ public class LoadTestEngineClientImpl implements LoadTestEngineClient {
             response.setEvents(java.util.Collections.emptyList());
         }
         return response;
+    }
+
+    @Override
+    public Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId) {
+        try {
+            String url = "http://" + loadTestEngineHost + METRICS_API.replace("{executionId}", executionId);
+            log.info("获取性能指标时序数据: URL={}, executionId={}", url, executionId);
+
+            @SuppressWarnings("rawtypes")
+            ResponseEntity<Map> responseEntity = restTemplate.getForEntity(url, Map.class);
+            log.info("压测引擎响应: Status={}, Body={}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> responseBody = responseEntity.getBody();
+                if (responseBody != null && Boolean.TRUE.equals(responseBody.get("success"))) {
+                    Object data = responseBody.get("data");
+                    if (data instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        PerformanceTimeseries timeseries = convertToPerformanceTimeseries((Map<String, Object>) data);
+                        return Response.okWithData(timeseries);
+                    }
+                }
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "压测引擎返回数据格式错误");
+            } else {
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "压测引擎返回错误: " + responseEntity.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            log.error("获取性能指标时序数据失败: executionId={}", executionId, e);
+            return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "获取性能指标时序数据失败: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private PerformanceTimeseries convertToPerformanceTimeseries(Map<String, Object> data) {
+        PerformanceTimeseries timeseries = new PerformanceTimeseries();
+        timeseries.setBucketSizeMs(getLongValue(data, "bucketSizeMs"));
+        timeseries.setAvgLatency((java.util.List<java.util.List<Object>>) data.get("avgLatency"));
+        timeseries.setMinLatency((java.util.List<java.util.List<Object>>) data.get("minLatency"));
+        timeseries.setMaxLatency((java.util.List<java.util.List<Object>>) data.get("maxLatency"));
+        timeseries.setP90((java.util.List<java.util.List<Object>>) data.get("p90"));
+        timeseries.setP95((java.util.List<java.util.List<Object>>) data.get("p95"));
+        timeseries.setP99((java.util.List<java.util.List<Object>>) data.get("p99"));
+        timeseries.setSuccessRate((java.util.List<java.util.List<Object>>) data.get("successRate"));
+        timeseries.setThroughputReceived((java.util.List<java.util.List<Object>>) data.get("throughputReceived"));
+        timeseries.setThroughputSent((java.util.List<java.util.List<Object>>) data.get("throughputSent"));
+        return timeseries;
+    }
+
+    private Long getLongValue(Map<String, Object> data, String key) {
+        Object value = data.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).longValue();
+        }
+        return null;
     }
 }

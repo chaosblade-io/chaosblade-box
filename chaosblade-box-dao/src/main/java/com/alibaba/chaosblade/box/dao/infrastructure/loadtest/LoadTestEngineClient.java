@@ -50,4 +50,12 @@ public interface LoadTestEngineClient {
      * @return 事件流水响应
      */
     Response<LoadTestEventsResponse> getLoadTestEvents(String executionId, Integer tail);
+
+    /**
+     * 获取性能指标时序数据
+     *
+     * @param executionId 执行ID
+     * @return 性能指标时序数据响应
+     */
+    Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId);
 }

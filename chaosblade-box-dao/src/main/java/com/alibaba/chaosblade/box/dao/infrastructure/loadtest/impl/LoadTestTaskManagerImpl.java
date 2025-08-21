@@ -429,7 +429,58 @@ public class LoadTestTaskManagerImpl implements LoadTestTaskManager {
     }
 
     private boolean isFinishedStatus(String status) {
-        return "COMPLETED".equals(status) || "FAILED".equals(status) || 
+        return "COMPLETED".equals(status) || "FAILED".equals(status) ||
                "STOPPED".equals(status) || "TIMEOUT".equals(status);
+    }
+
+    @Override
+    public Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId) {
+        try {
+            log.info("获取性能指标时序数据: executionId={}", executionId);
+
+            // 调用压测引擎获取性能指标时序数据
+            Response<PerformanceTimeseries> response = loadTestEngineClient.getPerformanceTimeseries(executionId);
+
+            if (response.isSuccess()) {
+                log.info("获取性能指标时序数据成功: executionId={}", executionId);
+            } else {
+                log.warn("获取性能指标时序数据失败: executionId={}, error={}", executionId, response.getError());
+            }
+
+            return response;
+
+        } catch (Exception e) {
+            log.error("获取性能指标时序数据异常: executionId={}", executionId, e);
+            return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "获取性能指标时序数据失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String findTaskIdByExperimentId(String experimentId, String userId, String namespace) {
+        try {
+            log.info("根据演练ID查找压测任务: experimentId={}, userId={}, namespace={}", experimentId, userId, namespace);
+
+            // 查找与演练ID关联的压测任务
+            Optional<LoadTestTaskDO> taskOptional = loadTestTaskRepository.findByExperimentTaskId(experimentId);
+
+            if (taskOptional.isPresent()) {
+                LoadTestTaskDO task = taskOptional.get();
+                // 检查用户权限和命名空间
+                if (userId.equals(task.getUserId()) && namespace.equals(task.getNamespace())) {
+                    log.info("找到匹配的压测任务: taskId={}", task.getTaskId());
+                    return task.getTaskId();
+                } else {
+                    log.warn("权限不匹配: experimentId={}, userId={}, namespace={}", experimentId, userId, namespace);
+                }
+            } else {
+                log.warn("未找到与演练ID关联的压测任务: experimentId={}", experimentId);
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            log.error("根据演练ID查找压测任务失败: experimentId={}", experimentId, e);
+            return null;
+        }
     }
 }

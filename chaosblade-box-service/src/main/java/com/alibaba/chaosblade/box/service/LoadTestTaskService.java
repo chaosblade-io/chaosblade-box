@@ -6,6 +6,7 @@ import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.model.LoadTestResu
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestTaskQueryRequest;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestTaskVO;
+import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.model.PerformanceTimeseries;
 
 import java.util.List;
 
@@ -66,23 +67,25 @@ public interface LoadTestTaskService {
     /**
      * 获取压测结果
      *
-     * @param taskId 任务ID
+     * @param taskId 任务ID（可选）
+     * @param experimentId 演练ID（可选）
      * @param userId 用户ID
      * @param namespace 命名空间
      * @return 压测结果
      */
-    Response<LoadTestResultResponse> getLoadTestResults(String taskId, String userId, String namespace);
+    Response<LoadTestResultResponse> getLoadTestResults(String taskId, String experimentId, String userId, String namespace);
 
     /**
      * 获取压测事件流水
      *
-     * @param taskId 任务ID
+     * @param taskId 任务ID（可选）
+     * @param experimentId 演练ID（可选）
      * @param tail 返回最近N条记录
      * @param userId 用户ID
      * @param namespace 命名空间
      * @return 事件流水
      */
-    Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, Integer tail, String userId, String namespace);
+    Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, String experimentId, Integer tail, String userId, String namespace);
 
     /**
      * 同步压测任务状态
@@ -93,4 +96,14 @@ public interface LoadTestTaskService {
      * @return 同步后的任务状态
      */
     Response<LoadTestTaskVO> syncLoadTestTaskStatus(String taskId, String userId, String namespace);
+
+    /**
+     * 获取性能指标时序数据
+     *
+     * @param executionId 执行ID
+     * @param userId 用户ID
+     * @param namespace 命名空间
+     * @return 性能指标时序数据
+     */
+    Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId, String userId, String namespace);
 }
