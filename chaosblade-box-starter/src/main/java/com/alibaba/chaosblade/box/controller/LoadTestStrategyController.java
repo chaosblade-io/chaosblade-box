@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Api(description = "压测策略管理")
-public class LoadTestStrategyController {
+public class LoadTestStrategyController extends BaseController {
 
     @Resource
     private LoadTestStrategyService loadTestStrategyService;

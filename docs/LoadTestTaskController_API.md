@@ -227,10 +227,10 @@ GET /GetLoadTestResults
 | 参数名 | 类型 | 必填 | 默认值 | 说明 |
 |--------|------|------|--------|------|
 | taskId | String | 否 | - | 压测任务ID |
-| experimentId | String | 否 | - | 演练ID |
+| experimentTaskId | String | 否 | - | 演练任务ID |
 | namespace | String | 否 | default | 命名空间 |
 
-**注意：** taskId 和 experimentId 必须提供其中一个
+**注意：** taskId 和 experimentTaskId 必须提供其中一个
 
 **响应数据：**
 ```json
@@ -253,8 +253,8 @@ GET /GetLoadTestResults
 # 通过任务ID获取
 curl "http://localhost:7001/GetLoadTestResults?taskId=task_123456"
 
-# 通过演练ID获取
-curl "http://localhost:7001/GetLoadTestResults?experimentId=exp_789012"
+# 通过演练任务ID获取
+curl "http://localhost:7001/GetLoadTestResults?experimentTaskId=exp_789012"
 ```
 
 #### 3.2 获取压测事件流水
@@ -270,11 +270,11 @@ GET /GetLoadTestEvents
 | 参数名 | 类型 | 必填 | 默认值 | 说明 |
 |--------|------|------|--------|------|
 | taskId | String | 否 | - | 压测任务ID |
-| experimentId | String | 否 | - | 演练ID |
+| experimentTaskId | String | 否 | - | 演练任务ID |
 | tail | Integer | 否 | 100 | 返回最近N条记录 |
 | namespace | String | 否 | default | 命名空间 |
 
-**注意：** taskId 和 experimentId 必须提供其中一个
+**注意：** taskId 和 experimentTaskId 必须提供其中一个
 
 **响应数据：**
 ```json
@@ -297,8 +297,8 @@ GET /GetLoadTestEvents
 # 通过任务ID获取最近50条事件
 curl "http://localhost:7001/GetLoadTestEvents?taskId=task_123456&tail=50"
 
-# 通过演练ID获取事件
-curl "http://localhost:7001/GetLoadTestEvents?experimentId=exp_789012"
+# 通过演练任务ID获取事件
+curl "http://localhost:7001/GetLoadTestEvents?experimentTaskId=exp_789012"
 ```
 
 #### 3.3 获取性能指标时序数据
