@@ -1,0 +1,394 @@
+{
+  "info": {
+    "name": "压测策略管理API测试",
+    "description": "ChaosBlade-Box 压测策略管理功能完整测试用例",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "strategyId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "definitionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "experimentId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. 创建压测策略",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"enable\": true,\n  \"definitionId\": \"{{definitionId}}\",\n  \"experimentId\": \"{{experimentId}}\",\n  \"startBeforeFaultSec\": 45,\n  \"trafficDurationSec\": 600,\n  \"abortOnLoadFailure\": true,\n  \"namespace\": \"default\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/CreateLoadTestStrategy",
+          "host": ["{{baseUrl}}"],
+          "path": ["CreateLoadTestStrategy"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has success field\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('success');",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "});",
+              "",
+              "pm.test(\"Response has result field with strategy ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('result');",
+              "    pm.expect(jsonData.result).to.match(/^lstrategy_/);",
+              "    pm.collectionVariables.set('strategyId', jsonData.result);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. 查询压测策略详情",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/GetLoadTestStrategy?id={{strategyId}}&namespace=default",
+          "host": ["{{baseUrl}}"],
+          "path": ["GetLoadTestStrategy"],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{strategyId}}"
+            },
+            {
+              "key": "namespace",
+              "value": "default"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response structure is correct\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.result).to.have.property('id');",
+              "    pm.expect(jsonData.result).to.have.property('enable');",
+              "    pm.expect(jsonData.result).to.have.property('definitionId');",
+              "    pm.expect(jsonData.result).to.have.property('experimentId');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. 更新压测策略",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{strategyId}}\",\n  \"enable\": false,\n  \"startBeforeFaultSec\": 60,\n  \"trafficDurationSec\": 300,\n  \"abortOnLoadFailure\": false,\n  \"namespace\": \"default\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/UpdateLoadTestStrategy",
+          "host": ["{{baseUrl}}"],
+          "path": ["UpdateLoadTestStrategy"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Update successful\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. 根据实验ID查询策略",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/GetLoadTestStrategyByExperimentId?experimentId={{experimentId}}&namespace=default",
+          "host": ["{{baseUrl}}"],
+          "path": ["GetLoadTestStrategyByExperimentId"],
+          "query": [
+            {
+              "key": "experimentId",
+              "value": "{{experimentId}}"
+            },
+            {
+              "key": "namespace",
+              "value": "default"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Found strategy by experiment ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.result.experimentId).to.eql(pm.collectionVariables.get('experimentId'));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. 根据定义ID查询策略列表",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/GetLoadTestStrategiesByDefinitionId?definitionId={{definitionId}}&namespace=default",
+          "host": ["{{baseUrl}}"],
+          "path": ["GetLoadTestStrategiesByDefinitionId"],
+          "query": [
+            {
+              "key": "definitionId",
+              "value": "{{definitionId}}"
+            },
+            {
+              "key": "namespace",
+              "value": "default"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Found strategies by definition ID\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.result).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. 分页查询策略",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pageNum\": 1,\n  \"pageSize\": 10,\n  \"namespace\": \"default\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/QueryLoadTestStrategies",
+          "host": ["{{baseUrl}}"],
+          "path": ["QueryLoadTestStrategies"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Pagination response structure\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.result).to.have.property('page');",
+              "    pm.expect(jsonData.result).to.have.property('pageSize');",
+              "    pm.expect(jsonData.result).to.have.property('total');",
+              "    pm.expect(jsonData.result).to.have.property('data');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. 查询所有策略",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/ListAllLoadTestStrategies?namespace=default",
+          "host": ["{{baseUrl}}"],
+          "path": ["ListAllLoadTestStrategies"],
+          "query": [
+            {
+              "key": "namespace",
+              "value": "default"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"List all strategies\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.result).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. 删除压测策略",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/DeleteLoadTestStrategy?id={{strategyId}}&namespace=default",
+          "host": ["{{baseUrl}}"],
+          "path": ["DeleteLoadTestStrategy"],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{strategyId}}"
+            },
+            {
+              "key": "namespace",
+              "value": "default"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Delete successful\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. 异常测试 - 查询已删除的策略",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/GetLoadTestStrategy?id={{strategyId}}&namespace=default",
+          "host": ["{{baseUrl}}"],
+          "path": ["GetLoadTestStrategy"],
+          "query": [
+            {
+              "key": "id",
+              "value": "{{strategyId}}"
+            },
+            {
+              "key": "namespace",
+              "value": "default"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Should fail to find deleted strategy\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
