@@ -5,6 +5,7 @@ import com.alibaba.chaosblade.box.common.common.domain.Response;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.model.LoadTestEventsResponse;
 import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.model.LoadTestResultResponse;
+import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.model.PerformanceTimeseries;
 import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
 import com.alibaba.chaosblade.box.service.LoadTestTaskService;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestTaskQueryRequest;
@@ -99,21 +100,23 @@ public class LoadTestTaskController {
     @ApiOperation(value = "获取压测结果")
     public Response<LoadTestResultResponse> getLoadTestResults(
             @LoginUser ChaosUser user,
-            @ApiParam(value = "任务ID", required = true) @RequestParam String taskId,
+            @ApiParam(value = "任务ID") @RequestParam(required = false) String taskId,
+            @ApiParam(value = "演练ID") @RequestParam(required = false) String experimentId,
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
-        return loadTestTaskService.getLoadTestResults(taskId, user.getUserId(), namespace);
+        return loadTestTaskService.getLoadTestResults(taskId, experimentId, user.getUserId(), namespace);
     }
 
     @GetMapping("/GetLoadTestEvents")
     @ApiOperation(value = "获取压测事件流水")
     public Response<LoadTestEventsResponse> getLoadTestEvents(
             @LoginUser ChaosUser user,
-            @ApiParam(value = "任务ID", required = true) @RequestParam String taskId,
+            @ApiParam(value = "任务ID") @RequestParam(required = false) String taskId,
+            @ApiParam(value = "演练ID") @RequestParam(required = false) String experimentId,
             @ApiParam(value = "返回最近N条记录") @RequestParam(required = false, defaultValue = "100") Integer tail,
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
-        return loadTestTaskService.getLoadTestEvents(taskId, tail, user.getUserId(), namespace);
+        return loadTestTaskService.getLoadTestEvents(taskId, experimentId, tail, user.getUserId(), namespace);
     }
 
     @PostMapping("/SyncLoadTestTaskStatus")
@@ -124,5 +127,15 @@ public class LoadTestTaskController {
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
         return loadTestTaskService.syncLoadTestTaskStatus(taskId, user.getUserId(), namespace);
+    }
+
+    @GetMapping("/api/metrics/performance/{executionId}/series")
+    @ApiOperation(value = "获取性能指标时序数据")
+    public Response<PerformanceTimeseries> getPerformanceTimeseries(
+            @LoginUser ChaosUser user,
+            @ApiParam(value = "执行ID", required = true) @PathVariable String executionId,
+            @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
+
+        return loadTestTaskService.getPerformanceTimeseries(executionId, user.getUserId(), namespace);
     }
 }

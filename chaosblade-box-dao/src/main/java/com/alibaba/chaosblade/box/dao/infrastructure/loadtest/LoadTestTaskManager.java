@@ -89,4 +89,22 @@ public interface LoadTestTaskManager {
      * @return 处理结果
      */
     Response<Integer> handleTimeoutTasks(String userId, String namespace);
+
+    /**
+     * 获取性能指标时序数据
+     *
+     * @param executionId 执行ID
+     * @return 性能指标时序数据
+     */
+    Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId);
+
+    /**
+     * 根据演练ID查找压测任务ID
+     *
+     * @param experimentId 演练ID
+     * @param userId 用户ID
+     * @param namespace 命名空间
+     * @return 压测任务ID
+     */
+    String findTaskIdByExperimentId(String experimentId, String userId, String namespace);
 }

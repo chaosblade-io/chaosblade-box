@@ -11,6 +11,7 @@ import com.alibaba.chaosblade.box.dao.repository.LoadTestTaskRepository;
 import com.alibaba.chaosblade.box.service.LoadTestTaskService;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestTaskQueryRequest;
 import com.alibaba.chaosblade.box.service.model.loadtest.LoadTestTaskVO;
+import com.alibaba.chaosblade.box.dao.infrastructure.loadtest.model.PerformanceTimeseries;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -157,16 +158,22 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
     }
 
     @Override
-    public Response<LoadTestResultResponse> getLoadTestResults(String taskId, String userId, String namespace) {
+    public Response<LoadTestResultResponse> getLoadTestResults(String taskId, String experimentId, String userId, String namespace) {
         try {
+            // 根据参数确定实际的 taskId
+            String actualTaskId = resolveTaskId(taskId, experimentId, userId, namespace);
+            if (actualTaskId == null) {
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentId 中的一个");
+            }
+
             // 权限检查
-            Response<LoadTestTaskVO> taskResponse = getLoadTestTask(taskId, userId, namespace);
+            Response<LoadTestTaskVO> taskResponse = getLoadTestTask(actualTaskId, userId, namespace);
             if (!taskResponse.isSuccess()) {
                 return Response.failedWith(taskResponse.getError());
             }
 
             // 调用管理器获取结果
-            return loadTestTaskManager.getLoadTestResults(taskId);
+            return loadTestTaskManager.getLoadTestResults(actualTaskId);
 
         } catch (Exception e) {
             log.error("获取压测结果失败", e);
@@ -175,16 +182,22 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
     }
 
     @Override
-    public Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, Integer tail, String userId, String namespace) {
+    public Response<LoadTestEventsResponse> getLoadTestEvents(String taskId, String experimentId, Integer tail, String userId, String namespace) {
         try {
+            // 根据参数确定实际的 taskId
+            String actualTaskId = resolveTaskId(taskId, experimentId, userId, namespace);
+            if (actualTaskId == null) {
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentId 中的一个");
+            }
+
             // 权限检查
-            Response<LoadTestTaskVO> taskResponse = getLoadTestTask(taskId, userId, namespace);
+            Response<LoadTestTaskVO> taskResponse = getLoadTestTask(actualTaskId, userId, namespace);
             if (!taskResponse.isSuccess()) {
                 return Response.failedWith(taskResponse.getError());
             }
 
             // 调用管理器获取事件流水
-            return loadTestTaskManager.getLoadTestEvents(taskId, tail);
+            return loadTestTaskManager.getLoadTestEvents(actualTaskId, tail);
 
         } catch (Exception e) {
             log.error("获取压测事件流水失败", e);
@@ -214,5 +227,39 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
             log.error("同步压测任务状态失败", e);
             return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR);
         }
+    }
+
+    @Override
+    public Response<PerformanceTimeseries> getPerformanceTimeseries(String executionId, String userId, String namespace) {
+        try {
+            // 调用管理器获取性能指标时序数据
+            return loadTestTaskManager.getPerformanceTimeseries(executionId);
+
+        } catch (Exception e) {
+            log.error("获取性能指标时序数据失败: executionId={}", executionId, e);
+            return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR);
+        }
+    }
+
+    /**
+     * 根据 taskId 或 experimentId 解析出实际的 taskId
+     */
+    private String resolveTaskId(String taskId, String experimentId, String userId, String namespace) {
+        // 如果直接提供了 taskId，直接返回
+        if (taskId != null && !taskId.trim().isEmpty()) {
+            return taskId;
+        }
+
+        // 如果提供了 experimentId，查找对应的压测任务
+        if (experimentId != null && !experimentId.trim().isEmpty()) {
+            try {
+                // 通过 experimentId 查找演练任务，然后查找关联的压测任务
+                return loadTestTaskManager.findTaskIdByExperimentId(experimentId, userId, namespace);
+            } catch (Exception e) {
+                log.error("根据 experimentId 查找压测任务失败: experimentId={}", experimentId, e);
+            }
+        }
+
+        return null;
     }
 }
