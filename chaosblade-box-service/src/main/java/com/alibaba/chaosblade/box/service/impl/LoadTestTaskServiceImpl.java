@@ -262,4 +262,44 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
 
         return null;
     }
+
+    @Override
+    public Response<LoadTestResultResponse> getLoadTestResultsWithEndpoint(String taskId, String experimentTaskId, String userId, String namespace) {
+        try {
+            // 根据参数确定实际的 taskId
+            String actualTaskId = resolveTaskId(taskId, experimentTaskId, userId, namespace);
+            if (actualTaskId == null) {
+                return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "必须提供 taskId 或 experimentTaskId 中的一个");
+            }
+
+            // 权限检查
+            Response<LoadTestTaskVO> taskResponse = getLoadTestTask(actualTaskId, userId, namespace);
+            if (!taskResponse.isSuccess()) {
+                return Response.failedWith(taskResponse.getError());
+            }
+
+            // 调用管理器获取压测结果
+            Response<LoadTestResultResponse> resultResponse = loadTestTaskManager.getLoadTestResults(actualTaskId);
+
+            if (resultResponse.isSuccess() && resultResponse.getResult() != null) {
+                // 获取压测任务信息以获取endpoint
+                LoadTestTaskVO taskVO = taskResponse.getResult();
+
+                // 获取压测定义的endpoint信息
+                String endpoint = loadTestTaskManager.getLoadTestEndpoint(actualTaskId);
+
+                // 设置endpoint到结果中
+                LoadTestResultResponse result = resultResponse.getResult();
+                result.setEndpoint(endpoint);
+
+                log.info("获取压测结果成功并设置endpoint: taskId={}, endpoint={}", actualTaskId, endpoint);
+            }
+
+            return resultResponse;
+
+        } catch (Exception e) {
+            log.error("获取压测结果失败", e);
+            return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR);
+        }
+    }
 }

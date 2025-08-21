@@ -107,4 +107,12 @@ public interface LoadTestTaskManager {
      * @return 压测任务ID
      */
     String findTaskIdByExperimentId(String experimentId, String userId, String namespace);
+
+    /**
+     * 获取压测定义的endpoint信息
+     *
+     * @param taskId 压测任务ID
+     * @return endpoint信息
+     */
+    String getLoadTestEndpoint(String taskId);
 }

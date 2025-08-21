@@ -483,4 +483,56 @@ public class LoadTestTaskManagerImpl implements LoadTestTaskManager {
             return null;
         }
     }
+
+    @Override
+    public String getLoadTestEndpoint(String taskId) {
+        try {
+            log.info("获取压测定义endpoint: taskId={}", taskId);
+
+            // 1. 查询压测任务
+            Optional<LoadTestTaskDO> taskOptional = loadTestTaskRepository.findByTaskId(taskId);
+            if (!taskOptional.isPresent()) {
+                log.warn("压测任务不存在: taskId={}", taskId);
+                return null;
+            }
+
+            LoadTestTaskDO task = taskOptional.get();
+            String strategyId = task.getStrategyId();
+            if (strategyId == null || strategyId.trim().isEmpty()) {
+                log.warn("压测任务没有关联策略: taskId={}", taskId);
+                return null;
+            }
+
+            // 2. 查询压测策略
+            Optional<LoadTestStrategyDO> strategyOptional = loadTestStrategyRepository.findById(strategyId);
+            if (!strategyOptional.isPresent()) {
+                log.warn("压测策略不存在: strategyId={}", strategyId);
+                return null;
+            }
+
+            LoadTestStrategyDO strategy = strategyOptional.get();
+            String definitionId = strategy.getDefinitionId();
+            if (definitionId == null || definitionId.trim().isEmpty()) {
+                log.warn("压测策略没有关联定义: strategyId={}", strategyId);
+                return null;
+            }
+
+            // 3. 查询压测定义
+            Optional<LoadTestDefinitionDO> definitionOptional = loadTestDefinitionRepository.findById(definitionId);
+            if (!definitionOptional.isPresent()) {
+                log.warn("压测定义不存在: definitionId={}", definitionId);
+                return null;
+            }
+
+            LoadTestDefinitionDO definition = definitionOptional.get();
+            String endpoint = definition.getEndpoint();
+
+            log.info("获取压测定义endpoint成功: taskId={}, endpoint={}", taskId, endpoint);
+            return endpoint;
+
+        } catch (Exception e) {
+            log.error("获取压测定义endpoint失败: taskId={}", taskId, e);
+            return null;
+        }
+    }
 }
