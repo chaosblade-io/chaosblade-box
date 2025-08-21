@@ -688,6 +688,29 @@ CREATE TABLE IF NOT EXISTS `t_chaos_load_test_definition` (
   KEY `idx_gmt_create` (`gmt_create`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='压测定义表';
 
+CREATE TABLE IF NOT EXISTS `t_chaos_load_test_strategy` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gmt_create` datetime NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL COMMENT '修改时间',
+  `strategy_id` varchar(64) NOT NULL COMMENT '策略ID',
+  `enable` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否启用：0-禁用，1-启用',
+  `definition_id` varchar(64) NOT NULL COMMENT '压测定义ID，关联t_chaos_load_test_definition表的definition_id字段',
+  `experiment_id` varchar(64) NOT NULL COMMENT '实验ID，关联t_chaos_experiment表的experiment_id字段',
+  `start_before_fault_sec` int(11) NOT NULL DEFAULT '0' COMMENT '故障前预热时间（秒）',
+  `traffic_duration_sec` int(11) NOT NULL DEFAULT '60' COMMENT '压测持续时长（秒）',
+  `abort_on_load_failure` tinyint(4) NOT NULL DEFAULT '0' COMMENT '压测异常时是否中止演练：0-不中止，1-中止',
+  `user_id` varchar(64) NOT NULL COMMENT '用户ID',
+  `namespace` varchar(64) NOT NULL DEFAULT 'default' COMMENT '命名空间',
+  `is_delete` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_strategy_id` (`strategy_id`),
+  UNIQUE KEY `uk_experiment_id` (`experiment_id`, `is_delete`),
+  KEY `idx_definition_id` (`definition_id`),
+  KEY `idx_user_namespace` (`user_id`, `namespace`),
+  KEY `idx_enable` (`enable`),
+  KEY `idx_gmt_create` (`gmt_create`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='压测策略表';
+
 CREATE TABLE IF NOT EXISTS `t_chaos_experiment_task_feedback` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `feedback_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'feedback_id',
