@@ -151,7 +151,7 @@ public class LoadTestTaskController extends BaseController {
         return loadTestTaskService.syncLoadTestTaskStatus(taskId, user.getUserId(), namespace);
     }
 
-    @GetMapping("/performance/{executionId}")
+    @GetMapping("/api/metrics/performance/{executionId}/series")
     @ApiOperation(value = "获取性能指标时序数据")
     public Response<PerformanceTimeseries> getPerformanceTimeseries(
             @LoginUser ChaosUser user,
