@@ -117,4 +117,15 @@ public interface LoadTestTaskService {
      * @return 压测结果（包含endpoint）
      */
     Response<LoadTestResultResponse> getLoadTestResultsWithEndpoint(String taskId, String experimentTaskId, String userId, String namespace);
+
+    /**
+     * 查询压测任务并自动同步状态
+     *
+     * @param taskId 任务ID（可以是压测任务ID或演练任务ID）
+     * @param experimentTaskId 演练任务ID（可选）
+     * @param userId 用户ID
+     * @param namespace 命名空间
+     * @return 压测任务详情（包含最新状态）
+     */
+    Response<LoadTestTaskVO> getLoadTestTaskWithSync(String taskId, String experimentTaskId, String userId, String namespace);
 }

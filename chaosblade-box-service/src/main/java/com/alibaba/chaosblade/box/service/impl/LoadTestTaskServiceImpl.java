@@ -302,4 +302,63 @@ public class LoadTestTaskServiceImpl implements LoadTestTaskService {
             return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR);
         }
     }
+
+    @Override
+    public Response<LoadTestTaskVO> getLoadTestTaskWithSync(String taskId, String experimentTaskId, String userId, String namespace) {
+        try {
+            log.info("查询压测任务并同步状态: taskId={}, experimentTaskId={}, userId={}, namespace={}",
+                    taskId, experimentTaskId, userId, namespace);
+
+            // 1. 先获取压测任务
+            Response<LoadTestTaskVO> taskResponse;
+
+            // 如果提供了 experimentTaskId，优先使用演练任务ID查询
+            if (experimentTaskId != null && !experimentTaskId.trim().isEmpty()) {
+                taskResponse = getLoadTestTaskByExperimentTaskId(experimentTaskId, userId, namespace);
+            } else {
+                // 否则尝试直接用 taskId 查询压测任务
+                taskResponse = getLoadTestTask(taskId, userId, namespace);
+
+                // 如果直接查询失败，尝试将 taskId 作为演练任务ID查询
+                if (!taskResponse.isSuccess()) {
+                    taskResponse = getLoadTestTaskByExperimentTaskId(taskId, userId, namespace);
+                }
+            }
+
+            if (!taskResponse.isSuccess()) {
+                return taskResponse;
+            }
+
+            LoadTestTaskVO taskVO = taskResponse.getResult();
+            String actualTaskId = taskVO.getTaskId();
+
+            // 2. 如果任务还在运行中，同步最新状态
+            if (isRunningStatus(taskVO.getStatus())) {
+                log.info("检测到任务运行中，开始同步状态: taskId={}, currentStatus={}", actualTaskId, taskVO.getStatus());
+
+                Response<LoadTestTaskVO> syncResponse = syncLoadTestTaskStatus(actualTaskId, userId, namespace);
+                if (syncResponse.isSuccess()) {
+                    taskVO = syncResponse.getResult();
+                    log.info("状态同步完成: taskId={}, newStatus={}", actualTaskId, taskVO.getStatus());
+                } else {
+                    log.warn("状态同步失败，返回数据库中的状态: taskId={}, error={}", actualTaskId, syncResponse.getError());
+                }
+            } else {
+                log.info("任务已完成，无需同步状态: taskId={}, status={}", actualTaskId, taskVO.getStatus());
+            }
+
+            return Response.okWithData(taskVO);
+
+        } catch (Exception e) {
+            log.error("查询压测任务并同步状态失败: taskId={}, experimentTaskId={}", taskId, experimentTaskId, e);
+            return Response.failedWith(CommonErrorCode.S_SYSTEM_ERROR, "查询压测任务失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 判断是否为运行中状态
+     */
+    private boolean isRunningStatus(String status) {
+        return "PENDING".equals(status) || "RUNNING".equals(status);
+    }
 }
