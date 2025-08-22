@@ -126,7 +126,7 @@ public class LoadTestTaskController extends BaseController {
             @ApiParam(value = "演练任务ID") @RequestParam(required = false) String experiment_task_id,
             @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
 
-        return loadTestTaskService.getLoadTestResultsWithEndpoint(taskId, experiment_task_id, user.getUserId(), namespace);
+        return loadTestTaskService.getLoadTestResults(taskId, experiment_task_id, user.getUserId(), namespace);
     }
 
     @GetMapping("/GetLoadTestEvents")
@@ -151,7 +151,7 @@ public class LoadTestTaskController extends BaseController {
         return loadTestTaskService.syncLoadTestTaskStatus(taskId, user.getUserId(), namespace);
     }
 
-    @GetMapping("/api/metrics/performance/{executionId}/series")
+    @GetMapping("/performance/{executionId}/series")
     @ApiOperation(value = "获取性能指标时序数据")
     public Response<PerformanceTimeseries> getPerformanceTimeseries(
             @LoginUser ChaosUser user,
