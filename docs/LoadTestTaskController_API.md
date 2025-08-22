@@ -64,6 +64,68 @@ curl "http://localhost:7001/GetLoadTestTask?taskId=exp_789012"
 curl "http://localhost:7001/GetLoadTestTask?taskId=any&experimentTaskId=exp_789012"
 ```
 
+#### 1.1.1 查询压测任务（Chaos接口，自动同步状态）
+
+**接口描述：** 专为Chaos系统设计的压测任务查询接口，会自动从压测引擎同步最新状态，确保返回实时准确的任务状态
+
+**请求信息：**
+```
+GET /chaos/GetLoadTestTask
+```
+
+**请求参数：**
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+|--------|------|------|--------|------|
+| taskId | String | 是 | - | 任务ID（可以是压测任务ID或演练任务ID） |
+| experimentTaskId | String | 否 | - | 演练任务ID（如果提供则优先使用此参数） |
+| namespace | String | 否 | default | 命名空间 |
+
+**核心特性：**
+- ✅ **自动状态同步**：对于运行中的任务，会自动从压测引擎同步最新状态
+- ✅ **智能参数识别**：支持压测任务ID或演练任务ID
+- ✅ **实时状态更新**：确保返回的状态是最新的，不会出现"一直运行中"的问题
+
+**响应数据：**
+```json
+{
+  "success": true,
+  "result": {
+    "taskId": "task_123456",
+    "strategyId": "strategy_001",
+    "experimentTaskId": "exp_789012",
+    "executionId": "exec_345678",
+    "status": "COMPLETED",
+    "statusDescription": "已完成",
+    "startTime": "2025-08-22T10:30:00+08:00",
+    "endTime": "2025-08-22T10:35:00+08:00",
+    "errorMessage": null,
+    "resultPath": "/results/task_123456",
+    "reportPath": "/reports/task_123456",
+    "logPath": "/logs/task_123456",
+    "createdAt": "2025-08-22T10:29:00+08:00",
+    "updatedAt": "2025-08-22T10:35:00+08:00"
+  }
+}
+```
+
+**使用示例：**
+```bash
+# 通过压测任务ID查询（自动同步状态）
+curl "http://1.94.151.57:7001/chaos/GetLoadTestTask?taskId=1958681761458327553"
+
+# 通过演练任务ID查询（自动同步状态）
+curl "http://1.94.151.57:7001/chaos/GetLoadTestTask?taskId=exp_789012"
+
+# 明确指定演练任务ID
+curl "http://1.94.151.57:7001/chaos/GetLoadTestTask?taskId=any&experimentTaskId=exp_789012"
+```
+
+**状态同步逻辑：**
+1. 首先从数据库获取任务信息
+2. 如果任务状态为 `PENDING` 或 `RUNNING`，自动调用压测引擎同步最新状态
+3. 如果任务已完成（`COMPLETED`、`FAILED`、`STOPPED`、`TIMEOUT`），直接返回数据库状态
+4. 同步失败时返回数据库状态并记录警告日志
+
 #### 1.2 根据演练任务ID查询压测任务
 
 **接口描述：** 明确通过演练任务ID查询关联的压测任务

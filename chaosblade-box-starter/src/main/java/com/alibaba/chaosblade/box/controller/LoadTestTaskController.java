@@ -57,6 +57,17 @@ public class LoadTestTaskController extends BaseController {
         return response;
     }
 
+    @GetMapping("/chaos/GetLoadTestTask")
+    @ApiOperation(value = "查询压测任务（Chaos接口，自动同步状态）")
+    public Response<LoadTestTaskVO> getChaosLoadTestTask(
+            @LoginUser ChaosUser user,
+            @ApiParam(value = "任务ID（可以是压测任务ID或演练任务ID）", required = true) @RequestParam String taskId,
+            @ApiParam(value = "演练任务ID（可选，如果提供则优先使用此参数）") @RequestParam(required = false) String experimentTaskId,
+            @ApiParam(value = "命名空间") @RequestParam(required = false, defaultValue = "default") String namespace) {
+
+        return loadTestTaskService.getLoadTestTaskWithSync(taskId, experimentTaskId, user.getUserId(), namespace);
+    }
+
     @GetMapping("/GetLoadTestTaskByExperimentTaskId")
     @ApiOperation(value = "根据演练任务ID查询压测任务")
     public Response<LoadTestTaskVO> getLoadTestTaskByExperimentTaskId(
@@ -140,7 +151,7 @@ public class LoadTestTaskController extends BaseController {
         return loadTestTaskService.syncLoadTestTaskStatus(taskId, user.getUserId(), namespace);
     }
 
-    @GetMapping("/api/metrics/performance/{executionId}/series")
+    @GetMapping("/performance/{executionId}")
     @ApiOperation(value = "获取性能指标时序数据")
     public Response<PerformanceTimeseries> getPerformanceTimeseries(
             @LoginUser ChaosUser user,
