@@ -99,3 +99,9 @@ chaosblade:
   loadtest:
     engine:
       host: localhost:8008
+
+
+# 探测任务服务基地址（可覆盖），默认为文档示例地址
+probe:
+  api:
+    base-url: http://1.94.151.57:8101

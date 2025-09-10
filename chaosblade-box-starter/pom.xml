@@ -60,12 +60,12 @@
     </dependencies>
 
     <build>
-        <finalName>chaosblade-box-${version}</finalName>
+        <finalName>chaosblade-box-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.9.RELEASE</version>
+                <version>1.5.22.RELEASE</version>
                 <configuration>
                     <mainClass>com.alibaba.chaosblade.box.Application</mainClass>
                     <excludeDevtools>false</excludeDevtools>
