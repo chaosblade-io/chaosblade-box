@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Application<chaosblade-box-starter>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.alibaba.chaosblade.box.Application",
+            "projectName": "chaosblade-box-starter",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
