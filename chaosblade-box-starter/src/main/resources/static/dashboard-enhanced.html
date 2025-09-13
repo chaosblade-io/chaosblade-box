@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Chaos Dashboard 增强版</title>
+  <style>
+    :root { --brand:#2563eb; --ok:#16a34a; --warn:#f59e0b; --err:#dc2626; --bg:#0b1020; --card:#121938; --text:#e5e7eb; --muted:#9ca3af; }
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; color:var(--text); background:linear-gradient(135deg,#0b1020,#111827 60%); }
+    .container { max-width:1200px; margin:0 auto; padding:16px; }
+    .grid { display:grid; grid-template-columns:1fr; gap:16px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px; box-shadow:0 6px 16px rgba(0,0,0,0.35); backdrop-filter: blur(6px); }
+    .section-title { display:flex; align-items:center; gap:8px; margin:0 0 12px; font-weight:700; letter-spacing: .3px; }
+    .section-title .dot { width:8px; height:8px; border-radius:50%; background:var(--brand); box-shadow:0 0 8px var(--brand); }
+
+    /* Business Service Chain */
+    .bsc-progress { display:flex; flex-wrap:wrap; gap:12px; }
+    .stat { flex:1 1 140px; min-width:140px; padding:12px; border-radius:10px; background:rgba(37,99,235,0.08); border:1px solid rgba(37,99,235,0.25); }
+    .stat h4 { margin:0 0 4px; font-size:12px; color:var(--muted); font-weight:600; }
+    .stat .num { font-size:22px; font-weight:800; }
+    .stat.ok { background:rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.25); }
+    .stat.warn { background:rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); }
+
+    .err { color:var(--err); font-size:13px; background:rgba(220,38,38,0.08); border:1px solid rgba(220,38,38,0.25); padding:8px 10px; border-radius:8px; }
+
+    /* Table */
+    .table-wrap { width:100%; overflow:auto; }
+    table { width:100%; border-collapse: separate; border-spacing:0; min-width:900px; }
+    thead th { position:sticky; top:0; background:rgba(0,0,0,0.45); backdrop-filter: blur(4px); color:#cbd5e1; text-align:left; font-weight:700; padding:10px 12px; font-size:12px; border-bottom:1px solid rgba(255,255,255,0.08); }
+    tbody td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; color:#e2e8f0; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    /* Pagination */
+    .pager { display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px; flex-wrap:wrap; }
+    .pager button, .pager select { background:rgba(255,255,255,0.06); color:var(--text); border:1px solid rgba(255,255,255,0.18); padding:6px 10px; border-radius:8px; cursor:pointer; }
+    .pager button[disabled] { opacity:.5; cursor:not-allowed; }
+    .pager .info { color:var(--muted); font-size:12px; margin-right:auto; }
+
+    .toolbar { display:flex; gap:8px; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    .toolbar .right { display:flex; gap:8px; align-items:center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="grid">
+      <section class="card">
+        <h3 class="section-title"><span class="dot"></span>业务服务链（实时进度）</h3>
+        <div id="bsc-error" class="err" style="display:none"></div>
+        <div class="bsc-progress" id="bsc">
+          <div class="stat"><h4>总用例数</h4><div class="num" id="bsc-totalTestCases">-</div></div>
+          <div class="stat ok"><h4>已完成用例</h4><div class="num" id="bsc-completedTestCases">-</div></div>
+          <div class="stat"><h4>总服务数</h4><div class="num" id="bsc-totalServices">-</div></div>
+          <div class="stat ok"><h4>已完成服务</h4><div class="num" id="bsc-completedServices">-</div></div>
+          <div class="stat warn"><h4>测试中的服务</h4><div class="num" id="bsc-testingServices">-</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="toolbar">
+          <h3 class="section-title" style="margin:0"><span class="dot"></span>执行结果表格</h3>
+          <div class="right">
+            <label style="color:var(--muted); font-size:12px;">每页</label>
+            <select id="pageSize">
+              <option>10</option>
+              <option>20</option>
+              <option>50</option>
+            </select>
+          </div>
+        </div>
+        <div id="table-error" class="err" style="display:none"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>ExecutionId</th>
+                <th>CaseType</th>
+                <th>Targets</th>
+                <th>创建时间</th>
+                <th class="mono">p50</th>
+                <th class="mono">p95</th>
+                <th class="mono">p99</th>
+                <th class="mono">errRate(%)</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <div class="info" id="pager-info">-</div>
+          <button id="prev">上一页</button>
+          <button id="next">下一页</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const cfg = {
+    // 实时进度 API（用户提供的完整地址）
+    realtimeUrl: 'http://localhost:8082/api/chaos/task-executions/12',
+    // 执行结果分页数据：优先从代理层读取，若不可用可替换为实际接口
+    tableUrl: '/api/task-executions?page=1&size=200'
+  };
+
+  // -------- Business Service Chain Realtime --------
+  async function fetchRealtime(){
+    const errEl = document.getElementById('bsc-error');
+    errEl.style.display = 'none';
+    try {
+      let resp = await fetch(cfg.realtimeUrl, { credentials: 'include' });
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      const json = await resp.json();
+      const rt = json?.data?.realtime || json?.realtime || {};
+      setText('bsc-totalTestCases', rt.totalTestCases ?? '-');
+      setText('bsc-completedTestCases', rt.completedTestCases ?? '-');
+      setText('bsc-totalServices', rt.totalServices ?? '-');
+      setText('bsc-completedServices', rt.completedServices ?? '-');
+      setText('bsc-testingServices', rt.testingServices ?? '-');
+    } catch(e){
+      // CORS 或网络异常时提示，但不打断页面
+      errEl.textContent = '实时数据获取失败：'+ (e?.message||e);
+      errEl.style.display = 'block';
+    }
+  }
+
+  function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v; }
+
+  // 周期刷新
+  fetchRealtime();
+  const timer = setInterval(fetchRealtime, 5000);
+  window.addEventListener('beforeunload', ()=> clearInterval(timer));
+
+  // -------- Execution Results Table with Pagination --------
+  const state = { all: [], page:1, size:10 };
+  const tbody = document.getElementById('tbody');
+  const info = document.getElementById('pager-info');
+  const sel = document.getElementById('pageSize');
+  document.getElementById('prev').onclick = ()=>{ if(state.page>1){ state.page--; renderPage(); }};
+  document.getElementById('next').onclick = ()=>{ const totalPages=Math.max(1,Math.ceil(state.all.length/state.size)); if(state.page<totalPages){ state.page++; renderPage(); }};
+  sel.onchange = ()=>{ state.size = parseInt(sel.value,10)||10; state.page=1; renderPage(); };
+
+  function renderPage(){
+    const start = (state.page-1)*state.size; const rows = state.all.slice(start, start+state.size);
+    tbody.innerHTML = rows.map(r => rowHtml(r)).join('');
+    const totalPages = Math.max(1, Math.ceil(state.all.length/state.size));
+    info.textContent = `第 ${state.page}/${totalPages} 页 · 共 ${state.all.length} 条`;
+    document.getElementById('prev').disabled = state.page<=1;
+    document.getElementById('next').disabled = state.page>=totalPages;
+  }
+
+  function fmtNum(x){ return (x===0 || x) ? x : '-'; }
+  function rowHtml(r){
+    return `<tr>
+      <td class="mono">${fmtNum(r.id)}</td>
+      <td class="mono">${fmtNum(r.executionId||r.taskId)}</td>
+      <td>${r.caseType||'-'}</td>
+      <td>${fmtNum(r.targetCount)}</td>
+      <td>${r.createdAt||r.gmtCreate||'-'}</td>
+      <td class="mono">${fmtNum(r.p50)}</td>
+      <td class="mono">${fmtNum(r.p95)}</td>
+      <td class="mono">${fmtNum(r.p99)}</td>
+      <td class="mono">${fmtNum(r.errRate)}</td>
+    </tr>`;
+  }
+
+  async function fetchTable(){
+    const errEl = document.getElementById('table-error');
+    errEl.style.display = 'none';
+    try{
+      const resp = await fetch(cfg.tableUrl, { credentials: 'include' });
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      const json = await resp.json();
+      // 兼容 PageResponse 或 直接数组
+      const items = json?.data?.items || json?.data?.list || json?.items || json || [];
+      // 示例：如果接口不包含 pXX/errRate，可由后端后续补充；前端保留列并渲染 '-'
+      state.all = Array.isArray(items) ? items : [];
+      renderPage();
+    }catch(e){
+      errEl.textContent = '表格数据获取失败：'+(e?.message||e);
+      errEl.style.display = 'block';
+      state.all = [];
+      renderPage();
+    }
+  }
+
+  // 如果没有后端接口，也可在此注入示例数据：
+  // state.all = [ {"id":1549,"taskId":3,"caseType":"BASELINE","targetCount":0,"faultsJson":"[]","createdAt":"2025-09-05 12:09:29","executionId":12,"p50":15117,"p95":15117,"p99":15117,"errRate":100.00} ]; renderPage();
+
+  fetchTable();
+})();
+</script>
+</body>
+</html>

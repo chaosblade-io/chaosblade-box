@@ -79,7 +79,7 @@ spring:
     # initialization-mode: never
     initialization-mode: always
     initialize: true
-    password: 123456
+    password: Zmzzmz010627!
     schema: classpath:sql/schema/chaosblade-box-ddl.sql
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://116.63.51.45:3307/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
