@@ -52,7 +52,6 @@ public class LoadTestEngineClientImpl implements LoadTestEngineClient {
 
             ResponseEntity<Map> responseEntity = restTemplate.postForEntity(url, entity, Map.class);
 
-            log.info("压测引擎响应: Status={}, Body={}", responseEntity.getStatusCode(), responseEntity.getBody());
 
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 Map<String, Object> responseBody = responseEntity.getBody();
@@ -271,7 +270,6 @@ public class LoadTestEngineClientImpl implements LoadTestEngineClient {
 
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> responseEntity = restTemplate.getForEntity(url, Map.class);
-            log.info("压测引擎响应: Status={}, Body={}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 @SuppressWarnings("unchecked")
