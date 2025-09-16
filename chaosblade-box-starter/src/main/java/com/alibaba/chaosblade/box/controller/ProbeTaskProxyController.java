@@ -17,7 +17,7 @@ import java.util.*;
 public class ProbeTaskProxyController extends BaseController {
 
     // 支持从配置读取，若未配置则使用文档中的默认地址
-    @Value("${probe.api.base-url:http://1.94.151.57:8101}")
+    @Value("${probe.api.base-url:http://122.112.193.220:8101}")
     private String probeBaseUrl;
     
     // 添加 topoBaseUrl 配置项
