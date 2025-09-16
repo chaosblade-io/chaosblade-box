@@ -19,30 +19,62 @@ public class ProbeTaskProxyController extends BaseController {
     // 支持从配置读取，若未配置则使用文档中的默认地址
     @Value("${probe.api.base-url:http://1.94.151.57:8101}")
     private String probeBaseUrl;
+    
+    // 添加 topoBaseUrl 配置项
+    @Value("${probe.topo.base-url:http://116.63.51.45:8106}")
+    private String topoBaseUrl;
 
     // 复用已有的 RestTemplate（具备超时配置）
     @Resource(name = "loadTestRestTemplate")
     private RestTemplate restTemplate;
 
+    // TOPO 查询
     // 1. 获取系统信息 GET /api/systems
     @GetMapping("/systems")
     public ResponseEntity<byte[]> getSystems(HttpServletRequest request) {
-        return forward(request, HttpMethod.GET, null, "/api/systems");
+        return forwardTopo(request, HttpMethod.GET, null, "/v1/topology/systems");
     }
 
     // 2. 获取API信息 GET /api/systems/{systemId}/apis
     @GetMapping("/systems/{systemId}/apis")
     public ResponseEntity<byte[]> getApis(@PathVariable("systemId") String systemId, HttpServletRequest request) {
-        String targetPath = "/api/systems/" + systemId + "/apis";
+        String targetPath = "/v1/topology/" + systemId + "/apis";
         return forward(request, HttpMethod.GET, null, targetPath);
     }
 
-    // 3. 获取拓扑 GET /api/topologies/{apiId}/topology
+    // 3. 获取服务拓扑 GET /api/topologies/{apiId}/topology
     @GetMapping("/topologies/{apiId}/topology")
     public ResponseEntity<byte[]> getTopology(@PathVariable("apiId") String apiId, HttpServletRequest request) {
-        String targetPath = "/api/topologies/" + apiId + "/topology";
-        return forward(request, HttpMethod.GET, null, targetPath);
+        String targetPath = "/v1/topology/" + apiId + "/services";
+        return forwardTopo(request, HttpMethod.GET, null, targetPath);
     }
+
+    // TOPO 渲染
+    // 获取当前拓扑的 XFlow 格式数据
+    @GetMapping("/xflow/topology")
+    public ResponseEntity<byte[]> getXFlowTopology(HttpServletRequest request) {
+        return forwardTopo(request, HttpMethod.GET, null, "/api/xflow/topology");
+    }
+    
+    // 刷新拓扑数据
+    @PostMapping("/xflow/refresh")
+    public ResponseEntity<byte[]> refreshXFlowTopology(HttpServletRequest request, @RequestBody(required = false) byte[] body) {
+        return forwardTopo(request, HttpMethod.POST, body, "/api/xflow/refresh");
+    }
+    
+    // 获取节点详情
+    @GetMapping("/xflow/nodes/{nodeId}")
+    public ResponseEntity<byte[]> getXFlowNodeDetails(@PathVariable("nodeId") String nodeId, HttpServletRequest request) {
+        String targetPath = "/api/xflow/nodes/" + nodeId;
+        return forwardTopo(request, HttpMethod.GET, null, targetPath);
+    }
+    
+    // 应用布局算法
+    @PostMapping("/xflow/layout")
+    public ResponseEntity<byte[]> applyXFlowLayout(HttpServletRequest request, @RequestBody(required = false) byte[] body) {
+        return forwardTopo(request, HttpMethod.POST, body, "/api/xflow/layout");
+    }
+
 
     // 获取故障类型 GET /api/fault-types
     @GetMapping("/fault-types")
@@ -127,10 +159,32 @@ public class ProbeTaskProxyController extends BaseController {
         HttpHeaders respHeaders = filterResponseHeaders(responseEntity.getHeaders());
         return new ResponseEntity<>(responseEntity.getBody(), respHeaders, responseEntity.getStatusCode());
     }
+    
+    // 新增：支持拓扑相关接口转发
+    private ResponseEntity<byte[]> forwardTopo(HttpServletRequest request, HttpMethod method, byte[] body, String targetPath) {
+        String targetUrl = buildTopoTargetUrl(targetPath, request.getQueryString());
+        HttpHeaders headers = extractRequestHeaders(request);
+        headers.remove(HttpHeaders.HOST);
+        headers.remove(HttpHeaders.CONTENT_LENGTH);
+        HttpEntity<byte[]> httpEntity = new HttpEntity<>(body, headers);
+        ResponseEntity<byte[]> responseEntity = restTemplate.exchange(targetUrl, method, httpEntity, byte[].class);
+        HttpHeaders respHeaders = filterResponseHeaders(responseEntity.getHeaders());
+        return new ResponseEntity<>(responseEntity.getBody(), respHeaders, responseEntity.getStatusCode());
+    }
 
     private String buildTargetUrl(String targetPath, String query) {
         StringBuilder url = new StringBuilder();
         url.append(probeBaseUrl);
+        url.append(targetPath);
+        if (query != null && !query.isEmpty()) {
+            url.append("?").append(query);
+        }
+        return url.toString();
+    }
+    
+    private String buildTopoTargetUrl(String targetPath, String query) {
+        StringBuilder url = new StringBuilder();
+        url.append(topoBaseUrl);
         url.append(targetPath);
         if (query != null && !query.isEmpty()) {
             url.append("?").append(query);
@@ -167,4 +221,3 @@ public class ProbeTaskProxyController extends BaseController {
         return headers;
     }
 }
-

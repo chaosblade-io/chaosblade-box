@@ -105,3 +105,5 @@ chaosblade:
 probe:
   api:
     base-url: http://1.94.151.57:8101
+  topo:
+    base-url: http://116.63.51.45:8106
