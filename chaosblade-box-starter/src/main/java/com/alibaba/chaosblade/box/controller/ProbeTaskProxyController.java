@@ -32,23 +32,22 @@ public class ProbeTaskProxyController extends BaseController {
     // 1. 获取系统信息 GET /api/systems
     @GetMapping("/systems")
     public ResponseEntity<byte[]> getSystems(HttpServletRequest request) {
-        return forwardTopo(request, HttpMethod.GET, null, "/v1/topology/systems");
+        return forward(request, HttpMethod.GET, null, "/api/systems");
     }
 
     // 2. 获取API信息 GET /api/systems/{systemId}/apis
     @GetMapping("/systems/{systemId}/apis")
     public ResponseEntity<byte[]> getApis(@PathVariable("systemId") String systemId, HttpServletRequest request) {
-        String targetPath = "/v1/topology/" + systemId + "/apis";
+        String targetPath = "/api/systems/" + systemId + "/apis";
         return forward(request, HttpMethod.GET, null, targetPath);
     }
 
-    // 3. 获取服务拓扑 GET /api/topologies/{apiId}/topology
+    // 3. 获取拓扑 GET /api/topologies/{apiId}/topology
     @GetMapping("/topologies/{apiId}/topology")
     public ResponseEntity<byte[]> getTopology(@PathVariable("apiId") String apiId, HttpServletRequest request) {
-        String targetPath = "/v1/topology/" + apiId + "/services";
-        return forwardTopo(request, HttpMethod.GET, null, targetPath);
+        String targetPath = "/api/topologies/" + apiId + "/topology";
+        return forward(request, HttpMethod.GET, null, targetPath);
     }
-
     // TOPO 渲染
     // 获取当前拓扑的 XFlow 格式数据
     @GetMapping("/xflow/topology")
