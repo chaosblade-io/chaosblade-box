@@ -1,31 +1,36 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
+# 环境变量文件 - Environment Variables
+.env
+.env.local
+.env.*.local
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDE 配置文件
+.idea/
 *.iml
 *.ipr
+*.iws
 
-### NetBeans ###
-nbproject/private/
-nbbuild/
-dist/
-nbdist/
-/MMK-OPEN-API_IS_UNDEFINED
-/monkeyking-service/.settings/
-/monkeyking-service-internal-extension/src/main/java/com/taobao/csp/monkeyking/sunfire/SunfireVisitorImpl.java
+# 编译输出
+target/
+build/
+out/
 
-##
-test.json
-/monkeyking-web-cloud-extension/src/main/resources/api/ParamController/
-/monkeyking-web-cloud-extension/src/main/resources/api/ExpertiseController/
-/monkeyking-web-cloud-extension/src/main/resources/api/ApplicationController/
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+gradle/
+gradlew
+gradlew.bat

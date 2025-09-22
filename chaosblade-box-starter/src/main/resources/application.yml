@@ -1,9 +1,9 @@
 chaos:
   agent:
-    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}.tgz
-    repository: chaosbladeio/chaosblade-agent
-    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent.tar.gz
-    version: 1.0.2
+    helm: ${CHAOS_AGENT_HELM_URL:https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}.tgz}
+    repository: ${CHAOS_AGENT_REPOSITORY:chaosbladeio/chaosblade-agent}
+    url: ${CHAOS_AGENT_URL:https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent.tar.gz}
+    version: ${CHAOS_AGENT_VERSION:1.0.2}
   cache:
     auto-sync: true
     distributed-cache:
@@ -23,18 +23,18 @@ chaos:
     sync:
       type: ALL
   server:
-    domain: ''
+    domain: ${CHAOS_SERVER_DOMAIN:}
   sync:
     chaosblade:
       on-startup: true
   prometheus:
-    api:
+    api: ${PROMETHEUS_API_URL:}
     job: xhas
 cloud:
   agent:
     version: '"1.16.3"'
 management:
-  port: 7002
+  port: ${MANAGEMENT_PORT:7002}
 module:
   scope: Chaos
 mybatis:
@@ -58,7 +58,7 @@ security:
   basic:
     enabled: false
 server:
-  port: 7001
+  port: ${SERVER_PORT:7001}
 
 logging:
   level:
@@ -76,14 +76,13 @@ spring:
     continue-on-error: true
     data: classpath:sql/data/*.sql
     driver-class-name: com.mysql.jdbc.Driver
-    # initialization-mode: never
     initialization-mode: always
     initialize: true
-    password: Zmzzmz010627!
+    password: ${DB_PASSWORD:defaultPassword}
     schema: classpath:sql/schema/chaosblade-box-ddl.sql
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://116.63.51.45:3307/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
+    url: ${DB_URL:jdbc:mysql://localhost:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
   mcms:
     enabled: false
   mvc:
@@ -98,12 +97,12 @@ spring:
 chaosblade:
   loadtest:
     engine:
-      host: localhost:8008
+      host: ${LOADTEST_ENGINE_HOST:localhost:8008}
 
 
 # 探测任务服务基地址（可覆盖），默认为文档示例地址
 probe:
   api:
-    base-url: http://1.94.151.57:8101
+    base-url: ${PROBE_API_BASE_URL:http://localhost:8101}
   topo:
-    base-url: http://116.63.51.45:8106
+    base-url: ${PROBE_TOPO_BASE_URL:http://localhost:8106}
