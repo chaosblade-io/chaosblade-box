@@ -1,14 +1,14 @@
 ![logo](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/doc/image/chaosblade-logo.png)  
 
 
-# Chaosblade-box: 一个面向云原生系统的韧性测试平台
-🔥🔥🔥 **chaosblade-box 能力升级，从混沌工程平台增强到韧性测试平台，具备基于全链路的故障空间韧性评测能力！** 
+# ChaosBlade-Box: 一个面向云原生系统的韧性测试平台
+🔥🔥🔥 **ChaosBlade-Box 能力升级，从混沌工程平台增强到韧性测试平台，具备基于全链路的故障空间韧性评测能力！** 
 <img width="1804" height="948" alt="image" src="https://github.com/user-attachments/assets/8f7c45ca-8fad-4996-a572-0378aaede88d" />
 
 ## 特性
 * 具备 OpenTelemetry 可观测数据标准化接入能力，支持动态构建服务依赖拓扑。
 * 兼容 JMeter 压测引擎，具备压测管理能力，支持故障注入中自动化实施压测。
-* 具备基于拓扑的故障注入，实时计算故障传播路径，精准控制故障影响范围。
+* 具备故障空间探测，实时计算故障传播路径，精准控制故障影响范围。
 * 具备基于 SLO 稳态断言和基于 LLM 的健康度评估能力。
 
 ## 贡献者
