@@ -18,6 +18,12 @@
 X
 <img width="492" height="56" alt="image" src="https://github.com/user-attachments/assets/e667c545-f794-47c8-b0ba-726e19cb21dd" />
 
+## 里程碑
+
+- [x] v2.0.0（2025年9月）：Tool模式：基于可观测和压测流量的半自动的故障探测能力
+- [ ] v2.x.0（2026年3月）：Copilot模式：基于自然语言对话的交互式演练
+- [ ] v3.0.0（2026年9月）：Agent模式：基于知识库和AI推理的韧性评测能力
+
 ## 部署
 涉及到的项目如下：
 * 控制台：https://github.com/chaosblade-io/chaosblade-box
