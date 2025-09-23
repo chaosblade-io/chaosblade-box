@@ -1,95 +1,68 @@
 ![logo](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/doc/image/chaosblade-logo.png)  
 
-# Chaosblade-box: An chaos engineering platform with rich scenes
-[![Build Status](https://api.travis-ci.org/chaosblade-io/chaosblade-box.svg?branch=main)](https://travis-ci.org/chaosblade-io/chaosblade-box)
-![license](https://img.shields.io/github/license/chaosblade-io/chaosblade-box.svg)
 
-## Introduction
-Chaosblade-box is an chaos engineering platform with rich scenes, the scenes currently included are:
-* [chaosblade-exec-os](https://github.com/chaosblade-io/chaosblade-exec-os): Implementation of basic resource experimental scenarios.
-* [chaosblade-exec-docker](https://github.com/chaosblade-io/chaosblade-exec-docker): Docker container experimental scenario implementation, standardized by calling the Docker API.
-* [chaosblade-operator](https://github.com/chaosblade-io/chaosblade-operator): Kubernetes platform experimental scenario is implemented, chaos experiments are defined by Kubernetes standard CRD method, it is very convenient to use Kubernetes resource operation method To create, update, and delete experimental scenarios, including using kubectl, client-go, etc., and also using the chaosblade cli tool described above.
-* [chaosblade-exec-jvm](https://github.com/chaosblade-io/chaosblade-exec-jvm): Java application experimental scenario implementation, using Java Agent technology to mount dynamically, without any access, zero-cost use It also supports uninstallation and completely recycles various resources created by the Agent.
-* [chaosblade-exec-cplus](https://github.com/chaosblade-io/chaosblade-exec-cplus): C ++ application experimental scenario implementation, using GDB technology to implement method and code line level experimental scenario injection.
-* [limus-chaos-generic](https://github.com/litmuschaos/litmus): An toolset to do cloud-native chaos engineering
+# Chaosblade-box: 一个面向云原生系统的韧性测试平台
+🔥🔥🔥 **chaosblade-box 能力升级，从混沌工程平台增强到韧性测试平台，具备基于全链路的故障空间韧性评测能力！** 
+<img width="1804" height="948" alt="image" src="https://github.com/user-attachments/assets/8f7c45ca-8fad-4996-a572-0378aaede88d" />
 
-## Compile
-Go to the project root directory which you cloned and execute compile:
-```bash
-mvn clean package -Dmaven.test.skip=true
-```
+## 特性
+* 具备 OpenTelemetry 可观测数据标准化接入能力，支持动态构建服务依赖拓扑。
+* 兼容 JMeter 压测引擎，具备压测管理能力，支持故障注入中自动化实施压测。
+* 具备基于拓扑的故障注入，实时计算故障传播路径，精准控制故障影响范围。
+* 具备基于 SLO 稳态断言和基于 LLM 的健康度评估能力。
 
-If you compile the chaosblade-box image, you can do:
-```bash
-make build_image
-```
+## 贡献者
+此能力由中国科学院软件研究所主导和社区一起共建，感谢项目中的各位贡献者
 
-clean compilation:
-```bash
-mvn clean
-```
+<img width="310" height="48" alt="image" src="https://github.com/user-attachments/assets/f16647d6-c17b-43d7-9e78-209f76516d2e" /> 
+X
+<img width="492" height="56" alt="image" src="https://github.com/user-attachments/assets/e667c545-f794-47c8-b0ba-726e19cb21dd" />
 
-helm package:
-```bash
-helm package deploy/chaosblade-box
-```
+## 部署
+涉及到的项目如下：
+* 控制台：https://github.com/chaosblade-io/chaosblade-box
+* 后端服务：https://github.com/chaosblade-io/chaosblade-space-exploration
 
-## Pre Run Application For Host
-1. If don't have ansible installed, you need install `ansible`
-```bash
-# Check if there is already installed
-ansible --version
-
-# install ansible, eg: Fedora || RedHat 
-yum install ansible -y
-```
-2. If don't have expect installed, you need install `expect`, put [sshKey.sh](https://github.com/chaosblade-io/chaosblade-box/blob/main/ssh/sshKey.sh) and chaosblade-box-1.0.5.jar in a directory
-```bash
-# Check if there is already installed
-expect -v
-
-# install expect, eg: Fedora || RedHat 
-yum install expect -y
-```
-3. Generate public key
-```bash
-# Check if there is already a key, if there is, delete the previous backup
-ls ~/.ssh
-rm -rf ~/.ssh/*
-
-# generate public key
-ssh-keygen -t rsa
-```
-
-## Run Application
-If you already have MySQL installed, you need to create a schema named `chaosblade`, if you don't have MySQL installed, you can run it via Docker, run method is as follows:
-```bash
-docker run -d -it -p 3306:3306 \
-            -e MYSQL_DATABASE=chaosblade \
-            -e MYSQL_ROOT_PASSWORD=[DATASOURCE_PASSWORD] \
-            --name mysql-5.6 mysql:5.6 \
-            --character-set-server=utf8mb4 \
-            --collation-server=utf8mb4_unicode_ci \
-            --default-time_zone='+8:00' \
-            --lower_case_table_names=1
-```
-Notes: You must replace the follow parameters: DATASOURCE_HOST, DATASOURCE_USERNAME, DATASOURCE_PASSWORD, BOX-HOST(localHostIP:port, eg:*.*.*.*:7001)
-
-Then run the application, run method is as follows:
+### chaosblade-space-exploration 
+使用 Helm Chart 可以一键部署整个微服务架构，包括依赖的 MySQL 和 Redis。
 
 ```bash
-nohup java -Duser.timezone=Asia/Shanghai -jar chaosblade-box-1.0.0.jar --spring.datasource.url="jdbc:mysql://DATASOURCE_HOST:3306/chaosblade?characterEncoding=utf8&useSSL=false" --spring.datasource.username=DATASOURCE_USERNAME --spring.datasource.password=DATASOURCE_PASSWORD --chaos.server.domain=BOX-HOST> chaosblade-box.log 2>&1 &
+# 1. 添加 Helm 依赖
+cd helm/chaosblade-space-exploration
+helm dependency update
+
+# 2. 基本安装（使用内置 MySQL 和 Redis）
+helm install chaosblade-space-exploration . -n chaosblade --create-namespace
+
+# 3. 生产环境安装（使用外部数据库）
+helm install chaosblade-space-exploration . \
+  -f values-production.yaml \
+  -n chaosblade \
+  --create-namespace
+
+# 4. 检查部署状态
+helm status chaosblade-space-exploration -n chaosblade
+kubectl get pods -n chaosblade
 ```
 
-You can use a browser to access the http://127.0.0.1:7001 website to use the platform.
+主要特性：
+- 自动创建所有必要的 Kubernetes 资源（Deployment、Service、ConfigMap、Secret、RBAC）
+- 支持内置或外部 MySQL/Redis
+- 完整的 RBAC 权限配置
+- 支持 Ingress 和负载均衡
+- 健康检查和监控集成
+- 支持水平扩缩容
 
-If you're deployed on kubernetes, the usage method is as follows:
+详细配置说明请参考：[Helm Chart 文档](https://github.com/chaosblade-io/chaosblade-space-exploration/blob/main/helm/README.md)
+
+### chaosblade-box
+使用 Helm Chart 可以一键部署
 
 ```bash
-helm install chaosblade-box chaosblade-box-1.0.0.tgz --namespace chaosblade --set spring.datasource.password=DATASOURCE_PASSWORD
+helm install chaosblade-box chaosblade-box-2.0.0-alpha.tgz --namespace chaosblade --set spring.datasource.password=DATASOURCE_PASSWORD
 ```
 
-You can get BOX-HOST by services. You can use a browser to access the http://10.10.10.03:7001 website to use the platform.
+您可以通过服务获取BOX-HOST，使用浏览器访问http://10.10.10.03:7001网站即可使用该平台。
 
 ```bash
 ➜  shell kubectl get services -n chaosblade
@@ -98,32 +71,17 @@ chaosblade-box              LoadBalancer   192.168.255.01   10.10.10.03     7001
 chaosblade-box-mysql        ClusterIP      192.168.168.02    <none>           3306/TCP          12h
 ```
 
-## Parameter Parsing
-* spring.datasource.url: Mysql url.If helm starts, no assignment is required.
-* spring.datasource.username: Mysql username.If helm starts, no assignment is required.
-* spring.datasource.password: Mysql password.Required.
-* chaos.function.sync.type: Init chaos data.If the first start,can use `ALL`.Available values `ALL`,`ChaosBlade`,`UserApp`,`None`,`LITMUS_CHAOS`. Default is `ALL`.
-* chaos.agent.version: chaosblade-box-agent version.Default is `1.0.0`.
-* chaos.agent.repository: chaosblade-box-agent image repository.Default is `chaosbladeio/chaosblade-agent`.
-* chaos.agent.url: chaosblade-box-agent binary package url.Default is `https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosagent.tar.gz`.
-* chaos.agent.helm: chaosblade-box-agent helm package url.Default is `https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.0.0/chaosblade-box-agent-1.0.0.tgz`.
-
-
 ## Bugs and Feedback
-For bug report, questions and discussions please submit [GitHub Issues](https://github.com/chaosblade-io/chaosblade-box/issues). 
+如需报告 Bug、提出问题或进行讨论，请提交 [GitHub Issues](https://github.com/chaosblade-io/chaosblade-box/issues)。
 
-You can also contact us via:
-* Dingding group (recommended for chinese): 23177705
-* Slack group: [chaosblade-io](https://join.slack.com/t/chaosblade-io/shared_invite/zt-f0d3r3f4-TDK13Wr3QRUrAhems28p1w)
-* Gitter room: [chaosblade community](https://gitter.im/chaosblade-io/community)
-* Email: chaosblade.io.01@gmail.com
-* Twitter: [chaosblade.io](https://twitter.com/ChaosbladeI)
+您也可以通过以下方式联系我们：
+* 钉钉群（建议中文用户加入）：23177705
 
-## Contributing
-We welcome every contribution, even if it is just punctuation. See details of [CONTRIBUTING](CONTRIBUTING.md)
+## 贡献
+我们欢迎您的每一份贡献，哪怕只是一个标点符号。查看 [CONTRIBUTING](CONTRIBUTING.md) 详情
 
-## Business Registration
-The original intention of our open source project is to lower the threshold for chaos engineering to be implemented in enterprises, so we highly value the use of the project in enterprises. Welcome everyone here [ISSUE](https://github.com/chaosblade-io/chaosblade/issues/32). After registration, you will be invited to join the corporate mail group to discuss the problems encountered by Chaos Engineering in the landing of the company and share the landing experience.
+## 企业注册
+我们开源项目的初衷是降低混沌工程在企业落地的门槛，因此我们非常重视该项目在企业中的应用。欢迎大家关注 [ISSUE](https://github.com/chaosblade-io/chaosblade/issues/32)。注册后，您将受邀加入企业邮件群，共同探讨混沌工程在企业落地中遇到的问题，分享落地经验。
 
-## License
-Chaosblade-box is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full license text.
+## 许可证
+Chaosblade-box 采用 Apache 许可证 2.0 版。
