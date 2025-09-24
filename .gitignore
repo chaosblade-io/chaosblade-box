@@ -34,3 +34,7 @@ mvnw.cmd
 gradle/
 gradlew
 gradlew.bat
+
+
+cache/
+*.tgz

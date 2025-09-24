@@ -1,11 +1,11 @@
 .PHONY: build clean
 
-export CHAOS_PLATFORM_VERSION=1.0.5
+export CHAOS_PLATFORM_VERSION=2.0.0-alpha
 SRC_ROOT=$(shell pwd)
 
 # chaosblade-box-fe
 CHAOS_PLATFORM_FE=git@github.com:chaosblade-io/chaosblade-box-fe.git
-CHAOS_PLATFORM_FE_BRANCH=main
+CHAOS_PLATFORM_FE_BRANCH=main2
 
 mysql:
 	docker run --rm -d -it \
