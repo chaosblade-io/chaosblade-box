@@ -1,7 +1,7 @@
 ![logo](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/doc/image/chaosblade-logo.png)  
 
 # Chaosblade-box: An chaos engineering platform with rich scenes
-![license](https://img.shields.io/github/license/chaosblade-io/chaosblade-box.svg)
+![license](https://img.shields.io/github/license/chaosblade-io/chaosblade.svg)
 
 Note: For more information about the resilience testing platform, see the [main2](https://github.com/chaosblade-io/chaosblade-box/tree/main2) branch.
 
