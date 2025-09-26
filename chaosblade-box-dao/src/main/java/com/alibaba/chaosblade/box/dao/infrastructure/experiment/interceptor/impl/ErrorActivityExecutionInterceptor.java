@@ -12,50 +12,45 @@ import com.alibaba.chaosblade.box.dao.repository.ActivityTaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Component
 public class ErrorActivityExecutionInterceptor implements ActivityExecutionInterceptor {
-    @Autowired
-    private ActivityTaskRepository activityTaskRepository;
+  @Autowired private ActivityTaskRepository activityTaskRepository;
 
-    @Autowired
-    private ThrowableChaosErrorWrappers throwableChaosErrorWrappers;
+  @Autowired private ThrowableChaosErrorWrappers throwableChaosErrorWrappers;
 
-    @Autowired
-    private ActivityTaskTerminator activityTaskTerminator;
+  @Autowired private ActivityTaskTerminator activityTaskTerminator;
 
-    @Override
-    public boolean forbid(ActivityTaskDO activityTaskDO,
-                          ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
-        return false;
+  @Override
+  public boolean forbid(
+      ActivityTaskDO activityTaskDO,
+      ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
+    return false;
+  }
+
+  @Override
+  public void onStarted(
+      ActivityTaskDO activityTaskDO,
+      ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {}
+
+  @Override
+  public void onReturn(
+      ActivityTaskDO activityTaskDO,
+      ActivityTaskExecutionResponse activityTaskExecutionResponse,
+      ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {}
+
+  @Override
+  public void onError(
+      ActivityTaskDO activityTaskDO,
+      Throwable throwable,
+      ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
+    if (!activityTaskDO.isFinished()) {
+      activityTaskDO.setResult(ResultEnum.ERROR.getValue());
+      activityTaskDO.setErrorMessage(
+          throwableChaosErrorWrappers
+              .wrapper(throwable, CommonErrorCode.S_ACTIVITY_EXECUTE_FAILED)
+              .getErrorMessage());
+      activityTaskTerminator.handleActivityTaskAfterTerminate(activityTaskDO);
     }
-
-    @Override
-    public void onStarted(ActivityTaskDO activityTaskDO,
-        ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
-
-    }
-
-    @Override
-    public void onReturn(ActivityTaskDO activityTaskDO, ActivityTaskExecutionResponse activityTaskExecutionResponse,
-        ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
-
-    }
-
-    @Override
-    public void onError(ActivityTaskDO activityTaskDO, Throwable throwable,
-        ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
-        if (!activityTaskDO.isFinished()) {
-            activityTaskDO.setResult(ResultEnum.ERROR.getValue());
-            activityTaskDO.setErrorMessage(
-                throwableChaosErrorWrappers.wrapper(throwable, CommonErrorCode.S_ACTIVITY_EXECUTE_FAILED)
-                    .getErrorMessage());
-            activityTaskTerminator.handleActivityTaskAfterTerminate(activityTaskDO);
-        }
-    }
-
+  }
 }

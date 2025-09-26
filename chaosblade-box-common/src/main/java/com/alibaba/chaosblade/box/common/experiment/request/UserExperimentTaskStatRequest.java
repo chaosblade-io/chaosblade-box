@@ -5,14 +5,11 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserExperimentTaskStatRequest {
 
-    ChaosUser user;
-    String namespace;
-
+  ChaosUser user;
+  String namespace;
 }

@@ -6,13 +6,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SettingQueryInstallRequest extends SettingRequest {
-    String Mode;
+  String Mode;
 
-    Integer OsType;
+  Integer OsType;
 
-    String RegionId;
+  String RegionId;
 
-    String HelmVersion;
+  String HelmVersion;
 
-    String Lang;
+  String Lang;
 }

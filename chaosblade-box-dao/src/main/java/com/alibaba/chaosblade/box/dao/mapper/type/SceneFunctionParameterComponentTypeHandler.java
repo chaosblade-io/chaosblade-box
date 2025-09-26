@@ -5,16 +5,14 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @MappedJdbcTypes({JdbcType.VARCHAR, JdbcType.LONGVARCHAR})
 @MappedTypes(SceneFunctionParameterComponent.class)
-public class SceneFunctionParameterComponentTypeHandler extends BaseFastJsonTypeHandler<SceneFunctionParameterComponent> {
+public class SceneFunctionParameterComponentTypeHandler
+    extends BaseFastJsonTypeHandler<SceneFunctionParameterComponent> {
 
-    @Override
-    public Class<SceneFunctionParameterComponent> getObjectClass() {
-        return SceneFunctionParameterComponent.class;
-    }
+  @Override
+  public Class<SceneFunctionParameterComponent> getObjectClass() {
+    return SceneFunctionParameterComponent.class;
+  }
 }

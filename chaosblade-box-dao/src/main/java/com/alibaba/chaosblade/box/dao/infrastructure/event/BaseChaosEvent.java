@@ -1,25 +1,20 @@
 package com.alibaba.chaosblade.box.dao.infrastructure.event;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public abstract class BaseChaosEvent {
 
-    private final long timestamp;
+  private final long timestamp;
 
-    /**
-     * Constructs a prototypical Event.
-     *
-     * @throws IllegalArgumentException if source is null.
-     */
-    public BaseChaosEvent() {
-        this.timestamp = System.currentTimeMillis();
-    }
+  /**
+   * Constructs a prototypical Event.
+   *
+   * @throws IllegalArgumentException if source is null.
+   */
+  public BaseChaosEvent() {
+    this.timestamp = System.currentTimeMillis();
+  }
 
-    public final long getTimestamp() {
-        return this.timestamp;
-    }
-
+  public final long getTimestamp() {
+    return this.timestamp;
+  }
 }

@@ -16,62 +16,60 @@
 
 package com.alibaba.chaosblade.box.common.sdk.entity;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 public class FlagSpecBean {
-    private String name;
-    private String desc;
-    private String defaultValue;
-    private boolean noArgs;
-    private boolean required;
-    private boolean requiredWhenDestroyed;
+  private String name;
+  private String desc;
+  private String defaultValue;
+  private boolean noArgs;
+  private boolean required;
+  private boolean requiredWhenDestroyed;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getDesc() {
-        return desc;
-    }
+  public String getDesc() {
+    return desc;
+  }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
+  public void setDesc(String desc) {
+    this.desc = desc;
+  }
 
-    public boolean isNoArgs() {
-        return noArgs;
-    }
+  public boolean isNoArgs() {
+    return noArgs;
+  }
 
-    public void setNoArgs(boolean noArgs) {
-        this.noArgs = noArgs;
-    }
+  public void setNoArgs(boolean noArgs) {
+    this.noArgs = noArgs;
+  }
 
-    public void setDefaultValue(String defaultValue){
-        this.defaultValue = defaultValue;
-    }
+  public void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
 
-    public String getDefaultValue() {
-        return defaultValue;
-    }
+  public String getDefaultValue() {
+    return defaultValue;
+  }
 
-    public boolean isRequired() {
-        return required;
-    }
+  public boolean isRequired() {
+    return required;
+  }
 
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
 
-    public boolean isRequiredWhenDestroyed() {
-        return requiredWhenDestroyed;
-    }
+  public boolean isRequiredWhenDestroyed() {
+    return requiredWhenDestroyed;
+  }
 
-    public void setRequiredWhenDestroyed(boolean requiredWhenDestroyed) {
-        this.requiredWhenDestroyed = requiredWhenDestroyed;
-    }
+  public void setRequiredWhenDestroyed(boolean requiredWhenDestroyed) {
+    this.requiredWhenDestroyed = requiredWhenDestroyed;
+  }
 }

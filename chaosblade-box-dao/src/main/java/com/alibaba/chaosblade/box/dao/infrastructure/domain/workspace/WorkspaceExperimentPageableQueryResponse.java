@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class WorkspaceExperimentPageableQueryResponse {
-    Integer permission;
+  Integer permission;
 
-    PageableResponse<UserExperiment> pageableResponse;
+  PageableResponse<UserExperiment> pageableResponse;
 }

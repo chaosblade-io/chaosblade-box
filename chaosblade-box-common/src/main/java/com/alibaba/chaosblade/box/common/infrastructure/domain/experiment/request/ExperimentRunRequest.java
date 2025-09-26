@@ -3,26 +3,17 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.reque
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import lombok.Data;
 
-/**
- * @author haibin
- * 
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentRunRequest extends BaseRequest {
 
-    private String experimentId;
+  private String experimentId;
 
-    protected ExperimentRunParam param;
+  protected ExperimentRunParam param;
 
-    /**
-     * 是否同步运行
-     */
-    private boolean sync = false;
+  /** 是否同步运行 */
+  private boolean sync = false;
 
-    /**
-     * 是否是定时任务触发
-     */
-    private boolean triggeredByScheduler;
-
+  /** 是否是定时任务触发 */
+  private boolean triggeredByScheduler;
 }

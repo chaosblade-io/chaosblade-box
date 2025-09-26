@@ -3,14 +3,9 @@ package com.alibaba.chaosblade.box.common.experiment.request;
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import lombok.Data;
 
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class ExperimentAppRiskMessageRequest extends BaseRequest {
 
-    private String experimentId;
-
+  private String experimentId;
 }

@@ -18,83 +18,80 @@ package com.alibaba.chaosblade.box.common.sdk.entity;
 
 import java.util.List;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 public class ModelSpecBean {
-    private String target;
-    private String shortDesc;
-    private String longDesc;
-    private String example;
-    private List<ActionSpecBean> actions;
-    private PrepareSpecBean prepare;
-    private String scope;
-    private List<String> subTargets;
+  private String target;
+  private String shortDesc;
+  private String longDesc;
+  private String example;
+  private List<ActionSpecBean> actions;
+  private PrepareSpecBean prepare;
+  private String scope;
+  private List<String> subTargets;
 
-    public ModelSpecBean() {
-    }
+  public ModelSpecBean() {}
 
-    public String getTarget() {
-        return target;
-    }
+  public String getTarget() {
+    return target;
+  }
 
-    public void setTarget(String target) {
-        this.target = target;
-    }
+  public void setTarget(String target) {
+    this.target = target;
+  }
 
-    public String getShortDesc() {
-        return shortDesc;
-    }
+  public String getShortDesc() {
+    return shortDesc;
+  }
 
-    public void setShortDesc(String shortDesc) {
-        this.shortDesc = shortDesc;
-    }
+  public void setShortDesc(String shortDesc) {
+    this.shortDesc = shortDesc;
+  }
 
-    public String getLongDesc() {
-        return longDesc;
-    }
+  public String getLongDesc() {
+    return longDesc;
+  }
 
-    public void setLongDesc(String longDesc) {
-        this.longDesc = longDesc;
-    }
+  public void setLongDesc(String longDesc) {
+    this.longDesc = longDesc;
+  }
 
-    public String getExample() {
-        return example;
-    }
+  public String getExample() {
+    return example;
+  }
 
-    public void setExample(String example) {
-        this.example = example;
-    }
+  public void setExample(String example) {
+    this.example = example;
+  }
 
-    public List<ActionSpecBean> getActions() {
-        return actions;
-    }
+  public List<ActionSpecBean> getActions() {
+    return actions;
+  }
 
-    public void setActions(List<ActionSpecBean> actions) {
-        this.actions = actions;
-    }
+  public void setActions(List<ActionSpecBean> actions) {
+    this.actions = actions;
+  }
 
-    public PrepareSpecBean getPrepare() {
-        return prepare;
-    }
+  public PrepareSpecBean getPrepare() {
+    return prepare;
+  }
 
-    public void setPrepare(PrepareSpecBean prepare) {
-        this.prepare = prepare;
-    }
+  public void setPrepare(PrepareSpecBean prepare) {
+    this.prepare = prepare;
+  }
 
-    public String getScope() {
-        return scope;
-    }
+  public String getScope() {
+    return scope;
+  }
 
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
+  public void setScope(String scope) {
+    this.scope = scope;
+  }
 
-    public List<String> getSubTargets() {
-        return subTargets;
-    }
+  public List<String> getSubTargets() {
+    return subTargets;
+  }
 
-    public void setSubTargets(List<String> subTargets) {
-        this.subTargets = subTargets;
-    }
+  public void setSubTargets(List<String> subTargets) {
+    this.subTargets = subTargets;
+  }
 }

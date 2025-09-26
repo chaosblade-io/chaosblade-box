@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * t_chaos_tools
+ *
  * @author
  */
 @Data
@@ -18,28 +19,19 @@ import lombok.NoArgsConstructor;
 @TableName("t_chaos_tools")
 public class ChaosToolsDO extends BaseDO {
 
-    private String configurationId;
+  private String configurationId;
 
-    private String clusterId;
+  private String clusterId;
 
-    /**
-     * tools name
-     */
-    private String name;
+  /** tools name */
+  private String name;
 
-    /**
-     * version
-     */
-    private String version;
+  /** version */
+  private String version;
 
-    /**
-     * download url
-     */
-    private String url;
+  /** download url */
+  private String url;
 
-    /**
-     * device type
-     */
-    private Byte deviceType;
-
+  /** device type */
+  private Byte deviceType;
 }

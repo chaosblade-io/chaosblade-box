@@ -4,21 +4,19 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.Experi
 import com.alibaba.chaosblade.box.dao.model.ActivityTaskDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 public interface ExperimentTaskPushInterceptor {
 
-    /**
-     * 是否忽略推进
-     *
-     * @param activityTaskDO
-     * @param experimentTaskDO
-     * @param experimentTaskRunnableSettings
-     * @return
-     */
-    public boolean ignorePush(ActivityTaskDO activityTaskDO, ExperimentTaskDO experimentTaskDO,
-                              ExperimentTaskRunnableSettings experimentTaskRunnableSettings);
+  /**
+   * 是否忽略推进
+   *
+   * @param activityTaskDO
+   * @param experimentTaskDO
+   * @param experimentTaskRunnableSettings
+   * @return
+   */
+  public boolean ignorePush(
+      ActivityTaskDO activityTaskDO,
+      ExperimentTaskDO experimentTaskDO,
+      ExperimentTaskRunnableSettings experimentTaskRunnableSettings);
 }

@@ -7,20 +7,16 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @MybatisMapper
 public interface ExperimentGuardInstanceMapper extends BaseMapper<ExperimentGuardInstanceDO> {
 
-    @Update(
-        value = "update t_chaos_experiment_guard_instance set value=#{value} where instanceId=#{instanceId} and "
-            + "state=#{state}")
-    public int updateExperimentGuardMonitorMetricResultEntity(@Param("instanceId") String instanceId,
-        @Param("value") String experimentGuardMonitorMetricResultEntity,
-        @Param(value = "#{state}")
-                                                                      GuardRunState guardRunState);
-
+  @Update(
+      value =
+          "update t_chaos_experiment_guard_instance set value=#{value} where instanceId=#{instanceId} and "
+              + "state=#{state}")
+  public int updateExperimentGuardMonitorMetricResultEntity(
+      @Param("instanceId") String instanceId,
+      @Param("value") String experimentGuardMonitorMetricResultEntity,
+      @Param(value = "#{state}") GuardRunState guardRunState);
 }

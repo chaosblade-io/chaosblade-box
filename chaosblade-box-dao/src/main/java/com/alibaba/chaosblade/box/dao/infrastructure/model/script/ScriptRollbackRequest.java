@@ -2,20 +2,15 @@ package com.alibaba.chaosblade.box.dao.infrastructure.model.script;
 
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ScriptRollbackRequest {
 
-    private String userId;
+  private String userId;
 
-    private String scriptId;
+  private String scriptId;
 
-    private Integer fromVersion;
+  private Integer fromVersion;
 
-    private Integer targetVersion;
-
+  private Integer targetVersion;
 }

@@ -7,17 +7,17 @@ package com.alibaba.chaosblade.box.common.sdk.transport;
  */
 public interface RequestUri {
 
-    /**
-     * Uri
-     *
-     * @return
-     */
-    String getUri();
+  /**
+   * Uri
+   *
+   * @return
+   */
+  String getUri();
 
-    /**
-     * Request tag
-     *
-     * @return
-     */
-    String getTag();
+  /**
+   * Request tag
+   *
+   * @return
+   */
+  String getTag();
 }

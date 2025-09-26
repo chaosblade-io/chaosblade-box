@@ -8,33 +8,25 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.M
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public class ActivityTargetRetryInvokeContext implements ChainContext {
 
-    @Getter
-    private ChaosAppResponse preAppResponse;
+  @Getter private ChaosAppResponse preAppResponse;
 
-    @Getter
-    private OnceInvokeReference<MiniAppInvokeContext, ChaosAppResponseReference> invokeReference;
+  @Getter
+  private OnceInvokeReference<MiniAppInvokeContext, ChaosAppResponseReference> invokeReference;
 
-    @Getter
-    private MiniAppInvokeContext miniAppInvokeContext;
+  @Getter private MiniAppInvokeContext miniAppInvokeContext;
 
-    @Setter
-    @Getter
-    private ChaosAppResponse curAppResponse;
+  @Setter @Getter private ChaosAppResponse curAppResponse;
 
-    public ActivityTargetRetryInvokeContext(
-        OnceInvokeReference<MiniAppInvokeContext, ChaosAppResponseReference> onceInvokeReference,
-        MiniAppInvokeContext miniAppInvokeContext, ChaosAppResponse preAppResponse) {
-        this.invokeReference = onceInvokeReference;
-        this.miniAppInvokeContext = miniAppInvokeContext;
-        this.preAppResponse = preAppResponse;
-        this.curAppResponse = preAppResponse;
-    }
-
+  public ActivityTargetRetryInvokeContext(
+      OnceInvokeReference<MiniAppInvokeContext, ChaosAppResponseReference> onceInvokeReference,
+      MiniAppInvokeContext miniAppInvokeContext,
+      ChaosAppResponse preAppResponse) {
+    this.invokeReference = onceInvokeReference;
+    this.miniAppInvokeContext = miniAppInvokeContext;
+    this.preAppResponse = preAppResponse;
+    this.curAppResponse = preAppResponse;
+  }
 }

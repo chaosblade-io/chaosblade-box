@@ -3,15 +3,11 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.reque
 import com.alibaba.chaosblade.box.common.common.domain.task.BaseExperimentTaskRequest;
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentTaskStopRequest extends BaseExperimentTaskRequest {
 
-    private boolean sync;
+  private boolean sync;
 
-    private boolean fromScheduler;
+  private boolean fromScheduler;
 }

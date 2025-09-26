@@ -26,162 +26,163 @@ import com.alibaba.chaosblade.box.dao.repository.*;
 import com.alibaba.chaosblade.box.service.WorkspaceService;
 import com.alibaba.chaosblade.box.service.model.experiment.UserExperimentPageableQueryRequest;
 import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.Resource;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 public abstract class AbstractUserPermissionService implements UserPermissionService {
 
-    @Resource
-    private SceneRepository sceneRepository;
+  @Resource private SceneRepository sceneRepository;
 
-    @Resource
-    private SceneFunctionRepository sceneFunctionRepository;
+  @Resource private SceneFunctionRepository sceneFunctionRepository;
 
-    @Resource
-    private SceneAuthorizedRepository sceneAuthorizedRepository;
+  @Resource private SceneAuthorizedRepository sceneAuthorizedRepository;
 
-//    @Resource
-//    protected AdministratorManager administratorManager;
+  //    @Resource
+  //    protected AdministratorManager administratorManager;
 
-    @Autowired
-    protected ExperimentRepository experimentRepository;
+  @Autowired protected ExperimentRepository experimentRepository;
 
-    @Autowired
-    private WorkspaceRelationRepository workspaceRelationRepository;
+  @Autowired private WorkspaceRelationRepository workspaceRelationRepository;
 
-    @Autowired
-    private WorkspaceService workspaceService;
-    @Autowired
-    private ExperimentTaskRepository experimentTaskRepository;
+  @Autowired private WorkspaceService workspaceService;
+  @Autowired private ExperimentTaskRepository experimentTaskRepository;
 
-    protected PermissionResult getUserExperimentTaskPermission(ChaosUser chaosUser, String experimentTaskId) {
-        if (experimentTaskRepository.existByUserIdAndTaskId(chaosUser, experimentTaskId)) {
-            return PermissionResult.ALL;
+  protected PermissionResult getUserExperimentTaskPermission(
+      ChaosUser chaosUser, String experimentTaskId) {
+    if (experimentTaskRepository.existByUserIdAndTaskId(chaosUser, experimentTaskId)) {
+      return PermissionResult.ALL;
+    }
+    return workspaceService.getWorkspaceExperimentTaskPermission(chaosUser, experimentTaskId);
+  }
+
+  protected PermissionResult getUserExperimentPermission(
+      ChaosUser chaosUser, String experimentId, String nameSpace) {
+    if (experimentRepository.existByUserIdAndExperimentId(chaosUser, experimentId)) {
+      return PermissionResult.ALL;
+    }
+    return workspaceService.getWorkspacePermission(chaosUser, experimentId);
+  }
+
+  protected PermissionResult hasScenePermission(ChaosUser user, String sceneId) {
+
+    Optional<SceneDO> optional = sceneRepository.findBySceneId(sceneId);
+    if (optional.isPresent()) {
+      SceneDO scene = optional.get();
+      if (scene.getUserId().equals(user.getUserId())) {
+        return PermissionResult.ALL;
+      }
+    }
+    return PermissionResult.NONE;
+  }
+
+  protected PermissionResult hasSceneFunctionPermission(ChaosUser user, String functionId) {
+    //        if (administratorManager.isAdmin(user)) {
+    //            return PermissionResult.ALL;
+    //        }
+
+    Optional<SceneFunctionDO> optional = sceneFunctionRepository.findByFunctionId(functionId);
+    if (optional.isPresent()) {
+      SceneAuthorizedQueryRequest queryRequest = new SceneAuthorizedQueryRequest();
+      queryRequest.setGrantTo(user.getCurrentUserId());
+      queryRequest.setFunctionId(functionId);
+      queryRequest.setIsPublic(true);
+
+      List<SceneAuthorizedDO> records =
+          sceneAuthorizedRepository.getAuthorizedRecords(queryRequest);
+      if (!CollectionUtil.isNullOrEmpty(records)) {
+        Optional<SceneAuthorizedDO> maxPermissionRecord =
+            records.stream().max(Comparator.comparing(SceneAuthorizedDO::getPermission));
+        if (maxPermissionRecord.isPresent()) {
+          return PermissionResult.of(maxPermissionRecord.get().getPermission());
         }
-        return workspaceService.getWorkspaceExperimentTaskPermission(chaosUser, experimentTaskId);
+      }
     }
+    return PermissionResult.NONE;
+  }
 
-    protected PermissionResult getUserExperimentPermission(ChaosUser chaosUser, String experimentId, String nameSpace) {
-        if (experimentRepository.existByUserIdAndExperimentId(chaosUser, experimentId)) {
-            return PermissionResult.ALL;
-        }
-        return workspaceService.getWorkspacePermission(chaosUser, experimentId);
+  @Override
+  public void checkScenePermission(int permissionType, ChaosUser chaosUser, String sceneId)
+      throws PermissionDeniedException {
+    PermissionResult result = hasScenePermission(chaosUser, sceneId);
+    if (!result.contains(permissionType)) {
+      throw new PermissionDeniedException(CommonErrorCode.P_USER_PERMISSION_DENIED);
     }
+  }
 
-    protected PermissionResult hasScenePermission(ChaosUser user, String sceneId) {
-
-        Optional<SceneDO> optional = sceneRepository.findBySceneId(sceneId);
-        if (optional.isPresent()) {
-            SceneDO scene = optional.get();
-            if (scene.getUserId().equals(user.getUserId())) {
-                return PermissionResult.ALL;
-            }
-        }
-        return PermissionResult.NONE;
+  @Override
+  public void checkSceneFunctionPermission(
+      int permissionType, ChaosUser chaosUser, String functionId) throws PermissionDeniedException {
+    PermissionResult result = hasSceneFunctionPermission(chaosUser, functionId);
+    if (!result.contains(permissionType)) {
+      throw new PermissionDeniedException(CommonErrorCode.P_USER_PERMISSION_DENIED);
     }
+  }
 
-    protected PermissionResult hasSceneFunctionPermission(ChaosUser user, String functionId) {
-//        if (administratorManager.isAdmin(user)) {
-//            return PermissionResult.ALL;
-//        }
+  @Override
+  public void checkUserBalance(ChaosUser chaosUser) {}
 
-        Optional<SceneFunctionDO> optional = sceneFunctionRepository.findByFunctionId(functionId);
-        if (optional.isPresent()) {
-            SceneAuthorizedQueryRequest queryRequest = new SceneAuthorizedQueryRequest();
-            queryRequest.setGrantTo(user.getCurrentUserId());
-            queryRequest.setFunctionId(functionId);
-            queryRequest.setIsPublic(true);
+  @Override
+  public void checkUserAuthorizedExpired(ExperimentRunRequest experimentRunRequest)
+      throws PayPackAuthorizationExpiredException {}
 
-            List<SceneAuthorizedDO> records = sceneAuthorizedRepository.getAuthorizedRecords(queryRequest);
-            if (!CollectionUtil.isNullOrEmpty(records)) {
-                Optional<SceneAuthorizedDO> maxPermissionRecord = records.stream()
-                    .max(Comparator.comparing(SceneAuthorizedDO::getPermission));
-                if (maxPermissionRecord.isPresent()) {
-                    return PermissionResult.of(maxPermissionRecord.get().getPermission());
-                }
-            }
-        }
-        return PermissionResult.NONE;
+  @Override
+  public void filterApplicationPair(
+      ChaosUser chaosUser, Response<PageableResponse<AppNameAndIdPair>> pageableResponseResponse) {}
+
+  @Override
+  public void checkCreateExperimentPermission(
+      ChaosUser chaosUser, ExperimentCreateRequest request) {}
+
+  @Override
+  public Response<PageQueryResponse<UserExperiment>> getExperimentListByStsUserLogin(
+      ChaosUser chaosUser, UserExperimentPageableQueryRequest userExperimentPageableQueryRequest) {
+    return null;
+  }
+
+  @Override
+  public void checkCreateWorkspacePermission(ChaosUser chaosUser) {}
+
+  @Override
+  public <R> void filterSceneSearchPermission(
+      ChaosUser chaosUser, PageableResponse<R> sceneFunctions) {}
+
+  @Override
+  public void checkDeleteWorkspaceExperimentPermission(
+      ChaosUser user, String workspaceId, List<WorkspaceExperiment> workspaceExperimentList) {
+    WorkspaceRelationQuery workspaceRelationQuery = new WorkspaceRelationQuery();
+    workspaceRelationQuery.setWorkspaceIds(Lists.newArrayList(workspaceId));
+    workspaceRelationQuery.setRelationType(WorkspaceRelationTypes.USER);
+    workspaceRelationQuery.setOuterIds(Lists.newArrayList(user.getCurrentUserId()));
+    List<WorkspaceRelationDO> relationDOList =
+        workspaceRelationRepository.find(workspaceRelationQuery);
+    boolean hasEditPermission =
+        relationDOList.stream()
+            .anyMatch(
+                workspaceRelationDO ->
+                    PermissionTypes.contains(
+                        workspaceRelationDO.getPermission(), PermissionTypes.W));
+    if (hasEditPermission) {
+      return;
     }
-
-    @Override
-    public void checkScenePermission(int permissionType, ChaosUser chaosUser, String sceneId)
-        throws PermissionDeniedException {
-        PermissionResult result = hasScenePermission(chaosUser, sceneId);
-        if (!result.contains(permissionType)) {
-            throw new PermissionDeniedException(CommonErrorCode.P_USER_PERMISSION_DENIED);
-        }
+    boolean isExperimentCreator =
+        workspaceExperimentList.stream()
+            .allMatch(
+                workspaceExperiment ->
+                    experimentRepository
+                        .findById(workspaceExperiment.getExperimentId())
+                        .map(
+                            experimentDO ->
+                                Objects.equals(
+                                    experimentDO.getCreator().getCurrentUserId(),
+                                    user.getCurrentUserId()))
+                        .orElse(true));
+    if (!isExperimentCreator) {
+      throw new ChaosException(CommonErrorCode.P_USER_PERMISSION_DENIED);
     }
-
-    @Override
-    public void checkSceneFunctionPermission(int permissionType, ChaosUser chaosUser, String functionId)
-        throws PermissionDeniedException {
-        PermissionResult result = hasSceneFunctionPermission(chaosUser, functionId);
-        if (!result.contains(permissionType)) {
-            throw new PermissionDeniedException(CommonErrorCode.P_USER_PERMISSION_DENIED);
-        }
-    }
-
-    @Override
-    public void checkUserBalance(ChaosUser chaosUser) {
-    }
-
-    @Override
-    public void checkUserAuthorizedExpired(ExperimentRunRequest experimentRunRequest)
-        throws PayPackAuthorizationExpiredException {
-
-    }
-
-    @Override
-    public void filterApplicationPair(ChaosUser chaosUser, Response<PageableResponse<AppNameAndIdPair>> pageableResponseResponse) {
-    }
-
-    @Override
-    public void checkCreateExperimentPermission(ChaosUser chaosUser, ExperimentCreateRequest request) {
-    }
-
-    @Override
-    public Response<PageQueryResponse<UserExperiment>> getExperimentListByStsUserLogin(ChaosUser chaosUser,
-                                                                                       UserExperimentPageableQueryRequest userExperimentPageableQueryRequest) {
-        return null;
-    }
-
-    @Override
-    public void checkCreateWorkspacePermission(ChaosUser chaosUser) {
-
-    }
-
-    @Override
-    public <R> void filterSceneSearchPermission(ChaosUser chaosUser, PageableResponse<R> sceneFunctions) {
-
-    }
-
-    @Override
-    public void checkDeleteWorkspaceExperimentPermission(ChaosUser user, String workspaceId,
-                                                         List<WorkspaceExperiment> workspaceExperimentList) {
-        WorkspaceRelationQuery workspaceRelationQuery = new WorkspaceRelationQuery();
-        workspaceRelationQuery.setWorkspaceIds(Lists.newArrayList(workspaceId));
-        workspaceRelationQuery.setRelationType(WorkspaceRelationTypes.USER);
-        workspaceRelationQuery.setOuterIds(Lists.newArrayList(user.getCurrentUserId()));
-        List<WorkspaceRelationDO> relationDOList = workspaceRelationRepository.find(workspaceRelationQuery);
-        boolean hasEditPermission = relationDOList.stream().anyMatch(
-            workspaceRelationDO -> PermissionTypes.contains(workspaceRelationDO.getPermission(), PermissionTypes.W));
-        if (hasEditPermission) { return; }
-        boolean isExperimentCreator = workspaceExperimentList.stream().allMatch(
-            workspaceExperiment -> experimentRepository.findById(workspaceExperiment.getExperimentId()).map(
-                experimentDO -> Objects.equals(experimentDO.getCreator().getCurrentUserId(),
-                    user.getCurrentUserId())).orElse(true));
-        if (!isExperimentCreator) {
-            throw new ChaosException(CommonErrorCode.P_USER_PERMISSION_DENIED);
-        }
-    }
+  }
 }

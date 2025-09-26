@@ -2,25 +2,17 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.respo
 
 import com.alibaba.chaosblade.box.common.common.domain.activity.ActivityTask;
 import com.alibaba.chaosblade.box.common.common.domain.task.BaseExperimentTask;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentTaskSummary extends BaseExperimentTask {
 
-    private List<ActivityTask> activities;
+  private List<ActivityTask> activities;
 
-    private Integer permission;
+  private Integer permission;
 
-    /**
-     * 是否包含jvm场景
-     */
-    private Boolean isJvm;
-
+  /** 是否包含jvm场景 */
+  private Boolean isJvm;
 }

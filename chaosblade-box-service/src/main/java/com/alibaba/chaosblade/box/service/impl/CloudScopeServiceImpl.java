@@ -18,92 +18,83 @@ import com.alibaba.chaosblade.box.service.infrastructure.scope.AbstractScopeServ
 import com.alibaba.chaosblade.box.service.model.device.CloudDevice;
 import com.alibaba.chaosblade.box.service.model.experiment.ExperimentScope;
 import com.alibaba.chaosblade.box.service.model.scope.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Component
-public class CloudScopeServiceImpl extends AbstractScopeService implements ScopeService, CloudScopeService {
+public class CloudScopeServiceImpl extends AbstractScopeService
+    implements ScopeService, CloudScopeService {
 
-    @Resource
-    private DeviceRepository deviceRepository;
+  @Resource private DeviceRepository deviceRepository;
 
-    @Autowired
-    private CommandBus commandBus;
+  @Autowired private CommandBus commandBus;
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<CloudDevice> queryAliveScopes(ScopeQuery query) {
-        CloudDeviceQuery deviceQuery = (CloudDeviceQuery)query;
-        return deviceRepository.getAliveDevices(deviceQuery)
-            .stream()
-            .map(CloudDevice::from)
-            .collect(Collectors.toList());
-    }
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<CloudDevice> queryAliveScopes(ScopeQuery query) {
+    CloudDeviceQuery deviceQuery = (CloudDeviceQuery) query;
+    return deviceRepository.getAliveDevices(deviceQuery).stream()
+        .map(CloudDevice::from)
+        .collect(Collectors.toList());
+  }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Scope, Q extends ScopeQuery> PageableResponse<T> queryAliveScopesByPage(ChaosUser user,
-                                                                                              PageableQueryWrapper<Q> pageableQueryWrapper, String nameSpace) {
-        PageableResponse<DeviceDO> pageableResponse = deviceRepository.getAliveDevicesByKeyAndTags(
-                (PageableQueryWrapper<CloudDeviceQuery>)pageableQueryWrapper);
-        return (PageableResponse<T>)PageableResponse.clone(
-                pageableResponse,
-                pageableResponse.data()
-                        .stream()
-                        .map(CloudDevice::from)
-                        .collect(Collectors.toList())
-        );
-    }
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Scope, Q extends ScopeQuery> PageableResponse<T> queryAliveScopesByPage(
+      ChaosUser user, PageableQueryWrapper<Q> pageableQueryWrapper, String nameSpace) {
+    PageableResponse<DeviceDO> pageableResponse =
+        deviceRepository.getAliveDevicesByKeyAndTags(
+            (PageableQueryWrapper<CloudDeviceQuery>) pageableQueryWrapper);
+    return (PageableResponse<T>)
+        PageableResponse.clone(
+            pageableResponse,
+            pageableResponse.data().stream().map(CloudDevice::from).collect(Collectors.toList()));
+  }
 
-    @Override
-    public Response<String[]> checkProcessExistByName(Host host, String s) {
-        return null;
-    }
+  @Override
+  public Response<String[]> checkProcessExistByName(Host host, String s) {
+    return null;
+  }
 
-    @Override
-    public Response<String[]> checkProcessExistByPid(Host host, String s) {
-        return null;
-    }
+  @Override
+  public Response<String[]> checkProcessExistByPid(Host host, String s) {
+    return null;
+  }
 
-    @Override
-    public Response<ScopeInfo> findOneScope(ScopeInfoQueryRequest scopeQueryRequest) {
-        return commandBus.syncRun(ScopeInfoQueryCommand.class, scopeQueryRequest);
-    }
+  @Override
+  public Response<ScopeInfo> findOneScope(ScopeInfoQueryRequest scopeQueryRequest) {
+    return commandBus.syncRun(ScopeInfoQueryCommand.class, scopeQueryRequest);
+  }
 
-    @Override
-    public Response<PageableResponse<ExperimentScope>> pageableQueryExperimentScopes(
-        ExperimentScopePageableRequest experimentScopePageableRequest) {
-        return Response.okWithData(
-            commandBus.syncRun(ExperimentHostsSearchCommand.class, experimentScopePageableRequest));
-    }
+  @Override
+  public Response<PageableResponse<ExperimentScope>> pageableQueryExperimentScopes(
+      ExperimentScopePageableRequest experimentScopePageableRequest) {
+    return Response.okWithData(
+        commandBus.syncRun(ExperimentHostsSearchCommand.class, experimentScopePageableRequest));
+  }
 
-    @Override
-    public Response<List<ExperimentScopeInvokeCount>> countExperimentScopeInvocation(
-        ScopeInfoQueryRequest scopeQueryRequest) {
-        return Response.okWithData(
-            commandBus.syncRun(ExperimentScopeInvokeCountCommand.class, scopeQueryRequest));
-    }
+  @Override
+  public Response<List<ExperimentScopeInvokeCount>> countExperimentScopeInvocation(
+      ScopeInfoQueryRequest scopeQueryRequest) {
+    return Response.okWithData(
+        commandBus.syncRun(ExperimentScopeInvokeCountCommand.class, scopeQueryRequest));
+  }
 
-    @Override
-    public Response<List<FunctionInvocationCount>> countExperimentScopeSceneFunctionCount(
-        ScopeInfoQueryRequest scopeQueryRequest) {
-        return Response.okWithData(
-            commandBus.syncRun(ExperimentScopeSceneFunctionCountCommand.class, scopeQueryRequest));
-    }
+  @Override
+  public Response<List<FunctionInvocationCount>> countExperimentScopeSceneFunctionCount(
+      ScopeInfoQueryRequest scopeQueryRequest) {
+    return Response.okWithData(
+        commandBus.syncRun(ExperimentScopeSceneFunctionCountCommand.class, scopeQueryRequest));
+  }
 
-    @Override
-    public Response<PageableResponse<ScopeExperimentTask>> pageableQueryExperimentTaskByScope(
-        PageableScopeExperimentTaskQueryRequest scopeInfoQueryRequest) {
-        return Response.okWithData(
-            commandBus.syncRun(PageableQueryExperimentTaskByScopeCommand.class, scopeInfoQueryRequest));
-    }
-
+  @Override
+  public Response<PageableResponse<ScopeExperimentTask>> pageableQueryExperimentTaskByScope(
+      PageableScopeExperimentTaskQueryRequest scopeInfoQueryRequest) {
+    return Response.okWithData(
+        commandBus.syncRun(PageableQueryExperimentTaskByScopeCommand.class, scopeInfoQueryRequest));
+  }
 }

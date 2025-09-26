@@ -7,21 +7,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class SceneUpdateRequest extends BaseRequest {
 
-    Integer state;
-    String sceneId;
-    String code;
-    String name;
-    String description;
-    String version;
-    ChaosUser user;
-
+  Integer state;
+  String sceneId;
+  String code;
+  String name;
+  String description;
+  String version;
+  ChaosUser user;
 }

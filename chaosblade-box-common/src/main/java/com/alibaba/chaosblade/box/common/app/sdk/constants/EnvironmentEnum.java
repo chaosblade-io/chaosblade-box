@@ -9,40 +9,32 @@ import lombok.Getter;
  */
 public enum EnvironmentEnum {
 
-    /**
-     * 日常环境
-     */
-    DAILY(0),
-    /**
-     * 预发环境
-     */
-    PREPUB(0),
-    /**
-     * 生产环境
-     */
-    ONLINE(0);
+  /** 日常环境 */
+  DAILY(0),
+  /** 预发环境 */
+  PREPUB(0),
+  /** 生产环境 */
+  ONLINE(0);
 
-    @Getter
-    int flag;
+  @Getter int flag;
 
-    EnvironmentEnum(int flag) {
-        this.flag = flag;
+  EnvironmentEnum(int flag) {
+    this.flag = flag;
+  }
+
+  public boolean isDaily() {
+    return DAILY.equals(this);
+  }
+
+  public static EnvironmentEnum of(String env) {
+    if (null == env || env.isEmpty()) {
+      return null;
     }
-
-
-    public boolean isDaily() {
-        return DAILY.equals(this);
+    for (EnvironmentEnum environment : EnvironmentEnum.values()) {
+      if (environment.name().equals(env.toUpperCase())) {
+        return environment;
+      }
     }
-
-    public static EnvironmentEnum of(String env) {
-        if (null == env || env.isEmpty()) {
-            return null;
-        }
-        for (EnvironmentEnum environment : EnvironmentEnum.values()) {
-            if (environment.name().equals(env.toUpperCase())) {
-                return environment;
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

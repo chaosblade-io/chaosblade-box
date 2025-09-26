@@ -1,17 +1,12 @@
 package com.alibaba.chaosblade.box.common.experiment.request;
 
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
-
-/**
- * @author haibin
- * 
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentTaskStatsRequest {
 
-    private Date startTime;
-    private Date endTime;
+  private Date startTime;
+  private Date endTime;
 }

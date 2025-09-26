@@ -5,19 +5,16 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SceneFunctionPageableSearchRequest extends PageableSearchRequest {
 
-    Integer phase;
-    Integer source;
-    Integer enabled;
-    String categoryId;
-    Integer scopeType;
+  Integer phase;
+  Integer source;
+  Integer enabled;
+  String categoryId;
+  Integer scopeType;
 
-    private Integer k8sResourceType;
-
+  private Integer k8sResourceType;
 }

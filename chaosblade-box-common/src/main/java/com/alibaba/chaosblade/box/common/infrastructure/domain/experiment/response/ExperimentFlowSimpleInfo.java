@@ -2,22 +2,16 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.respo
 
 import lombok.Data;
 
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class ExperimentFlowSimpleInfo {
 
-    private String name;
+  private String name;
 
-    private String appCode;
+  private String appCode;
 
-    public ExperimentFlowSimpleInfo(String appCode,String name) {
-        this.name = name;
-        this.appCode = appCode;
-    }
-
-
+  public ExperimentFlowSimpleInfo(String appCode, String name) {
+    this.name = name;
+    this.appCode = appCode;
+  }
 }

@@ -1,22 +1,11 @@
 package com.alibaba.chaosblade.box.common.infrastructure.constant;
 
-/**
- * @author haibin
- *
- *
- */
-public enum  ExperimentTaskMode
-{
+/** @author haibin */
+public enum ExperimentTaskMode {
 
-    /**
-     * 顺序运行
-     */
-    SEQUENCE,
+  /** 顺序运行 */
+  SEQUENCE,
 
-    /**
-     * 阶段运行
-     */
-    PHASE
-
-
+  /** 阶段运行 */
+  PHASE
 }

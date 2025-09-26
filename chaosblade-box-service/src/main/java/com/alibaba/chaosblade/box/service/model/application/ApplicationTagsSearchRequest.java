@@ -1,22 +1,16 @@
 package com.alibaba.chaosblade.box.service.model.application;
 
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class ApplicationTagsSearchRequest extends BaseRequest {
 
-    private String key;
+  private String key;
 
-    private Long appId;
+  private Long appId;
 
-    private List<String> groupNames;
-
+  private List<String> groupNames;
 }

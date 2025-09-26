@@ -1,18 +1,11 @@
 package com.alibaba.chaosblade.box.common.common.annotation;
 
+import java.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.*;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
-public @interface ChaosComponent {
-
-}
+public @interface ChaosComponent {}

@@ -1,15 +1,8 @@
 package com.alibaba.chaosblade.box.common.experiment.task.flow;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Data
-public class BaseRunRequest implements Serializable {
-
-}
+public class BaseRunRequest implements Serializable {}

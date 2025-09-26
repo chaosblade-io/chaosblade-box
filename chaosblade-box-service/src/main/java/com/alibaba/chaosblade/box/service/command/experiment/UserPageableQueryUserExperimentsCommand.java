@@ -12,67 +12,63 @@ import com.alibaba.chaosblade.box.dao.repository.ExperimentRepository;
 import com.alibaba.chaosblade.box.service.infrastructure.convertor.ExperimentDOTOUserExperimentConverter;
 import com.alibaba.chaosblade.box.service.model.experiment.UserExperimentPageableQueryRequest;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 public class UserPageableQueryUserExperimentsCommand
-    extends SpringBeanCommand<UserExperimentPageableQueryRequest, Response<PageQueryResponse<UserExperiment>>> {
+    extends SpringBeanCommand<
+        UserExperimentPageableQueryRequest, Response<PageQueryResponse<UserExperiment>>> {
 
-    @Autowired
-    private ExperimentRepository experimentRepository;
+  @Autowired private ExperimentRepository experimentRepository;
 
-    @Autowired
-    private ExperimentDOTOUserExperimentConverter experimentDOTOUserExperimentConverter;
+  @Autowired private ExperimentDOTOUserExperimentConverter experimentDOTOUserExperimentConverter;
 
-    @Override
-    public Response<PageQueryResponse<UserExperiment>> execute(
-        UserExperimentPageableQueryRequest userExperimentPageableQueryRequest) {
-        int page = userExperimentPageableQueryRequest.getPage();
-        int size = userExperimentPageableQueryRequest.getSize();
-        ExperimentPageQuery experimentPageQuery = new ExperimentPageQuery();
-        experimentPageQuery.setUser(userExperimentPageableQueryRequest.getUser());
-        experimentPageQuery.setNamespace(userExperimentPageableQueryRequest.getNamespace());
-        experimentPageQuery.setNamespace(userExperimentPageableQueryRequest.getNamespace());
-        experimentPageQuery.setTagNames(userExperimentPageableQueryRequest.getTagNames());
-        experimentPageQuery.setScheduler(userExperimentPageableQueryRequest.isScheduler());
-        if (!CollectionUtil.isNullOrEmpty(userExperimentPageableQueryRequest.getStates())) {
-            userExperimentPageableQueryRequest.getStates().forEach(stateEnum -> {
+  @Override
+  public Response<PageQueryResponse<UserExperiment>> execute(
+      UserExperimentPageableQueryRequest userExperimentPageableQueryRequest) {
+    int page = userExperimentPageableQueryRequest.getPage();
+    int size = userExperimentPageableQueryRequest.getSize();
+    ExperimentPageQuery experimentPageQuery = new ExperimentPageQuery();
+    experimentPageQuery.setUser(userExperimentPageableQueryRequest.getUser());
+    experimentPageQuery.setNamespace(userExperimentPageableQueryRequest.getNamespace());
+    experimentPageQuery.setNamespace(userExperimentPageableQueryRequest.getNamespace());
+    experimentPageQuery.setTagNames(userExperimentPageableQueryRequest.getTagNames());
+    experimentPageQuery.setScheduler(userExperimentPageableQueryRequest.isScheduler());
+    if (!CollectionUtil.isNullOrEmpty(userExperimentPageableQueryRequest.getStates())) {
+      userExperimentPageableQueryRequest
+          .getStates()
+          .forEach(
+              stateEnum -> {
                 if (ExperimentStateEnum.FINISHED.equals(stateEnum)) {
-                    experimentPageQuery.addStateValues(ExperimentStateEnum.READY);
+                  experimentPageQuery.addStateValues(ExperimentStateEnum.READY);
                 } else {
-                    experimentPageQuery.addStateValues(stateEnum);
+                  experimentPageQuery.addStateValues(stateEnum);
                 }
-            });
-        } else if (null != userExperimentPageableQueryRequest.getState()) {
-            //兼容旧的数据结构，因为openapi有依赖
-            if (ExperimentStateEnum.FINISHED.equals(userExperimentPageableQueryRequest.getState())) {
-                experimentPageQuery.addStateValues(ExperimentStateEnum.READY);
-            } else {
-                experimentPageQuery.addStateValues(userExperimentPageableQueryRequest.getState());
-            }
-        }
-        experimentPageQuery.setRunResults(userExperimentPageableQueryRequest.getResults());
-        experimentPageQuery.setPartName(userExperimentPageableQueryRequest.getSearchKey());
-        IPage<ExperimentDO> experimentDOIPage = experimentRepository.findByPage(experimentPageQuery, page, size);
-        PageQueryResponse<UserExperiment> pageQueryResponse = new PageQueryResponse<>();
-        pageQueryResponse.setCurrentPage(experimentDOIPage.getCurrent());
-        pageQueryResponse.setPages(experimentDOIPage.getPages());
-        pageQueryResponse.setTotal(experimentDOIPage.getTotal());
-        pageQueryResponse.setPageSize(experimentDOIPage.getSize());
-        pageQueryResponse.setContent(
-            experimentDOIPage.getRecords()
-                .stream().map(experimentDO -> experimentDOTOUserExperimentConverter.convert(experimentDO))
-                .collect(Collectors.toList())
-        );
-        return Response.okWithData(pageQueryResponse);
+              });
+    } else if (null != userExperimentPageableQueryRequest.getState()) {
+      // 兼容旧的数据结构，因为openapi有依赖
+      if (ExperimentStateEnum.FINISHED.equals(userExperimentPageableQueryRequest.getState())) {
+        experimentPageQuery.addStateValues(ExperimentStateEnum.READY);
+      } else {
+        experimentPageQuery.addStateValues(userExperimentPageableQueryRequest.getState());
+      }
     }
-
+    experimentPageQuery.setRunResults(userExperimentPageableQueryRequest.getResults());
+    experimentPageQuery.setPartName(userExperimentPageableQueryRequest.getSearchKey());
+    IPage<ExperimentDO> experimentDOIPage =
+        experimentRepository.findByPage(experimentPageQuery, page, size);
+    PageQueryResponse<UserExperiment> pageQueryResponse = new PageQueryResponse<>();
+    pageQueryResponse.setCurrentPage(experimentDOIPage.getCurrent());
+    pageQueryResponse.setPages(experimentDOIPage.getPages());
+    pageQueryResponse.setTotal(experimentDOIPage.getTotal());
+    pageQueryResponse.setPageSize(experimentDOIPage.getSize());
+    pageQueryResponse.setContent(
+        experimentDOIPage.getRecords().stream()
+            .map(experimentDO -> experimentDOTOUserExperimentConverter.convert(experimentDO))
+            .collect(Collectors.toList()));
+    return Response.okWithData(pageQueryResponse);
+  }
 }

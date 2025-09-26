@@ -1,10 +1,6 @@
 package com.alibaba.chaosblade.box.common.infrastructure.util.resources;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 /*
  * The MIT License
  *
@@ -34,48 +30,44 @@ import java.util.Locale;
 /**
  * Determines the locale, normally from the context.
  *
- * <p>
- * For example, in webapps, you might use the current request's <tt>Accept-Language</tt>
- * header, or maybe it's just an invocation to {@link Locale#getDefault()}.
+ * <p>For example, in webapps, you might use the current request's <tt>Accept-Language</tt> header,
+ * or maybe it's just an invocation to {@link Locale#getDefault()}.
  *
  * <p>
  */
 public abstract class LocaleProvider {
-    /**
-     * Determines the locale to be used.
-     *
-     * @return must not be null.
-     */
-    public abstract Locale get();
+  /**
+   * Determines the locale to be used.
+   *
+   * @return must not be null.
+   */
+  public abstract Locale get();
 
-    public static void setProvider(LocaleProvider p) {
-        if (p == null) { throw new IllegalArgumentException(); }
-        theInstance = p;
+  public static void setProvider(LocaleProvider p) {
+    if (p == null) {
+      throw new IllegalArgumentException();
     }
+    theInstance = p;
+  }
 
-    /**
-     * @return always non-null.
-     */
-    public static LocaleProvider getProvider() {
-        return theInstance;
-    }
+  /** @return always non-null. */
+  public static LocaleProvider getProvider() {
+    return theInstance;
+  }
 
-    /**
-     * Short for {@code getProvider().get()}
-     */
-    public static Locale getLocale() {
-        return theInstance.get();
-    }
+  /** Short for {@code getProvider().get()} */
+  public static Locale getLocale() {
+    return theInstance.get();
+  }
 
-    /**
-     * {@link LocaleProvider} that uses {@link Locale#getDefault()}.
-     */
-    public static final LocaleProvider DEFAULT = new LocaleProvider() {
+  /** {@link LocaleProvider} that uses {@link Locale#getDefault()}. */
+  public static final LocaleProvider DEFAULT =
+      new LocaleProvider() {
         @Override
         public Locale get() {
-            return Locale.getDefault();
+          return Locale.getDefault();
         }
-    };
+      };
 
-    private static volatile LocaleProvider theInstance = DEFAULT;
+  private static volatile LocaleProvider theInstance = DEFAULT;
 }

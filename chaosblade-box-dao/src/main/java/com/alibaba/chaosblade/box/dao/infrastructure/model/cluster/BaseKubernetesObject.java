@@ -4,16 +4,11 @@ import io.kubernetes.client.openapi.models.V1DeploymentSpec;
 import io.kubernetes.client.openapi.models.V1DeploymentStatus;
 import lombok.Data;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Data
 public class BaseKubernetesObject {
 
-    private V1DeploymentSpec spec;
+  private V1DeploymentSpec spec;
 
-    private V1DeploymentStatus status;
-
+  private V1DeploymentStatus status;
 }

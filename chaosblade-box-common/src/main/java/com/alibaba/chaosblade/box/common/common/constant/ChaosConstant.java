@@ -16,28 +16,26 @@
 
 package com.alibaba.chaosblade.box.common.common.constant;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public class ChaosConstant {
 
-    public final static String DEFAULT_TOOLS = "chaosblade";
+  public static final String DEFAULT_TOOLS = "chaosblade";
 
-    public final static String LANGUAGE_EN = "en";
-    public final static String LANGUAGE_ZH = "zh";
+  public static final String LANGUAGE_EN = "en";
+  public static final String LANGUAGE_ZH = "zh";
 
-    public final static String DOT = ".";
-    public final static String COLON = ":";
+  public static final String DOT = ".";
+  public static final String COLON = ":";
 
-    public final static String CHAOS_PREFIX = "chaos.";
-    public final static String CHAOS_DESTROY_SUFFIX = ".stop";
+  public static final String CHAOS_PREFIX = "chaos.";
+  public static final String CHAOS_DESTROY_SUFFIX = ".stop";
 
-    public final static String PHASE_ALL = "ALL";
-    public final static String PHASE_PREPARE = "PREPARE";
-    public final static String PHASE_ATTACK = "ATTACK";
-    public final static String PHASE_RECOVER = "RECOVER";
+  public static final String PHASE_ALL = "ALL";
+  public static final String PHASE_PREPARE = "PREPARE";
+  public static final String PHASE_ATTACK = "ATTACK";
+  public static final String PHASE_RECOVER = "RECOVER";
 
-    public static final String CHAOS_ADDRESS_KEY  = "chaos.address";
+  public static final String CHAOS_ADDRESS_KEY = "chaos.address";
 
-    public static final String CHAOS_DEFAULT_NA  = "default";
+  public static final String CHAOS_DEFAULT_NA = "default";
 }

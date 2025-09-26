@@ -1,14 +1,9 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public enum GuardRunState {
-    READY,
-    RUNNING,
-    TRIGGERED,
-    FINISHED
-
+  READY,
+  RUNNING,
+  TRIGGERED,
+  FINISHED
 }

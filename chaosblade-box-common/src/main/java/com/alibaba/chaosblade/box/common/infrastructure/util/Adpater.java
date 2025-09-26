@@ -1,11 +1,7 @@
 package com.alibaba.chaosblade.box.common.infrastructure.util;
 
-/**
- * @author haibin
- * 
- *
- */
+/** @author haibin */
 public interface Adpater<F, T> {
 
-    T adapt(F s);
+  T adapt(F s);
 }

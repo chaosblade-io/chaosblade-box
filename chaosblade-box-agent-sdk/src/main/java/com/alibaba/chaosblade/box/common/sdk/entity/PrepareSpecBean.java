@@ -18,35 +18,33 @@ package com.alibaba.chaosblade.box.common.sdk.entity;
 
 import java.util.List;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 public class PrepareSpecBean {
-    private String type;
-    private List<FlagSpecBean> flags;
-    private boolean required;
+  private String type;
+  private List<FlagSpecBean> flags;
+  private boolean required;
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public List<FlagSpecBean> getFlags() {
-        return flags;
-    }
+  public List<FlagSpecBean> getFlags() {
+    return flags;
+  }
 
-    public void setFlags(List<FlagSpecBean> flags) {
-        this.flags = flags;
-    }
+  public void setFlags(List<FlagSpecBean> flags) {
+    this.flags = flags;
+  }
 
-    public boolean isRequired() {
-        return required;
-    }
+  public boolean isRequired() {
+    return required;
+  }
 
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
 }

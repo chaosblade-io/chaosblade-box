@@ -6,20 +6,17 @@ import lombok.Data;
  * aone app memebr
  *
  * @author haibin
- *
- *
  */
 @Data
 public class AppMember {
 
-    private String empId;
+  private String empId;
 
-    private boolean bizOps;
+  private boolean bizOps;
 
-    private boolean devTel;
+  private boolean devTel;
 
-    private boolean appOps;
+  private boolean appOps;
 
-    private boolean pe;
-
+  private boolean pe;
 }

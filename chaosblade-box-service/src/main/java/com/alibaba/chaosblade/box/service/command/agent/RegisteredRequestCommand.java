@@ -18,64 +18,68 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 @Slf4j
 public class RegisteredRequestCommand
     extends SpringBeanCommand<RegisteredCallbackRequest, Response<ChaosAgentRegisterResultEntity>> {
 
-    private static Logger LOGGER = LoggerFactory.getLogger("agent-register");
+  private static Logger LOGGER = LoggerFactory.getLogger("agent-register");
 
-    @Autowired
-    private DomainFactory domainFactory;
+  @Autowired private DomainFactory domainFactory;
 
-    @Autowired
-    private UserApplicationRegister userApplicationRegister;
+  @Autowired private UserApplicationRegister userApplicationRegister;
 
-    @Autowired
-    private DeviceRepository deviceRepository;
+  @Autowired private DeviceRepository deviceRepository;
 
-    @Override
-    public Response<ChaosAgentRegisterResultEntity> execute(RegisteredCallbackRequest registeredCallbackRequest) {
-        log.info("start handle client register request,{}" + JSON.toJSONString(registeredCallbackRequest));
-        try {
-            // 1. check parameter license
-            if (Strings.isNullOrEmpty(registeredCallbackRequest.getAk())) {
-                return Response.ofFailure(Response.Code.Parameter_Empty, "license Required");
-            }
-            // 2. get userId by license
-            String userId = userApplicationRegister.getUserId(registeredCallbackRequest.getUserId(), registeredCallbackRequest.getAk());
-            if (Strings.isNullOrEmpty(userId)){
-                return Response.ofFailure(Response.Code.Parameter_Empty, "uid illegal");
-            }
-            registeredCallbackRequest.setUserId(userId);
+  @Override
+  public Response<ChaosAgentRegisterResultEntity> execute(
+      RegisteredCallbackRequest registeredCallbackRequest) {
+    log.info(
+        "start handle client register request,{}" + JSON.toJSONString(registeredCallbackRequest));
+    try {
+      // 1. check parameter license
+      if (Strings.isNullOrEmpty(registeredCallbackRequest.getAk())) {
+        return Response.ofFailure(Response.Code.Parameter_Empty, "license Required");
+      }
+      // 2. get userId by license
+      String userId =
+          userApplicationRegister.getUserId(
+              registeredCallbackRequest.getUserId(), registeredCallbackRequest.getAk());
+      if (Strings.isNullOrEmpty(userId)) {
+        return Response.ofFailure(Response.Code.Parameter_Empty, "uid illegal");
+      }
+      registeredCallbackRequest.setUserId(userId);
 
-            // 3. check namespace
-            if (StringUtils.isBlank(registeredCallbackRequest.getNamespace()) || !userApplicationRegister.checkNamespace(userId, registeredCallbackRequest.getNamespace())){
-                return Response.ofFailure(Response.Code.Parameter_Empty, "namespace illegal");
-            }
+      // 3. check namespace
+      if (StringUtils.isBlank(registeredCallbackRequest.getNamespace())
+          || !userApplicationRegister.checkNamespace(
+              userId, registeredCallbackRequest.getNamespace())) {
+        return Response.ofFailure(Response.Code.Parameter_Empty, "namespace illegal");
+      }
 
-            // 4. register agent
-            DeviceDO requestDeviceDO = domainFactory.getBean(PrivateScope.class).register(registeredCallbackRequest);
-            Long appId = userApplicationRegister.registerApplicationByHost(requestDeviceDO,
-                registeredCallbackRequest.getAppName(),
-                registeredCallbackRequest.getAppGroup());
-            if (appId == null) {
-                return Response.ofFailure(Response.Code.SERVER_ERROR, "register application failed");
-            }
-            ChaosAgentRegisterResultEntity chaosAgentRegisterResultEntity = new ChaosAgentRegisterResultEntity();
-            chaosAgentRegisterResultEntity.setConfigurationId(requestDeviceDO.getConfigurationId());
-            chaosAgentRegisterResultEntity.setAk(registeredCallbackRequest.getAk());
-            chaosAgentRegisterResultEntity.setSk(registeredCallbackRequest.getUserId());
-            chaosAgentRegisterResultEntity.setUid(registeredCallbackRequest.getUserId());
-            return Response.ofSuccess(chaosAgentRegisterResultEntity);
-        } catch (Exception ex) {
-            LOGGER.error("execute agent register request failed", ex);
-            return Response.ofFailure(Response.Code.SERVER_ERROR, "execute agent register request failed:" + ex.getMessage());
-        }
+      // 4. register agent
+      DeviceDO requestDeviceDO =
+          domainFactory.getBean(PrivateScope.class).register(registeredCallbackRequest);
+      Long appId =
+          userApplicationRegister.registerApplicationByHost(
+              requestDeviceDO,
+              registeredCallbackRequest.getAppName(),
+              registeredCallbackRequest.getAppGroup());
+      if (appId == null) {
+        return Response.ofFailure(Response.Code.SERVER_ERROR, "register application failed");
+      }
+      ChaosAgentRegisterResultEntity chaosAgentRegisterResultEntity =
+          new ChaosAgentRegisterResultEntity();
+      chaosAgentRegisterResultEntity.setConfigurationId(requestDeviceDO.getConfigurationId());
+      chaosAgentRegisterResultEntity.setAk(registeredCallbackRequest.getAk());
+      chaosAgentRegisterResultEntity.setSk(registeredCallbackRequest.getUserId());
+      chaosAgentRegisterResultEntity.setUid(registeredCallbackRequest.getUserId());
+      return Response.ofSuccess(chaosAgentRegisterResultEntity);
+    } catch (Exception ex) {
+      LOGGER.error("execute agent register request failed", ex);
+      return Response.ofFailure(
+          Response.Code.SERVER_ERROR, "execute agent register request failed:" + ex.getMessage());
     }
+  }
 }

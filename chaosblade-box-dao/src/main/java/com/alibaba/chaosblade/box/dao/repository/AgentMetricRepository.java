@@ -6,15 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- * 
- * 
- */
+/** @author haibin.lhb */
 @Component
 public class AgentMetricRepository extends ServiceImpl<MetricMapper, ChaosMetricDO> {
 
-    @Autowired
-    private MetricMapper metricMapper;
-
+  @Autowired private MetricMapper metricMapper;
 }

@@ -11,18 +11,16 @@ import org.springframework.stereotype.Component;
  * 在演练任务创建之前将强弱依赖的标签打上
  *
  * @author haibin.lhb
- *
- *
  */
 @Component
 public class FeedbackExperimentTaskInterceptor implements ExperimentTaskInterceptor {
 
-    @Override
-    public void beforeSaveExperimentTaskDO(ExperimentTaskCreateRequest experimentTaskCreateRequest,
-                                           ExperimentTaskDO experimentTaskDO) {
-        ExperimentDO experimentDO = experimentTaskCreateRequest.getExperimentDO();
-        ExperimentTaskContext experimentTaskContext = experimentTaskDO.getExperimentTaskContext();
-        experimentTaskContext.setOuterId(experimentDO.getOuterId());
-        experimentTaskContext.setSource(experimentDO.getSource());
-    }
+  @Override
+  public void beforeSaveExperimentTaskDO(
+      ExperimentTaskCreateRequest experimentTaskCreateRequest, ExperimentTaskDO experimentTaskDO) {
+    ExperimentDO experimentDO = experimentTaskCreateRequest.getExperimentDO();
+    ExperimentTaskContext experimentTaskContext = experimentTaskDO.getExperimentTaskContext();
+    experimentTaskContext.setOuterId(experimentDO.getOuterId());
+    experimentTaskContext.setSource(experimentDO.getSource());
+  }
 }

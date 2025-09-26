@@ -17,100 +17,106 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Slf4j
 @Component
 public class LitmusChaosActivityAsyncCallback implements ActivityAsyncCallback {
 
-    @Autowired
-    private LitmusChaosInvoker litmusChaosInvoker;
+  @Autowired private LitmusChaosInvoker litmusChaosInvoker;
 
-    private static Integer MAX_INSTALL_TIME_MINUTES = 5;
+  private static Integer MAX_INSTALL_TIME_MINUTES = 5;
 
-    @Autowired
-    private ExperimentTaskPusher experimentTaskPusher;
+  @Autowired private ExperimentTaskPusher experimentTaskPusher;
 
-    @Autowired
-    private ActivityTargetExecutionResultRepository activityTargetExecutionResultRepository;
+  @Autowired
+  private ActivityTargetExecutionResultRepository activityTargetExecutionResultRepository;
 
-    @Override
-    public void execute(AsyncCallBackContext asyncCallBackContext) {
-        log.info("[LitmusChaosActivityAsyncCallback] start");
-        ExperimentMiniAppTaskDO experimentMiniAppTaskDO = asyncCallBackContext.getExperimentMiniAppTaskDO();
-        ChaosBladeExpUidDO chaosBladeExpUidDO = asyncCallBackContext.getChaosBladeExpUidDO();
-        String status = asyncCallBackContext.getStatus();
+  @Override
+  public void execute(AsyncCallBackContext asyncCallBackContext) {
+    log.info("[LitmusChaosActivityAsyncCallback] start");
+    ExperimentMiniAppTaskDO experimentMiniAppTaskDO =
+        asyncCallBackContext.getExperimentMiniAppTaskDO();
+    ChaosBladeExpUidDO chaosBladeExpUidDO = asyncCallBackContext.getChaosBladeExpUidDO();
+    String status = asyncCallBackContext.getStatus();
 
-        log.info("[LitmusChaosActivityAsyncCallback] start, status: {}", status);
-        if (Strings.isNullOrEmpty(status)) {
-            if (installTimeOut(experimentMiniAppTaskDO)) {
-                markRunFailed(experimentMiniAppTaskDO, CommonErrorCode.B_CHAOS_BLADE_ASYNC_TIMEOUT.name(),
-                        CommonErrorCode.B_CHAOS_BLADE_ASYNC_TIMEOUT.getReadableMessage() + ",超时时间:"
-                                + MAX_INSTALL_TIME_MINUTES + " 分钟");
-            }
-        }
-        if ("Error".equals(status)) {
-            markRunFailed(experimentMiniAppTaskDO, CommonErrorCode.B_CHAOS_BLADE_ASYNC_ERROR.name(),
-                    asyncCallBackContext.getError());
-        }
-        if ("Success".equals(status)) {
-            markRunSuccess(experimentMiniAppTaskDO);
-        }
-        JSONObject expStatusBean = new JSONObject();
-        expStatusBean.put("status", status);
-        expStatusBean.put("uid", Strings.isNullOrEmpty(asyncCallBackContext.getUid()) ? chaosBladeExpUidDO.getExpUid() : asyncCallBackContext.getUid());
-        expStatusBean.put("error", asyncCallBackContext.getError());
-        expStatusBean.put("toolType", asyncCallBackContext.getToolType());
-        experimentMiniAppTaskDO.setData(expStatusBean.toJSONString());
-        if (experimentMiniAppTaskDO.isFinished()) {
-            log.info("[LitmusChaosActivityAsyncCallback] ActivityAsyncCallback: {}", experimentMiniAppTaskDO.getData());
-            boolean success = activityTargetExecutionResultRepository.update(experimentMiniAppTaskDO);
-            if (success) {
-                experimentTaskPusher.pushByAsyncWay(experimentMiniAppTaskDO);
-            }
-        }
+    log.info("[LitmusChaosActivityAsyncCallback] start, status: {}", status);
+    if (Strings.isNullOrEmpty(status)) {
+      if (installTimeOut(experimentMiniAppTaskDO)) {
+        markRunFailed(
+            experimentMiniAppTaskDO,
+            CommonErrorCode.B_CHAOS_BLADE_ASYNC_TIMEOUT.name(),
+            CommonErrorCode.B_CHAOS_BLADE_ASYNC_TIMEOUT.getReadableMessage()
+                + ",超时时间:"
+                + MAX_INSTALL_TIME_MINUTES
+                + " 分钟");
+      }
     }
-
-    @Override
-    public void expired(AsyncCallBackContext asyncCallBackContext) {
-        litmusChaosInvoker.destroyByChaosBladeExpDO(asyncCallBackContext.getChaosBladeExpUidDO());
+    if ("Error".equals(status)) {
+      markRunFailed(
+          experimentMiniAppTaskDO,
+          CommonErrorCode.B_CHAOS_BLADE_ASYNC_ERROR.name(),
+          asyncCallBackContext.getError());
     }
-
-    @Override
-    public boolean support(String toolType) {
-        return ChaosTools.CHAOS_BLADE.name().equals(toolType);
+    if ("Success".equals(status)) {
+      markRunSuccess(experimentMiniAppTaskDO);
     }
-
-    @Override
-    public boolean supportByAppCode(String appCode) {
-        return MiniAppUtils.isFromLitmusChaos(appCode);
+    JSONObject expStatusBean = new JSONObject();
+    expStatusBean.put("status", status);
+    expStatusBean.put(
+        "uid",
+        Strings.isNullOrEmpty(asyncCallBackContext.getUid())
+            ? chaosBladeExpUidDO.getExpUid()
+            : asyncCallBackContext.getUid());
+    expStatusBean.put("error", asyncCallBackContext.getError());
+    expStatusBean.put("toolType", asyncCallBackContext.getToolType());
+    experimentMiniAppTaskDO.setData(expStatusBean.toJSONString());
+    if (experimentMiniAppTaskDO.isFinished()) {
+      log.info(
+          "[LitmusChaosActivityAsyncCallback] ActivityAsyncCallback: {}",
+          experimentMiniAppTaskDO.getData());
+      boolean success = activityTargetExecutionResultRepository.update(experimentMiniAppTaskDO);
+      if (success) {
+        experimentTaskPusher.pushByAsyncWay(experimentMiniAppTaskDO);
+      }
     }
+  }
 
-    private boolean installTimeOut(ExperimentMiniAppTaskDO experimentMiniAppTaskDO) {
-        return System.currentTimeMillis() - experimentMiniAppTaskDO.getStartTime().getTime()
-                > MAX_INSTALL_TIME_MINUTES * 60 * 1000;
-    }
+  @Override
+  public void expired(AsyncCallBackContext asyncCallBackContext) {
+    litmusChaosInvoker.destroyByChaosBladeExpDO(asyncCallBackContext.getChaosBladeExpUidDO());
+  }
 
-    public void markRunFailed(ExperimentMiniAppTaskDO experimentMiniAppTaskDO, String errorCode,
-                              String errorMessage) {
-        experimentMiniAppTaskDO.setState(StateEnum.FINISHED.getValue());
-        experimentMiniAppTaskDO.setResult(ResultEnum.FAILED.getValue());
-        experimentMiniAppTaskDO.setErrorCode(errorCode);
-        experimentMiniAppTaskDO.setErrorMessage(errorMessage);
-    }
+  @Override
+  public boolean support(String toolType) {
+    return ChaosTools.CHAOS_BLADE.name().equals(toolType);
+  }
 
-    public void markRunSuccess(ExperimentMiniAppTaskDO experimentMiniAppTaskDO) {
-        experimentMiniAppTaskDO.setState(StateEnum.FINISHED.getValue());
-        experimentMiniAppTaskDO.setResult(ResultEnum.SUCCESS.getValue());
-        experimentMiniAppTaskDO.setErrorCode("");
-        experimentMiniAppTaskDO.setErrorMessage("");
-    }
+  @Override
+  public boolean supportByAppCode(String appCode) {
+    return MiniAppUtils.isFromLitmusChaos(appCode);
+  }
 
-    private boolean isNotK8sScene(String appCode) {
-        return !PublicCloudUtil.isK8SByAppCode(appCode);
-    }
+  private boolean installTimeOut(ExperimentMiniAppTaskDO experimentMiniAppTaskDO) {
+    return System.currentTimeMillis() - experimentMiniAppTaskDO.getStartTime().getTime()
+        > MAX_INSTALL_TIME_MINUTES * 60 * 1000;
+  }
 
+  public void markRunFailed(
+      ExperimentMiniAppTaskDO experimentMiniAppTaskDO, String errorCode, String errorMessage) {
+    experimentMiniAppTaskDO.setState(StateEnum.FINISHED.getValue());
+    experimentMiniAppTaskDO.setResult(ResultEnum.FAILED.getValue());
+    experimentMiniAppTaskDO.setErrorCode(errorCode);
+    experimentMiniAppTaskDO.setErrorMessage(errorMessage);
+  }
+
+  public void markRunSuccess(ExperimentMiniAppTaskDO experimentMiniAppTaskDO) {
+    experimentMiniAppTaskDO.setState(StateEnum.FINISHED.getValue());
+    experimentMiniAppTaskDO.setResult(ResultEnum.SUCCESS.getValue());
+    experimentMiniAppTaskDO.setErrorCode("");
+    experimentMiniAppTaskDO.setErrorMessage("");
+  }
+
+  private boolean isNotK8sScene(String appCode) {
+    return !PublicCloudUtil.isK8SByAppCode(appCode);
+  }
 }

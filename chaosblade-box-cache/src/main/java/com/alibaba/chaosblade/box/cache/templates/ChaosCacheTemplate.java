@@ -4,6 +4,5 @@ import com.alibaba.chaosblade.box.cache.ChaosCacheException;
 
 public interface ChaosCacheTemplate {
 
-    void clear(String prefixKey) throws ChaosCacheException;
-
+  void clear(String prefixKey) throws ChaosCacheException;
 }

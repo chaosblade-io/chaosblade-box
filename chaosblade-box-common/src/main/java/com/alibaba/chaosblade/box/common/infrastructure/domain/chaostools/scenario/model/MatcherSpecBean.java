@@ -21,21 +21,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class MatcherSpecBean {
 
-    private String name;
+  private String name;
 
-    private String desc;
+  private String desc;
 
-    private boolean noArgs;
+  private boolean noArgs;
 
-    private boolean required;
-
+  private boolean required;
 }

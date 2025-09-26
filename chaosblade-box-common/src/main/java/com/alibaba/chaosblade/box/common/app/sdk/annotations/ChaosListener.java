@@ -2,19 +2,15 @@ package com.alibaba.chaosblade.box.common.app.sdk.annotations;
 
 import java.lang.annotation.*;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
 public @interface ChaosListener {
 
-    String code();
+  String code();
 
-    String name() default "";
+  String name() default "";
 
-    String description() default "";
-
+  String description() default "";
 }

@@ -5,13 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.SOURCE)
-public @interface ExtensionPoint
-{
-}
+public @interface ExtensionPoint {}

@@ -4,11 +4,6 @@ import com.alibaba.chaosblade.box.common.infrastructure.util.MybatisMapper;
 import com.alibaba.chaosblade.box.dao.model.ExperimentHostRelationDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @MybatisMapper
-public interface ExperimentHostRelationMapper extends BaseMapper<ExperimentHostRelationDO> {
-}
+public interface ExperimentHostRelationMapper extends BaseMapper<ExperimentHostRelationDO> {}

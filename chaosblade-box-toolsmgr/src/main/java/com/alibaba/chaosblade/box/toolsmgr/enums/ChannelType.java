@@ -16,33 +16,29 @@
 
 package com.alibaba.chaosblade.box.toolsmgr.enums;
 
-
-/**
- * @author yefei
- */
+/** @author yefei */
 public enum ChannelType {
+  SSH(ProbesInstallModel.SSH.getCode()),
+  ANSIBLE(ProbesInstallModel.ANSIBLE.getCode()),
+  PUPPET(-1),
+  HELM((ProbesInstallModel.K8S_HELM.getCode()));
 
-    SSH(ProbesInstallModel.SSH.getCode()),
-    ANSIBLE(ProbesInstallModel.ANSIBLE.getCode()),
-    PUPPET(-1),
-    HELM((ProbesInstallModel.K8S_HELM.getCode()));
+  private int code;
 
-    private int code;
+  public int getCode() {
+    return code;
+  }
 
-    public int getCode() {
-        return code;
+  ChannelType(int code) {
+    this.code = code;
+  }
+
+  public static ChannelType parseCode(int code) {
+    for (ChannelType value : ChannelType.values()) {
+      if (code == value.code) {
+        return value;
+      }
     }
-
-    ChannelType(int code) {
-        this.code = code;
-    }
-
-    public static ChannelType parseCode(int code) {
-        for (ChannelType value : ChannelType.values()) {
-            if (code == value.code) {
-                return value;
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

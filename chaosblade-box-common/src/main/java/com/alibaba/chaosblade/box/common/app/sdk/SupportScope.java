@@ -1,24 +1,18 @@
 package com.alibaba.chaosblade.box.common.app.sdk;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 public enum SupportScope {
+  HOST(0),
 
+  K8S(2);
 
-    HOST(0),
+  public int getType() {
+    return type;
+  }
 
-    K8S(2);
+  int type;
 
-    public int getType() {
-        return type;
-    }
-
-    int type;
-
-    SupportScope(int i) {
-        this.type = i;
-    }
+  SupportScope(int i) {
+    this.type = i;
+  }
 }

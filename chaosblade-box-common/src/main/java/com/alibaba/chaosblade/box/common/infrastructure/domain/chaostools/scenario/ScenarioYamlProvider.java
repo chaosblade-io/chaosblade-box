@@ -16,32 +16,18 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public interface ScenarioYamlProvider {
 
-    /**
-     *
-     * @return
-     */
-    String configuration(ScenarioRequest scenarioRequest);
+  /** @return */
+  String configuration(ScenarioRequest scenarioRequest);
 
-    /**
-     *
-     * @return
-     */
-    String overview(ScenarioRequest scenarioRequest);
+  /** @return */
+  String overview(ScenarioRequest scenarioRequest);
 
-    /**
-     *
-     * @return
-     */
-    String versionYaml(ScenarioRequest scenarioRequest);
+  /** @return */
+  String versionYaml(ScenarioRequest scenarioRequest);
 
-    /**
-     *
-     * @return
-     */
-    String specYaml(ScenarioRequest scenarioRequest);
+  /** @return */
+  String specYaml(ScenarioRequest scenarioRequest);
 }

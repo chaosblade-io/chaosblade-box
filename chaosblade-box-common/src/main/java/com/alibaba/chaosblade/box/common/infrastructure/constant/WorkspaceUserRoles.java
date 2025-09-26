@@ -6,11 +6,10 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class WorkspaceUserRoles {
 
-    public static final Integer MAIN = 0;
+  public static final Integer MAIN = 0;
 
-    public Integer getWorkspaceUserRole(ChaosUser user) {
+  public Integer getWorkspaceUserRole(ChaosUser user) {
 
-        return WorkspaceUserRoles.MAIN;
-    }
-
+    return WorkspaceUserRoles.MAIN;
+  }
 }

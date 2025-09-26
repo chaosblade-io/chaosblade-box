@@ -2,31 +2,24 @@ package com.alibaba.chaosblade.box.common.experiment.clientobject;
 
 import lombok.Data;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Data
 public class ExperimentTaskStat {
 
-    private String experimentId;
+  private String experimentId;
 
-    private String experimentName;
+  private String experimentName;
 
-    private Integer totalCount;
+  private Integer totalCount;
 
-    private Integer runningCount;
+  private Integer runningCount;
 
-    private Integer successCount;
+  private Integer successCount;
 
-    private Integer failureCount;
+  private Integer failureCount;
 
-    private Integer exceptionCount;
+  private Integer exceptionCount;
 
-    /**
-     * 平均用时
-     */
-    private long averageCostInSecond;
-
+  /** 平均用时 */
+  private long averageCostInSecond;
 }

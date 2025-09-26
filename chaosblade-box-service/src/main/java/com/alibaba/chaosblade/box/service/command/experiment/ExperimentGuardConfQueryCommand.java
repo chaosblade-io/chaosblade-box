@@ -5,33 +5,30 @@ import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard.
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard.ExperimentGuardConfiguration;
 import com.alibaba.chaosblade.box.dao.model.ExperimentGuardDO;
 import com.alibaba.chaosblade.box.dao.repository.ExperimentGuardRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 public class ExperimentGuardConfQueryCommand
     extends SpringBeanCommand<String, ExperimentGuardConfiguration> {
 
-    @Autowired
-    private ExperimentGuardRepository experimentGuardRepository;
+  @Autowired private ExperimentGuardRepository experimentGuardRepository;
 
-    @Override
-    public ExperimentGuardConfiguration execute(String experimentId) {
-        List<ExperimentGuardDO> experimentGuardDOS = experimentGuardRepository.findByExperimentId(experimentId);
-        ExperimentGuardConfiguration experimentGuardConfiguration = new ExperimentGuardConfiguration();
-        experimentGuardConfiguration.setGuards(experimentGuardDOS.stream().map(
-            new Function<ExperimentGuardDO, ExperimentGuard>() {
-                @Override
-                public ExperimentGuard apply(ExperimentGuardDO experimentGuardDO) {
+  @Override
+  public ExperimentGuardConfiguration execute(String experimentId) {
+    List<ExperimentGuardDO> experimentGuardDOS =
+        experimentGuardRepository.findByExperimentId(experimentId);
+    ExperimentGuardConfiguration experimentGuardConfiguration = new ExperimentGuardConfiguration();
+    experimentGuardConfiguration.setGuards(
+        experimentGuardDOS.stream()
+            .map(
+                new Function<ExperimentGuardDO, ExperimentGuard>() {
+                  @Override
+                  public ExperimentGuard apply(ExperimentGuardDO experimentGuardDO) {
                     ExperimentGuard experimentGuard = new ExperimentGuard();
                     experimentGuard.setAppCode(experimentGuardDO.getAppCode());
                     experimentGuard.setGuardId(experimentGuardDO.getGuardId());
@@ -41,8 +38,9 @@ public class ExperimentGuardConfQueryCommand
                     experimentGuard.setName(experimentGuardDO.getName());
                     experimentGuard.setActionType(experimentGuardDO.getActionType());
                     return experimentGuard;
-                }
-            }).collect(Collectors.toList()));
-        return experimentGuardConfiguration;
-    }
+                  }
+                })
+            .collect(Collectors.toList()));
+    return experimentGuardConfiguration;
+  }
 }

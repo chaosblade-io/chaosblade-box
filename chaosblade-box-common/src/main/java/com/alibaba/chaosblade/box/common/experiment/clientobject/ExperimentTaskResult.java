@@ -1,28 +1,27 @@
 package com.alibaba.chaosblade.box.common.experiment.clientobject;
 
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExperimentTaskResult {
 
-    Integer totalCount;
+  Integer totalCount;
 
-    Integer successCount;
+  Integer successCount;
 
-    Integer stoppedCount;
+  Integer stoppedCount;
 
-    Integer failedCount;
+  Integer failedCount;
 
-    Integer errorCount;
+  Integer errorCount;
 
-    Set<String> aoneApps;
+  Set<String> aoneApps;
 
-    Set<String> machines;
+  Set<String> machines;
 
-    Set<String> appDescs;
+  Set<String> appDescs;
 }

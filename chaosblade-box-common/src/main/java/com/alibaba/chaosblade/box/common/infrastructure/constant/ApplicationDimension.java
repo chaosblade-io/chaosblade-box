@@ -6,20 +6,19 @@ package com.alibaba.chaosblade.box.common.infrastructure.constant;
  * @author: xinyuan
  * @create: 2020-06-30 4:12 PM
  */
-
 public enum ApplicationDimension {
-    HOST(0),
-    NODE(1),
-    POD(2),
-    PROCESS(3);
+  HOST(0),
+  NODE(1),
+  POD(2),
+  PROCESS(3);
 
-    private Integer value;
+  private Integer value;
 
-    ApplicationDimension(Integer value) {
-        this.value = value;
-    }
+  ApplicationDimension(Integer value) {
+    this.value = value;
+  }
 
-    public Integer getValue() {
-        return value;
-    }
+  public Integer getValue() {
+    return value;
+  }
 }

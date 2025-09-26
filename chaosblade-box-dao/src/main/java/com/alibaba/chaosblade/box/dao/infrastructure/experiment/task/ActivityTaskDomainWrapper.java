@@ -9,34 +9,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author haibin.lhb
- *
- *
- */
-
+/** @author haibin.lhb */
 public class ActivityTaskDomainWrapper {
 
-    private static Logger logger = LoggerFactory.getLogger(ActivityTaskDomainWrapper.class);
+  private static Logger logger = LoggerFactory.getLogger(ActivityTaskDomainWrapper.class);
 
-    public ActivityTaskDomainWrapper(ActivityTaskDO activityTaskDO) {
-        this.activityTaskDO = activityTaskDO;
-    }
+  public ActivityTaskDomainWrapper(ActivityTaskDO activityTaskDO) {
+    this.activityTaskDO = activityTaskDO;
+  }
 
-    public void setActivityTaskDO(ActivityTaskDO activityTaskDO) {
-        this.activityTaskDO = activityTaskDO;
-    }
+  public void setActivityTaskDO(ActivityTaskDO activityTaskDO) {
+    this.activityTaskDO = activityTaskDO;
+  }
 
-    @Getter
-    private ActivityTaskDO activityTaskDO;
+  @Getter private ActivityTaskDO activityTaskDO;
 
-    @Autowired
-    private ActivityTaskRepository activityTaskRepository;
+  @Autowired private ActivityTaskRepository activityTaskRepository;
 
-    @Autowired
-    private MiniAppTaskManager miniAppTaskManager;
+  @Autowired private MiniAppTaskManager miniAppTaskManager;
 
-    @Autowired
-    private ChaosEventDispatcher chaosEventDispatcher;
-
+  @Autowired private ChaosEventDispatcher chaosEventDispatcher;
 }

@@ -5,50 +5,32 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-/**
- * @author sunpeng
- * 
- *
- */
+/** @author sunpeng */
 @Data
 @TableName(value = "t_chaos_application_device_tag")
 public class ApplicationDeviceTagDO extends BaseDO {
 
-    /**
-     * 标签ID
-     */
-    @TableField(value = "tag_id")
-    private String tagId;
+  /** 标签ID */
+  @TableField(value = "tag_id")
+  private String tagId;
 
-    /**
-     * 机器ip
-     */
-    @TableField(value = "configuration_id")
-    private String configurationId;
+  /** 机器ip */
+  @TableField(value = "configuration_id")
+  private String configurationId;
 
-    /**
-     * 标签名
-     */
-    @TableField(value = "tag_name")
-    private String tagName;
+  /** 标签名 */
+  @TableField(value = "tag_name")
+  private String tagName;
 
-    /**
-     * 应用ID
-     */
-    @TableField(value = "app_id")
-    private String appId;
+  /** 应用ID */
+  @TableField(value = "app_id")
+  private String appId;
 
-    /**
-     * 应用分组
-     */
-    @TableField(value = "group_name")
-    private String groupName;
+  /** 应用分组 */
+  @TableField(value = "group_name")
+  private String groupName;
 
-    /**
-     * userId
-     */
-    @TableField(value = "user_id")
-    private String userId;
-
-
+  /** userId */
+  @TableField(value = "user_id")
+  private String userId;
 }

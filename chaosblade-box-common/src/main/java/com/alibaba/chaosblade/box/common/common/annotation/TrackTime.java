@@ -5,12 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TrackTime {
-}
+public @interface TrackTime {}

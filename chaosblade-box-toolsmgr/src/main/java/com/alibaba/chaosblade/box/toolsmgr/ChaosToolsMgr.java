@@ -16,23 +16,20 @@
 
 package com.alibaba.chaosblade.box.toolsmgr;
 
-
 import com.alibaba.chaosblade.box.common.common.domain.response.Response;
 import com.alibaba.chaosblade.box.toolsmgr.model.MgrRequest;
 
-
 public interface ChaosToolsMgr<R extends MgrRequest> {
 
-    /**
-     *
-     * @param request
-     * @return
-     */
-    Response<String> deployAndInstallAgent(R request);
+  /**
+   * @param request
+   * @return
+   */
+  Response<String> deployAndInstallAgent(R request);
 
-    Response<String> uninstallAgent(R request);
+  Response<String> uninstallAgent(R request);
 
-    Response<String> testConnection(R request);
+  Response<String> testConnection(R request);
 
-    Response<String> pingConnection(R request);
+  Response<String> pingConnection(R request);
 }

@@ -6,60 +6,40 @@ import com.alibaba.chaosblade.box.common.common.enums.ExperimentRunModeEnum;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.flow.MiniFlowGroup;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard.ExperimentGuardConfiguration;
 import com.alibaba.chaosblade.box.dao.model.ExperimentDO;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentDefinitionRequest extends BaseRequest {
 
-    private ExperimentDO experimentDO;
+  private ExperimentDO experimentDO;
 
-    public String getExperimentId() {
-        return experimentDO != null ? experimentDO.getExperimentId() : experimentId;
-    }
+  public String getExperimentId() {
+    return experimentDO != null ? experimentDO.getExperimentId() : experimentId;
+  }
 
-    /**
-     * 演练ID
-     */
-    private String experimentId;
+  /** 演练ID */
+  private String experimentId;
 
-    /**
-     * 专家经验Id
-     */
-    private String expertiseId;
+  /** 专家经验Id */
+  private String expertiseId;
 
-    /**
-     * 微流程group
-     */
-    private List<MiniFlowGroup> flowGroups;
+  /** 微流程group */
+  private List<MiniFlowGroup> flowGroups;
 
-    /**
-     * 守护者
-     */
-    private ExperimentGuardConfiguration guardConf;
+  /** 守护者 */
+  private ExperimentGuardConfiguration guardConf;
 
-    /**
-     * 运行模式
-     */
-    private ExperimentRunModeEnum runMode;
-    /**
-     * 是否老流程适配
-     */
-    private boolean isOldAdapter;
+  /** 运行模式 */
+  private ExperimentRunModeEnum runMode;
+  /** 是否老流程适配 */
+  private boolean isOldAdapter;
 
-    /**
-     * 持续时长
-     */
-    private Long duration;
+  /** 持续时长 */
+  private Long duration;
 
-    private boolean isExpertise;
+  private boolean isExpertise;
 
-    private ExperimentSchedulerConfig schedulerConfig;
-
+  private ExperimentSchedulerConfig schedulerConfig;
 }

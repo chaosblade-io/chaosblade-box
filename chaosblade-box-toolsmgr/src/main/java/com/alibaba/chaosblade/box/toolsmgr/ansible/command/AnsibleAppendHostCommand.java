@@ -3,7 +3,6 @@ package com.alibaba.chaosblade.box.toolsmgr.ansible.command;
 import com.alibaba.chaosblade.box.toolsmgr.ansible.AnsibleCommand;
 import com.alibaba.chaosblade.box.toolsmgr.ansible.AnsibleConstants;
 import com.alibaba.chaosblade.box.toolsmgr.model.MgrRequest;
-
 import java.util.List;
 
 /**
@@ -14,16 +13,14 @@ import java.util.List;
  */
 public class AnsibleAppendHostCommand implements AnsibleCommand, AnsibleConstants {
 
+  @Override
+  public String getCommand(MgrRequest mgrRequest) {
 
-    @Override
-    public String getCommand(MgrRequest mgrRequest) {
+    return String.format("echo '%s' >> /etc/ansible/hosts", mgrRequest.getInstanceIp());
+  }
 
-        return String.format("echo '%s' >> /etc/ansible/hosts",
-                mgrRequest.getInstanceIp());
-    }
-
-    @Override
-    public boolean resultPredicate(List<String> result, boolean ignoreBackgroundTimeout) {
-        return true;
-    }
+  @Override
+  public boolean resultPredicate(List<String> result, boolean ignoreBackgroundTimeout) {
+    return true;
+  }
 }

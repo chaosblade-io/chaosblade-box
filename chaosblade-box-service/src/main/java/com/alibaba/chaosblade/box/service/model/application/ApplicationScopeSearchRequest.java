@@ -4,22 +4,20 @@ import com.alibaba.chaosblade.box.common.common.domain.PageableRequest;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ApplicationScopeSearchRequest extends PageableRequest {
 
-    @JSONField(name = "app_id")
-    private Long appId;
-    @JSONField(name = "group")
-    private String groupName;
-    @JSONField(name = "key")
-    private String partName;
+  @JSONField(name = "app_id")
+  private Long appId;
 
-    private String appName;
+  @JSONField(name = "group")
+  private String groupName;
 
-    private String ip;
+  @JSONField(name = "key")
+  private String partName;
+
+  private String appName;
+
+  private String ip;
 }

@@ -6,16 +6,15 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.Experi
 import com.alibaba.chaosblade.box.dao.model.ActivityTaskDO;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 @Component
-public class MetricActivityTaskExecutionFinishedInterceptor implements ActivityTaskExecutionFinishedInterceptor {
-    @Override
-    public boolean ignoreFinished(ActivityTaskDO activityTaskDO, ActivityExecuteResult activityExecuteResult,
-                                  ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
-        return experimentTaskRunnableSettings.isMetricReload();
-    }
+public class MetricActivityTaskExecutionFinishedInterceptor
+    implements ActivityTaskExecutionFinishedInterceptor {
+  @Override
+  public boolean ignoreFinished(
+      ActivityTaskDO activityTaskDO,
+      ActivityExecuteResult activityExecuteResult,
+      ExperimentTaskRunnableSettings experimentTaskRunnableSettings) {
+    return experimentTaskRunnableSettings.isMetricReload();
+  }
 }

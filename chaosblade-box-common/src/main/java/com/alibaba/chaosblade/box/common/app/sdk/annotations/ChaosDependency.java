@@ -2,27 +2,23 @@ package com.alibaba.chaosblade.box.common.app.sdk.annotations;
 
 import java.lang.annotation.*;
 
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
 public @interface ChaosDependency {
 
-    boolean required() default false;
+  boolean required() default false;
 
-    String code();
+  String code();
 
-    int phase();
+  int phase();
 
-    /**
-     * 0： 前置依赖、  1：后置依赖
-     * @link
-     * @return
-     */
-    int type();
-
+  /**
+   * 0： 前置依赖、 1：后置依赖
+   *
+   * @link
+   * @return
+   */
+  int type();
 }

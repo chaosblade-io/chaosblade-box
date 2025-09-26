@@ -5,30 +5,25 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.M
 import com.alibaba.chaosblade.box.dao.model.ChaosBladeExpUidDO;
 import org.springframework.stereotype.Component;
 
-
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Component
 public class EmptyChaosBladeMiniAppInterceptor implements ChaosBladeMiniAppInterceptor {
 
-    @Override
-    public void preCreate(ChaosBladeExpUidDO chaosBladeExpUidDO, MiniAppInvokeContext miniAppInvokeContext,
-                          ChaosBladeAppResponse chaosAppResponse) {
+  @Override
+  public void preCreate(
+      ChaosBladeExpUidDO chaosBladeExpUidDO,
+      MiniAppInvokeContext miniAppInvokeContext,
+      ChaosBladeAppResponse chaosAppResponse) {}
 
-    }
+  @Override
+  public void afterCreate(
+      ChaosBladeExpUidDO chaosBladeExpUidDO,
+      MiniAppInvokeContext miniAppInvokeContext,
+      ChaosBladeAppResponse chaosAppResponse) {}
 
-    @Override
-    public void afterCreate(ChaosBladeExpUidDO chaosBladeExpUidDO, MiniAppInvokeContext miniAppInvokeContext,
-        ChaosBladeAppResponse chaosAppResponse) {
-
-    }
-
-    @Override
-    public void preUpdate(ChaosBladeExpUidDO chaosBladeExpUidDO, MiniAppInvokeContext miniAppInvokeContext,
-        ChaosBladeAppResponse chaosAppResponse) {
-
-    }
+  @Override
+  public void preUpdate(
+      ChaosBladeExpUidDO chaosBladeExpUidDO,
+      MiniAppInvokeContext miniAppInvokeContext,
+      ChaosBladeAppResponse chaosAppResponse) {}
 }

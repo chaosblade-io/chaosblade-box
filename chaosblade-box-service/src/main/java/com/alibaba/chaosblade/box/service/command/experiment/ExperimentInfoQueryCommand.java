@@ -12,37 +12,35 @@ import com.alibaba.chaosblade.box.service.infrastructure.convertor.ExperimentToB
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- * 
- *
- */
+/** @author haibin.lhb */
 @Component
-public class ExperimentInfoQueryCommand extends SpringBeanCommand<BaseExperimentRequest, Response<ExperimentInfo>> {
+public class ExperimentInfoQueryCommand
+    extends SpringBeanCommand<BaseExperimentRequest, Response<ExperimentInfo>> {
 
-    @Autowired
-    private ExperimentChecker experimentChecker;
+  @Autowired private ExperimentChecker experimentChecker;
 
-    @Autowired
-    private ExperimentToBasicInfoConverter experimentToBasicInfoConverter;
+  @Autowired private ExperimentToBasicInfoConverter experimentToBasicInfoConverter;
 
-    @Override
-    public Response<ExperimentInfo> execute(BaseExperimentRequest request) {
-        ExperimentInfo experimentInfo = new ExperimentInfo();
-        experimentInfo.setExperimentId(request.getExperimentId());
-        Response<ExperimentDO> experimentDOResponse = experimentChecker.assertExperimentExistByIdAndNamespace(request.getExperimentId(),request.getNamespace());
-        if (!experimentDOResponse.isSuccess()) {
-            return Response.failedWith(experimentDOResponse.getError());
-        }
-        ExperimentDO experimentDO = experimentDOResponse.getResult();
-        ExperimentBasicInfo experimentBasicInfo = experimentToBasicInfoConverter.convert(experimentDO);
-        experimentInfo.setBasicInfo(experimentBasicInfo);
-        ExperimentFlowInfo experimentFlowInfo = commandBus.syncRun(ExperimentFlowDefinitionQueryCommand.class,
-            experimentDO);
-        experimentInfo.setFlowInfo(experimentFlowInfo);
-        experimentInfo.setExperimentAppRisks(commandBus.syncRun(ExperimentAppRiskCommand.class,
-                experimentDO.getExperimentId()).getResult());
-        return Response.okWithData(experimentInfo);
+  @Override
+  public Response<ExperimentInfo> execute(BaseExperimentRequest request) {
+    ExperimentInfo experimentInfo = new ExperimentInfo();
+    experimentInfo.setExperimentId(request.getExperimentId());
+    Response<ExperimentDO> experimentDOResponse =
+        experimentChecker.assertExperimentExistByIdAndNamespace(
+            request.getExperimentId(), request.getNamespace());
+    if (!experimentDOResponse.isSuccess()) {
+      return Response.failedWith(experimentDOResponse.getError());
     }
-
+    ExperimentDO experimentDO = experimentDOResponse.getResult();
+    ExperimentBasicInfo experimentBasicInfo = experimentToBasicInfoConverter.convert(experimentDO);
+    experimentInfo.setBasicInfo(experimentBasicInfo);
+    ExperimentFlowInfo experimentFlowInfo =
+        commandBus.syncRun(ExperimentFlowDefinitionQueryCommand.class, experimentDO);
+    experimentInfo.setFlowInfo(experimentFlowInfo);
+    experimentInfo.setExperimentAppRisks(
+        commandBus
+            .syncRun(ExperimentAppRiskCommand.class, experimentDO.getExperimentId())
+            .getResult());
+    return Response.okWithData(experimentInfo);
+  }
 }

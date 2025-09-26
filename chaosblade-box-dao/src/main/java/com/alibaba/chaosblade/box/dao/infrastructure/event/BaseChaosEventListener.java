@@ -1,15 +1,10 @@
 package com.alibaba.chaosblade.box.dao.infrastructure.event;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public abstract class BaseChaosEventListener implements ChaosEventListener {
 
-    @Override
-    public boolean interruptIfError() {
-        return false;
-    }
-
+  @Override
+  public boolean interruptIfError() {
+    return false;
+  }
 }

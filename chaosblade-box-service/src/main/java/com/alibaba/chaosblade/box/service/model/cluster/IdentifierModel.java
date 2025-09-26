@@ -11,12 +11,12 @@ import lombok.ToString;
 @Data
 public class IdentifierModel {
 
-    private String configurationId;
+  private String configurationId;
 
-    private String hostConfigurationId;
+  private String hostConfigurationId;
 
-    public IdentifierModel(String configurationId, String hostConfigurationId) {
-        this.configurationId = configurationId;
-        this.hostConfigurationId = hostConfigurationId;
-    }
+  public IdentifierModel(String configurationId, String hostConfigurationId) {
+    this.configurationId = configurationId;
+    this.hostConfigurationId = hostConfigurationId;
+  }
 }

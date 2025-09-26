@@ -1,28 +1,23 @@
 package com.alibaba.chaosblade.box.dao.query;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentTagQuery {
 
-    private String relationId;
+  private String relationId;
 
-    private String tagId;
+  private String tagId;
 
-    private Integer tagType;
+  private Integer tagType;
 
-    private String key;
+  private String key;
 
-    private List<String> tagNames;
+  private List<String> tagNames;
 
-    private String userId;
+  private String userId;
 
-    private List<String> experimentIds;
+  private List<String> experimentIds;
 }

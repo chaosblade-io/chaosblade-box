@@ -2,25 +2,24 @@ package com.alibaba.chaosblade.box.dao.model;
 
 import com.alibaba.chaosblade.box.dao.model.base.BaseDO;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.util.Date;
+import lombok.Data;
 
 @TableName("t_chaos_user")
 @Data
-//@Deprecated
+// @Deprecated
 public class UserDo extends BaseDO {
-    private String userId;
+  private String userId;
 
-    private String userName;
+  private String userName;
 
-    private String userPassword;
+  private String userPassword;
 
-    private String license;
+  private String license;
 
-    private Date lastLoginTime;
+  private Date lastLoginTime;
 
-    private String secretKey;
+  private String secretKey;
 
-    private int isDeleted;
+  private int isDeleted;
 }

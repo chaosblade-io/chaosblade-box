@@ -10,29 +10,24 @@ import com.alibaba.chaosblade.box.service.infrastructure.convertor.ExperimentToB
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 public class ExperimentBasicInfoQueryCommand
     extends SpringBeanCommand<BaseExperimentRequest, Response<ExperimentBasicInfo>> {
 
-    @Autowired
-    private ExperimentChecker experimentChecker;
+  @Autowired private ExperimentChecker experimentChecker;
 
-    @Autowired
-    private ExperimentToBasicInfoConverter experimentToBasicInfoConverter;
+  @Autowired private ExperimentToBasicInfoConverter experimentToBasicInfoConverter;
 
-    @Override
-    public Response<ExperimentBasicInfo> execute(BaseExperimentRequest baseExperimentRequest) {
-        String experimentId = baseExperimentRequest.getExperimentId();
-        Response<ExperimentDO> experimentDOResponse = experimentChecker.assertExperimentExist(experimentId);
-        if (!experimentDOResponse.isSuccess()) {
-            return Response.failedWith(experimentDOResponse.getError());
-        }
-        ExperimentDO experimentDO = experimentDOResponse.getResult();
-        return Response.okWithData(experimentToBasicInfoConverter.convert(experimentDO));
+  @Override
+  public Response<ExperimentBasicInfo> execute(BaseExperimentRequest baseExperimentRequest) {
+    String experimentId = baseExperimentRequest.getExperimentId();
+    Response<ExperimentDO> experimentDOResponse =
+        experimentChecker.assertExperimentExist(experimentId);
+    if (!experimentDOResponse.isSuccess()) {
+      return Response.failedWith(experimentDOResponse.getError());
     }
+    ExperimentDO experimentDO = experimentDOResponse.getResult();
+    return Response.okWithData(experimentToBasicInfoConverter.convert(experimentDO));
+  }
 }

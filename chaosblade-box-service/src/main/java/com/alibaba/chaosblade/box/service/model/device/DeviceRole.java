@@ -1,10 +1,6 @@
 package com.alibaba.chaosblade.box.service.model.device;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public enum DeviceRole {
-    master;
+  master;
 }

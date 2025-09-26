@@ -2,17 +2,10 @@ package com.alibaba.chaosblade.box.common.common.domain.experiment;
 
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentRunResult {
 
-    /**
-     * 演练任务ID
-     */
-    private String taskId;
-
+  /** 演练任务ID */
+  private String taskId;
 }

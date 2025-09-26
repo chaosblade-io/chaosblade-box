@@ -14,34 +14,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 @Slf4j
 public class ActivityTaskServiceImpl implements ActivityTaskService {
 
-    @Autowired
-    private ActivityTaskManager activityTaskManager;
+  @Autowired private ActivityTaskManager activityTaskManager;
 
-    @Autowired
-    private CommandBus commandBus;
+  @Autowired private CommandBus commandBus;
 
-    @Override
-    public Response<ActivityTask> findActivityTaskByActivityTaskId(String activityTaskId) {
-        return activityTaskManager.queryFullActivityTaskInfo(activityTaskId);
-    }
+  @Override
+  public Response<ActivityTask> findActivityTaskByActivityTaskId(String activityTaskId) {
+    return activityTaskManager.queryFullActivityTaskInfo(activityTaskId);
+  }
 
-    @Override
-    public Response<String> retryActivity(ActivityRetryRequest activityRetryRequest) {
-        return commandBus.syncRun(ActivityTaskRetryCommand.class, activityRetryRequest);
-    }
+  @Override
+  public Response<String> retryActivity(ActivityRetryRequest activityRetryRequest) {
+    return commandBus.syncRun(ActivityTaskRetryCommand.class, activityRetryRequest);
+  }
 
-    @Override
-    public Response<Void> confirmActivityTaskResult(ChaosUser user,
-                                                    ActivityTaskResultConfirmRequest activityTaskResultConfirmRequest) {
-        return commandBus.syncRun(ActivityTaskResultConfirmCommand.class, activityTaskResultConfirmRequest);
-    }
+  @Override
+  public Response<Void> confirmActivityTaskResult(
+      ChaosUser user, ActivityTaskResultConfirmRequest activityTaskResultConfirmRequest) {
+    return commandBus.syncRun(
+        ActivityTaskResultConfirmCommand.class, activityTaskResultConfirmRequest);
+  }
 }

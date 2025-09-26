@@ -2,17 +2,12 @@ package com.alibaba.chaosblade.box.dao.repository;
 
 import java.util.Optional;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public interface IRepository<KEY, T> {
 
-    Optional<T> findById(KEY key);
+  Optional<T> findById(KEY key);
 
-    boolean update(T t);
+  boolean update(T t);
 
-    boolean add(T t);
-
+  boolean add(T t);
 }

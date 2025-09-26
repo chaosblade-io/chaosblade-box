@@ -3,106 +3,91 @@ package com.alibaba.chaosblade.box.common.app.sdk;
 import com.alibaba.chaosblade.box.common.app.sdk.constants.EnvironmentEnum;
 import com.alibaba.chaosblade.box.common.app.sdk.constants.PhaseType;
 import com.alibaba.chaosblade.box.common.app.sdk.scope.ActivityScope;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-/**
- * @author sunju
- */
+/** @author sunju */
 @ToString
 @Data
 public final class ChaosAppContext {
 
-    /**
-     * Running environment
-     */
-    private EnvironmentEnum environment;
+  /** Running environment */
+  private EnvironmentEnum environment;
 
-    /**
-     * Phase which current node belongs. Such as PREPARE,ATTACK,CHECK,RECOVER
-     */
-    private PhaseType phase;
+  /** Phase which current node belongs. Such as PREPARE,ATTACK,CHECK,RECOVER */
+  private PhaseType phase;
 
-    /**
-     * current activity scope info ,if activity has no scopes,the value is null
-     */
-    private ActivityScope activityScope;
+  /** current activity scope info ,if activity has no scopes,the value is null */
+  private ActivityScope activityScope;
 
-    /**
-     * userId
-     */
-    private String userId;
+  /** userId */
+  private String userId;
 
-    private String subUserId;
+  private String subUserId;
 
-    private String stsToken;
+  private String stsToken;
 
-    /**
-     * currentNamespace
-     */
-    private String namespace;
+  /** currentNamespace */
+  private String namespace;
 
-    /**
-     * Context data, could be read by all nodes in flow.
-     *
-     * Your app MUST extends {@link BaseChaosApp} or implements {@link ChaosAppContextAware} interface.
-     *
-     * Example:
-     *
-     * <p>In ChaosApp</p>
-     * <code>
-     * Object someValue = getContext().getData("some key"); // get data from context
-     * getContext().setData("some key", someValue); // set data to context
-     * </code>
-     * <br/>
-     *
-     * <p>Expression</p>
-     * <p>Expression MUST surround with #{}. $context is inner variable for access context object.</p>
-     * <code>
-     * // get phase
-     * #{$context.phase}
-     *
-     * // get data value
-     * getContext().addData("name", "Jack Ma");
-     * #{$context.data.name}
-     * </code>
-     */
-    private Map<String, Object> data = new ConcurrentHashMap<>();
+  /**
+   * Context data, could be read by all nodes in flow.
+   *
+   * <p>Your app MUST extends {@link BaseChaosApp} or implements {@link ChaosAppContextAware}
+   * interface.
+   *
+   * <p>Example:
+   *
+   * <p>In ChaosApp <code>
+   * Object someValue = getContext().getData("some key"); // get data from context
+   * getContext().setData("some key", someValue); // set data to context
+   * </code> <br>
+   *
+   * <p>Expression
+   *
+   * <p>Expression MUST surround with #{}. $context is inner variable for access context object.
+   * <code>
+   * // get phase
+   * #{$context.phase}
+   *
+   * // get data value
+   * getContext().addData("name", "Jack Ma");
+   * #{$context.data.name}
+   * </code>
+   */
+  private Map<String, Object> data = new ConcurrentHashMap<>();
 
-    public void addData(String key, Object value) {
-        if (null == this.data) {
-            this.data = new ConcurrentHashMap<>();
-        }
-
-        if (null != key && !key.isEmpty() && null != value) {
-            this.data.put(key, value);
-        }
+  public void addData(String key, Object value) {
+    if (null == this.data) {
+      this.data = new ConcurrentHashMap<>();
     }
 
-    public Object getData(String key) {
-        if (null == this.data) {
-            return null;
-        }
+    if (null != key && !key.isEmpty() && null != value) {
+      this.data.put(key, value);
+    }
+  }
 
-        if (null != key && !key.isEmpty()) {
-            return this.data.get(key);
-        }
-
-        return null;
+  public Object getData(String key) {
+    if (null == this.data) {
+      return null;
     }
 
-    public void setData(Map<String, Object> data) {
-        if (null == data) {
-            this.data = new ConcurrentHashMap<>();
-        } else {
-            this.data = data;
-        }
+    if (null != key && !key.isEmpty()) {
+      return this.data.get(key);
     }
 
-    public ChaosAppContext() {
+    return null;
+  }
 
+  public void setData(Map<String, Object> data) {
+    if (null == data) {
+      this.data = new ConcurrentHashMap<>();
+    } else {
+      this.data = data;
     }
+  }
+
+  public ChaosAppContext() {}
 }

@@ -5,55 +5,42 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChaosToolsRequest {
 
-    private Long id;
+  private Long id;
 
-    private Long deviceId;
+  private Long deviceId;
 
-    /**
-     * tools name
-     */
-    private String name;
+  /** tools name */
+  private String name;
 
-    /**
-     * version
-     */
-    private String version;
+  /** version */
+  private String version;
 
-    /**
-     * download url
-     */
-    private String url;
+  /** download url */
+  private String url;
 
-    /**
-     * device type
-     */
-    private Byte deviceType;
+  /** device type */
+  private Byte deviceType;
 
-    private String toolsNamespace;
+  private String toolsNamespace;
 
-    private String installMode;
+  private String installMode;
 
-    @Deprecated
-    private String configurationId;
+  @Deprecated private String configurationId;
 
-    @Deprecated
-    private String clusterId;
+  @Deprecated private String clusterId;
 
-    /**
-     * 操作ID，根据installMode判断是configurationId还是clusterId
-     * installMode：host  | configurationId
-     * installMode：k8s   | clusterId
-     */
-    private String operateId;
+  /**
+   * 操作ID，根据installMode判断是configurationId还是clusterId installMode：host | configurationId
+   * installMode：k8s | clusterId
+   */
+  private String operateId;
 
-    private String userId;
+  private String userId;
 }

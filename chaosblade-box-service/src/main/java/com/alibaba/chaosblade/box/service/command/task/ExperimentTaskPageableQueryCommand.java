@@ -13,71 +13,68 @@ import com.alibaba.chaosblade.box.dao.repository.ExperimentTaskRepository;
 import com.alibaba.chaosblade.box.service.UserService;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 @Slf4j
 public class ExperimentTaskPageableQueryCommand
-    extends SpringBeanCommand<ExperimentPageableQueryRequest, PageQueryResponse<BaseExperimentTask>> {
+    extends SpringBeanCommand<
+        ExperimentPageableQueryRequest, PageQueryResponse<BaseExperimentTask>> {
 
-    @Autowired
-    private ExperimentTaskRepository experimentTaskRepository;
+  @Autowired private ExperimentTaskRepository experimentTaskRepository;
 
-    @Autowired
-    private ExperimentRepository experimentRepository;
+  @Autowired private ExperimentRepository experimentRepository;
 
-    @Autowired
-    private UserService userService;
+  @Autowired private UserService userService;
 
-    @Autowired
-    private ExperimentTaskUtil experimentTaskUtil;
+  @Autowired private ExperimentTaskUtil experimentTaskUtil;
 
-    @Override
-    public String getCommandExecutorName() {
-        return CommandExecutorConstant.EXECUTOR_DEFAULT;
+  @Override
+  public String getCommandExecutorName() {
+    return CommandExecutorConstant.EXECUTOR_DEFAULT;
+  }
+
+  @Override
+  public PageQueryResponse<BaseExperimentTask> execute(
+      ExperimentPageableQueryRequest experimentPageableQueryRequest) {
+    String experimentId = experimentPageableQueryRequest.getExperimentId();
+    int page = experimentPageableQueryRequest.getPage();
+    int size = experimentPageableQueryRequest.getSize();
+    PageQueryResponse<BaseExperimentTask> pageQueryResponse = new PageQueryResponse<>();
+    ExperimentDO experimentDO = experimentRepository.findById(experimentId).orElse(null);
+    log.info(
+        "ExperimentTaskPageableQueryCommand param:"
+            + JSON.toJSONString(experimentPageableQueryRequest));
+    if (experimentDO == null) {
+      return pageQueryResponse;
     }
-
-    @Override
-    public PageQueryResponse<BaseExperimentTask> execute(
-        ExperimentPageableQueryRequest experimentPageableQueryRequest) {
-        String experimentId = experimentPageableQueryRequest.getExperimentId();
-        int page = experimentPageableQueryRequest.getPage();
-        int size = experimentPageableQueryRequest.getSize();
-        PageQueryResponse<BaseExperimentTask> pageQueryResponse = new PageQueryResponse<>();
-        ExperimentDO experimentDO = experimentRepository.findById(experimentId).orElse(null);
-        log.info("ExperimentTaskPageableQueryCommand param:" + JSON.toJSONString(experimentPageableQueryRequest));
-        if (experimentDO == null) {
-            return pageQueryResponse;
-        }
-        IPage<ExperimentTaskDO> experimentTaskDOIPage = experimentTaskRepository
-            .findByExperimentTasksPageableOrderByCreateTimeDesc(experimentDO.getExperimentId(), page, size);
-        pageQueryResponse.setTotal(experimentTaskDOIPage.getTotal());
-        pageQueryResponse.setPages(experimentTaskDOIPage.getPages());
-        pageQueryResponse.setCurrentPage(experimentTaskDOIPage.getCurrent());
-        pageQueryResponse.setPageSize(experimentTaskDOIPage.getSize());
-        pageQueryResponse.setContent(Optional.ofNullable(experimentTaskDOIPage.getRecords()).orElse(new ArrayList<>())
-            .stream().map(
+    IPage<ExperimentTaskDO> experimentTaskDOIPage =
+        experimentTaskRepository.findByExperimentTasksPageableOrderByCreateTimeDesc(
+            experimentDO.getExperimentId(), page, size);
+    pageQueryResponse.setTotal(experimentTaskDOIPage.getTotal());
+    pageQueryResponse.setPages(experimentTaskDOIPage.getPages());
+    pageQueryResponse.setCurrentPage(experimentTaskDOIPage.getCurrent());
+    pageQueryResponse.setPageSize(experimentTaskDOIPage.getSize());
+    pageQueryResponse.setContent(
+        Optional.ofNullable(experimentTaskDOIPage.getRecords()).orElse(new ArrayList<>()).stream()
+            .map(
                 new Function<ExperimentTaskDO, BaseExperimentTask>() {
-                    @Override
-                    public BaseExperimentTask apply(ExperimentTaskDO experimentTaskDO) {
-                        BaseExperimentTask experimentTaskBaseInfo = new BaseExperimentTask();
-                        experimentTaskUtil.fillBaseInfo(experimentTaskBaseInfo, experimentTaskDO, experimentDO);
-                        return experimentTaskBaseInfo;
-                    }
-                }).collect(Collectors.toList()));
-        return pageQueryResponse;
-    }
-
+                  @Override
+                  public BaseExperimentTask apply(ExperimentTaskDO experimentTaskDO) {
+                    BaseExperimentTask experimentTaskBaseInfo = new BaseExperimentTask();
+                    experimentTaskUtil.fillBaseInfo(
+                        experimentTaskBaseInfo, experimentTaskDO, experimentDO);
+                    return experimentTaskBaseInfo;
+                  }
+                })
+            .collect(Collectors.toList()));
+    return pageQueryResponse;
+  }
 }

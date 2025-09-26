@@ -8,29 +8,19 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author jiumu
- *
- */
+/** @author jiumu */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @TableName("t_chaos_scene_function_relation")
 public class SceneFunctionRelationDO extends BaseDO {
 
-    /**
-     * 唯一标志关系ID
-     */
-    @TableId(type = IdType.ID_WORKER_STR)
-    String relationId;
+  /** 唯一标志关系ID */
+  @TableId(type = IdType.ID_WORKER_STR)
+  String relationId;
 
-    /**
-     * parent function id
-     */
-    String outFunctionId;
+  /** parent function id */
+  String outFunctionId;
 
-    /**
-     * child function id
-     */
-    String functionId;
-
+  /** child function id */
+  String functionId;
 }

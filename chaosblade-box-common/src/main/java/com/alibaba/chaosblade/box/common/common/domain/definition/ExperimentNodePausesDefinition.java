@@ -13,8 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExperimentNodePausesDefinition {
 
-    long before;
+  long before;
 
-    long after;
-
+  long after;
 }

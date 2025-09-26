@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class WorkspaceQueryRequest extends BaseRequest {
-    String experimentId;
+  String experimentId;
 
-    String workspaceId;
+  String workspaceId;
 }

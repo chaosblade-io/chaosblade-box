@@ -2,19 +2,13 @@ package com.alibaba.chaosblade.box.service.model.overview;
 
 import lombok.Data;
 
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class OverviewProductMessage {
 
-    private String title;
+  private String title;
 
-    private String link;
+  private String link;
 
-    private Boolean important;
-
-
+  private Boolean important;
 }

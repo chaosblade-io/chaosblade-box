@@ -7,17 +7,15 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.activi
  * activity processor,contains all operations for activity
  *
  * @author haibin
- *
- *
  */
 public interface ActivityProcessor {
 
-    /**
-     * run activity
-     *
-     * @param experimentExecuteContext activity request
-     * @return result
-     */
-    public ActivityExecuteResult runActivity(Activity activity, ExperimentExecuteContext experimentExecuteContext);
-
+  /**
+   * run activity
+   *
+   * @param experimentExecuteContext activity request
+   * @return result
+   */
+  public ActivityExecuteResult runActivity(
+      Activity activity, ExperimentExecuteContext experimentExecuteContext);
 }

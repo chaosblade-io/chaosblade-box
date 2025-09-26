@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,40 +31,40 @@ import lombok.*;
 @EqualsAndHashCode
 public class DeviceMeta {
 
-    @JsonProperty("machineId")
-    private Long deviceId;
+  @JsonProperty("machineId")
+  private Long deviceId;
 
-    @JsonProperty("machineType")
-    private Byte deviceType;
+  @JsonProperty("machineType")
+  private Byte deviceType;
 
-    private String hostname;
+  private String hostname;
 
-    private String ip;
+  private String ip;
 
-    private Long clusterId;
+  private Long clusterId;
 
-    private String nodeName;
+  private String nodeName;
 
-    private String namespace;
+  private String namespace;
 
-    private String podName;
+  private String podName;
 
-    private String containerName;
+  private String containerName;
 
-    public String identity() {
-        DeviceType deviceType = DeviceType.transByCode(this.deviceType);
-        switch (deviceType) {
-            case HOST:
-                return hostname;
-            case POD:
-                if (StrUtil.isBlank(containerName)) {
-                    return String.format("%s/%s/%s/%s", clusterId, nodeName, namespace, podName);
-                } else {
-                    return String.format("%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
-                }
-            default:
-                return null;
+  public String identity() {
+    DeviceType deviceType = DeviceType.transByCode(this.deviceType);
+    switch (deviceType) {
+      case HOST:
+        return hostname;
+      case POD:
+        if (StrUtil.isBlank(containerName)) {
+          return String.format("%s/%s/%s/%s", clusterId, nodeName, namespace, podName);
+        } else {
+          return String.format(
+              "%s/%s/%s/%s/%s", clusterId, nodeName, namespace, podName, containerName);
         }
+      default:
+        return null;
     }
-
+  }
 }

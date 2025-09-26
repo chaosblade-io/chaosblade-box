@@ -18,13 +18,11 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scena
 
 import lombok.Data;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 @Data
 public class ToolsDownloadUrl {
 
-    private String linux_x86_64;
+  private String linux_x86_64;
 
-    private String linux_amd64;
+  private String linux_amd64;
 }

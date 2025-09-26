@@ -1,22 +1,17 @@
 package com.alibaba.chaosblade.box.dao.infrastructure.monitor.metric;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 public enum MetricSource {
+  ChaosBlade(0),
+  Chaos(1);
 
-    ChaosBlade(0),
-    Chaos(1);
+  public int getValue() {
+    return value;
+  }
 
-    public int getValue() {
-        return value;
-    }
+  private int value;
 
-    private int value;
-
-    MetricSource(int type) {
-        this.value = type;
-    }
+  MetricSource(int type) {
+    this.value = type;
+  }
 }

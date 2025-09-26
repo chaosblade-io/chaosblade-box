@@ -1,11 +1,7 @@
 package com.alibaba.chaosblade.box.common.experiment.activity.execute;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 public interface Task {
 
-    public Long getId();
+  public Long getId();
 }

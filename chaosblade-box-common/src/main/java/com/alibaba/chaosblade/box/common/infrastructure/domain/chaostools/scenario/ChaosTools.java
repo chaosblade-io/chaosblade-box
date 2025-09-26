@@ -16,22 +16,19 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public enum ChaosTools {
+  CHAOS_BLADE("chaosblade"),
+  LITMUS_CHAOS("litmuschaos"),
+  ;
 
-    CHAOS_BLADE("chaosblade"),
-    LITMUS_CHAOS("litmuschaos"),
-    ;
+  private String name;
 
-    private String name;
+  ChaosTools(String name) {
+    this.name = name;
+  }
 
-    ChaosTools(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 }

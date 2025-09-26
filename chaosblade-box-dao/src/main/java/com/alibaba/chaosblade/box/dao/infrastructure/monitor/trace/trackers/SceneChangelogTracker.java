@@ -6,18 +6,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * @author jiumu
- *
- */
+/** @author jiumu */
 @Slf4j
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE)
 public class SceneChangelogTracker extends BaseChangeLogTracker {
 
-    @Override
-    public boolean support(String targetType) {
-        return ChangelogTypes.ChangeTargetType.SCENE.getName().equals(targetType);
-    }
-
+  @Override
+  public boolean support(String targetType) {
+    return ChangelogTypes.ChangeTargetType.SCENE.getName().equals(targetType);
+  }
 }

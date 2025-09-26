@@ -2,13 +2,9 @@ package com.alibaba.chaosblade.box.service.infrastructure.configuration;
 
 import lombok.Data;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Data
 public class ApplicationMetaData {
 
-    private Long appId;
+  private Long appId;
 }

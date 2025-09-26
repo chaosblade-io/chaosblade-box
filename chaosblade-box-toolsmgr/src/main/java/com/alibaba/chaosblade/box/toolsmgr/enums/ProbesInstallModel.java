@@ -16,28 +16,24 @@
 
 package com.alibaba.chaosblade.box.toolsmgr.enums;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public enum ProbesInstallModel {
+  ANSIBLE(0),
+  SSH(1),
+  K8S(2),
+  K8S_HELM(3);
 
-    ANSIBLE(0),
-    SSH(1),
-    K8S(2),
-    K8S_HELM(3)
-    ;
+  public boolean isHost() {
+    return name().equals(ANSIBLE.name()) || name().equals(SSH.name());
+  }
 
-    public boolean isHost() {
-       return name().equals(ANSIBLE.name()) || name().equals(SSH.name());
-    }
+  private int code;
 
-    private int code;
+  public int getCode() {
+    return code;
+  }
 
-    public int getCode() {
-        return code;
-    }
-
-    ProbesInstallModel(int code) {
-        this.code = code;
-    }
+  ProbesInstallModel(int code) {
+    this.code = code;
+  }
 }

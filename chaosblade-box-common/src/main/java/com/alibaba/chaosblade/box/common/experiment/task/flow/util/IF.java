@@ -6,9 +6,7 @@ import java.util.function.Predicate;
 /**
  * Lambda-styled 'IF' syntax implementation.
  *
- * Use like:
- *
- * <code>
+ * <p>Use like: <code>
  *     IF.on(someObject)
  *     .when(obj -> {
  *         //do something
@@ -23,38 +21,36 @@ import java.util.function.Predicate;
  * </code>
  *
  * @author sunju
- *
  */
 public final class IF<T> {
 
-    private final T object;
+  private final T object;
 
-    private boolean isTrue;
+  private boolean isTrue;
 
-    private IF(T object) {
-        this.object = object;
+  private IF(T object) {
+    this.object = object;
+  }
+
+  public static <T> IF<T> on(T object) {
+    return new IF<>(object);
+  }
+
+  public IF<T> when(Predicate<T> predicate) {
+    isTrue = predicate.test(this.object);
+    return this;
+  }
+
+  public IF<T> isTrue(Consumer<T> consumer) {
+    if (isTrue) {
+      consumer.accept(this.object);
     }
+    return this;
+  }
 
-    public static <T> IF<T> on(T object) {
-        return new IF<>(object);
+  public void orElse(Consumer<T> consumer) {
+    if (!isTrue) {
+      consumer.accept(this.object);
     }
-
-    public IF<T> when(Predicate<T> predicate) {
-        isTrue = predicate.test(this.object);
-        return this;
-    }
-
-    public IF<T> isTrue(Consumer<T> consumer) {
-        if (isTrue) {
-            consumer.accept(this.object);
-        }
-        return this;
-    }
-
-    public void orElse(Consumer<T> consumer) {
-        if (!isTrue) {
-            consumer.accept(this.object);
-        }
-    }
-
+  }
 }
