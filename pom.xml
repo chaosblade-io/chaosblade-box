@@ -55,6 +55,7 @@
         <chronicle-bytes.version>2.17.38</chronicle-bytes.version>
         <caffeine.version>2.8.0</caffeine.version>
         <org.snakeyaml.version>1.19</org.snakeyaml.version>
+        <spotless.version>2.30.0</spotless.version>
     </properties>
 
     <dependencyManagement>
@@ -289,12 +290,36 @@
                 <artifactId>caffeine</artifactId>
                 <version>${caffeine.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.yaml</groupId>-->
-<!--                <artifactId>snakeyaml</artifactId>-->
-<!--                <version>${org.snakeyaml.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.yaml</groupId>-->
+            <!--                <artifactId>snakeyaml</artifactId>-->
+            <!--                <version>${org.snakeyaml.version}</version>-->
+            <!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <java>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                        </includes>
+                        <googleJavaFormat>
+                            <version>1.7</version>
+                            <style>GOOGLE</style>
+                        </googleJavaFormat>
+                        <removeUnusedImports/>
+                        <formatAnnotations/>
+                        <importOrder/>
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
