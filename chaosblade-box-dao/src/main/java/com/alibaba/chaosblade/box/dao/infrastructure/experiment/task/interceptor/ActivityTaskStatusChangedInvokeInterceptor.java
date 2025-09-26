@@ -10,38 +10,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Component
 @Slf4j
 public class ActivityTaskStatusChangedInvokeInterceptor extends BaseActivityInvokeInterceptor {
 
-    @Autowired
-    private ActivityTaskExecutionFinishedProcessor activityTaskExecutionFinishedProcessor;
+  @Autowired private ActivityTaskExecutionFinishedProcessor activityTaskExecutionFinishedProcessor;
 
-    @Override
-    public boolean preHandle(ActivityInvokeContext activityInvokeContext, ActivityExecuteResult activityExecuteResult) {
-        return true;
-    }
+  @Override
+  public boolean preHandle(
+      ActivityInvokeContext activityInvokeContext, ActivityExecuteResult activityExecuteResult) {
+    return true;
+  }
 
-    @Override
-    public void afterHandle(ActivityInvokeContext activityInvokeContext, ActivityExecuteResult activityExecuteResult,
-        Throwable throwable) {
-        Settings contextData = activityInvokeContext.getContextData();
-        ActivityTaskDO activityTaskDO = contextData.getObject(
+  @Override
+  public void afterHandle(
+      ActivityInvokeContext activityInvokeContext,
+      ActivityExecuteResult activityExecuteResult,
+      Throwable throwable) {
+    Settings contextData = activityInvokeContext.getContextData();
+    ActivityTaskDO activityTaskDO =
+        contextData.getObject(
             ActivityTaskExecutionAttributes.ATTRIBUTE_KEY_ACTIVITY_TASK_DO, ActivityTaskDO.class);
-        activityExecuteResult.setError(throwable);
-        activityExecuteResult.setMiniAppContextData(
-            activityInvokeContext.getStepExecuteContext().getChaosAppContext().getData());
-        activityTaskExecutionFinishedProcessor.afterFinished(activityTaskDO, activityExecuteResult,
-            activityInvokeContext.getContextData());
-    }
+    activityExecuteResult.setError(throwable);
+    activityExecuteResult.setMiniAppContextData(
+        activityInvokeContext.getStepExecuteContext().getChaosAppContext().getData());
+    activityTaskExecutionFinishedProcessor.afterFinished(
+        activityTaskDO, activityExecuteResult, activityInvokeContext.getContextData());
+  }
 
-    @Override
-    public Integer getOrder() {
-        return Integer.MAX_VALUE;
-    }
+  @Override
+  public Integer getOrder() {
+    return Integer.MAX_VALUE;
+  }
 }

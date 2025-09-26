@@ -5,15 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(staticName = "of")
 public final class Pair<L, R> {
 
-    L left;
-    R right;
+  L left;
+  R right;
 }

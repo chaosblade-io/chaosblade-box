@@ -6,17 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 public class SceneFunctionSystemVersion {
 
-    String system;
-    String version;
-
+  String system;
+  String version;
 }

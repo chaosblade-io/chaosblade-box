@@ -4,20 +4,18 @@ import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.common.experiment.task.flow.util.HashMapSettings;
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ChaosApplicationContext extends HashMapSettings {
 
-    private String requestId;
+  private String requestId;
 
-    private ChaosUser loginUser;
+  private ChaosUser loginUser;
 
-    public String getMainUserId() {
-        if (loginUser == null) { return null; }
-        return loginUser.getUserId();
+  public String getMainUserId() {
+    if (loginUser == null) {
+      return null;
     }
+    return loginUser.getUserId();
+  }
 }

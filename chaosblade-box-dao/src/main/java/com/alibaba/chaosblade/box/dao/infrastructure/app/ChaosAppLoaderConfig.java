@@ -1,16 +1,11 @@
 package com.alibaba.chaosblade.box.dao.infrastructure.app;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ChaosAppLoaderConfig {
 
-    private List<MiniAppProcessor> miniAppProcessors;
+  private List<MiniAppProcessor> miniAppProcessors;
 }

@@ -5,5 +5,4 @@ import com.alibaba.chaosblade.box.dao.model.ChangelogDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 @MybatisMapper
-public interface ChangelogMapper extends BaseMapper<ChangelogDO> {
-}
+public interface ChangelogMapper extends BaseMapper<ChangelogDO> {}

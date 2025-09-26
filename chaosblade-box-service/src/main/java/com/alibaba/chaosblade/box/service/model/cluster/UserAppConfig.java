@@ -11,96 +11,82 @@ import java.util.Set;
  */
 public class UserAppConfig implements Serializable {
 
-    private static final long serialVersionUID = -1;
+  private static final long serialVersionUID = -1;
 
-    /**
-     * 应用聚合方式
-     */
-    private String appFromType;
+  /** 应用聚合方式 */
+  private String appFromType;
 
-    /**
-     * 应用信息Key，允许多个Key,以逗号分隔
-     */
-    private String appNameKeys;
+  /** 应用信息Key，允许多个Key,以逗号分隔 */
+  private String appNameKeys;
 
-    /**
-     * 应用信息Key分组
-     */
-    private Set<String> appNameSet;
+  /** 应用信息Key分组 */
+  private Set<String> appNameSet;
 
-    /**
-     * 分组信息Key，允许多个Key,以逗号分隔
-     */
-    private String appGroupNameKeys;
+  /** 分组信息Key，允许多个Key,以逗号分隔 */
+  private String appGroupNameKeys;
 
-    /**
-     * 分组信息Key分组
-     */
-    private Set<String> appGroupNameKeySet;
+  /** 分组信息Key分组 */
+  private Set<String> appGroupNameKeySet;
 
-    /**
-     * 是否使用默认的应用解析链
-     */
-    private Boolean useDefaultAppChain;
+  /** 是否使用默认的应用解析链 */
+  private Boolean useDefaultAppChain;
 
-    /**
-     * 配置变更时，是否采用暴力模式，暴力模式下，会清空历史所以应用实例并重新使用新配置进行处理
-     */
-    private Boolean force;
+  /** 配置变更时，是否采用暴力模式，暴力模式下，会清空历史所以应用实例并重新使用新配置进行处理 */
+  private Boolean force;
 
-    public String getAppFromType() {
-        return appFromType;
-    }
+  public String getAppFromType() {
+    return appFromType;
+  }
 
-    public void setAppFromType(String appFromType) {
-        this.appFromType = appFromType;
-    }
+  public void setAppFromType(String appFromType) {
+    this.appFromType = appFromType;
+  }
 
-    public String getAppNameKeys() {
-        return appNameKeys;
-    }
+  public String getAppNameKeys() {
+    return appNameKeys;
+  }
 
-    public void setAppNameKeys(String appNameKeys) {
-        this.appNameKeys = appNameKeys;
-    }
+  public void setAppNameKeys(String appNameKeys) {
+    this.appNameKeys = appNameKeys;
+  }
 
-    public String getAppGroupNameKeys() {
-        return appGroupNameKeys;
-    }
+  public String getAppGroupNameKeys() {
+    return appGroupNameKeys;
+  }
 
-    public void setAppGroupNameKeys(String appGroupNameKeys) {
-        this.appGroupNameKeys = appGroupNameKeys;
-    }
+  public void setAppGroupNameKeys(String appGroupNameKeys) {
+    this.appGroupNameKeys = appGroupNameKeys;
+  }
 
-    public Set<String> getAppNameSet() {
-        return appNameSet;
-    }
+  public Set<String> getAppNameSet() {
+    return appNameSet;
+  }
 
-    public void setAppNameSet(Set<String> appNameSet) {
-        this.appNameSet = appNameSet;
-    }
+  public void setAppNameSet(Set<String> appNameSet) {
+    this.appNameSet = appNameSet;
+  }
 
-    public Set<String> getAppGroupNameKeySet() {
-        return appGroupNameKeySet;
-    }
+  public Set<String> getAppGroupNameKeySet() {
+    return appGroupNameKeySet;
+  }
 
-    public void setAppGroupNameKeySet(Set<String> appGroupNameKeySet) {
-        this.appGroupNameKeySet = appGroupNameKeySet;
-    }
+  public void setAppGroupNameKeySet(Set<String> appGroupNameKeySet) {
+    this.appGroupNameKeySet = appGroupNameKeySet;
+  }
 
-    public Boolean getUseDefaultAppChain() {
-        return useDefaultAppChain;
-    }
+  public Boolean getUseDefaultAppChain() {
+    return useDefaultAppChain;
+  }
 
-    public void setUseDefaultAppChain(Boolean useDefaultAppChain) {
-        this.useDefaultAppChain = useDefaultAppChain;
-    }
+  public void setUseDefaultAppChain(Boolean useDefaultAppChain) {
+    this.useDefaultAppChain = useDefaultAppChain;
+  }
 
-    public Boolean getForce() {
-        return force;
-    }
+  public Boolean getForce() {
+    return force;
+  }
 
-    public void setForce(Boolean force) {
-        this.force = force;
-    }
+  public void setForce(Boolean force) {
+    this.force = force;
+  }
 }

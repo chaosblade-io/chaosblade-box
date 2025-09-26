@@ -1,32 +1,27 @@
 package com.alibaba.chaosblade.box.dao.query;
 
+import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
-
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Deprecated
 public class ChangelogQuery {
 
-    String targetId;
+  String targetId;
 
-    String operatorType;
+  String operatorType;
 
-    String operatorId;
+  String operatorId;
 
-    String targetType;
+  String targetType;
 
-    String actionType;
+  String actionType;
 
-    Date from;
+  Date from;
 
-    Date to;
-
+  Date to;
 }

@@ -6,28 +6,23 @@ import com.alibaba.chaosblade.box.common.infrastructure.util.ChaosIdGenerator;
 import com.alibaba.chaosblade.box.dao.model.ExperimentDO;
 import com.alibaba.fastjson.JSON;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 public class ExperimentDOAssembler {
 
-    public static ExperimentDO assembleExperimentDO(BaseExperimentRequest baseExperimentRequest) {
-        ExperimentDO experimentDO = new ExperimentDO();
-        //experimentDO.setExperimentId(IdWorker.getIdStr());
-        experimentDO.setName(baseExperimentRequest.getName());
-        experimentDO.setDescription(baseExperimentRequest.getDescription());
-        experimentDO.setExperimentId(ChaosIdGenerator.generateId());
-        experimentDO.setNamespace(baseExperimentRequest.getNamespace());
-        experimentDO.setMiniAppDesc(JSON.toJSONString(baseExperimentRequest.getMiniAppDesc()));
+  public static ExperimentDO assembleExperimentDO(BaseExperimentRequest baseExperimentRequest) {
+    ExperimentDO experimentDO = new ExperimentDO();
+    // experimentDO.setExperimentId(IdWorker.getIdStr());
+    experimentDO.setName(baseExperimentRequest.getName());
+    experimentDO.setDescription(baseExperimentRequest.getDescription());
+    experimentDO.setExperimentId(ChaosIdGenerator.generateId());
+    experimentDO.setNamespace(baseExperimentRequest.getNamespace());
+    experimentDO.setMiniAppDesc(JSON.toJSONString(baseExperimentRequest.getMiniAppDesc()));
 
-        ChaosUser user = baseExperimentRequest.getUser();
-        if (null != user) {
-            experimentDO.setUserId(user.getUserId());
-        }
-
-        return experimentDO;
+    ChaosUser user = baseExperimentRequest.getUser();
+    if (null != user) {
+      experimentDO.setUserId(user.getUserId());
     }
 
+    return experimentDO;
+  }
 }

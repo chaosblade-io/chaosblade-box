@@ -9,18 +9,14 @@ import lombok.experimental.FieldDefaults;
  * For describe KV-Store data structure friendly for frontend.
  *
  * @author sunju
- *
  */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor(staticName = "of")
 public class KVPair<KEY, VALUE> {
 
-    KEY key;
-    VALUE value;
+  KEY key;
+  VALUE value;
 
-    public KVPair() {
-
-    }
-
+  public KVPair() {}
 }

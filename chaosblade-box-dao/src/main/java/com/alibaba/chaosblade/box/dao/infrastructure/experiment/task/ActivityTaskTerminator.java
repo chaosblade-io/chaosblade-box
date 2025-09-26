@@ -15,77 +15,75 @@ import com.alibaba.chaosblade.box.dao.repository.ActivityTargetExecutionResultRe
 import com.alibaba.chaosblade.box.dao.repository.ActivityTaskRepository;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Component
 public class ActivityTaskTerminator {
 
-    @Autowired
-    private ActivityTaskRepository activityTaskRepository;
+  @Autowired private ActivityTaskRepository activityTaskRepository;
 
-    @Autowired
-    private MiniAppTaskManager miniAppTaskManager;
+  @Autowired private MiniAppTaskManager miniAppTaskManager;
 
-    @Autowired
-    private ChaosEventDispatcher chaosEventDispatcher;
+  @Autowired private ChaosEventDispatcher chaosEventDispatcher;
 
-    @Autowired
-    private CommandBus commandBus;
+  @Autowired private CommandBus commandBus;
 
-    @Autowired
-    private ActivityTaskDistributedManager activityTaskDistributedManager;
+  @Autowired private ActivityTaskDistributedManager activityTaskDistributedManager;
 
-    @Autowired
-    private ActivityTargetExecutionResultRepository activityTargetExecutionResultRepository;
+  @Autowired
+  private ActivityTargetExecutionResultRepository activityTargetExecutionResultRepository;
 
-    public void terminateRunningTask(ActivityTaskDO activityTaskDO) {
-        if (activityTaskDO.isFinished() || activityTaskDO.isReady()) { return;}
-        if (activityTaskDO.isRunning()) {
-            String serverHostOnRun = activityTaskDO.getHostIp();
-            if (serverHostOnRun != null) {
-                if (isLocalServer(serverHostOnRun)) {
-                    tryKillLocalActivityTask(activityTaskDO.getExperimentTaskId());
-                } else {
-                    tryKillRemoteActivityTask(serverHostOnRun, activityTaskDO.getExperimentTaskId());
-                }
-            }
+  public void terminateRunningTask(ActivityTaskDO activityTaskDO) {
+    if (activityTaskDO.isFinished() || activityTaskDO.isReady()) {
+      return;
+    }
+    if (activityTaskDO.isRunning()) {
+      String serverHostOnRun = activityTaskDO.getHostIp();
+      if (serverHostOnRun != null) {
+        if (isLocalServer(serverHostOnRun)) {
+          tryKillLocalActivityTask(activityTaskDO.getExperimentTaskId());
+        } else {
+          tryKillRemoteActivityTask(serverHostOnRun, activityTaskDO.getExperimentTaskId());
         }
-        boolean success = activityTargetExecutionResultRepository.findByActivityTaskId(activityTaskDO.getTaskId())
-            .stream().allMatch(
-                experimentMiniAppTaskDO -> experimentMiniAppTaskDO.isSuccess() || experimentMiniAppTaskDO.isRejcted());
-        activityTaskDO.setResult(success ? ResultEnum.SUCCESS.getValue() : ResultEnum.FAILED.getValue());
-        handleActivityTaskAfterTerminate(activityTaskDO);
+      }
     }
+    boolean success =
+        activityTargetExecutionResultRepository.findByActivityTaskId(activityTaskDO.getTaskId())
+            .stream()
+            .allMatch(
+                experimentMiniAppTaskDO ->
+                    experimentMiniAppTaskDO.isSuccess() || experimentMiniAppTaskDO.isRejcted());
+    activityTaskDO.setResult(
+        success ? ResultEnum.SUCCESS.getValue() : ResultEnum.FAILED.getValue());
+    handleActivityTaskAfterTerminate(activityTaskDO);
+  }
 
-    private void tryKillLocalActivityTask(String experimentTaskId) {
-        ((ActivityTaskFlowExecutionCommandExecutor)commandBus.select(
-            CommandExecutorConstant.ACTIVITY_TASK_FLOW_EXECUTION)).forceExitCommand(experimentTaskId);
-    }
+  private void tryKillLocalActivityTask(String experimentTaskId) {
+    ((ActivityTaskFlowExecutionCommandExecutor)
+            commandBus.select(CommandExecutorConstant.ACTIVITY_TASK_FLOW_EXECUTION))
+        .forceExitCommand(experimentTaskId);
+  }
 
-    private void tryKillRemoteActivityTask(String serverHostOnRun, String experimentTaskId) {
-        activityTaskDistributedManager.sendImmediatelyShutdownSignal(serverHostOnRun, experimentTaskId);
-    }
+  private void tryKillRemoteActivityTask(String serverHostOnRun, String experimentTaskId) {
+    activityTaskDistributedManager.sendImmediatelyShutdownSignal(serverHostOnRun, experimentTaskId);
+  }
 
-    private boolean isLocalServer(String serverHostOnRun) {
-        return SystemUtils.getLocalAddress().equals(serverHostOnRun);
-    }
+  private boolean isLocalServer(String serverHostOnRun) {
+    return SystemUtils.getLocalAddress().equals(serverHostOnRun);
+  }
 
-    public void handleActivityTaskAfterTerminate(ActivityTaskDO activityTaskDO) {
-        Preconditions.checkArgument(activityTaskDO != null && !Strings.isNullOrEmpty(activityTaskDO.getTaskId()),
-            "activityTask Required");
-        activityTaskDO.setState(StateEnum.FINISHED.getValue());
-        activityTaskDO.setGmtEnd(new Date());
-        activityTaskRepository.update(activityTaskDO);
-        miniAppTaskManager.rejectMiniAppTasksByActivityTaskId(activityTaskDO.getTaskId(),
-            activityTaskDO.getErrorMessage());
-        chaosEventDispatcher.fireEvent(new ActivityTaskFinishedEvent(activityTaskDO));
-    }
+  public void handleActivityTaskAfterTerminate(ActivityTaskDO activityTaskDO) {
+    Preconditions.checkArgument(
+        activityTaskDO != null && !Strings.isNullOrEmpty(activityTaskDO.getTaskId()),
+        "activityTask Required");
+    activityTaskDO.setState(StateEnum.FINISHED.getValue());
+    activityTaskDO.setGmtEnd(new Date());
+    activityTaskRepository.update(activityTaskDO);
+    miniAppTaskManager.rejectMiniAppTasksByActivityTaskId(
+        activityTaskDO.getTaskId(), activityTaskDO.getErrorMessage());
+    chaosEventDispatcher.fireEvent(new ActivityTaskFinishedEvent(activityTaskDO));
+  }
 }

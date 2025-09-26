@@ -1,13 +1,9 @@
 package com.alibaba.chaosblade.box.common.infrastructure.exception;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public class ChaosPersistenceException extends RuntimeException {
 
-    public ChaosPersistenceException(String message) {
-        super(message);
-    }
+  public ChaosPersistenceException(String message) {
+    super(message);
+  }
 }

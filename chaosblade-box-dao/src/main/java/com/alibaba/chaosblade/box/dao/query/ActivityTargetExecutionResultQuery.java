@@ -2,19 +2,15 @@ package com.alibaba.chaosblade.box.dao.query;
 
 import lombok.Data;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Data
 public class ActivityTargetExecutionResultQuery {
 
-    private String appCode;
+  private String appCode;
 
-    private String hostIp;
+  private String hostIp;
 
-    private String activityTaskId;
+  private String activityTaskId;
 
-    private String executableAppCode;
+  private String executableAppCode;
 }

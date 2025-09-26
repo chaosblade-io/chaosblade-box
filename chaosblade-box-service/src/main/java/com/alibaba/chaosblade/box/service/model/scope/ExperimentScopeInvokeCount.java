@@ -1,20 +1,14 @@
 package com.alibaba.chaosblade.box.service.model.scope;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentScopeInvokeCount implements Serializable {
 
-    private Date time;
+  private Date time;
 
-    private Integer total;
-
+  private Integer total;
 }

@@ -9,61 +9,58 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.A
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.InvokeContextFactory;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.StepExecuteContext;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.interceptor.BaseActivityInvokeInterceptor;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Slf4j
 public class ActivityExecutor {
 
-    private Activity activity;
+  private Activity activity;
 
-    private StepExecuteContext stepExecuteContext;
+  private StepExecuteContext stepExecuteContext;
 
-    private ActivityInvokeContext activityInvokeContext;
+  private ActivityInvokeContext activityInvokeContext;
 
-    public ActivityExecutor(Activity activity, StepExecuteContext stepExecuteContext) {
-        this.activity = activity;
-        this.stepExecuteContext = stepExecuteContext;
-        this.activityInvokeContext = new ActivityInvokeContext();
-        this.activityInvokeContext.setActivity(activity);
-    }
+  public ActivityExecutor(Activity activity, StepExecuteContext stepExecuteContext) {
+    this.activity = activity;
+    this.stepExecuteContext = stepExecuteContext;
+    this.activityInvokeContext = new ActivityInvokeContext();
+    this.activityInvokeContext.setActivity(activity);
+  }
 
-    public ActivityExecuteResult execute() {
-        ActivityInvokeContext activityInvokeContext = InvokeContextFactory.create(stepExecuteContext,
-                ActivityInvokeContext.class);
-        activityInvokeContext.setActivity(activity);
-        ActivityExecuteResult activityExecuteResult = new ActivityExecuteResult();
-        InterceptorInvoker<BaseActivityInvokeInterceptor, ActivityInvokeContext, ActivityExecuteResult>
-                interceptorInvoker
-                = new InterceptorInvoker<>(
+  public ActivityExecuteResult execute() {
+    ActivityInvokeContext activityInvokeContext =
+        InvokeContextFactory.create(stepExecuteContext, ActivityInvokeContext.class);
+    activityInvokeContext.setActivity(activity);
+    ActivityExecuteResult activityExecuteResult = new ActivityExecuteResult();
+    InterceptorInvoker<BaseActivityInvokeInterceptor, ActivityInvokeContext, ActivityExecuteResult>
+        interceptorInvoker =
+            new InterceptorInvoker<>(
                 stepExecuteContext.getFlowEngineContext().getActivityInvokeInterceptors());
-        return interceptorInvoker.invoke(this::innerExecute,
-                activityInvokeContext,
-                activityExecuteResult);
-    }
+    return interceptorInvoker.invoke(
+        this::innerExecute, activityInvokeContext, activityExecuteResult);
+  }
 
-    private ActivityExecuteResult innerExecute(ActivityInvokeContext activityInvokeContext) {
-        ActivityExecuteResult activityExecuteResult = new ActivityExecuteResult();
-        List<Host> hosts = activity.getScope();
-        if (hosts == null || hosts.isEmpty()) {
-            activityExecuteResult.addChaosAppResponse(
-                    MiniAppInvokerFactory.createInvoker(activityInvokeContext, null).invoke());
-        } else {
-            List<ChaosAppResponse> chaosAppResponses = stepExecuteContext.getFlowEngineContext()
-                    .getActivityTargetRunnableStrategySelector().select(activityInvokeContext).run(activityInvokeContext);
-            activityExecuteResult.setAppResponses(chaosAppResponses);
-        }
-        boolean success = activityExecuteResult.getAppResponses().stream().allMatch(
-                ChaosAppResponse::isSuccess);
-        activityExecuteResult.setSuccess(success);
-        activityExecuteResult.setAppCode(activity.getAppCode());
-        return activityExecuteResult;
+  private ActivityExecuteResult innerExecute(ActivityInvokeContext activityInvokeContext) {
+    ActivityExecuteResult activityExecuteResult = new ActivityExecuteResult();
+    List<Host> hosts = activity.getScope();
+    if (hosts == null || hosts.isEmpty()) {
+      activityExecuteResult.addChaosAppResponse(
+          MiniAppInvokerFactory.createInvoker(activityInvokeContext, null).invoke());
+    } else {
+      List<ChaosAppResponse> chaosAppResponses =
+          stepExecuteContext
+              .getFlowEngineContext()
+              .getActivityTargetRunnableStrategySelector()
+              .select(activityInvokeContext)
+              .run(activityInvokeContext);
+      activityExecuteResult.setAppResponses(chaosAppResponses);
     }
-
+    boolean success =
+        activityExecuteResult.getAppResponses().stream().allMatch(ChaosAppResponse::isSuccess);
+    activityExecuteResult.setSuccess(success);
+    activityExecuteResult.setAppCode(activity.getAppCode());
+    return activityExecuteResult;
+  }
 }

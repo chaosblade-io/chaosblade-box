@@ -5,5 +5,4 @@ import com.alibaba.chaosblade.box.dao.model.MiniFlowDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 @MybatisMapper
-public interface ExperimentMiniFlowMapper extends BaseMapper<MiniFlowDO> {
-}
+public interface ExperimentMiniFlowMapper extends BaseMapper<MiniFlowDO> {}

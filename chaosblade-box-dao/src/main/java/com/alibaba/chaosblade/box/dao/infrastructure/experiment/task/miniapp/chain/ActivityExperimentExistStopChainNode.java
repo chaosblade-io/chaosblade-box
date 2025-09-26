@@ -11,70 +11,80 @@ import com.alibaba.chaosblade.box.common.experiment.task.flow.ChaosBladeAppRespo
 import com.alibaba.chaosblade.box.common.sdk.entity.ExpStatusBean;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.chaosblade.ChaosBladeInvoker;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.MiniAppInvokeContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 public class ActivityExperimentExistStopChainNode extends ActivityTargetRetryInvokeChainNode {
 
-    @Autowired
-    private ChaosBladeInvoker chaosBladeInvoker;
+  @Autowired private ChaosBladeInvoker chaosBladeInvoker;
 
-    @Override
-    protected boolean internalExecute(ActivityTargetRetryInvokeContext activityTargetRetryInvokeContext) {
-        ChaosAppResponse preResponse = activityTargetRetryInvokeContext.getPreAppResponse();
-        MiniAppInvokeContext miniAppInvokeContext = activityTargetRetryInvokeContext.getMiniAppInvokeContext();
-        if (!MiniAppUtils.isFromChaosBlade(miniAppInvokeContext.getActivityInvokeContext().getExecutableAppCode())) {
-            return false;
-        }
-        if (MiniAppUtils.isJvmAgentInstall(miniAppInvokeContext.getActivityInvokeContext().getExecutableAppCode())) {
-            return false;
-        }
-        ChaosBladeAppResponse chaosBladeAppResponse = (ChaosBladeAppResponse) preResponse;
-        if (chaosBladeAppResponse.getChaosBladeResponse().getCode() == ChaosBladeMetaData.AGENT_DUMPLICATE_CODE) {
-            ChaosBladeAppResponse newChaosBladeAppResponse = doRetry(activityTargetRetryInvokeContext);
-            if (newChaosBladeAppResponse != null) {
-                activityTargetRetryInvokeContext.setCurAppResponse(newChaosBladeAppResponse);
-            }
-        }
-        return false;
+  @Override
+  protected boolean internalExecute(
+      ActivityTargetRetryInvokeContext activityTargetRetryInvokeContext) {
+    ChaosAppResponse preResponse = activityTargetRetryInvokeContext.getPreAppResponse();
+    MiniAppInvokeContext miniAppInvokeContext =
+        activityTargetRetryInvokeContext.getMiniAppInvokeContext();
+    if (!MiniAppUtils.isFromChaosBlade(
+        miniAppInvokeContext.getActivityInvokeContext().getExecutableAppCode())) {
+      return false;
     }
-
-    protected ChaosBladeAppResponse doRetry(ActivityTargetRetryInvokeContext activityTargetRetryInvokeContext) {
-        //首先卸载掉原来的
-        revoke(activityTargetRetryInvokeContext.getMiniAppInvokeContext().getHost(),
-                activityTargetRetryInvokeContext.getMiniAppInvokeContext().getActivityInvokeContext()
-                        .getExecutableAppCode());
-        //然后再次安装
-        return (ChaosBladeAppResponse) activityTargetRetryInvokeContext.getInvokeReference()
-                .invoke(
-                        activityTargetRetryInvokeContext.getMiniAppInvokeContext()).getChaosAppResponse();
+    if (MiniAppUtils.isJvmAgentInstall(
+        miniAppInvokeContext.getActivityInvokeContext().getExecutableAppCode())) {
+      return false;
     }
+    ChaosBladeAppResponse chaosBladeAppResponse = (ChaosBladeAppResponse) preResponse;
+    if (chaosBladeAppResponse.getChaosBladeResponse().getCode()
+        == ChaosBladeMetaData.AGENT_DUMPLICATE_CODE) {
+      ChaosBladeAppResponse newChaosBladeAppResponse = doRetry(activityTargetRetryInvokeContext);
+      if (newChaosBladeAppResponse != null) {
+        activityTargetRetryInvokeContext.setCurAppResponse(newChaosBladeAppResponse);
+      }
+    }
+    return false;
+  }
 
-    public void revoke(Host host, String appCode) {
-        Response<List<ExpStatusBean>> response = chaosBladeInvoker.getExpStatusList(
-                new ChaosBladeHostQueryRequest(host));
-        Collections.reverse(response.getResult());
-        response.getResult().stream().filter(new Predicate<ExpStatusBean>() {
-            @Override
-            public boolean test(ExpStatusBean expStatusBean) {
+  protected ChaosBladeAppResponse doRetry(
+      ActivityTargetRetryInvokeContext activityTargetRetryInvokeContext) {
+    // 首先卸载掉原来的
+    revoke(
+        activityTargetRetryInvokeContext.getMiniAppInvokeContext().getHost(),
+        activityTargetRetryInvokeContext
+            .getMiniAppInvokeContext()
+            .getActivityInvokeContext()
+            .getExecutableAppCode());
+    // 然后再次安装
+    return (ChaosBladeAppResponse)
+        activityTargetRetryInvokeContext
+            .getInvokeReference()
+            .invoke(activityTargetRetryInvokeContext.getMiniAppInvokeContext())
+            .getChaosAppResponse();
+  }
+
+  public void revoke(Host host, String appCode) {
+    Response<List<ExpStatusBean>> response =
+        chaosBladeInvoker.getExpStatusList(new ChaosBladeHostQueryRequest(host));
+    Collections.reverse(response.getResult());
+    response.getResult().stream()
+        .filter(
+            new Predicate<ExpStatusBean>() {
+              @Override
+              public boolean test(ExpStatusBean expStatusBean) {
                 return ChaosBladeInvoker.STATUS_RUNNING.equalsIgnoreCase(expStatusBean.getStatus());
-            }
-        }).forEach(new Consumer<ExpStatusBean>() {
-            @Override
-            public void accept(ExpStatusBean expStatusBean) {
-                chaosBladeInvoker.destroyExp(new ChaosBladeDestroyExpRequest(host, expStatusBean.getUid(), appCode));
-            }
-        });
-    }
+              }
+            })
+        .forEach(
+            new Consumer<ExpStatusBean>() {
+              @Override
+              public void accept(ExpStatusBean expStatusBean) {
+                chaosBladeInvoker.destroyExp(
+                    new ChaosBladeDestroyExpRequest(host, expStatusBean.getUid(), appCode));
+              }
+            });
+  }
 }

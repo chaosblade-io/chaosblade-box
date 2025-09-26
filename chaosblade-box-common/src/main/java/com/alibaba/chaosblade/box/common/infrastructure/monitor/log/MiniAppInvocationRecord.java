@@ -1,85 +1,52 @@
 package com.alibaba.chaosblade.box.common.infrastructure.monitor.log;
 
+import java.util.Date;
 import lombok.Data;
 
-import java.util.Date;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class MiniAppInvocationRecord extends RecordObject {
 
-    /**
-     * chaosapp
-     */
-    public static Integer MINI_APP_TYPE_CHAOS_APP = 0;
+  /** chaosapp */
+  public static Integer MINI_APP_TYPE_CHAOS_APP = 0;
 
-    /**
-     * chaosblade
-     */
-    public static Integer MINI_APP_TYPE_CHAOSBLADE = 1;
+  /** chaosblade */
+  public static Integer MINI_APP_TYPE_CHAOSBLADE = 1;
 
-    /**
-     * traceId
-     */
-    private String traceId;
+  /** traceId */
+  private String traceId;
 
+  private Date create;
 
-    private Date create;
+  /** 小程序code */
+  private String appCode;
 
-    /**
-     * 小程序code
-     */
-    private String appCode;
+  /** 演练任务ID */
+  private String experimentTaskId;
 
-    /**
-     * 演练任务ID
-     */
-    private String experimentTaskId;
+  /** 节点任务ID */
+  private String activityTaskId;
 
-    /**
-     * 节点任务ID
-     */
-    private String activityTaskId;
+  /** 节点的任务Id */
+  private String miniAppTaskId;
 
-    /**
-     * 节点的任务Id
-     */
-    private String miniAppTaskId;
+  /** appType类型 */
+  private Integer miniAppType;
 
-    /**
-     * appType类型
-     */
-    private Integer miniAppType;
+  /** Ip地址 */
+  private String ip;
 
-    /**
-     * Ip地址
-     */
-    private String ip;
+  /** configurationId */
+  private String configurationId;
 
-    /**
-     * configurationId
-     */
-    private String configurationId;
+  /** 是否成功 */
+  private boolean success;
 
-    /**
-     * 是否成功
-     */
-    private boolean success;
+  /** 请求 */
+  private Object request;
 
-    /**
-     * 请求
-     */
-    private Object request;
+  /** 响应 */
+  private Object response;
 
-    /**
-     * 响应
-     */
-    private Object response;
-
-    private Long cost;
-
+  private Long cost;
 }

@@ -16,31 +16,28 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario.model;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * @author yefei
- */
+/** @author yefei */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ToolsVersion {
 
-    private String version;
+  private String version;
 
-    private String latest;
+  private String latest;
 
-    private String releaseUrl;
+  private String releaseUrl;
 
-    private String changelog;
+  private String changelog;
 
-    private List<ToolsDownloadUrl> downloadUrl;
+  private List<ToolsDownloadUrl> downloadUrl;
 
-    private List<String> scenarioFiles;
+  private List<String> scenarioFiles;
 }

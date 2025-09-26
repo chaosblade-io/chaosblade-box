@@ -18,43 +18,39 @@ package com.alibaba.chaosblade.box.common.common.util;
 
 import cn.hutool.core.util.StrUtil;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public class SystemPropertiesUtils {
 
-    public static String getPropertiesFileEncoding() {
-        return System.getProperty("file.encoding");
-    }
+  public static String getPropertiesFileEncoding() {
+    return System.getProperty("file.encoding");
+  }
 
-    public static String getPropertiesValue(String key) {
-        if (StrUtil.isBlank(key)) {
-            throw new RuntimeException("key not be null!");
-        }
-        return System.getProperty(key);
+  public static String getPropertiesValue(String key) {
+    if (StrUtil.isBlank(key)) {
+      throw new RuntimeException("key not be null!");
     }
+    return System.getProperty(key);
+  }
 
-    public static String getEnvValue(String key) {
-        if (StrUtil.isBlank(key)) {
-            throw new RuntimeException("key not be null!");
-        }
-        return System.getenv(key);
+  public static String getEnvValue(String key) {
+    if (StrUtil.isBlank(key)) {
+      throw new RuntimeException("key not be null!");
     }
+    return System.getenv(key);
+  }
 
-    /**
-     *
-     * @param key
-     * @return
-     */
-    public static String getEnvOrPropertiesValue(String key) {
-        if (StrUtil.isBlank(key)) {
-            throw new RuntimeException("key not be null!");
-        }
-        String envValue = getEnvValue(key);
-        if (StrUtil.isBlank(envValue)) {
-            return getPropertiesValue(key);
-        }
-        return envValue;
+  /**
+   * @param key
+   * @return
+   */
+  public static String getEnvOrPropertiesValue(String key) {
+    if (StrUtil.isBlank(key)) {
+      throw new RuntimeException("key not be null!");
     }
-
+    String envValue = getEnvValue(key);
+    if (StrUtil.isBlank(envValue)) {
+      return getPropertiesValue(key);
+    }
+    return envValue;
+  }
 }

@@ -2,34 +2,25 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.reque
 
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class ExperimentHostUpdateRequest extends BaseRequest {
 
-    private String experimentId;
+  private String experimentId;
 
-    private String miniGroupId;
+  private String miniGroupId;
 
-    private String appId;
+  private String appId;
 
-    private List<String> appGroups;
+  private List<String> appGroups;
 
-    private List<Host> hosts;
+  private List<Host> hosts;
 
-    /**
-     * 机器选择方式
-     * {@link HostSelectTypes}
-     */
-    private Integer selectType = 1;
+  /** 机器选择方式 {@link HostSelectTypes} */
+  private Integer selectType = 1;
 
-    private Integer hostPercent;
-
+  private Integer hostPercent;
 }

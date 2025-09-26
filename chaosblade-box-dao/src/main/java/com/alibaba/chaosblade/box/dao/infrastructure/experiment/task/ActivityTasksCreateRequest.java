@@ -5,25 +5,20 @@ import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.common.common.enums.ExperimentRunModeEnum;
 import com.alibaba.chaosblade.box.dao.model.ExperimentDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Data
 public class ActivityTasksCreateRequest {
 
-    ChaosUser chaosUser;
+  ChaosUser chaosUser;
 
-    ExperimentDO experimentDO;
+  ExperimentDO experimentDO;
 
-    ExperimentTaskDO experimentTaskDO;
+  ExperimentTaskDO experimentTaskDO;
 
-    List<ActivityRunParam> params;
+  List<ActivityRunParam> params;
 
-    ExperimentRunModeEnum experimentRunModeEnum;
+  ExperimentRunModeEnum experimentRunModeEnum;
 }

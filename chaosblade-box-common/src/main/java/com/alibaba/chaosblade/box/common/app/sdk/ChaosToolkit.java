@@ -4,21 +4,15 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChaosToolkit {
 
-    /**
-     * toolkit类型，0为云版本，1为内部版本
-     */
-    int type;
+  /** toolkit类型，0为云版本，1为内部版本 */
+  int type;
 
-    String address;
-    String password;
-    int port;
-
+  String address;
+  String password;
+  int port;
 }

@@ -1,61 +1,57 @@
 package com.alibaba.chaosblade.box.common.sdk.entity;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 public class HitCountBean {
-    /**
-     * experiment id in container, different with k8s experiment id contains many container experiment id
-     */
-    private String id;
-    /**
-     * jvm or others
-     */
-    private String type;
-    /**
-     * matched count
-     */
-    private Long count;
-    private boolean success;
-    private String error;
+  /**
+   * experiment id in container, different with k8s experiment id contains many container experiment
+   * id
+   */
+  private String id;
+  /** jvm or others */
+  private String type;
+  /** matched count */
+  private Long count;
 
-    public String getId() {
-        return id;
-    }
+  private boolean success;
+  private String error;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public Long getCount() {
-        return count;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public void setCount(Long count) {
-        this.count = count;
-    }
+  public Long getCount() {
+    return count;
+  }
 
-    public boolean isSuccess() {
-        return success;
-    }
+  public void setCount(Long count) {
+    this.count = count;
+  }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
+  public boolean isSuccess() {
+    return success;
+  }
 
-    public String getError() {
-        return error;
-    }
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
 
-    public void setError(String error) {
-        this.error = error;
-    }
+  public String getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
+  }
 }

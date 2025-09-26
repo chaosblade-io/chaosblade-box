@@ -1,21 +1,15 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.activity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin.lhb
- * 
- * 
- */
+/** @author haibin.lhb */
 @Data
 public class ActivityGroupDefinitionCheckResponse {
 
-    @JSONField(name = "is_pass")
-    private Boolean passed;
+  @JSONField(name = "is_pass")
+  private Boolean passed;
 
-    private List<ActivityGroupDefinitionCheckItem> details;
-
+  private List<ActivityGroupDefinitionCheckItem> details;
 }

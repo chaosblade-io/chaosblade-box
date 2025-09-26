@@ -7,25 +7,23 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @TableName("t_chaos_namespace")
 public class NamespaceDO extends BaseDO {
 
-    @TableField(value = "name")
-    String name;
-    String description;
+  @TableField(value = "name")
+  String name;
 
-    @TableField(value = "user_id")
-    String userId;
+  String description;
 
-    @TableField(value = "is_delete")
-    Integer isDelete;
+  @TableField(value = "user_id")
+  String userId;
 
-    String licenseKey;
-    String secretKey;
+  @TableField(value = "is_delete")
+  Integer isDelete;
+
+  String licenseKey;
+  String secretKey;
 }

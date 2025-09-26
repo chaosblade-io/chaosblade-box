@@ -1,21 +1,15 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.scene;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class SceneFunctionDesc {
 
-    private String name;
+  private String name;
 
-    private String appCode;
+  private String appCode;
 
-    private List<SceneFunctionParamDesc> params;
-
+  private List<SceneFunctionParamDesc> params;
 }

@@ -1,30 +1,24 @@
 package com.alibaba.chaosblade.box.dao.query;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExpertisePageQuery {
 
-    String userId;
+  String userId;
 
-    List<String> tagNames;
+  List<String> tagNames;
 
-    String partName;
+  String partName;
 
-    String namespace;
+  String namespace;
 
-    Integer state;
+  Integer state;
 
-    String scopeType;
-
+  String scopeType;
 }

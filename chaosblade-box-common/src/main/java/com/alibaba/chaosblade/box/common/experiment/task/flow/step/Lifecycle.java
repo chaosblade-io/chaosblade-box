@@ -1,13 +1,9 @@
 package com.alibaba.chaosblade.box.common.experiment.task.flow.step;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public interface Lifecycle {
 
-    public void start();
+  public void start();
 
-    public void close();
+  public void close();
 }

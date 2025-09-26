@@ -11,29 +11,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @RestController
 @RequestMapping(value = "/inner")
 public class InnerController {
 
-    @Autowired
-    private CommandBus commandBus;
+  @Autowired private CommandBus commandBus;
 
-    @GetMapping(value = "/shutdownActivityTask")
-    public RestResponse<Void> shutdownActivityTask(@RequestParam(name = "taskId") String taskId) {
-        ActivityTaskFlowExecutionCommandExecutor activityTaskFlowExecutionCommandExecutor
-            = (ActivityTaskFlowExecutionCommandExecutor)commandBus.select(
-            CommandExecutorConstant.ACTIVITY_TASK_FLOW_EXECUTION);
-        activityTaskFlowExecutionCommandExecutor.forceExitCommand(taskId);
-        return RestResponseUtil.okWithData(null);
-    }
+  @GetMapping(value = "/shutdownActivityTask")
+  public RestResponse<Void> shutdownActivityTask(@RequestParam(name = "taskId") String taskId) {
+    ActivityTaskFlowExecutionCommandExecutor activityTaskFlowExecutionCommandExecutor =
+        (ActivityTaskFlowExecutionCommandExecutor)
+            commandBus.select(CommandExecutorConstant.ACTIVITY_TASK_FLOW_EXECUTION);
+    activityTaskFlowExecutionCommandExecutor.forceExitCommand(taskId);
+    return RestResponseUtil.okWithData(null);
+  }
 
-    @GetMapping(value = "/isActivityTaskRunning")
-    public RestResponse<Void> existExperimentTask(@RequestParam(name = "taskId") String activityTaskId) {
-        return RestResponseUtil.okWithData(null);
-    }
+  @GetMapping(value = "/isActivityTaskRunning")
+  public RestResponse<Void> existExperimentTask(
+      @RequestParam(name = "taskId") String activityTaskId) {
+    return RestResponseUtil.okWithData(null);
+  }
 }

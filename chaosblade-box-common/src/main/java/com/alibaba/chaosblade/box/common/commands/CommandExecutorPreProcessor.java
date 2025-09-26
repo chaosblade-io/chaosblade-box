@@ -1,16 +1,12 @@
 package com.alibaba.chaosblade.box.common.commands;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 public interface CommandExecutorPreProcessor {
 
-    /**
-     * after new commandExecutor
-     *
-     * @param commandExecutor
-     */
-    public void preProcess(CommandExecutor commandExecutor);
+  /**
+   * after new commandExecutor
+   *
+   * @param commandExecutor
+   */
+  public void preProcess(CommandExecutor commandExecutor);
 }

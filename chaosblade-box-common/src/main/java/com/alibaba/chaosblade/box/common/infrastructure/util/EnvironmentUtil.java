@@ -10,41 +10,35 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 @Order(value = Ordered.HIGHEST_PRECEDENCE + 1)
 public class EnvironmentUtil implements InitializingBean {
 
-    protected EnvironmentEnum environmentEnum;
+  protected EnvironmentEnum environmentEnum;
 
-    @Autowired
-    @Value("${chaos.env}")
-    public String env;
+  @Autowired
+  @Value("${chaos.env}")
+  public String env;
 
-    @Autowired
-    Environment environment;
+  @Autowired Environment environment;
 
-    @Autowired
-    private ApplicationStartUpConfig applicationStartUpConfig;
+  @Autowired private ApplicationStartUpConfig applicationStartUpConfig;
 
-    public EnvironmentEnum getEnv() {
-        return environmentEnum;
+  public EnvironmentEnum getEnv() {
+    return environmentEnum;
+  }
+
+  public boolean isTestProfile() {
+    return "test"
+        .equals(environment.getProperty(ConfigFileApplicationListener.ACTIVE_PROFILES_PROPERTY));
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    environmentEnum = EnvironmentEnum.of(env);
+    if (environmentEnum == null) {
+      throw new IllegalArgumentException("chaos.env is illegal,current env:" + env);
     }
-
-    public boolean isTestProfile() {
-        return "test".equals(environment.getProperty(ConfigFileApplicationListener.ACTIVE_PROFILES_PROPERTY));
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        environmentEnum = EnvironmentEnum.of(env);
-        if (environmentEnum == null) {
-            throw new IllegalArgumentException("chaos.env is illegal,current env:" + env);
-        }
-    }
-
+  }
 }

@@ -5,20 +5,15 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Configuration
 public class CronConfiguration {
 
-    public static class MyJob implements Job {
+  public static class MyJob implements Job {
 
-        @Override
-        public void execute(JobExecutionContext context) throws JobExecutionException {
-            System.out.println("hello");
-        }
+    @Override
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+      System.out.println("hello");
     }
-
+  }
 }

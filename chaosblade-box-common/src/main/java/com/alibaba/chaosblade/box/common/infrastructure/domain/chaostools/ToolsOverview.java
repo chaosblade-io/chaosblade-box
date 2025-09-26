@@ -16,46 +16,41 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * @author yefei
- */
+/** @author yefei */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ToolsOverview {
 
-    private String name;
+  private String name;
 
-    private String latest;
+  private String latest;
 
-    private String title;
+  private String title;
 
-    private String subTitle;
+  private String subTitle;
 
-    private String description;
+  private String description;
 
-    private String webSite;
+  private String webSite;
 
-    private String logo;
+  private String logo;
 
-    private String copyright;
+  private String copyright;
 
-    private String readme;
+  private String readme;
 
-    private List<String> supportScope;
+  private List<String> supportScope;
 
-    private boolean installed;
+  private boolean installed;
 
-    /**
-     * 是否可以卸载
-     */
-    private boolean isUnInstalled;
+  /** 是否可以卸载 */
+  private boolean isUnInstalled;
 }

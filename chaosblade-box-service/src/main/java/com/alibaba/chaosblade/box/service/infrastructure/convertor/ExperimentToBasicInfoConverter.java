@@ -9,63 +9,55 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Converter;
 import com.google.common.base.Strings;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
-
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Component
 public class ExperimentToBasicInfoConverter extends Converter<ExperimentDO, ExperimentBasicInfo> {
 
-    @Autowired
-    private TagManager tagManager;
+  @Autowired private TagManager tagManager;
 
-//    @Autowired
-//    private WorkspaceService workspaceService;
-    @Resource
-    private WorkspaceService workspaceService;
+  //    @Autowired
+  //    private WorkspaceService workspaceService;
+  @Resource private WorkspaceService workspaceService;
 
-    @Override
-    protected ExperimentBasicInfo doForward(ExperimentDO experimentDO) {
-        String experimentId = experimentDO.getExperimentId();
-        ExperimentBasicInfo experimentBasicInfo = new ExperimentBasicInfo();
-        experimentBasicInfo.setDescription(experimentDO.getDescription());
-        experimentBasicInfo.setExperimentId(experimentId);
-        experimentBasicInfo.setName(experimentDO.getName());
-        experimentBasicInfo.setOwnerUserId(experimentDO.getOwnerUserId());
-        experimentBasicInfo.setGmtCreate(experimentDO.getGmtCreate());
-        experimentBasicInfo.setGmtModified(experimentDO.getGmtModified());
-        experimentBasicInfo.setSchedulerConfig(experimentDO.getSchedulerConfig());
-        experimentBasicInfo.setNamespace(experimentDO.getNamespace());
-//        experimentBasicInfo.setRegionId(experimentDO.getRegionId());
-        experimentBasicInfo.setState(experimentDO.getExperimentStateEnum());
-        experimentBasicInfo.setExperimentTaskId(experimentDO.getExperimentTaskId());
-        experimentBasicInfo.setLevel(experimentDO.getLevel());
-        experimentBasicInfo.setSource(experimentDO.getSource());
-        experimentBasicInfo.setMiniAppDesc(Strings.isNullOrEmpty(experimentDO.getMiniAppDesc())
-                ? null
-                : JSON.parseObject(experimentDO.getMiniAppDesc(), new TypeReference<ArrayList<String>>() {
-        }));
-        experimentBasicInfo.setTags(
-                tagManager.findTagsByExperimentId(experimentDO.getExperimentId())
-                        .stream()
-                        .map(TagDO::getName)
-                        .collect(Collectors.toList())
-        );
-        experimentBasicInfo.setWorkspaces(
-            workspaceService.getWorkspacesShortInfoByExperimentId(experimentDO.getExperimentId()));
-        return experimentBasicInfo;
-    }
+  @Override
+  protected ExperimentBasicInfo doForward(ExperimentDO experimentDO) {
+    String experimentId = experimentDO.getExperimentId();
+    ExperimentBasicInfo experimentBasicInfo = new ExperimentBasicInfo();
+    experimentBasicInfo.setDescription(experimentDO.getDescription());
+    experimentBasicInfo.setExperimentId(experimentId);
+    experimentBasicInfo.setName(experimentDO.getName());
+    experimentBasicInfo.setOwnerUserId(experimentDO.getOwnerUserId());
+    experimentBasicInfo.setGmtCreate(experimentDO.getGmtCreate());
+    experimentBasicInfo.setGmtModified(experimentDO.getGmtModified());
+    experimentBasicInfo.setSchedulerConfig(experimentDO.getSchedulerConfig());
+    experimentBasicInfo.setNamespace(experimentDO.getNamespace());
+    //        experimentBasicInfo.setRegionId(experimentDO.getRegionId());
+    experimentBasicInfo.setState(experimentDO.getExperimentStateEnum());
+    experimentBasicInfo.setExperimentTaskId(experimentDO.getExperimentTaskId());
+    experimentBasicInfo.setLevel(experimentDO.getLevel());
+    experimentBasicInfo.setSource(experimentDO.getSource());
+    experimentBasicInfo.setMiniAppDesc(
+        Strings.isNullOrEmpty(experimentDO.getMiniAppDesc())
+            ? null
+            : JSON.parseObject(
+                experimentDO.getMiniAppDesc(), new TypeReference<ArrayList<String>>() {}));
+    experimentBasicInfo.setTags(
+        tagManager.findTagsByExperimentId(experimentDO.getExperimentId()).stream()
+            .map(TagDO::getName)
+            .collect(Collectors.toList()));
+    experimentBasicInfo.setWorkspaces(
+        workspaceService.getWorkspacesShortInfoByExperimentId(experimentDO.getExperimentId()));
+    return experimentBasicInfo;
+  }
 
-    @Override
-    protected ExperimentDO doBackward(ExperimentBasicInfo experimentBasicInfo) {
-        throw new UnsupportedOperationException("Not support yet");
-    }
+  @Override
+  protected ExperimentDO doBackward(ExperimentBasicInfo experimentBasicInfo) {
+    throw new UnsupportedOperationException("Not support yet");
+  }
 }

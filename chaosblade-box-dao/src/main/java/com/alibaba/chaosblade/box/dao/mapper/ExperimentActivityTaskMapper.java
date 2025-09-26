@@ -4,12 +4,6 @@ import com.alibaba.chaosblade.box.common.infrastructure.util.MybatisMapper;
 import com.alibaba.chaosblade.box.dao.model.ActivityTaskDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @MybatisMapper
-public interface ExperimentActivityTaskMapper extends BaseMapper<ActivityTaskDO> {
-
-}
+public interface ExperimentActivityTaskMapper extends BaseMapper<ActivityTaskDO> {}

@@ -16,27 +16,24 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario.model;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PluginSpecBean {
 
-    private String version;
+  private String version;
 
-    private String kind;
+  private String kind;
 
-    private String type;
+  private String type;
 
-    private List<ModelSpecBean> items;
+  private List<ModelSpecBean> items;
 }

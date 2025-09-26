@@ -6,11 +6,11 @@ import java.util.List;
 /**
  * Author: sunju
  *
- * Date:   2019/11/14
+ * <p>Date: 2019/11/14
  */
 public interface TreeNode<T> extends Serializable {
 
-//    T getParent();
+  //    T getParent();
 
-    List<T> getChildren();
+  List<T> getChildren();
 }

@@ -1,26 +1,20 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.response;
 
 import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.ExperimentBasicInfo;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentInfo {
 
-    private String experimentId;
+  private String experimentId;
 
-    private ExperimentBasicInfo basicInfo;
+  private ExperimentBasicInfo basicInfo;
 
-    private ExperimentFlowInfo flowInfo;
+  private ExperimentFlowInfo flowInfo;
 
-    private List<ExperimentAppRisk> experimentAppRisks;
+  private List<ExperimentAppRisk> experimentAppRisks;
 
-    private Integer permission;
-
+  private Integer permission;
 }

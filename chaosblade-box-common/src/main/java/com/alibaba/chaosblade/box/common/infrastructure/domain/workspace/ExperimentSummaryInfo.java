@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 /**
  * @Author yinyansheng
+ *
  * @create 2020/10/20
  */
 @Builder
@@ -15,22 +16,21 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 public class ExperimentSummaryInfo {
 
-    public ExperimentSummaryInfo(String date, Integer resultState, Integer size) {
-        this.date = date;
-        this.resultState = resultState;
-        this.size = size;
-    }
+  public ExperimentSummaryInfo(String date, Integer resultState, Integer size) {
+    this.date = date;
+    this.resultState = resultState;
+    this.size = size;
+  }
 
-    String date;
+  String date;
 
-    @JSONField(serialize = false)
-    Integer resultState;
+  @JSONField(serialize = false)
+  Integer resultState;
 
-    @JSONField(serialize = false)
-    Integer size;
+  @JSONField(serialize = false)
+  Integer size;
 
-    Integer totalSize;
-    Integer successSize;
-    Integer unexpectedSize;
-
+  Integer totalSize;
+  Integer successSize;
+  Integer unexpectedSize;
 }

@@ -6,41 +6,36 @@ import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.reques
 import com.alibaba.chaosblade.box.dao.model.ExperimentDO;
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class ExperimentTaskCreateRequest extends BaseRequest {
 
-    private ExperimentDO experimentDO;
+  private ExperimentDO experimentDO;
 
-    private String outerId;
+  private String outerId;
 
-    /**
-     * 如果为null，那么就会生成一个
-     */
-    private String experimentTaskId;
+  /** 如果为null，那么就会生成一个 */
+  private String experimentTaskId;
 
-    private ExperimentRunParam experimentRunParam;
+  private ExperimentRunParam experimentRunParam;
 
-    /**
-     * 是否定时任务触发
-     */
-    private boolean triggeredByScheduler;
+  /** 是否定时任务触发 */
+  private boolean triggeredByScheduler;
 
-    public static ExperimentTaskCreateRequest buildExperimentTaskCreateRequest(
-        ExperimentRunRequest experimentRunRequest,
-        ExperimentDO experimentDO) {
-        ExperimentTaskCreateRequest experimentTaskCreateRequest = new ExperimentTaskCreateRequest();
-        experimentTaskCreateRequest.setExperimentDO(experimentDO);
-        experimentTaskCreateRequest.setUser(experimentRunRequest.getUser());
-        experimentTaskCreateRequest.setNamespace(experimentRunRequest.getNamespace());
-        experimentTaskCreateRequest.setExperimentRunParam(experimentRunRequest.getParam());
-        String outerId = experimentRunRequest.getParam() != null ? experimentRunRequest.getParam().getOuterId() : null;
-        experimentTaskCreateRequest.setOuterId(outerId);
-        experimentTaskCreateRequest.setTriggeredByScheduler(experimentRunRequest.isTriggeredByScheduler());
-        return experimentTaskCreateRequest;
-    }
+  public static ExperimentTaskCreateRequest buildExperimentTaskCreateRequest(
+      ExperimentRunRequest experimentRunRequest, ExperimentDO experimentDO) {
+    ExperimentTaskCreateRequest experimentTaskCreateRequest = new ExperimentTaskCreateRequest();
+    experimentTaskCreateRequest.setExperimentDO(experimentDO);
+    experimentTaskCreateRequest.setUser(experimentRunRequest.getUser());
+    experimentTaskCreateRequest.setNamespace(experimentRunRequest.getNamespace());
+    experimentTaskCreateRequest.setExperimentRunParam(experimentRunRequest.getParam());
+    String outerId =
+        experimentRunRequest.getParam() != null
+            ? experimentRunRequest.getParam().getOuterId()
+            : null;
+    experimentTaskCreateRequest.setOuterId(outerId);
+    experimentTaskCreateRequest.setTriggeredByScheduler(
+        experimentRunRequest.isTriggeredByScheduler());
+    return experimentTaskCreateRequest;
+  }
 }

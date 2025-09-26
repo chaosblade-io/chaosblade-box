@@ -18,89 +18,87 @@ package com.alibaba.chaosblade.box.common.sdk.entity;
 
 import java.util.List;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 public class ActionSpecBean {
-    private String action;
-    private String[] aliases;
-    private String shortDesc;
-    private String longDesc;
-    private List<MatcherSpecBean> matchers;
-    private List<FlagSpecBean> flags;
-    private String example;
-    private List<String> programs;
-    private List<String> categories;
+  private String action;
+  private String[] aliases;
+  private String shortDesc;
+  private String longDesc;
+  private List<MatcherSpecBean> matchers;
+  private List<FlagSpecBean> flags;
+  private String example;
+  private List<String> programs;
+  private List<String> categories;
 
-    public String getAction() {
-        return action;
-    }
+  public String getAction() {
+    return action;
+  }
 
-    public void setAction(String action) {
-        this.action = action;
-    }
+  public void setAction(String action) {
+    this.action = action;
+  }
 
-    public String[] getAliases() {
-        return aliases;
-    }
+  public String[] getAliases() {
+    return aliases;
+  }
 
-    public void setAliases(String[] aliases) {
-        this.aliases = aliases;
-    }
+  public void setAliases(String[] aliases) {
+    this.aliases = aliases;
+  }
 
-    public String getShortDesc() {
-        return shortDesc;
-    }
+  public String getShortDesc() {
+    return shortDesc;
+  }
 
-    public void setShortDesc(String shortDesc) {
-        this.shortDesc = shortDesc;
-    }
+  public void setShortDesc(String shortDesc) {
+    this.shortDesc = shortDesc;
+  }
 
-    public String getLongDesc() {
-        return longDesc;
-    }
+  public String getLongDesc() {
+    return longDesc;
+  }
 
-    public void setLongDesc(String longDesc) {
-        this.longDesc = longDesc;
-    }
+  public void setLongDesc(String longDesc) {
+    this.longDesc = longDesc;
+  }
 
-    public List<MatcherSpecBean> getMatchers() {
-        return matchers;
-    }
+  public List<MatcherSpecBean> getMatchers() {
+    return matchers;
+  }
 
-    public void setMatchers(List<MatcherSpecBean> matchers) {
-        this.matchers = matchers;
-    }
+  public void setMatchers(List<MatcherSpecBean> matchers) {
+    this.matchers = matchers;
+  }
 
-    public List<FlagSpecBean> getFlags() {
-        return flags;
-    }
+  public List<FlagSpecBean> getFlags() {
+    return flags;
+  }
 
-    public void setFlags(List<FlagSpecBean> flags) {
-        this.flags = flags;
-    }
+  public void setFlags(List<FlagSpecBean> flags) {
+    this.flags = flags;
+  }
 
-    public String getExample() {
-        return example;
-    }
+  public String getExample() {
+    return example;
+  }
 
-    public void setExample(String example) {
-        this.example = example;
-    }
+  public void setExample(String example) {
+    this.example = example;
+  }
 
-    public List<String> getPrograms() {
-        return programs;
-    }
+  public List<String> getPrograms() {
+    return programs;
+  }
 
-    public void setPrograms(List<String> programs) {
-        this.programs = programs;
-    }
+  public void setPrograms(List<String> programs) {
+    this.programs = programs;
+  }
 
-    public List<String> getCategories() {
-        return categories;
-    }
+  public List<String> getCategories() {
+    return categories;
+  }
 
-    public void setCategories(List<String> categories) {
-        this.categories = categories;
-    }
+  public void setCategories(List<String> categories) {
+    this.categories = categories;
+  }
 }

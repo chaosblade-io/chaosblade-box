@@ -1,15 +1,12 @@
 package com.alibaba.chaosblade.box.common.sdk;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 public interface RequestIdProvider {
 
-    /**
-     * 生成requestId
-     * @return
-     */
-    public String provide();
+  /**
+   * 生成requestId
+   *
+   * @return
+   */
+  public String provide();
 }

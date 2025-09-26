@@ -4,11 +4,6 @@ import com.alibaba.chaosblade.box.common.infrastructure.util.MybatisMapper;
 import com.alibaba.chaosblade.box.dao.model.ApplicationConfigurationDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @MybatisMapper
-public interface ApplicationConfigurationMapper extends BaseMapper<ApplicationConfigurationDO> {
-}
+public interface ApplicationConfigurationMapper extends BaseMapper<ApplicationConfigurationDO> {}

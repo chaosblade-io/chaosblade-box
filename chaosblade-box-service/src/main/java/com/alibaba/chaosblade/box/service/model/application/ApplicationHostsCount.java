@@ -1,21 +1,15 @@
 package com.alibaba.chaosblade.box.service.model.application;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class ApplicationHostsCount implements Serializable {
 
-    private Integer total;
+  private Integer total;
 
-    private Integer permissionCount;
+  private Integer permissionCount;
 
-    private String message;
-
+  private String message;
 }

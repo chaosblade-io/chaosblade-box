@@ -16,39 +16,34 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario.model;
 
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ActionSpecBean {
 
-    private String action;
+  private String action;
 
-    private String[] aliases;
+  private String[] aliases;
 
-    private String shortDesc;
+  private String shortDesc;
 
-    private String longDesc;
+  private String longDesc;
 
-    private List<MatcherSpecBean> matchers;
+  private List<MatcherSpecBean> matchers;
 
-    private List<FlagSpecBean> flags;
+  private List<FlagSpecBean> flags;
 
-    private String example;
+  private String example;
 
-    private String[] programs;
+  private String[] programs;
 
-    private String[] categories;
-
+  private String[] categories;
 }

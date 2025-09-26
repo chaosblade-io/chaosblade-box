@@ -6,31 +6,24 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Data
 @TableName("t_chaos_experiment_mini_flow")
 public class MiniFlowDO extends BaseDO {
 
-    @TableId(type = IdType.ID_WORKER_STR)
-    private String flowId;
+  @TableId(type = IdType.ID_WORKER_STR)
+  private String flowId;
 
-    private Integer flowOrder;
+  private Integer flowOrder;
 
-    private String name;
+  private String name;
 
-    private String groupId;
+  private String groupId;
 
-    private String experimentId;
+  private String experimentId;
 
-    private Integer groupOrder;
+  private Integer groupOrder;
 
-    /**
-     * 表示是否可以删除
-     */
-    private Boolean required;
-
+  /** 表示是否可以删除 */
+  private Boolean required;
 }

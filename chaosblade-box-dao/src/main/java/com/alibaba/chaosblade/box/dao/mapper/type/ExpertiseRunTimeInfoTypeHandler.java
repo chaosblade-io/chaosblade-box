@@ -2,14 +2,10 @@ package com.alibaba.chaosblade.box.dao.mapper.type;
 
 import com.alibaba.chaosblade.box.dao.model.ExpertiseRunTimeInfo;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public class ExpertiseRunTimeInfoTypeHandler extends BaseFastJsonTypeHandler<ExpertiseRunTimeInfo> {
-    @Override
-    public Class<ExpertiseRunTimeInfo> getObjectClass() {
-        return ExpertiseRunTimeInfo.class;
-    }
+  @Override
+  public Class<ExpertiseRunTimeInfo> getObjectClass() {
+    return ExpertiseRunTimeInfo.class;
+  }
 }

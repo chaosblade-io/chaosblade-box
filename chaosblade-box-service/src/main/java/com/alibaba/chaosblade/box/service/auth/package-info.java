@@ -1,6 +1,2 @@
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 package com.alibaba.chaosblade.box.service.auth;

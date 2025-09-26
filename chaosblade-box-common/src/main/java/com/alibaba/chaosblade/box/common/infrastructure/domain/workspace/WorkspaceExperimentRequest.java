@@ -1,13 +1,13 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.workspace;
 
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 /**
  * @Author yinyansheng
+ *
  * @create 2020/10/19
  */
 @Data
@@ -16,6 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkspaceExperimentRequest extends BaseRequest {
-    String workspaceId;
-    List<WorkspaceExperiment> workspaceExperimentList;
+  String workspaceId;
+  List<WorkspaceExperiment> workspaceExperimentList;
 }

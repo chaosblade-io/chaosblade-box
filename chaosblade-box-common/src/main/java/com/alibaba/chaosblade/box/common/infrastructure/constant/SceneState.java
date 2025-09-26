@@ -1,13 +1,9 @@
 package com.alibaba.chaosblade.box.common.infrastructure.constant;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 public interface SceneState {
 
-    Integer DRAFT = 0;
+  Integer DRAFT = 0;
 
-    Integer ACTIVE = 1;
-
+  Integer ACTIVE = 1;
 }

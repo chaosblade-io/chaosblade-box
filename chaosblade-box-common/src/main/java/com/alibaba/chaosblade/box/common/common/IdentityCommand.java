@@ -1,11 +1,7 @@
 package com.alibaba.chaosblade.box.common.common;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public interface IdentityCommand {
 
-    String getIdentity();
+  String getIdentity();
 }

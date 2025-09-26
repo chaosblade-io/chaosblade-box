@@ -2,18 +2,13 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.respo
 
 import lombok.Data;
 
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class ExperimentAppRisk {
 
-    private String appCode;
+  private String appCode;
 
-    private String appName;
+  private String appName;
 
-    private String message;
-
+  private String message;
 }

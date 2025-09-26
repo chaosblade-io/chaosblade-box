@@ -8,15 +8,29 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class MainController {
 
-    @GetMapping(path = {"/", "/login", "/chaos/**", "/machine/**", "/device/**", "/scenario/**",
-        "/scene/**", "/chaostools/**", "/tools/**", "/market/**", "/probe/**"},produces = "text/html")
-    public String root() {
-        return "/index";
-    }
+  @GetMapping(
+      path = {
+        "/",
+        "/login",
+        "/chaos/**",
+        "/machine/**",
+        "/device/**",
+        "/scenario/**",
+        "/scene/**",
+        "/chaostools/**",
+        "/tools/**",
+        "/market/**",
+        "/probe/**"
+      },
+      produces = "text/html")
+  public String root() {
+    return "/index";
+  }
 
-    @GetMapping(path = {"/index"}, produces = "text/html")
-    public String index() {
-        return "/index";
-    }
-
+  @GetMapping(
+      path = {"/index"},
+      produces = "text/html")
+  public String index() {
+    return "/index";
+  }
 }

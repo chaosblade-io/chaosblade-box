@@ -1,13 +1,9 @@
 package com.alibaba.chaosblade.box.common.common.enums;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public enum ChaosBladeStatus {
-    Created,
-    Revoked,
-    Running,
-    Error;
+  Created,
+  Revoked,
+  Running,
+  Error;
 }

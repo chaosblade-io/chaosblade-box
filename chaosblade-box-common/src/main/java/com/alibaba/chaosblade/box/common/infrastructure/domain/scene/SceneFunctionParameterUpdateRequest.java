@@ -8,22 +8,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 public class SceneFunctionParameterUpdateRequest extends BaseRequest {
 
-    ChaosUser user;
-    String parameterId;
-    String functionId;
-    String name;
-    String alias;
-    String description;
-    Integer sequence;
-    SceneFunctionParameterComponent component;
-
+  ChaosUser user;
+  String parameterId;
+  String functionId;
+  String name;
+  String alias;
+  String description;
+  Integer sequence;
+  SceneFunctionParameterComponent component;
 }

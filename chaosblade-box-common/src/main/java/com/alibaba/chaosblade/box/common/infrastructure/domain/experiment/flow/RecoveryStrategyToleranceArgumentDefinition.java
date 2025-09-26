@@ -4,14 +4,7 @@ import com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.SceneA
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class RecoveryStrategyToleranceArgumentDefinition extends SceneArgumentDefinition {
-
-
-}
+public class RecoveryStrategyToleranceArgumentDefinition extends SceneArgumentDefinition {}

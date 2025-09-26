@@ -1,11 +1,7 @@
 package com.alibaba.chaosblade.box.common.common;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public interface CloseableCommand {
 
-    public void close();
+  public void close();
 }

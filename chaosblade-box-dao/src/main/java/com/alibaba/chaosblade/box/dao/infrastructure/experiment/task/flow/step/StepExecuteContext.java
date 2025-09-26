@@ -6,43 +6,35 @@ import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.FlowEn
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.activity.ExperimentExecuteContext;
 import lombok.Getter;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public class StepExecuteContext {
 
-    /**
-     * 用户数据
-     */
-    public StepExecuteContext(FlowEngineContext flowEngineContext, ExperimentExecuteContext experimentExecuteContext) {
-        this.flowEngineContext = flowEngineContext;
-        this.request = experimentExecuteContext;
-    }
+  /** 用户数据 */
+  public StepExecuteContext(
+      FlowEngineContext flowEngineContext, ExperimentExecuteContext experimentExecuteContext) {
+    this.flowEngineContext = flowEngineContext;
+    this.request = experimentExecuteContext;
+  }
 
-    @Getter
-    private ExperimentExecuteContext request;
+  @Getter private ExperimentExecuteContext request;
 
-    public PhaseType getPhase() {
-        return getChaosAppContext().getPhase();
-    }
+  public PhaseType getPhase() {
+    return getChaosAppContext().getPhase();
+  }
 
-    @Getter
-    private transient FlowEngineContext flowEngineContext;
+  @Getter private transient FlowEngineContext flowEngineContext;
 
-    public ChaosAppContext getChaosAppContext() {
-        return chaosAppContext;
-    }
+  public ChaosAppContext getChaosAppContext() {
+    return chaosAppContext;
+  }
 
-    public void setChaosAppContext(ChaosAppContext chaosAppContext) {
-        this.chaosAppContext = chaosAppContext;
-    }
+  public void setChaosAppContext(ChaosAppContext chaosAppContext) {
+    this.chaosAppContext = chaosAppContext;
+  }
 
-    private ChaosAppContext chaosAppContext;
+  private ChaosAppContext chaosAppContext;
 
-    public String getActivityTaskId() {
-        return request.getActivityTaskId();
-    }
-
+  public String getActivityTaskId() {
+    return request.getActivityTaskId();
+  }
 }

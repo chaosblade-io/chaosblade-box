@@ -8,38 +8,34 @@ import com.alibaba.chaosblade.box.dao.model.base.PageableResponse;
 
 /**
  * @author sunju
- *
- * <p>
- * Modified by jiumu at 2019-07-24
+ *     <p>Modified by jiumu at 2019-07-24
  */
 public interface SceneFunctionService {
 
-    /**
-     * 根据appCode查找小程序
-     *
-     * @param code
-     *
-     * @return
-     */
-    SceneFunctionDO querySceneFunctionByCode(String code);
+  /**
+   * 根据appCode查找小程序
+   *
+   * @param code
+   * @return
+   */
+  SceneFunctionDO querySceneFunctionByCode(String code);
 
-    /**
-     * 创建小程序基本信息
-     *
-     * @param sceneFunctionCreateRequest
-     *
-     * @return 新增成功时返回functionId
-     */
-    String addSceneFunction(SceneFunctionCreateRequest sceneFunctionCreateRequest)
-            throws ChaosException;
+  /**
+   * 创建小程序基本信息
+   *
+   * @param sceneFunctionCreateRequest
+   * @return 新增成功时返回functionId
+   */
+  String addSceneFunction(SceneFunctionCreateRequest sceneFunctionCreateRequest)
+      throws ChaosException;
 
-    /**
-     * 查询小程序是不是裂变小程序
-     *
-     * @deprecated
-     */
-    Boolean queryIsFissionSceneFunction(String functionId);
+  /**
+   * 查询小程序是不是裂变小程序
+   *
+   * @deprecated
+   */
+  Boolean queryIsFissionSceneFunction(String functionId);
 
-    PageableResponse<SceneFunctionDO> querySceneFunctions(int pageNo, int pageSize, SceneQueryRequest queryRequest);
-
+  PageableResponse<SceneFunctionDO> querySceneFunctions(
+      int pageNo, int pageSize, SceneQueryRequest queryRequest);
 }

@@ -1,24 +1,18 @@
 package com.alibaba.chaosblade.box.dao.scheduler;
 
+import java.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
-import java.lang.annotation.*;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface SchedulerJob {
 
-    String name();
+  String name();
 
-    String cronExpression();
+  String cronExpression();
 
-    boolean randomStartDelay() default false;
-
+  boolean randomStartDelay() default false;
 }

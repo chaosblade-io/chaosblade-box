@@ -16,15 +16,12 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public class Constants {
 
-    public final static String VERSION_YAML = "version.yaml";
+  public static final String VERSION_YAML = "version.yaml";
 
-    public final static String CONFIGURATION_YAML = "configuration.yaml";
+  public static final String CONFIGURATION_YAML = "configuration.yaml";
 
-    public final static String OVERVIEW_YAML = "overview.yaml";
-
+  public static final String OVERVIEW_YAML = "overview.yaml";
 }

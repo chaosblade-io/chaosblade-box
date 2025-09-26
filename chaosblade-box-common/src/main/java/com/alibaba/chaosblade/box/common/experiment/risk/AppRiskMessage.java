@@ -1,20 +1,14 @@
 package com.alibaba.chaosblade.box.common.experiment.risk;
 
-/**
- * @author sunpeng
- *
- *
- */
-
+/** @author sunpeng */
 import lombok.Data;
 
 @Data
 public class AppRiskMessage {
 
-    private String appCode;
+  private String appCode;
 
-    private String appName;
+  private String appName;
 
-    private String message;
-
+  private String message;
 }

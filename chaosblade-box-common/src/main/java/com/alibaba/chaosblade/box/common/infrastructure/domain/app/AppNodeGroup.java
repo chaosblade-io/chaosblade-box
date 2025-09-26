@@ -1,27 +1,17 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.app;
 
+import java.util.Map;
 import lombok.Data;
 
-import java.util.Map;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class AppNodeGroup {
 
-    private String nodeGroup;
+  private String nodeGroup;
 
-    /**
-     * 机房分布的机器数量
-     */
-    private Map<String, Long> rooms;
+  /** 机房分布的机器数量 */
+  private Map<String, Long> rooms;
 
-    /**
-     * 单元分布
-     */
-    private Map<String, Long> units;
-
+  /** 单元分布 */
+  private Map<String, Long> units;
 }

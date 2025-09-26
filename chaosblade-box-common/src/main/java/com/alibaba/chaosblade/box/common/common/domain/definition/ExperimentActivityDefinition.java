@@ -14,10 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExperimentActivityDefinition extends BaseExperimentActivityDefinition {
 
-    /**
-     * 活动的参数
-     */
-    @ApiParam(required = false)
-    ExperimentNodeArgumentsDefinition arguments;
-
+  /** 活动的参数 */
+  @ApiParam(required = false)
+  ExperimentNodeArgumentsDefinition arguments;
 }

@@ -1,43 +1,29 @@
 package com.alibaba.chaosblade.box.common.infrastructure.util.concurrent;
 
+import java.util.concurrent.ThreadFactory;
 import lombok.Data;
 import lombok.Getter;
 
-import java.util.concurrent.ThreadFactory;
-
-/**
- * @author haibin
- *
- *
- */
-
+/** @author haibin */
 @Data
 public class ThreadPoolConfig {
 
-    /**
-     * thread pool alias
-     */
-    @Getter
-    private String threadName;
+  /** thread pool alias */
+  @Getter private String threadName;
 
-    /**
-     * decorate thread runnable
-     */
+  /** decorate thread runnable */
+  private RunnableDecorator runnableDecorator;
 
-    private RunnableDecorator runnableDecorator;
+  /** thread pool taskQueue */
+  private int queueCapacity = 256;
 
-    /**
-     * thread pool taskQueue
-     */
-    private int queueCapacity = 256;
+  private int coreSize = 1;
 
-    private int coreSize = 1;
+  private int maxThreadSize = 3;
 
-    private int maxThreadSize = 3;
+  private ThreadFactory threadFactory;
 
-    private ThreadFactory threadFactory;
-
-    public ThreadPoolConfig(String threadName) {
-        this.threadName = threadName;
-    }
+  public ThreadPoolConfig(String threadName) {
+    this.threadName = threadName;
+  }
 }

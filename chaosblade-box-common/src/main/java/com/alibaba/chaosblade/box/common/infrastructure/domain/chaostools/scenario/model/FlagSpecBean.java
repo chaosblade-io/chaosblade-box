@@ -16,29 +16,25 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author Changjun Xiao
- */
+/** @author Changjun Xiao */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class FlagSpecBean {
 
-    private String name;
+  private String name;
 
-    private String desc;
+  private String desc;
 
-    private boolean noArgs;
+  private boolean noArgs;
 
-    private boolean required;
+  private boolean required;
 
-    private String defaultValue;
-
+  private String defaultValue;
 }

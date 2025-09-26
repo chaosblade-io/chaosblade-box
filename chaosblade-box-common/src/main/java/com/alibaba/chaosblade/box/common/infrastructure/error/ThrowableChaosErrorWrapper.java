@@ -1,21 +1,15 @@
 package com.alibaba.chaosblade.box.common.infrastructure.error;
 
-
 import com.alibaba.chaosblade.box.common.common.domain.ChaosError;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public interface ThrowableChaosErrorWrapper {
 
-    /**
-     * 将异常封装成ChaosError
-     *
-     * @param throwable
-     * @return
-     */
-    public ChaosError wrapper(Throwable throwable);
-
+  /**
+   * 将异常封装成ChaosError
+   *
+   * @param throwable
+   * @return
+   */
+  public ChaosError wrapper(Throwable throwable);
 }

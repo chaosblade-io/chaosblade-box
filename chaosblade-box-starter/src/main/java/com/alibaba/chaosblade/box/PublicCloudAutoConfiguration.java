@@ -5,16 +5,12 @@ import com.alibaba.chaosblade.box.common.infrastructure.monitor.metric.miniapp.M
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Configuration
 public class PublicCloudAutoConfiguration {
 
-    @Bean
-    MetricDefinitionRepository metricDefinitionRepository() {
-        return new DefaultMetricDefinitionRepository();
-    }
+  @Bean
+  MetricDefinitionRepository metricDefinitionRepository() {
+    return new DefaultMetricDefinitionRepository();
+  }
 }

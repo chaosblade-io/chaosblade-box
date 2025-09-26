@@ -4,36 +4,36 @@ import com.alibaba.chaosblade.box.dao.model.ChaosBladeExpUidDO;
 import com.alibaba.chaosblade.box.dao.model.ExperimentMiniAppTaskDO;
 import lombok.Data;
 
-/**
- * @author sunpeng
- * 
- *
- */
+/** @author sunpeng */
 @Data
 public class AsyncCallBackContext {
 
-    private ExperimentMiniAppTaskDO experimentMiniAppTaskDO;
+  private ExperimentMiniAppTaskDO experimentMiniAppTaskDO;
 
-    private ChaosBladeExpUidDO chaosBladeExpUidDO;
+  private ChaosBladeExpUidDO chaosBladeExpUidDO;
 
-    private String uid;
+  private String uid;
 
-    private String status;
+  private String status;
 
-    private String error;
+  private String error;
 
-    private String toolType;
+  private String toolType;
 
-    public AsyncCallBackContext() {}
+  public AsyncCallBackContext() {}
 
-    public AsyncCallBackContext(ExperimentMiniAppTaskDO experimentMiniAppTaskDO, ChaosBladeExpUidDO chaosBladeExpUidDO,
-                                String uid, String status, String error, String toolType) {
-        this.experimentMiniAppTaskDO = experimentMiniAppTaskDO;
-        this.chaosBladeExpUidDO = chaosBladeExpUidDO;
-        this.status = status;
-        this.uid = uid;
-        this.toolType = toolType;
-        this.error = error;
-    }
-
+  public AsyncCallBackContext(
+      ExperimentMiniAppTaskDO experimentMiniAppTaskDO,
+      ChaosBladeExpUidDO chaosBladeExpUidDO,
+      String uid,
+      String status,
+      String error,
+      String toolType) {
+    this.experimentMiniAppTaskDO = experimentMiniAppTaskDO;
+    this.chaosBladeExpUidDO = chaosBladeExpUidDO;
+    this.status = status;
+    this.uid = uid;
+    this.toolType = toolType;
+    this.error = error;
+  }
 }

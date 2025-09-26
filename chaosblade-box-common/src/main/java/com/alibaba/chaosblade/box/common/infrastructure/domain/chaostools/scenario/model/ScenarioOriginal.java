@@ -21,18 +21,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class ScenarioOriginal {
 
-    private String name;
+  private String name;
 
-    private String url;
+  private String url;
 
-    private String version;
+  private String version;
 }

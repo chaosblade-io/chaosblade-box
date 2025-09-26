@@ -7,23 +7,21 @@ import com.alibaba.chaosblade.box.dao.repository.ChaosBladeExpUidRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 @Component
-public class AllChaosBladeExpRecoveryExperimentTaskFinishedInterceptor implements ExperimentTaskFinishedInterceptor {
+public class AllChaosBladeExpRecoveryExperimentTaskFinishedInterceptor
+    implements ExperimentTaskFinishedInterceptor {
 
-    @Autowired
-    private ChaosBladeExpUidRepository chaosBladeExpUidRepository;
+  @Autowired private ChaosBladeExpUidRepository chaosBladeExpUidRepository;
 
-    @Autowired
-    private ChaosBladeExpDirectlyRecovery chaosBladeExpDirectlyRecovery;
+  @Autowired private ChaosBladeExpDirectlyRecovery chaosBladeExpDirectlyRecovery;
 
-    @Override
-    public void beforeTurnToFinishedState(ExperimentTaskDO experimentTaskDO) {
-        chaosBladeExpUidRepository.findByExperimentTaskIdAndNotExpired(experimentTaskDO.getTaskId()).forEach(
-            chaosBladeExpUidDO -> chaosBladeExpDirectlyRecovery.recoveryByExpRecord(chaosBladeExpUidDO));
-    }
+  @Override
+  public void beforeTurnToFinishedState(ExperimentTaskDO experimentTaskDO) {
+    chaosBladeExpUidRepository
+        .findByExperimentTaskIdAndNotExpired(experimentTaskDO.getTaskId())
+        .forEach(
+            chaosBladeExpUidDO ->
+                chaosBladeExpDirectlyRecovery.recoveryByExpRecord(chaosBladeExpUidDO));
+  }
 }

@@ -6,31 +6,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChaosFunctionDependencyDescriptor {
 
-    String code;
+  String code;
 
-    boolean required;
+  boolean required;
 
-    int phase;
+  int phase;
 
-    int type;
+  int type;
 
-    public static ChaosFunctionDependencyDescriptor of(ChaosDependency dependency) {
-        ChaosFunctionDependencyDescriptor
-                descriptor = new ChaosFunctionDependencyDescriptor();
-        descriptor.setCode(dependency.code());
-        descriptor.setPhase(dependency.phase());
-        descriptor.setRequired(dependency.required());
-        descriptor.setType(dependency.type());
-        return descriptor;
-    }
-
+  public static ChaosFunctionDependencyDescriptor of(ChaosDependency dependency) {
+    ChaosFunctionDependencyDescriptor descriptor = new ChaosFunctionDependencyDescriptor();
+    descriptor.setCode(dependency.code());
+    descriptor.setPhase(dependency.phase());
+    descriptor.setRequired(dependency.required());
+    descriptor.setType(dependency.type());
+    return descriptor;
+  }
 }

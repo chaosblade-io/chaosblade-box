@@ -23,6 +23,8 @@ import com.alibaba.chaosblade.box.service.auth.perimission.UserPermissionService
 import com.alibaba.chaosblade.box.service.auth.perimission.UserPermissionServiceImpl;
 import com.alibaba.chaosblade.box.service.command.guard.ExperimentGuardMetricLoadCommand;
 import com.alibaba.chaosblade.box.service.command.guard.ExperimentGuardRecoveryLoadCommand;
+import java.util.TimeZone;
+import javax.sql.DataSource;
 import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.LockingTaskExecutor;
@@ -38,14 +40,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
-import java.util.TimeZone;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Configuration
 @ComponentScan(basePackageClasses = ServerConfiguration.class)
 @EnableCaching
@@ -53,144 +48,136 @@ import java.util.TimeZone;
 @EnableAsync
 public class ServerConfiguration {
 
-    @Bean
-    public CommandExecutorPoolSpringFactory commandExecutorPoolSpringFactory() {
-        return new CommandExecutorPoolSpringFactory();
-    }
+  @Bean
+  public CommandExecutorPoolSpringFactory commandExecutorPoolSpringFactory() {
+    return new CommandExecutorPoolSpringFactory();
+  }
 
-    @Bean(destroyMethod = "shutDown")
-    public ThreadPool threadPool() {
-        return new ThreadPool();
-    }
+  @Bean(destroyMethod = "shutDown")
+  public ThreadPool threadPool() {
+    return new ThreadPool();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = ExperimentSearchClient.class)
-    ExperimentSearchClient experimentSearchClient() {
-        return new DbExperimentSearchClient();
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = ExperimentSearchClient.class)
+  ExperimentSearchClient experimentSearchClient() {
+    return new DbExperimentSearchClient();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = SceneFunctionSwitch.class)
-    SceneFunctionSwitch sceneFunctionSwitch() {
-        return new DefaultSceneFunctionSwitch();
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = SceneFunctionSwitch.class)
+  SceneFunctionSwitch sceneFunctionSwitch() {
+    return new DefaultSceneFunctionSwitch();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = MetricService.class)
-    MetricService metricService() {
-        return new EmptyMetricServiceImpl();
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = MetricService.class)
+  MetricService metricService() {
+    return new EmptyMetricServiceImpl();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = UserPermissionService.class)
-    UserPermissionService chaosUserPermissionService() {
-        return new UserPermissionServiceImpl();
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = UserPermissionService.class)
+  UserPermissionService chaosUserPermissionService() {
+    return new UserPermissionServiceImpl();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = ExperimentTaskHostRecorder.class)
-    ExperimentTaskHostRecorder experimentTaskHostRecorder() {
-        return new DefaultExperimentTaskHostsRecorder();
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = ExperimentTaskHostRecorder.class)
+  ExperimentTaskHostRecorder experimentTaskHostRecorder() {
+    return new DefaultExperimentTaskHostsRecorder();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = UserSceneFunctionFilter.class)
-    UserSceneFunctionFilter userSceneFunctionFilter() {
-        return new UserSceneFunctionFilter() {
-            @Override
-            public boolean filter(ChaosUser chaosUser, SceneFunctionDO sceneFunctionDO) {
-                return true;
-            }
+  @Bean
+  @ConditionalOnMissingBean(value = UserSceneFunctionFilter.class)
+  UserSceneFunctionFilter userSceneFunctionFilter() {
+    return new UserSceneFunctionFilter() {
+      @Override
+      public boolean filter(ChaosUser chaosUser, SceneFunctionDO sceneFunctionDO) {
+        return true;
+      }
+    };
+  }
 
-        };
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = ActivityTaskAsyncSupport.class)
+  ActivityTaskAsyncSupport activityTaskAsyncSupport() {
+    return new ActivityTaskAsyncSupport() {
+      @Override
+      public boolean isAsync(ActivityTaskDO activityTaskDO) {
+        return false;
+      }
+    };
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = ActivityTaskAsyncSupport.class)
-    ActivityTaskAsyncSupport activityTaskAsyncSupport() {
-        return new
-            ActivityTaskAsyncSupport() {
-                @Override
-                public boolean isAsync(ActivityTaskDO activityTaskDO) {
-                    return false;
-                }
-            };
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = UserService.class)
+  UserService userService() {
+    return new UserService() {
+      @Override
+      public ChaosUser getUserByUserId(String userId) {
+        return null;
+      }
 
-    @Bean
-    @ConditionalOnMissingBean(value = UserService.class)
-    UserService userService() {
-        return new UserService() {
-            @Override
-            public ChaosUser getUserByUserId(String userId) {
-                return null;
-            }
+      @Override
+      public boolean userNameExist(String userName) {
+        return false;
+      }
 
-            @Override
-            public boolean userNameExist(String userName) {
-                return false;
-            }
+      @Override
+      public ChaosUser saveUser(String userName, String password) {
+        return null;
+      }
 
-            @Override
-            public ChaosUser saveUser(String userName, String password) {
-                return null;
-            }
+      @Override
+      public ChaosUser login(String userName, String password) {
+        return null;
+      }
 
-            @Override
-            public ChaosUser login(String userName, String password) {
-                return null;
-            }
+      @Override
+      public void updateLastLoginTime(Long id) {}
+    };
+  }
 
-            @Override
-            public void updateLastLoginTime(Long id) {
+  @ConditionalOnMissingBean
+  @Bean
+  FlowEngineFactoryBean flowEngineFactoryBean() {
+    return new FlowEngineFactoryBean();
+  }
 
-            }
+  @Bean
+  @ConditionalOnMissingBean(value = ExperimentGuardRecoveryLoadCommand.class)
+  ExperimentGuardRecoveryLoadCommand experimentGuardMonitorMetricResultLoadCommand() {
+    return new ExperimentGuardRecoveryLoadCommand();
+  }
 
-        };
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = ExperimentGuardHostsProvider.class)
+  ExperimentGuardHostsProvider experimentGuardHostsProvider() {
+    return new DefaultExperimentGuardHostsProvider();
+  }
 
-    @ConditionalOnMissingBean
-    @Bean
-    FlowEngineFactoryBean flowEngineFactoryBean() {
-        return new FlowEngineFactoryBean();
-    }
+  @Bean
+  @ConditionalOnMissingBean(value = ExperimentGuardMetricLoadCommand.class)
+  ExperimentGuardMetricLoadCommand experimentGuardMonitorStrategyRecoveryLoadCommand() {
+    return new ExperimentGuardMetricLoadCommand();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = ExperimentGuardRecoveryLoadCommand.class)
-    ExperimentGuardRecoveryLoadCommand experimentGuardMonitorMetricResultLoadCommand() {
-        return new ExperimentGuardRecoveryLoadCommand();
-    }
+  @Autowired private PlatformTransactionManager txManager;
 
-    @Bean
-    @ConditionalOnMissingBean(value = ExperimentGuardHostsProvider.class)
-    ExperimentGuardHostsProvider experimentGuardHostsProvider() {
-        return new DefaultExperimentGuardHostsProvider();
-    }
+  @Bean
+  public LockProvider lockProvider(@Autowired DataSource dataSource) {
+    return new JdbcTemplateLockProvider(
+        JdbcTemplateLockProvider.Configuration.builder()
+            .withTransactionManager(txManager)
+            .withTimeZone(TimeZone.getTimeZone("UTC-08"))
+            .withJdbcTemplate(new JdbcTemplate(dataSource))
+            .withTableName("t_chaos_distribute_lock")
+            .build());
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(value = ExperimentGuardMetricLoadCommand.class)
-    ExperimentGuardMetricLoadCommand experimentGuardMonitorStrategyRecoveryLoadCommand() {
-        return new ExperimentGuardMetricLoadCommand();
-    }
-
-    @Autowired
-    private PlatformTransactionManager txManager;
-
-    @Bean
-    public LockProvider lockProvider(@Autowired DataSource dataSource) {
-        return new JdbcTemplateLockProvider(
-            JdbcTemplateLockProvider.Configuration.builder()
-                .withTransactionManager(txManager)
-                .withTimeZone(TimeZone.getTimeZone("UTC-08"))
-                .withJdbcTemplate(new JdbcTemplate(dataSource))
-                .withTableName("t_chaos_distribute_lock")
-                .build()
-        );
-    }
-
-    @Bean
-    LockingTaskExecutor lockingTaskExecutor(@Autowired LockProvider lockProvider) {
-        return new DefaultLockingTaskExecutor(lockProvider);
-    }
-
+  @Bean
+  LockingTaskExecutor lockingTaskExecutor(@Autowired LockProvider lockProvider) {
+    return new DefaultLockingTaskExecutor(lockProvider);
+  }
 }

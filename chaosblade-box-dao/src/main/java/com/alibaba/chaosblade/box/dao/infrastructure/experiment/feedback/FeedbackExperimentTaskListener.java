@@ -9,27 +9,22 @@ import com.alibaba.chaosblade.box.dao.repository.ExperimentTaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- *
- * 
- */
+/** @author haibin.lhb */
 @Component
 public class FeedbackExperimentTaskListener extends BaseChaosEventListener {
 
-    @Autowired
-    private ExperimentTaskRepository experimentTaskRepository;
+  @Autowired private ExperimentTaskRepository experimentTaskRepository;
 
-    @Override
-    public boolean support(BaseChaosEvent event) {
-        return event instanceof ExperimentTaskFinishedEvent;
-    }
+  @Override
+  public boolean support(BaseChaosEvent event) {
+    return event instanceof ExperimentTaskFinishedEvent;
+  }
 
-    @Override
-    public void onChaosEvent(BaseChaosEvent event) {
-        ExperimentTaskFinishedEvent experimentTaskFinishedEvent = (ExperimentTaskFinishedEvent)event;
-        ExperimentTaskDO experimentTaskDO = experimentTaskFinishedEvent.getExperimentTaskDO();
-        experimentTaskRepository.updateFeedbackStatus(experimentTaskDO.getTaskId(),
-            FeedBackConstant.FeedbackStatus.FEEDBACK_STATUS_WAITING);
-    }
+  @Override
+  public void onChaosEvent(BaseChaosEvent event) {
+    ExperimentTaskFinishedEvent experimentTaskFinishedEvent = (ExperimentTaskFinishedEvent) event;
+    ExperimentTaskDO experimentTaskDO = experimentTaskFinishedEvent.getExperimentTaskDO();
+    experimentTaskRepository.updateFeedbackStatus(
+        experimentTaskDO.getTaskId(), FeedBackConstant.FeedbackStatus.FEEDBACK_STATUS_WAITING);
+  }
 }

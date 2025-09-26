@@ -7,23 +7,20 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class MockExtraFeedbackComponentPostProcessor implements ExtraFeedbackComponentPostProcessor {
-    @Override
-    public ExtraFeedbackComponent acquireExtraFeedbackComponent(ExperimentTaskDO experimentTaskDO) {
-        return null;
-    }
+public class MockExtraFeedbackComponentPostProcessor
+    implements ExtraFeedbackComponentPostProcessor {
+  @Override
+  public ExtraFeedbackComponent acquireExtraFeedbackComponent(ExperimentTaskDO experimentTaskDO) {
+    return null;
+  }
 
-    @Override
-    public boolean submitExtraFeedbackComponent(ExperimentTaskDO experimentTaskDO,
-        ExtraFeedbackComponent extraFeedbackComponent)
-        throws Exception {
-        return true;
-    }
+  @Override
+  public boolean submitExtraFeedbackComponent(
+      ExperimentTaskDO experimentTaskDO, ExtraFeedbackComponent extraFeedbackComponent)
+      throws Exception {
+    return true;
+  }
 }

@@ -3,16 +3,11 @@ package com.alibaba.chaosblade.box.service.model.expertise;
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import lombok.Data;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
-public class ExpertiseCloneRequest  extends BaseRequest {
+public class ExpertiseCloneRequest extends BaseRequest {
 
-    private String expertiseId;
+  private String expertiseId;
 
-    private String name;
-
+  private String name;
 }

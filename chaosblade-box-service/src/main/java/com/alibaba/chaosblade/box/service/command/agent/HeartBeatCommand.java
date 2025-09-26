@@ -15,45 +15,42 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 @Slf4j
-public class HeartBeatCommand extends SpringBeanCommand<HeartBeatCallbackRequest, Response<Boolean>> implements
-    InitializingBean {
+public class HeartBeatCommand extends SpringBeanCommand<HeartBeatCallbackRequest, Response<Boolean>>
+    implements InitializingBean {
 
-    private static Logger logger = LoggerFactory.getLogger("heart-beat");
+  private static Logger logger = LoggerFactory.getLogger("heart-beat");
 
-    @Autowired
-    private DomainFactory domainFactory;
+  @Autowired private DomainFactory domainFactory;
 
-    @Override
-    public Response<Boolean> execute(HeartBeatCallbackRequest heartBeatCallbackRequest) {
-        StopWatch stopWatch = StopWatch.createStarted();
-        boolean success = false;
-        try {
-            String configurationId = heartBeatCallbackRequest.getConfigurationId();
-            if (logger.isDebugEnabled()) {
-                log.debug("start handle client heartbeat request,{}" + JSON.toJSONString(heartBeatCallbackRequest));
-                logger.debug("handle update for configuration id:" + configurationId);
-            }
-            Preconditions.checkArgument(configurationId != null, "cid Required");
-            success = true;
-            return Response.ofSuccess(
-                domainFactory.getBean(new PrivateScope(configurationId)).updateHeartBeatTime(heartBeatCallbackRequest));
-        } catch (Exception ex) {
-            logger.error("execute heartbeat request failed", ex);
-            success = false;
-            return Response.ofFailure(Response.Code.SERVER_ERROR, "execute heartbeat request failed,:" + ex.getMessage());
-        }
-
+  @Override
+  public Response<Boolean> execute(HeartBeatCallbackRequest heartBeatCallbackRequest) {
+    StopWatch stopWatch = StopWatch.createStarted();
+    boolean success = false;
+    try {
+      String configurationId = heartBeatCallbackRequest.getConfigurationId();
+      if (logger.isDebugEnabled()) {
+        log.debug(
+            "start handle client heartbeat request,{}"
+                + JSON.toJSONString(heartBeatCallbackRequest));
+        logger.debug("handle update for configuration id:" + configurationId);
+      }
+      Preconditions.checkArgument(configurationId != null, "cid Required");
+      success = true;
+      return Response.ofSuccess(
+          domainFactory
+              .getBean(new PrivateScope(configurationId))
+              .updateHeartBeatTime(heartBeatCallbackRequest));
+    } catch (Exception ex) {
+      logger.error("execute heartbeat request failed", ex);
+      success = false;
+      return Response.ofFailure(
+          Response.Code.SERVER_ERROR, "execute heartbeat request failed,:" + ex.getMessage());
     }
+  }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
+  @Override
+  public void afterPropertiesSet() throws Exception {}
 }

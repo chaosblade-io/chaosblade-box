@@ -3,22 +3,16 @@ package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.reque
 import com.alibaba.chaosblade.box.common.common.domain.BaseRequest;
 import com.alibaba.chaosblade.box.common.common.enums.ExperimentStateEnum;
 import com.alibaba.chaosblade.box.common.common.enums.ResultEnum;
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author haibin
- *
- * 
- */
+/** @author haibin */
 @Data
 public class ExperimentQueryRequest extends BaseRequest {
 
-    private String searchKey;
+  private String searchKey;
 
-    private ExperimentStateEnum state;
+  private ExperimentStateEnum state;
 
-    private List<ResultEnum> results;
-
+  private List<ResultEnum> results;
 }

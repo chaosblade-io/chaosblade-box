@@ -9,41 +9,41 @@ import java.util.Arrays;
  */
 public enum ChaosAppType {
 
-    /**
-     * component type
-     *
-     * @since 1.0.0
-     */
-    COMPONENT,
+  /**
+   * component type
+   *
+   * @since 1.0.0
+   */
+  COMPONENT,
 
-    /**
-     * system type, agent attack/unattach only
-     *
-     * @since 1.0.0
-     */
-    SYSTEM,
+  /**
+   * system type, agent attack/unattach only
+   *
+   * @since 1.0.0
+   */
+  SYSTEM,
 
-    /**
-     * chaosapp type, develop by 3rd only
-     *
-     * @since 1.0.0
-     */
-    CHAOS_APP,
+  /**
+   * chaosapp type, develop by 3rd only
+   *
+   * @since 1.0.0
+   */
+  CHAOS_APP,
 
-    /**
-     * combine type, combine by component type or chaosapp type only
-     *
-     * @since 1.0.0
-     */
-    COMBINE;
+  /**
+   * combine type, combine by component type or chaosapp type only
+   *
+   * @since 1.0.0
+   */
+  COMBINE;
 
-    public static ChaosAppType of(String name) {
-        if (null == name || name.length() <= 0) {
-            return null;
-        }
-        return Arrays.stream(ChaosAppType.values())
-            .filter(type -> type.name().toLowerCase().equals(name.toLowerCase()))
-            .findFirst().get();
+  public static ChaosAppType of(String name) {
+    if (null == name || name.length() <= 0) {
+      return null;
     }
-
+    return Arrays.stream(ChaosAppType.values())
+        .filter(type -> type.name().toLowerCase().equals(name.toLowerCase()))
+        .findFirst()
+        .get();
+  }
 }

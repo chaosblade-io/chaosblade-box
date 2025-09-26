@@ -16,20 +16,12 @@
 
 package com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario;
 
-
 import com.alibaba.chaosblade.box.common.infrastructure.domain.chaostools.scenario.model.PluginSpecBean;
-
 import java.util.List;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 public interface ScenarioParser {
 
-    /**
-     *
-     * @return
-     */
-    List<PluginSpecBean> parse(ScenarioRequest scenarioRequest);
-
+  /** @return */
+  List<PluginSpecBean> parse(ScenarioRequest scenarioRequest);
 }

@@ -7,25 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 public class SpringAutowiredSetterCommandDecorator implements CommandDecorator {
 
-    @Autowired
-    private ApplicationContext applicationContext;
+  @Autowired private ApplicationContext applicationContext;
 
-    @Override
-    public <Response> Command<Response> decorate(Command<Response> sourceCommand) {
-        if (sourceCommand == null) {
-            return null;
-        }
-        if (!(sourceCommand instanceof SpringBeanCommand)) {
-            this.applicationContext.getAutowireCapableBeanFactory().autowireBean(sourceCommand);
-        }
-        return sourceCommand;
+  @Override
+  public <Response> Command<Response> decorate(Command<Response> sourceCommand) {
+    if (sourceCommand == null) {
+      return null;
     }
+    if (!(sourceCommand instanceof SpringBeanCommand)) {
+      this.applicationContext.getAutowireCapableBeanFactory().autowireBean(sourceCommand);
+    }
+    return sourceCommand;
+  }
 }

@@ -5,5 +5,4 @@ import com.alibaba.chaosblade.box.dao.model.ExperimentNotificationDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 @MybatisMapper
-public interface ExperimentNotificationMapper extends BaseMapper<ExperimentNotificationDO> {
-}
+public interface ExperimentNotificationMapper extends BaseMapper<ExperimentNotificationDO> {}

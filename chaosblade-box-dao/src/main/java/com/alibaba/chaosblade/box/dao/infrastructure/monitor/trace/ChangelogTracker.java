@@ -1,22 +1,17 @@
 package com.alibaba.chaosblade.box.dao.infrastructure.monitor.trace;
 
-
 import com.alibaba.chaosblade.box.dao.model.ChangelogDO;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 public interface ChangelogTracker {
 
-    /**
-     * targetType
-     *
-     * @param targetType
-     * @return
-     */
-    boolean support(String targetType);
+  /**
+   * targetType
+   *
+   * @param targetType
+   * @return
+   */
+  boolean support(String targetType);
 
-    void track(ChangelogDO changelogDO);
-
+  void track(ChangelogDO changelogDO);
 }

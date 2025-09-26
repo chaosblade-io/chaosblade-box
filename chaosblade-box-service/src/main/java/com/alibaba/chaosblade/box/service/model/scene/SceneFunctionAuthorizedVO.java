@@ -5,19 +5,15 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SceneFunctionAuthorizedVO {
 
-    String authorizedId;
-    ChaosUser grantFrom;
-    ChaosUser grantTo;
-    String functionId;
-    String permission;
-    Boolean isPublic;
-
+  String authorizedId;
+  ChaosUser grantFrom;
+  ChaosUser grantTo;
+  String functionId;
+  String permission;
+  Boolean isPublic;
 }

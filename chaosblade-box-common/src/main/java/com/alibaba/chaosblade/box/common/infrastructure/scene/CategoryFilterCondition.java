@@ -2,20 +2,13 @@ package com.alibaba.chaosblade.box.common.infrastructure.scene;
 
 import lombok.Data;
 
-/**
- * @author sunpeng
- *
- *
- */
+/** @author sunpeng */
 @Data
 public class CategoryFilterCondition {
 
+  private Boolean filterNoChild;
 
-    private Boolean filterNoChild;
+  private String cloudServiceType;
 
-    private String cloudServiceType;
-
-    private Integer phase;
-
-
+  private Integer phase;
 }

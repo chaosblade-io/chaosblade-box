@@ -21,20 +21,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author yefei
- */
+/** @author yefei */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ScenarioRequest {
 
-    private String chaosTools;
+  private String chaosTools;
 
-    private String version;
+  private String version;
 
-    private String spec;
+  private String spec;
 
-    private String requestUrl;
+  private String requestUrl;
 }

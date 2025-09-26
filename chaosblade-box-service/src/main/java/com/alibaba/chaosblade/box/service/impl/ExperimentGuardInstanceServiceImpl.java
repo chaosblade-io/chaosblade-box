@@ -10,41 +10,46 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 @Slf4j
 @Service
 public class ExperimentGuardInstanceServiceImpl implements ExperimentGuardInstanceService {
 
-    public static String PRE = "guard:monitor";
+  public static String PRE = "guard:monitor";
 
-    @Autowired
-    private ExperimentGuardInstanceRepository experimentGuardInstanceRepository;
+  @Autowired private ExperimentGuardInstanceRepository experimentGuardInstanceRepository;
 
-    @Autowired
-    private RedisCacheTemplate redisTemplate;
+  @Autowired private RedisCacheTemplate redisTemplate;
 
-    @Override
-    public boolean addExperimentGuardInstance(ExperimentGuardInstanceDO experimentGuardInstanceDO) {
-        if(null != experimentGuardInstanceDO && ExperimentGuardDO.ACTION_TYPE_MONITOR.equals(experimentGuardInstanceDO.getActionType())) {
-            ExperimentGuardMonitorMetricResultEntity experimentGuardMonitorMetricResultEntity =  experimentGuardInstanceDO.getValue();
-            experimentGuardInstanceDO.setValue(null);
-            experimentGuardInstanceRepository.add(experimentGuardInstanceDO);
-            redisTemplate.prefixPut(PRE,experimentGuardInstanceDO.getInstanceId(),experimentGuardMonitorMetricResultEntity);
-            return true;
-        }
-        return experimentGuardInstanceRepository.add(experimentGuardInstanceDO);
+  @Override
+  public boolean addExperimentGuardInstance(ExperimentGuardInstanceDO experimentGuardInstanceDO) {
+    if (null != experimentGuardInstanceDO
+        && ExperimentGuardDO.ACTION_TYPE_MONITOR.equals(
+            experimentGuardInstanceDO.getActionType())) {
+      ExperimentGuardMonitorMetricResultEntity experimentGuardMonitorMetricResultEntity =
+          experimentGuardInstanceDO.getValue();
+      experimentGuardInstanceDO.setValue(null);
+      experimentGuardInstanceRepository.add(experimentGuardInstanceDO);
+      redisTemplate.prefixPut(
+          PRE, experimentGuardInstanceDO.getInstanceId(), experimentGuardMonitorMetricResultEntity);
+      return true;
     }
+    return experimentGuardInstanceRepository.add(experimentGuardInstanceDO);
+  }
 
-    @Override
-    public boolean updateExperimentGuardInstance(ExperimentGuardInstanceDO experimentGuardInstanceDO) {
-        if(null != experimentGuardInstanceDO && ExperimentGuardDO.ACTION_TYPE_MONITOR.equals(experimentGuardInstanceDO.getActionType())) {
-            ExperimentGuardMonitorMetricResultEntity experimentGuardMonitorMetricResultEntity =  experimentGuardInstanceDO.getValue();
-            experimentGuardInstanceDO.setValue(null);
-            experimentGuardInstanceRepository.update(experimentGuardInstanceDO);
-            redisTemplate.prefixPut(PRE,experimentGuardInstanceDO.getInstanceId(),experimentGuardMonitorMetricResultEntity);
-            return true;
-        }
-        return experimentGuardInstanceRepository.updateByInstanceId(experimentGuardInstanceDO);
+  @Override
+  public boolean updateExperimentGuardInstance(
+      ExperimentGuardInstanceDO experimentGuardInstanceDO) {
+    if (null != experimentGuardInstanceDO
+        && ExperimentGuardDO.ACTION_TYPE_MONITOR.equals(
+            experimentGuardInstanceDO.getActionType())) {
+      ExperimentGuardMonitorMetricResultEntity experimentGuardMonitorMetricResultEntity =
+          experimentGuardInstanceDO.getValue();
+      experimentGuardInstanceDO.setValue(null);
+      experimentGuardInstanceRepository.update(experimentGuardInstanceDO);
+      redisTemplate.prefixPut(
+          PRE, experimentGuardInstanceDO.getInstanceId(), experimentGuardMonitorMetricResultEntity);
+      return true;
     }
-
+    return experimentGuardInstanceRepository.updateByInstanceId(experimentGuardInstanceDO);
+  }
 }

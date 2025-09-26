@@ -8,24 +8,16 @@ import com.alibaba.chaosblade.box.dao.repository.ExperimentTagRepository;
 import com.alibaba.chaosblade.box.dao.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public class DbExperimentSearchClient implements ExperimentSearchClient {
-    @Autowired
-    private ExperimentRepository experimentRepository;
+  @Autowired private ExperimentRepository experimentRepository;
 
-    @Autowired
-    private TagRepository tagRepository;
+  @Autowired private TagRepository tagRepository;
 
-    @Autowired
-    private ExperimentTagRepository experimentTagRepository;
+  @Autowired private ExperimentTagRepository experimentTagRepository;
 
-    @Override
-    public ExperimentSearchResult search(CommonExperimentSearchRequest experimentSearchRequest) {
-        return new ExperimentSearchResult();
-    }
-
+  @Override
+  public ExperimentSearchResult search(CommonExperimentSearchRequest experimentSearchRequest) {
+    return new ExperimentSearchResult();
+  }
 }

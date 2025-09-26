@@ -7,15 +7,14 @@ import lombok.experimental.FieldDefaults;
 /**
  * Author: sunju
  *
- * Date:   2019/11/8
+ * <p>Date: 2019/11/8
  */
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LocalCacheConfig {
 
-    String name;
-    int maxSize;
-    int expireAfterAccess;
-    int expireAfterWrite;
-
+  String name;
+  int maxSize;
+  int expireAfterAccess;
+  int expireAfterWrite;
 }

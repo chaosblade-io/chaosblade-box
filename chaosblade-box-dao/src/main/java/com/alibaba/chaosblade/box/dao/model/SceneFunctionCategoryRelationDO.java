@@ -5,21 +5,17 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 @TableName("t_chaos_scene_function_category_relation")
 @Data
 public class SceneFunctionCategoryRelationDO extends BaseDO {
 
-    @TableField(value = "category_id")
-    private String categoryId;
+  @TableField(value = "category_id")
+  private String categoryId;
 
-    @TableField(value = "code")
-    private String code;
+  @TableField(value = "code")
+  private String code;
 
-    @TableField(value = "function_id")
-    private String functionId;
+  @TableField(value = "function_id")
+  private String functionId;
 }

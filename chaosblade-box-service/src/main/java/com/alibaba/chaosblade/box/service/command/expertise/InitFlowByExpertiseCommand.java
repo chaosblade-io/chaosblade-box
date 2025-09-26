@@ -15,37 +15,31 @@ import com.alibaba.chaosblade.box.service.command.experiment.ExperimentFlowDefin
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Component
 public class InitFlowByExpertiseCommand
     extends SpringBeanCommand<ExperimentFlowInitByExpertiseRequest, Response<ExperimentFlowInfo>> {
 
-    @Autowired
-    private ExpertiseRepository expertiseRepository;
+  @Autowired private ExpertiseRepository expertiseRepository;
 
-    @Autowired
-    private CommandBus commandBus;
+  @Autowired private CommandBus commandBus;
 
-    @Autowired
-    private ExperimentRepository experimentRepository;
+  @Autowired private ExperimentRepository experimentRepository;
 
-    @Override
-    public Response<ExperimentFlowInfo> execute(ExperimentFlowInitByExpertiseRequest experimentExpertiseQueryRequest) {
-        ExpertiseDO expertiseDO = expertiseRepository.findById(experimentExpertiseQueryRequest.getExpertiseId()).orElse(
-            null);
-        if (expertiseDO == null) {
-            return Response.failedWith(CommonErrorCode.P_NOT_FOUND_EXPERTISE);
-        }
-        ExperimentDO experimentDO = experimentRepository.findById(expertiseDO.getExperimentId()).orElse(null);
-        ExperimentFlowInfo experimentFlowInfo = commandBus.syncRun(ExperimentFlowDefinitionQueryCommand.class,
-            experimentDO);
-        ExperimentFlowInfoClear.clearAllIds(experimentFlowInfo);
-        experimentFlowInfo.setExperimentId(null);
-        return Response.okWithData(experimentFlowInfo);
+  @Override
+  public Response<ExperimentFlowInfo> execute(
+      ExperimentFlowInitByExpertiseRequest experimentExpertiseQueryRequest) {
+    ExpertiseDO expertiseDO =
+        expertiseRepository.findById(experimentExpertiseQueryRequest.getExpertiseId()).orElse(null);
+    if (expertiseDO == null) {
+      return Response.failedWith(CommonErrorCode.P_NOT_FOUND_EXPERTISE);
     }
-
+    ExperimentDO experimentDO =
+        experimentRepository.findById(expertiseDO.getExperimentId()).orElse(null);
+    ExperimentFlowInfo experimentFlowInfo =
+        commandBus.syncRun(ExperimentFlowDefinitionQueryCommand.class, experimentDO);
+    ExperimentFlowInfoClear.clearAllIds(experimentFlowInfo);
+    experimentFlowInfo.setExperimentId(null);
+    return Response.okWithData(experimentFlowInfo);
+  }
 }

@@ -17,7 +17,6 @@
 package com.alibaba.chaosblade.box.toolsmgr.annotation;
 
 import com.alibaba.chaosblade.box.toolsmgr.enums.ChannelType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,5 +26,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ChannelStrategy {
 
-    ChannelType value() default ChannelType.ANSIBLE;
+  ChannelType value() default ChannelType.ANSIBLE;
 }

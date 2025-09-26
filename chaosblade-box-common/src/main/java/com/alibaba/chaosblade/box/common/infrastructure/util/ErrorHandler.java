@@ -1,13 +1,7 @@
 package com.alibaba.chaosblade.box.common.infrastructure.util;
 
-/**
- * @author haibin
- *
- *
- */
-public interface ErrorHandler<E extends Throwable,R> {
+/** @author haibin */
+public interface ErrorHandler<E extends Throwable, R> {
 
-
-    public R handle(E ex);
-
+  public R handle(E ex);
 }

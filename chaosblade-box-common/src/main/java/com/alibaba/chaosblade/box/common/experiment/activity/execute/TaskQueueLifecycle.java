@@ -1,19 +1,11 @@
 package com.alibaba.chaosblade.box.common.experiment.activity.execute;
 
-/**
- * @author haibin.lhb
- *
- *
- */
+/** @author haibin.lhb */
 public interface TaskQueueLifecycle {
 
-    /**
-     * 初始化
-     */
-    public void init();
+  /** 初始化 */
+  public void init();
 
-    /**
-     * 关闭queue
-     */
-    public void close();
+  /** 关闭queue */
+  public void close();
 }

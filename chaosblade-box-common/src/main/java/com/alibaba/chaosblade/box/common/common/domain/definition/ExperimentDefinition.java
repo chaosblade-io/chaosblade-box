@@ -14,15 +14,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExperimentDefinition {
 
-    /**
-     * 演练流程定义
-     */
-    @ApiParam
-    ExperimentFlowDefinition flow;
+  /** 演练流程定义 */
+  @ApiParam ExperimentFlowDefinition flow;
 
-    /**
-     * 回滚策略定义,可以为空
-     */
-    @Deprecated
-    ExperimentRollbackDefinition rollback;
+  /** 回滚策略定义,可以为空 */
+  @Deprecated ExperimentRollbackDefinition rollback;
 }

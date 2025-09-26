@@ -1,14 +1,10 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.workspace;
 
+import java.util.List;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
-/**
- * @author sunju
- *
- */
+/** @author sunju */
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,11 +12,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WorkspaceQuery {
 
-    List<String> workspaceIds;
-    String userId;
-    Integer type;
-//    Integer userRole;
-    String name;
-    List<String> userIds;
-
+  List<String> workspaceIds;
+  String userId;
+  Integer type;
+  //    Integer userRole;
+  String name;
+  List<String> userIds;
 }

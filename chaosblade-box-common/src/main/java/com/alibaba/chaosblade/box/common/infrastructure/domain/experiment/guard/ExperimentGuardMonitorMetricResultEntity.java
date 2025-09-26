@@ -1,12 +1,11 @@
 package com.alibaba.chaosblade.box.common.infrastructure.domain.experiment.guard;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-
 @Data
-public class ExperimentGuardMonitorMetricResultEntity extends BaseExperimentGuardResultEntity implements Serializable {
+public class ExperimentGuardMonitorMetricResultEntity extends BaseExperimentGuardResultEntity
+    implements Serializable {
 
-    private String unit;
+  private String unit;
 }

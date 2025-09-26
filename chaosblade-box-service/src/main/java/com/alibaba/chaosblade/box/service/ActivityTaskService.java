@@ -6,35 +6,31 @@ import com.alibaba.chaosblade.box.common.common.domain.task.ActivityTaskResultCo
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.request.ActivityRetryRequest;
 
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 public interface ActivityTaskService {
 
-    /**
-     * 查找activityTask
-     *
-     * @param activityTaskId 活动任务ID
-     * @return
-     */
-    Response<ActivityTask> findActivityTaskByActivityTaskId(String activityTaskId);
+  /**
+   * 查找activityTask
+   *
+   * @param activityTaskId 活动任务ID
+   * @return
+   */
+  Response<ActivityTask> findActivityTaskByActivityTaskId(String activityTaskId);
 
-    /**
-     * 重试当前任务
-     *
-     * @param activityRetryRequest
-     * @return
-     */
-    Response<String> retryActivity(ActivityRetryRequest activityRetryRequest);
+  /**
+   * 重试当前任务
+   *
+   * @param activityRetryRequest
+   * @return
+   */
+  Response<String> retryActivity(ActivityRetryRequest activityRetryRequest);
 
-    /**
-     * 确认活动结果
-     *
-     * @param activityTaskResultConfirmRequest
-     * @return
-     */
-    Response<Void> confirmActivityTaskResult(ChaosUser user,
-                                             ActivityTaskResultConfirmRequest activityTaskResultConfirmRequest);
+  /**
+   * 确认活动结果
+   *
+   * @param activityTaskResultConfirmRequest
+   * @return
+   */
+  Response<Void> confirmActivityTaskResult(
+      ChaosUser user, ActivityTaskResultConfirmRequest activityTaskResultConfirmRequest);
 }

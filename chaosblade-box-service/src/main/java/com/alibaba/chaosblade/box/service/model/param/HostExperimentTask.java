@@ -1,18 +1,13 @@
 package com.alibaba.chaosblade.box.service.model.param;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class HostExperimentTask implements Serializable {
 
-    private String user;
+  private String user;
 
-    private String experimentTaskId;
+  private String experimentTaskId;
 }

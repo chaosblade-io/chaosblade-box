@@ -1,16 +1,11 @@
 package com.alibaba.chaosblade.box.common.infrastructure.cache;
 
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-/**
- * @author haibin
- *
- *
- */
+/** @author haibin */
 @Data
 public class CacheItem<T> implements Serializable {
 
-    private T data;
+  private T data;
 }

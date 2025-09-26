@@ -5,5 +5,4 @@ import com.alibaba.chaosblade.box.dao.model.MiniFlowGroupDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 @MybatisMapper
-public interface ExperimentMiniFlowGroupMapper extends BaseMapper<MiniFlowGroupDO> {
-}
+public interface ExperimentMiniFlowGroupMapper extends BaseMapper<MiniFlowGroupDO> {}
