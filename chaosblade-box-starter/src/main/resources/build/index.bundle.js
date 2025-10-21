@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 The ChaosBlade Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 var uf=Object.assign;(()=>{var hf={98455:(W,k,t)=>{"use strict";t.r(k),t.d(k,{HybridCloudDarkTheme:()=>Y,HybridCloudLightTheme:()=>B,WindTheme:()=>U,XConsoleDarkTheme:()=>$,XConsoleTheme:()=>T,default:()=>me});var l=t(27378),x=t(60042),g=t.n(x),E=t(11026),i=t(50669),f=t(33940),n=t(73830),y,A=function(Oe){var Ze;switch((0,f.Z)(Oe)){case"string":{if(typeof window=="undefined"||typeof document=="undefined")break;var Se=document.getElementById(Oe)||document.querySelector(Oe);Se&&Se.offsetHeight&&(Ze=Se.offsetHeight);break}case"number":{Ze=Oe;break}case"function":{Ze=Oe();break}default:break}return Number.isFinite(Ze)?"calc(100vh - ".concat(Ze,"px)"):"100vh"},D=n.ZP.div(y||(y=(0,i.Z)([`
   position: relative;
   display: flex;

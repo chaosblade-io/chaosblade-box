@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 The ChaosBlade Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 "use strict";(self.webpackChunk=self.webpackChunk||[]).push([[102],{61253:(V,_,u)=>{u.r(_),u.d(_,{Actions:()=>W,LinkButton:()=>I,LinkMore:()=>H,baseClassName:()=>i,collapsedItemClassName:()=>P,default:()=>ie,expandMenuClassName:()=>w,itemClassName:()=>v,triggerClassName:()=>b});var f=u(25773),l=u(27378),m=u(96073),O=u(60042),x=u.n(O),C=u(649),A=u(64649);function d(r,n){var o=Object.keys(r);if(Object.getOwnPropertySymbols){var t=Object.getOwnPropertySymbols(r);n&&(t=t.filter(function(p){return Object.getOwnPropertyDescriptor(r,p).enumerable})),o.push.apply(o,t)}return o}function h(r){for(var n=1;n<arguments.length;n++){var o=arguments[n]!=null?arguments[n]:{};n%2?d(Object(o),!0).forEach(function(t){(0,A.Z)(r,t,o[t])}):Object.getOwnPropertyDescriptors?Object.defineProperties(r,Object.getOwnPropertyDescriptors(o)):d(Object(o)).forEach(function(t){Object.defineProperty(r,t,Object.getOwnPropertyDescriptor(o,t))})}return r}function E(r,n){return{className:x()(r.className,n.className),style:h(h({},r.style),n.style)}}function c(r,n,o){var t=r;if((0,l.isValidElement)(t)&&(t=[t]),!Array.isArray(t))throw new Error("unexpected children type: ".concat({}.toString.call(t)));t=e(t).filter(function(y){return(0,l.isValidElement)(y)&&y.props.visible!==!1});var p=n(t);return o.apply(void 0,(0,C.Z)(p))}function e(r){var n=arguments.length>1&&arguments[1]!==void 0?arguments[1]:!0;if(!(0,l.isValidElement)(r)&&!Array.isArray(r))throw new Error("expect a single react element of an array of element");var o=[];return l.Children.forEach(r,function(t){(0,l.isValidElement)(t)&&(t.type===l.Fragment&&t.props&&t.props.children)?n?o.push.apply(o,(0,C.Z)(e(t.props.children))):Array.isArray(t.props.children)?o.push.apply(o,(0,C.Z)(t.props.children)):o.push(t.props.children):o.push(t)}),o}function a(r,n){var o=[],t=[];return r.forEach(function(p,y){y<n?o.push(p):t.push(p)}),[o,t]}function s(r){var n=m.iV.Consumer,o=function(p){return l.createElement(n,null,function(y){return l.createElement(r,(0,f.Z)({},p,{fusionConfig:y}))})};return o}var i="wind-rc-actions",v="".concat(i,"-item"),P="".concat(i,"-item__collapsed"),b="".concat(i,"-expand-trigger"),w="".concat(i,"-expand-menu"),N=u(50669),U=u(53782),L=u(73830),M,S,g="15.2px",R=function(n){var o=n.wrap,t=(0,U.Z)(n,["wrap"]);return l.createElement("div",t)},D=(0,L.ZP)(R)(M||(M=(0,N.Z)([`
   display: flex;
   align-items: center;

@@ -1,3 +1,19 @@
+--
+-- Copyright 2025 The ChaosBlade Authors
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--     http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+--
+
 INSERT INTO `t_chaos_scene_function_category` (`id`, `gmt_create`, `gmt_modified`, `category_id`, `name`, `phase`, `parent_id`, `type`, `is_delete`, `support_host`, `support_k8s`, `support_cloud`, `support_os_types`)
 VALUES
 	(1, '2021-12-03 17:12:03', '2021-12-03 17:12:03', '1209653544492236802', '系统组件', 2, NULL, 0, 0, 1, 1, 0, '[0,1]'),
