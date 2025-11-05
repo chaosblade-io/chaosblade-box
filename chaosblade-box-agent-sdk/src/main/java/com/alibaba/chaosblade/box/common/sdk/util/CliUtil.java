@@ -446,7 +446,7 @@ public class CliUtil {
    * @return 过滤后的安全字符串，只包含 a-zA-Z0-9_-,./:=?+& 和中文字符
    */
   public static String trimCmdwithCh(String slice) {
-    // [a-zA-Z0-9_-,.]＋
+    // [a-zA-Z0-9_-,./:=?+&]+ and Chinese characters (0x4e00-0x9fbb)
     if (slice == null) {
       return null;
     }
