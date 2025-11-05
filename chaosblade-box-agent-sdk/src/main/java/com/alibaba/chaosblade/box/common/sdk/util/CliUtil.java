@@ -443,7 +443,7 @@ public class CliUtil {
    * 请勿修改 trimCmdwithCh 函数名，否则引擎无法识别。
    *
    * @param slice 需要过滤的字符串
-   * @return 过滤后的安全字符串，只包含 a-zA-Z0-9_-,. 和中文
+   * @return 过滤后的安全字符串，只包含 a-zA-Z0-9_-,./:=?+& 和中文字符
    */
   public static String trimCmdwithCh(String slice) {
     // [a-zA-Z0-9_-,.]＋
