@@ -75,14 +75,27 @@ spring:
   datasource:
     continue-on-error: true
     data: classpath:sql/data/*.sql
-    driver-class-name: com.mysql.jdbc.Driver
+    # MySQL 8 使用新的驱动类
+    driver-class-name: com.mysql.cj.jdbc.Driver
     initialization-mode: always
     initialize: true
-    password: ${DB_PASSWORD:defaultPassword}
+    password: ${DB_PASSWORD:Zmzzmz010627!}
     schema: classpath:sql/schema/chaosblade-box-ddl.sql
     type: com.zaxxer.hikari.HikariDataSource
-    url: ${DB_URL:jdbc:mysql://localhost:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    # MySQL 8 连接配置
+    url: ${DB_URL:jdbc:mysql://localhost:3306/chaosblade?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&useUnicode=true&autoReconnect=true&failOverReadOnly=false&maxReconnects=10}
     username: ${DB_USERNAME:root}
+    # HikariCP 连接池配置
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 60000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # 增加锁等待超时时间
+      connection-init-sql: SET SESSION innodb_lock_wait_timeout = 120
+      # MySQL 8 连接测试查询
+      connection-test-query: SELECT 1
   mcms:
     enabled: false
   mvc:
@@ -103,6 +116,6 @@ chaosblade:
 # 探测任务服务基地址（可覆盖），默认为文档示例地址
 probe:
   api:
-    base-url: ${PROBE_API_BASE_URL:http://localhost:8101}
+    base-url: ${PROBE_API_BASE_URL:http://1.94.151.57:8101}
   topo:
-    base-url: ${PROBE_TOPO_BASE_URL:http://localhost:8106}
+    base-url: ${PROBE_TOPO_BASE_URL:http://1.94.151.57:8106}

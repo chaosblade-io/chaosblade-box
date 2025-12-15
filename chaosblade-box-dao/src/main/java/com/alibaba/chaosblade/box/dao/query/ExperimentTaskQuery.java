@@ -26,5 +26,4 @@ public class ExperimentTaskQuery implements Serializable {
     List<Integer> excludeStates;
     ChaosUser user;
     String namespace;
-
 }

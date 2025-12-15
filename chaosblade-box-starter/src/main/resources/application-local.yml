@@ -1,0 +1,39 @@
+# Local/dev overrides to speed up startup
+
+# 1) Disable startup-time DB schema/data initialization
+spring:
+  datasource:
+    initialize: true
+    initialization-mode: always
+    # url: jdbc:mysql://localhost:3306/chaosblade?characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    # username: root
+    # password: your_local_password
+  # Reduce Spring logs noise locally
+  # logging to be set below (Spring Boot 1.5 supports logging.level root config)
+
+# 2) Turn off startup-time function sync
+chaos:
+  function:
+    sync:
+      type: None
+  sync:
+    chaosblade:
+      on-startup: false
+
+# 3) Use single embedded server (avoid separate management port)
+# In Spring Boot 1.5, removing management.port means reusing the main container
+#management:
+#  port:
+
+# 4) Optional: reduce log level for faster and cleaner startup
+logging:
+  level:
+    org.springframework: warn
+    com.alibaba.chaosblade.box: info
+    root: info
+
+# 5) Optional: feature flag to disable heavy cloud transport beans locally (if we add conditions later)
+cloud:
+  transport:
+    enabled: false
+

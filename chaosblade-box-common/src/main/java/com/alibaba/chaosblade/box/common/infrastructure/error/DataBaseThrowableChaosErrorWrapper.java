@@ -2,11 +2,12 @@ package com.alibaba.chaosblade.box.common.infrastructure.error;
 
 import com.alibaba.chaosblade.box.common.common.domain.ChaosError;
 import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
-import com.mysql.jdbc.MysqlDataTruncation;
-import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
+import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
+
+import java.sql.SQLException;
 
 /**
  * @author haibin
@@ -28,8 +29,13 @@ public class DataBaseThrowableChaosErrorWrapper implements ThrowableChaosErrorWr
                 return new ChaosError(CommonErrorCode.S_DATA_TRUNCATION, cause.getMessage());
             }
         }
-        if (throwable instanceof MySQLSyntaxErrorException) {
-            return new ChaosError(CommonErrorCode.S_DATA_FIELD_MISSING);
+        // 使用 SQLException 来捕获 MySQL 语法错误,兼容 MySQL 5 和 MySQL 8
+        if (throwable instanceof SQLException) {
+            SQLException sqlException = (SQLException) throwable;
+            // MySQL 语法错误的 SQL State 通常是 42000
+            if (sqlException.getSQLState() != null && sqlException.getSQLState().startsWith("42")) {
+                return new ChaosError(CommonErrorCode.S_DATA_FIELD_MISSING);
+            }
         }
         return null;
     }

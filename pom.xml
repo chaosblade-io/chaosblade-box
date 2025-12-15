@@ -24,7 +24,7 @@
         <spring-boot.version>1.5.22.RELEASE</spring-boot.version>
         <spring-cloud.version>Edgware.SR6</spring-cloud.version>
         <net.javacrumbs.shedlock.version>4.11.1</net.javacrumbs.shedlock.version>
-        <mysql.version>5.1.49</mysql.version>
+        <mysql.version>8.0.33</mysql.version>
         <mybatis-plus.version>3.1.2</mybatis-plus.version>
         <apache.common.version>4.4</apache.common.version>
         <apache.common.lang3.version>3.9</apache.common.lang3.version>
