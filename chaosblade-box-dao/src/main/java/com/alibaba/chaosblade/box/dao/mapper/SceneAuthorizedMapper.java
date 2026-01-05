@@ -175,5 +175,7 @@ public interface SceneAuthorizedMapper extends BaseMapper<SceneAuthorizedDO> {
           + "ORDER BY sa.function_create_time DESC"
           + "</script>")
   List<SceneAuthorizedDO> selectAuthorizedRecordsGroupBy(
-      @Param("query") com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneAuthorizedQueryRequest query);
+      @Param("query")
+          com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneAuthorizedQueryRequest
+              query);
 }

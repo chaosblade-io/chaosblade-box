@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: build clean
+.PHONY: build clean spotless-check spotless-apply
 
 export CHAOS_PLATFORM_VERSION=1.1.0
 SRC_ROOT=$(shell pwd)
@@ -52,6 +52,17 @@ license-check:
 license-format:
 	@echo "Formatting license headers..."
 	docker run -it --rm -v $(SRC_ROOT):/github/workspace ghcr.io/korandoru/hawkeye format
+
+.PHONY: spotless-check
+spotless-check:
+	@echo "Checking code style with Spotless..."
+	mvn spotless:check
+
+.PHONY: spotless-apply
+spotless-apply:
+	@echo "Applying code style formatting with Spotless..."
+	mvn spotless:apply
+	@echo "Code formatting completed."
 
 # Docker image build variables
 IMAGE_NAME ?= chaosblade-box
