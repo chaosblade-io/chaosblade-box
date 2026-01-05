@@ -376,16 +376,8 @@ public class ApplicationDeviceRepository implements IRepository<String, Applicat
   }
 
   public List<ApplicationDeviceDO> findUserDeviceGroupByAppId(String userId, List<Long> appIds) {
-    QueryWrapper<ApplicationDeviceDO> queryWrapper = new QueryWrapper<>();
-    queryWrapper.eq("status", DeviceStatus.ONLINE.getStatus());
-    queryWrapper.eq("is_deleted", 0);
-    if (CollectionUtil.isNullOrEmpty(appIds)) {
-      queryWrapper.eq("user_id", userId);
-    } else {
-      queryWrapper.and(wrapper -> wrapper.eq("user_id", userId).or().in("app_id", appIds));
-    }
-    queryWrapper.groupBy("app_id");
-    return applicationDeviceMapper.selectList(queryWrapper);
+    return applicationDeviceMapper.selectUserDeviceGroupByAppId(
+        userId, appIds, DeviceStatus.ONLINE.getStatus(), 0);
   }
 
   public List<ApplicationDeviceDO> findByClusterId(

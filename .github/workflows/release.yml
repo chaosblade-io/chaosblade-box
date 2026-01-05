@@ -1,0 +1,178 @@
+# Copyright 2025 The ChaosBlade Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on tags starting with 'v', e.g., v1.0.5
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.5)'
+        required: true
+        type: string
+      branch:
+        description: 'Code branch to build (e.g., main, master)'
+        required: false
+        type: string
+        default: 'main'
+      fe_branch:
+        description: 'Frontend repository branch (e.g., main)'
+        required: false
+        type: string
+        default: 'main'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Extract version from tag
+        id: extract_version
+        if: github.event_name == 'push'
+        run: |
+          # Remove 'refs/tags/' prefix and optional 'v' prefix
+          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${VERSION#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Set version from input
+        id: set_version
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          FE_BRANCH="${{ github.event.inputs.fe_branch }}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "fe_branch=$FE_BRANCH" >> $GITHUB_OUTPUT
+          echo "Using version: $VERSION"
+          echo "Using frontend branch: $FE_BRANCH"
+
+      - name: Set version and branch variables
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION="${{ steps.extract_version.outputs.version }}"
+            FE_BRANCH="main"
+          else
+            VERSION="${{ steps.set_version.outputs.version }}"
+            FE_BRANCH="${{ steps.set_version.outputs.fe_branch }}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "FE_BRANCH=$FE_BRANCH" >> $GITHUB_ENV
+          echo "Final version: $VERSION"
+          echo "Frontend branch: $FE_BRANCH"
+
+      - name: Build project
+        working-directory: ./chaosblade-box
+        env:
+          CHAOS_PLATFORM_FE_BRANCH: ${{ env.FE_BRANCH }}
+        run: |
+          make build VERSION=${{ env.VERSION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ env.VERSION }}
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./chaosblade-box
+          file: ./chaosblade-box/Dockerfile
+          build-args: |
+            VERSION=${{ env.VERSION }}
+            JAR_FILE=chaosblade-box-${{ env.VERSION }}.jar
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Build Helm chart
+        working-directory: ./chaosblade-box
+        run: |
+          make helm-package VERSION=${{ env.VERSION }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: |
+            ## Release v${{ env.VERSION }}
+
+            ### Docker Image
+            ```
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+            ```
+
+            ### Helm Chart
+            See attached Helm chart package.
+
+            ### Installation
+            ```bash
+            helm install chaosblade-box ./deploy/chaosblade-box --version ${{ env.VERSION }}
+            ```
+          files: |
+            ./chaosblade-box/dist/chaosblade-box-${{ env.VERSION }}.tgz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

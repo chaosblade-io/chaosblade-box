@@ -21,6 +21,7 @@ import com.alibaba.chaosblade.box.dao.model.ApplicationDeviceDO;
 import com.alibaba.chaosblade.box.dao.query.ApplicationDeviceQuery;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -117,4 +118,32 @@ public interface ApplicationDeviceMapper extends BaseMapper<ApplicationDeviceDO>
           + "</script>")
   IPage<ApplicationDeviceDO> selectPageByTagsForK8s(
       IPage<ApplicationDeviceDO> page, @Param("query") ApplicationDeviceQuery query);
+
+  @Select(
+      "<script>"
+          + "SELECT ad.* FROM t_chaos_application_device ad "
+          + "INNER JOIN ("
+          + "  SELECT app_id, MIN(id) as min_id "
+          + "  FROM t_chaos_application_device "
+          + "  WHERE status = #{status} AND is_deleted = #{isDeleted} "
+          + "  <if test='userId != null and userId != \"\"'>"
+          + "    <if test='appIds == null or appIds.size() == 0'>"
+          + "      AND user_id = #{userId} "
+          + "    </if>"
+          + "    <if test='appIds != null and appIds.size() > 0'>"
+          + "      AND (user_id = #{userId} OR app_id IN "
+          + "      <foreach collection='appIds' item='appId' open='(' close=')' separator=','>"
+          + "        #{appId}"
+          + "      </foreach>"
+          + "      )"
+          + "    </if>"
+          + "  </if>"
+          + "  GROUP BY app_id"
+          + ") grouped ON ad.id = grouped.min_id AND ad.app_id = grouped.app_id"
+          + "</script>")
+  List<ApplicationDeviceDO> selectUserDeviceGroupByAppId(
+      @Param("userId") String userId,
+      @Param("appIds") List<Long> appIds,
+      @Param("status") Integer status,
+      @Param("isDeleted") Integer isDeleted);
 }

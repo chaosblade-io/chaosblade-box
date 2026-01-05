@@ -24,7 +24,7 @@
     <groupId>io.chaosblade</groupId>
     <artifactId>chaosblade-box</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.5</version>
+    <version>1.1.0</version>
     <modules>
         <module>chaosblade-box-agent-sdk</module>
         <module>chaosblade-box-cache</module>

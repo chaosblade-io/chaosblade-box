@@ -15,7 +15,7 @@
 # Default values for chaosblade-box.
 box:
   repository: ghcr.io/chaosblade-io/chaosblade-box
-  version: 1.0.5
+  version: 1.1.0
   pullPolicy: IfNotPresent
 
 mysql:
