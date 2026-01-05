@@ -22,7 +22,10 @@ WORKDIR /app
 #    && mv linux-amd64/helm /usr/local/bin/helm \
 #    && rm -rf helm-v3.5.3-linux-amd64.tar.gz
 
+# Build arguments for version and jar file
+ARG VERSION=1.0.5
+ARG JAR_FILE=chaosblade-box-${VERSION}.jar
 
-COPY ./chaosblade-box-starter/target/chaosblade-box-1.0.5.jar .
+COPY ./chaosblade-box-starter/target/${JAR_FILE} ./chaosblade-box.jar
 
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "chaosblade-box-1.0.5.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "chaosblade-box.jar"]
