@@ -30,7 +30,7 @@ public @interface ChaosApplication {
 
   String description() default "";
 
-  String version() default "1.0.5";
+  String version() default "1.1.0";
 
   ChaosAppType type() default ChaosAppType.CHAOS_APP;
 }
