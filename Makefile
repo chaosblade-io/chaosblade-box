@@ -22,14 +22,14 @@ BUILD_DIR=$(SRC_ROOT)/chaosblade-box-starter/src/main/resources/build
 
 # chaosblade-box-fe
 CHAOS_PLATFORM_FE=git@github.com:chaosblade-io/chaosblade-box-fe.git
-CHAOS_PLATFORM_FE_BRANCH ?= fix-box-196
+CHAOS_PLATFORM_FE_BRANCH ?= main
 
 build_fe:
 	rm -rf $(CACHE_DIR)
 	rm -rf $(BUILD_DIR)/*
 	mkdir -p $(FE_CACHE_DIR)
 	git clone -b $(CHAOS_PLATFORM_FE_BRANCH) $(CHAOS_PLATFORM_FE) $(FE_CACHE_DIR)
-	cd $(FE_CACHE_DIR) && npm install && npm run build
+	cd $(FE_CACHE_DIR) && npm install --legacy-peer-deps && npm run build
 	cp -r $(FE_CACHE_DIR)/dist/* $(BUILD_DIR)
 
 build: build_fe

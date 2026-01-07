@@ -33,11 +33,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class CloudLoginUserResolver implements LoginUserResolver {
 
-  private static final List<String> WHITE_LIST = ImmutableList.of();
+  private static final List<String> WHITE_LIST =
+      ImmutableList.of(
+          "/login",
+          "/UserLogin",
+          "/UserRegister",
+          "/chaos/UserLogin",
+          "/chaos/UserRegister",
+          "/api/chaos/UserLogin",
+          "/api/chaos/UserRegister");
 
   @Override
   public ChaosUser resolve(HttpServletRequest httpServletRequest) throws ChaosException {
     String path = httpServletRequest.getRequestURI();
+    // 去掉查询参数
+    if (path.contains("?")) {
+      path = path.substring(0, path.indexOf("?"));
+    }
     if (WHITE_LIST.contains(path)) {
       return null;
     }
