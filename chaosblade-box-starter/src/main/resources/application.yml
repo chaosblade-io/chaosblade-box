@@ -16,8 +16,9 @@ chaos:
   agent:
     helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}.tgz
     repository: chaosbladeio/chaosblade-agent
-    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent.tar.gz
-    version: 1.0.2
+    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_amd64.tar.gz
+    url-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_arm64.tar.gz
+    version: 1.1.0
   cache:
     auto-sync: true
     distributed-cache:
@@ -78,7 +79,7 @@ logging:
   level:
     root: info
     org.springframework: info
-    com.alibaba.chaosblade.box: debug
+    com.alibaba.chaosblade.box: info
 
 spring:
   aop:

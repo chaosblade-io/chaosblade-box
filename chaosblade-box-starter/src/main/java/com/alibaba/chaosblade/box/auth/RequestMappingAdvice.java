@@ -25,6 +25,7 @@ import com.alibaba.chaosblade.box.common.experiment.task.flow.exception.Exceptio
 import com.alibaba.chaosblade.box.common.infrastructure.ChaosApplicationContext;
 import com.alibaba.chaosblade.box.common.infrastructure.ChaosRequestContextHolder;
 import com.alibaba.chaosblade.box.common.infrastructure.error.ThrowableChaosErrorWrappers;
+import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
 import com.alibaba.chaosblade.box.common.infrastructure.monitor.log.ResultCodeRecord;
 import com.alibaba.chaosblade.box.common.infrastructure.util.ChaosTraceUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.monitor.log.RecordsRepo;
@@ -157,7 +158,11 @@ public class RequestMappingAdvice {
     resultSupport.setCode(ChaosError.getCode());
     resultSupport.setMessage(ChaosError.getErrorMessage());
     resultSupport.setStatusCode(ChaosError.getCodeStatus());
-    if (ChaosError.getErrorCode().logWhenThrowable()) {
+
+    // 对于权限异常，使用 WARN 级别日志且不打印堆栈
+    if (throwable instanceof PermissionDeniedException) {
+      log.warn("Permission denied: {}", ChaosError.getErrorMessage());
+    } else if (ChaosError.getErrorCode().logWhenThrowable()) {
       log.error("System exception", throwable);
     }
   }
