@@ -81,4 +81,8 @@ public class UserRepository {
     }
     return userMapper.selectOne(queryWrapper);
   }
+
+  public void updatePassword(UserDo userDo) {
+    userMapper.updateById(userDo);
+  }
 }

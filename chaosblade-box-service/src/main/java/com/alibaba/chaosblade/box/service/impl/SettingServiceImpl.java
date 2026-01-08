@@ -122,7 +122,7 @@ public class SettingServiceImpl implements SettingService {
     sb.append(agentCtl);
     sb.append(" -O chaos.tar.gz");
 
-    sb.append(" && tar -zxvf chaos.tar.gz -C /opt/ ");
+    sb.append(" && sudo tar -zxvf chaos.tar.gz -C /opt/ ");
 
     sb.append("&& sudo sh /opt/chaos/chaosctl.sh install");
 
@@ -357,7 +357,7 @@ public class SettingServiceImpl implements SettingService {
     String command =
         String.format(
             "wget %s -O chaos.tar.gz "
-                + "&& tar -zxvf chaos.tar.gz -C /opt/ "
+                + "&& sudo tar -zxvf chaos.tar.gz -C /opt/ "
                 + "&& sudo sh /opt/chaos/chaosctl.sh install -k %s -p %s -g %s -t %s",
             mgrRequest.getAgentCtl(),
             mgrRequest.getLicense(),

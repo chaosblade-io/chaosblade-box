@@ -87,4 +87,21 @@ public class UserServiceImpl implements UserService {
     user.setUserId(userId);
     return user;
   }
+
+  @Override
+  public void changePassword(String userId, String oldPassword, String newPassword) {
+    UserDo userDo = userRepository.getById(userId);
+    if (userDo == null) {
+      throw new ChaosException(CommonErrorCode.P_STS_TOKEN_LOGIN_ILLEGAL);
+    }
+
+    // 验证旧密码
+    if (!userDo.getUserPassword().equals(oldPassword)) {
+      throw new ChaosException(CommonErrorCode.P_LOGIN_FORBINATION);
+    }
+
+    // 更新密码
+    userDo.setUserPassword(newPassword);
+    userRepository.updatePassword(userDo);
+  }
 }

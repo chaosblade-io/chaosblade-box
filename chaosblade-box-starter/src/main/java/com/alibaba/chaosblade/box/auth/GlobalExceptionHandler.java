@@ -19,6 +19,7 @@ package com.alibaba.chaosblade.box.auth;
 import com.alibaba.chaosblade.box.common.common.domain.ChaosError;
 import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
 import com.alibaba.chaosblade.box.common.infrastructure.error.ThrowableChaosErrorWrappers;
+import com.alibaba.chaosblade.box.common.infrastructure.exception.ChaosException;
 import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
 import com.alibaba.chaosblade.box.common.infrastructure.util.ChaosTraceUtil;
 import com.alibaba.chaosblade.box.service.model.RestResponse;
@@ -58,6 +59,43 @@ public class GlobalExceptionHandler {
     response.setRequestId(ChaosTraceUtil.generateTraceId());
 
     // 返回 200 状态码，避免前端显示 500 错误
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  @ExceptionHandler(ChaosException.class)
+  public ResponseEntity<RestResponse> handleChaosException(
+      ChaosException ex, HttpServletRequest request) {
+    // 使用异常中的错误码
+    ChaosError chaosError =
+        throwableChaosErrorWrappers.wrapper(
+            ex, ex.getErrorCode() != null ? ex.getErrorCode() : CommonErrorCode.S_SYSTEM_ERROR);
+
+    // 对于登录相关的错误，使用 WARN 级别日志，不打印堆栈
+    // 对于其他错误，根据错误码决定日志级别
+    boolean isLoginError =
+        chaosError.getErrorCode().equals(CommonErrorCode.P_LOGIN_FORBINATION)
+            || chaosError.getErrorCode().equals(CommonErrorCode.P_STS_TOKEN_LOGIN_ILLEGAL);
+
+    if (isLoginError) {
+      log.warn(
+          "Login failed for request {}: {}", request.getRequestURI(), chaosError.getErrorMessage());
+    } else {
+      log.error(
+          "ChaosException for request {}: {}",
+          request.getRequestURI(),
+          chaosError.getErrorMessage(),
+          ex);
+    }
+
+    RestResponse response = new RestResponse();
+    response.setSuccess(false);
+    response.setCode(chaosError.getCode());
+    response.setMessage(chaosError.getErrorMessage());
+    response.setStatusCode(chaosError.getCodeStatus());
+    response.setRequestId(ChaosTraceUtil.generateTraceId());
+
+    // 返回 200 状态码，避免前端显示 500 错误
+    // 登录错误信息已在响应体中明确返回，前端可以根据 code 和 message 进行判断
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 }
