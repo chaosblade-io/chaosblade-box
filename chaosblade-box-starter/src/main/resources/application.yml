@@ -79,7 +79,9 @@ logging:
   level:
     root: info
     org.springframework: info
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: debug
     com.alibaba.chaosblade.box: info
+    com.alibaba.chaosblade.box.scheduler.AgentPingScheduleJob: debug
 
 spring:
   aop:

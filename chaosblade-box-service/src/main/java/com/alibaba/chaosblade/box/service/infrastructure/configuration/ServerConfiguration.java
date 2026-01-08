@@ -152,6 +152,11 @@ public class ServerConfiguration {
 
       @Override
       public void updateLastLoginTime(Long id) {}
+
+      @Override
+      public void changePassword(String userId, String oldPassword, String newPassword) {
+        // Default implementation does nothing
+      }
     };
   }
 

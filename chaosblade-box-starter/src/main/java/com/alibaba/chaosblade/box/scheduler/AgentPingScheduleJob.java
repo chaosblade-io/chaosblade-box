@@ -85,7 +85,7 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
     long time = System.currentTimeMillis();
-    log.info("[AgentPingScheduleJob] start");
+    log.debug("[AgentPingScheduleJob] start");
     // 查询所有禁用的应用，验证应用下是否有机器，若存在机器，则将disabled置为false
     List<Future<Boolean>> futureList = new ArrayList<>();
     for (int page = 1; ; page++) {
@@ -102,7 +102,7 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
           .map(deviceDO -> futureList.add(countDeviceExecutor.submit(() -> pingAgent(deviceDO))))
           .collect(Collectors.toList());
 
-      log.info(
+      log.debug(
           "[AgentPingScheduleJob] page:{}, totalPage: {}, total: {}",
           page,
           deviceDOPageableResponse.getPages(),
@@ -116,13 +116,13 @@ public class AgentPingScheduleJob extends BaseJob implements Job, InitializingBe
       try {
         Boolean result = future.get();
         if (!result) {
-          log.info("[AgentPingScheduleJob] future return false");
+          log.debug("[AgentPingScheduleJob] future return false");
         }
       } catch (InterruptedException | ExecutionException e) {
-        log.info("[AgentPingScheduleJob] future error", e);
+        log.debug("[AgentPingScheduleJob] future error", e);
       }
     }
-    log.info("[AgentPingScheduleJob] time: {} ", System.currentTimeMillis() - time);
+    log.debug("[AgentPingScheduleJob] time: {} ", System.currentTimeMillis() - time);
   }
 
   private Boolean pingAgent(DeviceDO deviceDO) {

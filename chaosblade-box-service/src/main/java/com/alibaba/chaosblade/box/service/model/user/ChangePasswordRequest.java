@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package com.alibaba.chaosblade.box.service;
+package com.alibaba.chaosblade.box.service.model.user;
 
-import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
+import lombok.Data;
 
-public interface UserService {
-  ChaosUser getUserByUserId(String userId);
+@Data
+public class ChangePasswordRequest {
+  private String oldPassword;
 
-  public boolean userNameExist(String userName);
-
-  public ChaosUser saveUser(String userName, String password);
-
-  public ChaosUser login(String userName, String password);
-
-  public void updateLastLoginTime(Long id);
-
-  public void changePassword(String userId, String oldPassword, String newPassword);
+  private String newPassword;
 }

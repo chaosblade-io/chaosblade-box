@@ -22,6 +22,7 @@ import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.common.common.util.EncryptUtil;
 import com.alibaba.chaosblade.box.service.NamespaceService;
 import com.alibaba.chaosblade.box.service.UserService;
+import com.alibaba.chaosblade.box.service.model.user.ChangePasswordRequest;
 import com.alibaba.chaosblade.box.service.model.user.UserRegisterRequest;
 import io.swagger.annotations.ApiOperation;
 import java.io.IOException;
@@ -88,5 +89,18 @@ public class UserController extends SessionBaseController {
   public Response<ChaosUser> getLoginUserInfo(@LoginUser ChaosUser chaosUser) {
 
     return Response.ofSuccess(chaosUser);
+  }
+
+  @ApiOperation(value = "修改密码")
+  @PostMapping("ChangePassword")
+  public Response<Boolean> changePassword(
+      @LoginUser ChaosUser chaosUser, @RequestBody ChangePasswordRequest changePasswordRequest)
+      throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException,
+          IOException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
+    userService.changePassword(
+        chaosUser.getUserId(),
+        EncryptUtil.reEncryptPassword(changePasswordRequest.getOldPassword()),
+        EncryptUtil.reEncryptPassword(changePasswordRequest.getNewPassword()));
+    return Response.ofSuccess(true);
   }
 }

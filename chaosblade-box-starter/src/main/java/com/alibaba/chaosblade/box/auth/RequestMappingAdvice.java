@@ -25,6 +25,7 @@ import com.alibaba.chaosblade.box.common.experiment.task.flow.exception.Exceptio
 import com.alibaba.chaosblade.box.common.infrastructure.ChaosApplicationContext;
 import com.alibaba.chaosblade.box.common.infrastructure.ChaosRequestContextHolder;
 import com.alibaba.chaosblade.box.common.infrastructure.error.ThrowableChaosErrorWrappers;
+import com.alibaba.chaosblade.box.common.infrastructure.exception.ChaosException;
 import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
 import com.alibaba.chaosblade.box.common.infrastructure.monitor.log.ResultCodeRecord;
 import com.alibaba.chaosblade.box.common.infrastructure.util.ChaosTraceUtil;
@@ -159,9 +160,19 @@ public class RequestMappingAdvice {
     resultSupport.setMessage(ChaosError.getErrorMessage());
     resultSupport.setStatusCode(ChaosError.getCodeStatus());
 
-    // 对于权限异常，使用 WARN 级别日志且不打印堆栈
+    // 对于权限异常和登录相关的异常，使用 WARN 级别日志且不打印堆栈
     if (throwable instanceof PermissionDeniedException) {
       log.warn("Permission denied: {}", ChaosError.getErrorMessage());
+    } else if (throwable instanceof ChaosException) {
+      // 对于登录相关的错误，使用 WARN 级别日志，不打印堆栈
+      boolean isLoginError =
+          ChaosError.getErrorCode().equals(CommonErrorCode.P_LOGIN_FORBINATION)
+              || ChaosError.getErrorCode().equals(CommonErrorCode.P_STS_TOKEN_LOGIN_ILLEGAL);
+      if (isLoginError) {
+        log.warn("Login failed: {}", ChaosError.getErrorMessage());
+      } else if (ChaosError.getErrorCode().logWhenThrowable()) {
+        log.error("ChaosException", throwable);
+      }
     } else if (ChaosError.getErrorCode().logWhenThrowable()) {
       log.error("System exception", throwable);
     }
