@@ -94,8 +94,7 @@ public class UserController extends SessionBaseController {
   @ApiOperation(value = "修改密码")
   @PostMapping("ChangePassword")
   public Response<Boolean> changePassword(
-      @LoginUser ChaosUser chaosUser,
-      @RequestBody ChangePasswordRequest changePasswordRequest)
+      @LoginUser ChaosUser chaosUser, @RequestBody ChangePasswordRequest changePasswordRequest)
       throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException,
           IOException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
     userService.changePassword(
