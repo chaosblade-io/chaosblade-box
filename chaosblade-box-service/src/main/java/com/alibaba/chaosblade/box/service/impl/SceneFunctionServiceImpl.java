@@ -238,6 +238,7 @@ public class SceneFunctionServiceImpl implements SceneFunctionService {
     sceneAuthorizedQueryRequest.setIsPublic(queryRequest.getIsPublic());
     sceneAuthorizedQueryRequest.setK8sResourceType(queryRequest.getK8sResourceType());
     sceneAuthorizedQueryRequest.setSupportScopeType(queryRequest.getSupportScopeType());
+    sceneAuthorizedQueryRequest.setSearchKey(queryRequest.getSearchKey());
 
     if (!Strings.isNullOrEmpty(queryRequest.getCategoryId())) {
       List<String> functionIds = getFunctionIdByCategoryId(queryRequest.getCategoryId());
