@@ -42,16 +42,18 @@ public class PaasTransportService implements TransportService {
 
     // 验证 host 和 port 是否有效
     if (StringUtil.isBlank(host)) {
-      String errorMsg = String.format(
-          "Cannot invoke agent: host is empty, port=%s. This will cause URL format error like 'http://:port/path'",
-          port);
+      String errorMsg =
+          String.format(
+              "Cannot invoke agent: host is empty, port=%s. This will cause URL format error like 'http://:port/path'",
+              port);
       LOGGER.error(errorMsg);
       return Response.ofFailure(Response.Code.INVALID_Parameter, errorMsg);
     }
     if (StringUtil.isBlank(port)) {
-      String errorMsg = String.format(
-          "Cannot invoke agent: port is empty, host=%s. This will cause URL format error",
-          host);
+      String errorMsg =
+          String.format(
+              "Cannot invoke agent: port is empty, host=%s. This will cause URL format error",
+              host);
       LOGGER.error(errorMsg);
       return Response.ofFailure(Response.Code.INVALID_Parameter, errorMsg);
     }

@@ -347,8 +347,7 @@ public class SettingServiceImpl implements SettingService {
     }
 
     String hostDeviceIp =
-        ProxyHelper.getProxyIp(
-            deviceDO.getDeviceType(), agentIp, deviceDO.getParentIp());
+        ProxyHelper.getProxyIp(deviceDO.getDeviceType(), agentIp, deviceDO.getParentIp());
     Response<String> response =
         agentForChaos.uninstallAgent(
             hostDeviceIp, Integer.toString(deviceDO.getPort()), "uninstall");
@@ -502,10 +501,8 @@ public class SettingServiceImpl implements SettingService {
   }
 
   /**
-   * 获取Agent的可访问IP地址
-   * 优先使用publicIp（ExternalIP），如果为空则使用privateIp
-   * 当externalIp.enable=true时，心跳会更新publicIp为ExternalIP
-   * 这样可以确保使用最新的可访问IP
+   * 获取Agent的可访问IP地址 优先使用publicIp（ExternalIP），如果为空则使用privateIp
+   * 当externalIp.enable=true时，心跳会更新publicIp为ExternalIP 这样可以确保使用最新的可访问IP
    *
    * @param deviceDO 设备信息
    * @return Agent的可访问IP地址，如果为空则返回null并记录警告日志
@@ -515,14 +512,14 @@ public class SettingServiceImpl implements SettingService {
       log.warn("DeviceDO is null, cannot get agent IP");
       return null;
     }
-    
+
     String agentIp = deviceDO.getPublicIp();
     String ipSource = "publicIp";
     if (agentIp == null || agentIp.isEmpty() || agentIp.trim().isEmpty()) {
       agentIp = deviceDO.getPrivateIp();
       ipSource = "privateIp";
     }
-    
+
     // 验证IP是否有效
     if (agentIp == null || agentIp.isEmpty() || agentIp.trim().isEmpty()) {
       log.warn(
@@ -533,10 +530,12 @@ public class SettingServiceImpl implements SettingService {
           deviceDO.getPrivateIp());
       return null;
     }
-    
+
     // 过滤无效的IP字符串
     String trimmedIp = agentIp.trim();
-    if (trimmedIp.equals("<none>") || trimmedIp.equals("<pending>") || trimmedIp.equals("<unknown>")) {
+    if (trimmedIp.equals("<none>")
+        || trimmedIp.equals("<pending>")
+        || trimmedIp.equals("<unknown>")) {
       log.warn(
           "Agent IP is invalid ({}) for device: configurationId={}, deviceId={}, publicIp={}, privateIp={}",
           trimmedIp,
@@ -546,13 +545,13 @@ public class SettingServiceImpl implements SettingService {
           deviceDO.getPrivateIp());
       return null;
     }
-    
+
     log.debug(
         "Get agent accessible IP: {} (from {}) for device: configurationId={}",
         trimmedIp,
         ipSource,
         deviceDO.getConfigurationId());
-    
+
     return trimmedIp;
   }
 }
