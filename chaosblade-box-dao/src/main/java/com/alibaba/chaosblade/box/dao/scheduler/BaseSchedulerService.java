@@ -130,8 +130,7 @@ public abstract class BaseSchedulerService implements SchedulerJobService {
       } catch (SchedulerException e) {
         if (e instanceof ObjectAlreadyExistsException) {
           log.warn(
-              "enable scheduler failed, job already exists, jobId:{}",
-              schedulerJobDO.getJobId());
+              "enable scheduler failed, job already exists, jobId:{}", schedulerJobDO.getJobId());
         } else {
           log.error("enable scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
         }
@@ -198,8 +197,7 @@ public abstract class BaseSchedulerService implements SchedulerJobService {
       } catch (Exception e) {
         if (e instanceof ObjectAlreadyExistsException) {
           log.warn(
-              "update scheduler failed, job already exists, jobId:{}",
-              schedulerJobDO.getJobId());
+              "update scheduler failed, job already exists, jobId:{}", schedulerJobDO.getJobId());
         } else {
           log.error("update scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
         }

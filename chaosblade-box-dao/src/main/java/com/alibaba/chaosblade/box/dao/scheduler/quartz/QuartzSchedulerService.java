@@ -92,14 +92,15 @@ public class QuartzSchedulerService extends BaseSchedulerService
   @Override
   protected void rescheduleCronJob(SchedulerJobDO schedulerJobDO) throws Exception {
     // 使用 name 或 schedulerBeanClass 作为 Job 名称（与 internalAddSchedulerJob 保持一致）
-    String jobName = schedulerJobDO.getName() != null 
-        ? schedulerJobDO.getName() 
-        : schedulerJobDO.getSchedulerBeanClass();
+    String jobName =
+        schedulerJobDO.getName() != null
+            ? schedulerJobDO.getName()
+            : schedulerJobDO.getSchedulerBeanClass();
     TriggerKey triggerKey = new TriggerKey(getTriggerName(schedulerJobDO.getJobId()));
     JobKey jobKey = new JobKey(jobName, "DEFAULT");
     boolean triggerExist = scheduler.checkExists(triggerKey);
     boolean jobExist = scheduler.checkExists(jobKey);
-    
+
     // 如果 Job 或 Trigger 存在，先删除
     if (triggerExist) {
       Trigger trigger = scheduler.getTrigger(triggerKey);
@@ -111,16 +112,12 @@ public class QuartzSchedulerService extends BaseSchedulerService
       // 如果 Job 存在但 Trigger 不存在，也删除 Job
       scheduler.deleteJob(jobKey);
     }
-    
+
     // 重新创建 Job 和 Trigger
     JobDataMap jobDataMap = new JobDataMap();
     fillJobDataMap(jobDataMap, schedulerJobDO);
     JobDetail jobDetail =
-        initJobDetail(
-            loadClassFromSpring(schedulerJobDO),
-            jobName,
-            applicationContext,
-            jobDataMap);
+        initJobDetail(loadClassFromSpring(schedulerJobDO), jobName, applicationContext, jobDataMap);
     Trigger trigger =
         initTrigger(
             jobDetail,

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: build clean spotless-check spotless-apply
+.PHONY: build clean spotless-check spotless-apply help
 
 export CHAOS_PLATFORM_VERSION=1.1.0
 SRC_ROOT=$(shell pwd)
@@ -23,6 +23,38 @@ BUILD_DIR=$(SRC_ROOT)/chaosblade-box-starter/src/main/resources/build
 # chaosblade-box-fe
 CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaosblade-box-fe.git
 CHAOS_PLATFORM_FE_BRANCH ?= main
+
+help: ## 显示此帮助信息
+	@echo "ChaosBlade Box Makefile 可用命令:"
+	@echo ""
+	@echo "构建相关:"
+	@echo "  make build_fe          - 构建前端项目 (chaosblade-box-fe)"
+	@echo "  make build             - 构建整个项目 (包括前端和 Java 后端)"
+	@echo "  make clean             - 清理构建产物"
+	@echo ""
+	@echo "代码质量检查:"
+	@echo "  make license-check     - 检查许可证头"
+	@echo "  make license-format    - 格式化许可证头"
+	@echo "  make spotless-check    - 使用 Spotless 检查代码风格"
+	@echo "  make spotless-apply    - 使用 Spotless 格式化代码"
+	@echo ""
+	@echo "Docker 相关:"
+	@echo "  make docker-build      - 构建 Docker 镜像"
+	@echo "                         (可选参数: IMAGE_NAME, IMAGE_REGISTRY, VERSION)"
+	@echo "  make docker-push       - 推送 Docker 镜像到仓库"
+	@echo "                         (必需参数: IMAGE_REGISTRY)"
+	@echo ""
+	@echo "Helm 相关:"
+	@echo "  make helm-update-version - 更新 Helm chart 版本"
+	@echo "  make helm-package      - 打包 Helm chart"
+	@echo "  make helm-lint         - 检查 Helm chart"
+	@echo "  make helm-clean        - 清理 Helm 打包产物"
+	@echo ""
+	@echo "示例:"
+	@echo "  make build"
+	@echo "  make docker-build IMAGE_REGISTRY=registry.example.com/"
+	@echo "  make docker-push IMAGE_REGISTRY=registry.example.com/"
+	@echo "  make helm-package"
 
 build_fe:
 	rm -rf $(CACHE_DIR)

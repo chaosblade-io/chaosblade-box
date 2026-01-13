@@ -68,7 +68,8 @@ public class ChaosBladeFunctionLoader {
     }
     List<ModelSpecBean> items = bladeModels.getItems();
     if (CollectionUtil.isNullOrEmpty(items)) {
-      log.warn("[ChaosBladeFunctionLoader] bladeModels.getItems() is null or empty, return empty list.");
+      log.warn(
+          "[ChaosBladeFunctionLoader] bladeModels.getItems() is null or empty, return empty list.");
       return Lists.newArrayList();
     }
     Map<String, SceneFunctionDO> appCodeToSceneFunctionDO = new HashMap<>();

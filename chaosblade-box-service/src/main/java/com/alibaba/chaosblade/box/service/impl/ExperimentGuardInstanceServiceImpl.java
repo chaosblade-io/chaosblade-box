@@ -47,7 +47,9 @@ public class ExperimentGuardInstanceServiceImpl implements ExperimentGuardInstan
       experimentGuardInstanceRepository.add(experimentGuardInstanceDO);
       try {
         redisTemplate.prefixPut(
-            PRE, experimentGuardInstanceDO.getInstanceId(), experimentGuardMonitorMetricResultEntity);
+            PRE,
+            experimentGuardInstanceDO.getInstanceId(),
+            experimentGuardMonitorMetricResultEntity);
       } catch (Exception e) {
         log.warn(
             "Failed to save experiment guard monitor metric to Redis, instanceId: {}, error: {}",
@@ -71,7 +73,9 @@ public class ExperimentGuardInstanceServiceImpl implements ExperimentGuardInstan
       experimentGuardInstanceRepository.update(experimentGuardInstanceDO);
       try {
         redisTemplate.prefixPut(
-            PRE, experimentGuardInstanceDO.getInstanceId(), experimentGuardMonitorMetricResultEntity);
+            PRE,
+            experimentGuardInstanceDO.getInstanceId(),
+            experimentGuardMonitorMetricResultEntity);
       } catch (Exception e) {
         log.warn(
             "Failed to update experiment guard monitor metric to Redis, instanceId: {}, error: {}",

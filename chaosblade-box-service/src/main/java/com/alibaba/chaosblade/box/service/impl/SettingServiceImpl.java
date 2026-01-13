@@ -195,15 +195,17 @@ public class SettingServiceImpl implements SettingService {
             sb.append(" --set images.chaos.repository=").append(chaosAgentRepository);
             sb.append(" --set images.chaos.version=").append(chaosAgentVersion);
           }
-          String chartFileName = StringUtils.isNotBlank(chaosAgentVersion) 
-              ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz" 
-              : "chaos.tgz";
+          String chartFileName =
+              StringUtils.isNotBlank(chaosAgentVersion)
+                  ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+                  : "chaos.tgz";
           sb.append(" --namespace chaosblade --name chaosblade-box-agent ").append(chartFileName);
           break;
         case "v3":
-          String chartFileNameV3 = StringUtils.isNotBlank(chaosAgentVersion) 
-              ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz" 
-              : "chaos.tgz";
+          String chartFileNameV3 =
+              StringUtils.isNotBlank(chaosAgentVersion)
+                  ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+                  : "chaos.tgz";
           sb.append(" chaosblade-box-agent ").append(chartFileNameV3);
           sb.append(" --namespace chaosblade --set env.name=");
           sb.append(namespace);
@@ -248,9 +250,10 @@ public class SettingServiceImpl implements SettingService {
     sb.append(license);
     sb.append(" --namespace chaosblade");
     sb.append(" --name chaosblade-box-agent");
-    String chartFileName = StringUtils.isNotBlank(chaosAgentVersion) 
-        ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz" 
-        : "chaos.tgz";
+    String chartFileName =
+        StringUtils.isNotBlank(chaosAgentVersion)
+            ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+            : "chaos.tgz";
     sb.append(" ").append(chartFileName);
 
     return sb;
