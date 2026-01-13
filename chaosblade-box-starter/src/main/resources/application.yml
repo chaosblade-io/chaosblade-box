@@ -14,8 +14,9 @@
 
 chaos:
   agent:
-    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}.tgz
-    repository: chaosbladeio/chaosblade-agent
+    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}-helm_amd64.tgz
+    helm-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}-helm_arm64.tgz
+    repository: ghcr.io/chaosblade-io/chaosblade-box-agent
     url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_amd64.tar.gz
     url-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_arm64.tar.gz
     version: 1.1.0
@@ -25,7 +26,7 @@ chaos:
       expire-after-access: 900
       expire-after-write: 900
       name: redis
-    enable: true
+    enable: false
     local-cache:
       expire-after-access: 900
       expire-after-write: 900
@@ -89,6 +90,18 @@ spring:
   data:
     cassandra:
       cluster-name: ''
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 2000
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1
   datasource:
     continue-on-error: true
     data: classpath:sql/data/*.sql

@@ -31,7 +31,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
-import org.springframework.stereotype.Component;
 
 /**
  * Author: sunju
@@ -39,12 +38,12 @@ import org.springframework.stereotype.Component;
  * <p>Date: 2019/11/8
  */
 @Slf4j
-@Component
 public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
 
   private static final String PREFIX = "chaos:redis:";
 
-  @Autowired private RedisTemplate<String, Serializable> redisTemplate;
+  @Autowired(required = false)
+  private RedisTemplate<String, Serializable> redisTemplate;
 
   private final int expireAfterWrite;
 
@@ -59,6 +58,10 @@ public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
 
   @Override
   public void prefixPut(String prefixKey, String key, Serializable value) {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, skip put operation");
+      return;
+    }
     try {
       if (expireAfterWrite > 0) {
         redisTemplate
@@ -76,6 +79,10 @@ public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
   @Override
   public void prefixPut(String prefixKey, String key, Serializable value, int expire)
       throws ChaosCacheException {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, skip put operation");
+      return;
+    }
     try {
       redisTemplate.opsForValue().set(wrap(prefixKey, key), value, expire, TimeUnit.SECONDS);
     } catch (Exception e) {
@@ -86,6 +93,10 @@ public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
 
   @Override
   public void prefixPutAll(String prefixKey, Map<String, Serializable> values) {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, skip putAll operation");
+      return;
+    }
     redisTemplate.execute(
         new SessionCallback<List<Object>>() {
 
@@ -118,7 +129,10 @@ public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
 
   @Override
   public Serializable prefixGet(String prefixKey, String key) {
-
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, return null");
+      return null;
+    }
     Serializable result = null;
     try {
       String wrapperKey = wrap(prefixKey, key);
@@ -134,6 +148,10 @@ public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
 
   @Override
   public Map<String, Serializable> prefixGetAll(String prefixKey, Collection<String> keys) {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, return empty map");
+      return new HashMap<>();
+    }
     List<Object> values =
         redisTemplate.execute(
             new SessionCallback<List<Object>>() {
@@ -172,20 +190,34 @@ public class RedisCacheTemplate implements ChaosDistributedCacheTemplate {
 
   @Override
   public void prefixInvalid(String prefixKey, String key) {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, skip invalid operation");
+      return;
+    }
     redisTemplate.delete(wrap(prefixKey, key));
   }
 
   @Override
   public void prefixInvalidAll(String prefixKey, Collection<String> keys)
       throws ChaosCacheException {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, skip invalidAll operation");
+      return;
+    }
     redisTemplate.delete(
         keys.stream().map(key -> wrap(prefixKey, key)).collect(Collectors.toList()));
   }
 
   @Override
   public void clear(String prefixKey) throws ChaosCacheException {
+    if (redisTemplate == null) {
+      log.warn("[RedisCacheTemplate] RedisTemplate is not available, skip clear operation");
+      return;
+    }
     Set<String> keys = redisTemplate.keys(wrap(prefixKey, "*"));
-    redisTemplate.delete(keys);
+    if (keys != null && !keys.isEmpty()) {
+      redisTemplate.delete(keys);
+    }
   }
 
   private String wrap(String prefixKey, String key) {

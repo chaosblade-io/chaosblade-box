@@ -21,7 +21,7 @@ FE_CACHE_DIR=$(CACHE_DIR)/chaosblade-box-fe
 BUILD_DIR=$(SRC_ROOT)/chaosblade-box-starter/src/main/resources/build
 
 # chaosblade-box-fe
-CHAOS_PLATFORM_FE=git@github.com:chaosblade-io/chaosblade-box-fe.git
+CHAOS_PLATFORM_FE=https://github.com/chaosblade-io/chaosblade-box-fe.git
 CHAOS_PLATFORM_FE_BRANCH ?= main
 
 build_fe:

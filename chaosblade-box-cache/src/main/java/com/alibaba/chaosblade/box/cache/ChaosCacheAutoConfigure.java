@@ -36,7 +36,6 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@EnableConfigurationProperties({ChaosCacheProperties.class})
 @ConditionalOnProperty(name = "chaos.cache.enable", havingValue = "true")
 public class ChaosCacheAutoConfigure {
 

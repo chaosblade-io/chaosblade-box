@@ -24,47 +24,53 @@ on:
         description: 'Version to release (e.g., 1.0.5)'
         required: true
         type: string
-      branch:
-        description: 'Code branch to build (e.g., main, master)'
-        required: false
-        type: string
-        default: 'main'
       fe_branch:
         description: 'Frontend repository branch (e.g., main)'
         required: false
         type: string
         default: 'main'
+      draft:
+        description: 'Create as draft release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
 
+    outputs:
+      version: ${{ steps.set_version_vars.outputs.version }}
+      draft: ${{ steps.set_version_vars.outputs.draft }}
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || github.ref }}
           fetch-depth: 0
 
       - name: Set up JDK 8
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: maven
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '16'
-          cache: 'npm'
 
       - name: Extract version from tag
         id: extract_version
@@ -88,35 +94,46 @@ jobs:
           echo "Using frontend branch: $FE_BRANCH"
 
       - name: Set version and branch variables
+        id: set_version_vars
         run: |
           if [ "${{ github.event_name }}" == "push" ]; then
             VERSION="${{ steps.extract_version.outputs.version }}"
             FE_BRANCH="main"
+            DRAFT="false"
           else
             VERSION="${{ steps.set_version.outputs.version }}"
             FE_BRANCH="${{ steps.set_version.outputs.fe_branch }}"
+            DRAFT_INPUT="${{ github.event.inputs.draft }}"
+            # Convert to boolean value (GitHub Actions boolean inputs are strings)
+            if [ "$DRAFT_INPUT" == "true" ] || [ "$DRAFT_INPUT" == "True" ] || [ "$DRAFT_INPUT" == "1" ]; then
+              DRAFT="true"
+            else
+              DRAFT="false"
+            fi
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "FE_BRANCH=$FE_BRANCH" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "draft=$DRAFT" >> $GITHUB_OUTPUT
           echo "Final version: $VERSION"
           echo "Frontend branch: $FE_BRANCH"
+          echo "Draft release: $DRAFT"
 
       - name: Build project
-        working-directory: ./chaosblade-box
         env:
           CHAOS_PLATFORM_FE_BRANCH: ${{ env.FE_BRANCH }}
         run: |
           make build VERSION=${{ env.VERSION }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.GHCR_USER }}
+          password: ${{ secrets.GHCR_PASSWORD }}
 
       - name: Extract metadata for Docker
         id: meta
@@ -130,8 +147,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./chaosblade-box
-          file: ./chaosblade-box/Dockerfile
+          context: .
+          file: ./Dockerfile
           build-args: |
             VERSION=${{ env.VERSION }}
             JAR_FILE=chaosblade-box-${{ env.VERSION }}.jar
@@ -140,39 +157,183 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Install Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4
         with:
           version: '3.12.0'
 
       - name: Build Helm chart
-        working-directory: ./chaosblade-box
         run: |
           make helm-package VERSION=${{ env.VERSION }}
 
-      - name: Create Release
+      - name: Verify build artifacts
+        run: |
+          echo "Verifying build artifacts..."
+          JAR_FILE="chaosblade-box-starter/target/chaosblade-box-${VERSION}.jar"
+          HELM_CHART="dist/chaosblade-box-${VERSION}.tgz"
+          
+          if [ -f "${JAR_FILE}" ]; then
+            echo "✅ JAR file found: ${JAR_FILE}"
+            ls -lh "${JAR_FILE}"
+          else
+            echo "❌ JAR file not found: ${JAR_FILE}"
+            exit 1
+          fi
+          
+          if [ -f "${HELM_CHART}" ]; then
+            echo "✅ Helm chart found: ${HELM_CHART}"
+            ls -lh "${HELM_CHART}"
+          else
+            echo "❌ Helm chart not found: ${HELM_CHART}"
+            exit 1
+          fi
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-package
+          path: chaosblade-box-starter/target/chaosblade-box-${{ env.VERSION }}.jar
+          retention-days: 7
+
+      - name: Upload Helm chart artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-chart
+          path: dist/chaosblade-box-${{ env.VERSION }}.tgz
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set version and draft variables
+        run: |
+          VERSION="${{ needs.build.outputs.version }}"
+          DRAFT="${{ needs.build.outputs.draft }}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "DRAFT=$DRAFT" >> $GITHUB_ENV
+          echo "Version: $VERSION"
+          echo "Draft release: $DRAFT"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Setup OSSUTIL environment
+        uses: yizhoumo/setup-ossutil@v1.1.3
+        env:
+          BINARY_TAG: ${{ env.VERSION }}
+        with:
+          endpoint: ${{ secrets.OSS_ENDPOINT }}
+          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          ossutil-version: '1.7.14'
+
+      - name: Upload JAR and Helm chart to OSS
+        env:
+          BINARY_TAG: ${{ env.VERSION }}
+          VERSION: ${{ env.VERSION }}
+        run: |
+          echo "Uploading ChaosBlade Box artifacts to OSS..."
+          
+          JAR_FILE="artifacts/jar-package/chaosblade-box-${VERSION}.jar"
+          HELM_CHART="artifacts/helm-chart/chaosblade-box-${VERSION}.tgz"
+          
+          # Upload JAR file
+          if [ -f "${JAR_FILE}" ]; then
+            echo "Uploading JAR file..."
+            ossutil cp -f "${JAR_FILE}" "oss://chaosblade/platform/release/${BINARY_TAG}/chaosblade-box-${VERSION}.jar"
+            echo "✅ JAR file uploaded successfully"
+            echo "OSS URL: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${BINARY_TAG}/chaosblade-box-${VERSION}.jar"
+          else
+            echo "❌ JAR file not found: ${JAR_FILE}"
+            exit 1
+          fi
+          
+          # Upload Helm chart
+          if [ -f "${HELM_CHART}" ]; then
+            echo "Uploading Helm chart..."
+            ossutil cp -f "${HELM_CHART}" "oss://chaosblade/platform/release/${BINARY_TAG}/chaosblade-box-${VERSION}.tgz"
+            echo "✅ Helm chart uploaded successfully"
+            echo "OSS URL: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${BINARY_TAG}/chaosblade-box-${VERSION}.tgz"
+          else
+            echo "❌ Helm chart not found: ${HELM_CHART}"
+            exit 1
+          fi
+          
+          echo "All artifacts uploaded to OSS successfully"
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          echo "Release assets directory created"
+
+      - name: Generate release notes
+        run: |
+          cat > release-assets/RELEASE_NOTES.md << 'EOF'
+
+          ### 📦 Downloads
+          Choose the appropriate package for your platform:
+
+          **Docker Image:**
+          - **Image**: `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}` - Container image for deployment
+
+          **JAR Package:**
+          - **JAR**: `chaosblade-box-${{ env.VERSION }}.jar` - Java application package
+
+          **Helm Chart:**
+          - **Helm Chart**: `chaosblade-box-${{ env.VERSION }}.tgz` - Kubernetes deployment package
+
+          ### 🌐 OSS Download Links
+          Alternative download links from Alibaba Cloud OSS:
+          - **JAR**: [chaosblade-box-${{ env.VERSION }}.jar](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${{ env.VERSION }}/chaosblade-box-${{ env.VERSION }}.jar)
+          - **Helm Chart**: [chaosblade-box-${{ env.VERSION }}.tgz](https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${{ env.VERSION }}/chaosblade-box-${{ env.VERSION }}.tgz)
+
+          ### 🔧 Installation
+
+          **From Docker Image:**
+          ```bash
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          ```
+
+          **From Helm Chart:**
+          ```bash
+          # Download helm chart
+          wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${{ env.VERSION }}/chaosblade-box-${{ env.VERSION }}.tgz
+          # Install using Helm
+          helm install chaosblade-box ./chaosblade-box-${{ env.VERSION }}.tgz --namespace chaosblade
+          ```
+
+          **From JAR Package:**
+          ```bash
+          # Download JAR file
+          wget https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${{ env.VERSION }}/chaosblade-box-${{ env.VERSION }}.jar
+          # Run the application
+          java -jar chaosblade-box-${{ env.VERSION }}.jar
+          ```
+          EOF
+          echo "Release notes generated:"
+          cat release-assets/RELEASE_NOTES.md
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ env.VERSION }}
-          name: Release v${{ env.VERSION }}
-          body: |
-            ## Release v${{ env.VERSION }}
-
-            ### Docker Image
-            ```
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-            ```
-
-            ### Helm Chart
-            See attached Helm chart package.
-
-            ### Installation
-            ```bash
-            helm install chaosblade-box ./deploy/chaosblade-box --version ${{ env.VERSION }}
-            ```
-          files: |
-            ./chaosblade-box/dist/chaosblade-box-${{ env.VERSION }}.tgz
-          draft: false
+          name: v${{ env.VERSION }}
+          draft: ${{ env.DRAFT }}
+          body_path: release-assets/RELEASE_NOTES.md
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+          files: |
+            artifacts/helm-chart/chaosblade-box-${{ env.VERSION }}.tgz
+          tag_name: v${{ env.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
