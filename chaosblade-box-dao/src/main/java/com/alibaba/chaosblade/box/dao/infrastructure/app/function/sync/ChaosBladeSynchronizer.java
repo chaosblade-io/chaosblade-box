@@ -16,10 +16,15 @@
 
 package com.alibaba.chaosblade.box.dao.infrastructure.app.function.sync;
 
+import com.alibaba.chaosblade.box.common.common.constant.ChaosFunctionConstant;
+import com.alibaba.chaosblade.box.common.common.enums.CommonErrorCode;
+import com.alibaba.chaosblade.box.common.infrastructure.constant.CommonConstant;
 import com.alibaba.chaosblade.box.common.infrastructure.exception.ChaosException;
 import com.alibaba.chaosblade.box.common.infrastructure.lock.DistributeLock;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
+import com.alibaba.chaosblade.box.common.infrastructure.util.RetryUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.function.BaseSceneSynchronizer;
+import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneFunctionDeletedEvent;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneFunctionUpdatedEvent;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.function.SceneSynchronousHelper;
 import com.alibaba.chaosblade.box.dao.infrastructure.event.ChaosEventDispatcher;
@@ -27,10 +32,13 @@ import com.alibaba.chaosblade.box.dao.infrastructure.manager.SceneFunctionCatego
 import com.alibaba.chaosblade.box.dao.model.SceneDO;
 import com.alibaba.chaosblade.box.dao.model.SceneFunctionDO;
 import com.alibaba.chaosblade.box.dao.repository.SceneFunctionRepository;
+import com.alibaba.chaosblade.box.dao.repository.SceneRepository;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +51,8 @@ public class ChaosBladeSynchronizer extends BaseSceneSynchronizer {
 
   @Resource private SceneFunctionRepository sceneFunctionRepository;
 
+  @Resource private SceneRepository sceneRepository;
+
   @Resource SceneSynchronizerUtil sceneSynchronizerUtil;
 
   @Autowired private SceneSynchronousHelper sceneSynchronousHelper;
@@ -52,6 +62,8 @@ public class ChaosBladeSynchronizer extends BaseSceneSynchronizer {
   @Autowired private ChaosEventDispatcher chaosEventDispatcher;
 
   @Autowired private SceneFunctionCategoryManager sceneFunctionCategoryManager;
+
+  private static final int RETRY_TIMES = 3;
 
   @Override
   @DistributeLock(
@@ -69,6 +81,16 @@ public class ChaosBladeSynchronizer extends BaseSceneSynchronizer {
       if (CollectionUtil.isNullOrEmpty(functions)) {
         return;
       }
+
+      // 获取ChaosBlade场景ID
+      Optional<SceneDO> chaosBladeSceneOptional =
+          sceneRepository.findByCode(CommonConstant.CHAOS_BLADE_SCENE_CODE);
+      if (chaosBladeSceneOptional.isPresent()) {
+        String sceneId = chaosBladeSceneOptional.get().getSceneId();
+        // 删除YAML中不存在的场景函数
+        deleteRemovedSceneFunctions(sceneId, functions);
+      }
+
       log.info("[ChaosBladeSynchronizer] Sync All functions.");
       functions.forEach(
           new Consumer<SceneFunctionDO>() {
@@ -92,6 +114,47 @@ public class ChaosBladeSynchronizer extends BaseSceneSynchronizer {
           sceneFunctionRepository.findAvailableFunctions());
       chaosEventDispatcher.fireEvent(new ChaosBladeSyncFinishedOnStartedUpEvent());
       log.info("[ChaosBladeSynchronizer] Sync ChaosBlade models finished.");
+    }
+  }
+
+  /**
+   * 删除YAML中已经不存在的场景函数
+   *
+   * @param sceneId 场景ID
+   * @param functions YAML中存在的场景函数列表
+   */
+  private void deleteRemovedSceneFunctions(String sceneId, List<SceneFunctionDO> functions)
+      throws ChaosException {
+    // 获取数据库中该场景下的所有函数
+    List<SceneFunctionDO> existFunctions = sceneFunctionRepository.findBySceneId(sceneId);
+
+    // 获取YAML中所有函数的code列表
+    List<String> yamlFunctionCodes =
+        functions.stream().map(SceneFunctionDO::getCode).collect(Collectors.toList());
+
+    // 遍历数据库中的函数，只删除ChaosBlade来源且YAML中不存在的
+    for (SceneFunctionDO existFunction : existFunctions) {
+      // 只删除ChaosBlade来源的场景函数，避免误删其他来源（如用户自定义的场景函数）
+      if (ChaosFunctionConstant.SOURCE_CHAOS_BLADE.equals(existFunction.getSource())
+          && !yamlFunctionCodes.contains(existFunction.getCode())) {
+        log.info(
+            "[ChaosBladeSynchronizer] Scene function not exists in YAML, will be deleted. code: {}",
+            existFunction.getCode());
+        boolean deleteResult =
+            RetryUtil.retryIfReturnFalse(
+                () -> sceneFunctionRepository.deleteByFunctionId(existFunction.getFunctionId()),
+                RETRY_TIMES);
+        if (!deleteResult) {
+          throw new ChaosException(
+              CommonErrorCode.B_UPDATE_MINIAPP_FAILED,
+              "Delete ChaosBlade scene function failed before sync. code: "
+                  + existFunction.getCode());
+        }
+        chaosEventDispatcher.fireEvent(new SceneFunctionDeletedEvent(existFunction, true));
+        log.info(
+            "[ChaosBladeSynchronizer] Scene function deleted successfully. code: {}",
+            existFunction.getCode());
+      }
     }
   }
 
