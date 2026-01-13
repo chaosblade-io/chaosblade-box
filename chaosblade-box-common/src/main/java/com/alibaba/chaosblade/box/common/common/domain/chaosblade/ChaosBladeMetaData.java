@@ -58,6 +58,7 @@ public class ChaosBladeMetaData {
     scopeToScopeType.put("container", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_K8S);
     scopeToScopeType.put("node", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_K8S);
     scopeToScopeType.put("pod", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_K8S);
+    scopeToScopeType.put("cri", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_K8S);
     scopeToScopeType.put("docker", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_HOST);
     scopeToScopeType.put("host", ChaosFunctionConstant.SUPPORT_SCOPE_TYPE_HOST);
 
@@ -76,11 +77,16 @@ public class ChaosBladeMetaData {
     JvmActionToCategory.put("delay", "1216606744870113281");
     // 抛异常
     JvmActionToCategory.put("throwCustomException", "1216606820073984002");
+    JvmActionToCategory.put("throwDeclaredException", "1216606820073984002");
     // 内存
     JvmActionToCategory.put("CodeCacheFilling", "1217023981502308353");
     JvmActionToCategory.put("OutOfMemoryError", "1217023981502308353");
+    JvmActionToCategory.put("full-gc", "1217023981502308353");
     // CPU
     JvmActionToCategory.put("fullload", "1217023924078092289");
+    JvmActionToCategory.put("cpufullload", "1217023924078092289");
+    // 线程
+    JvmActionToCategory.put("threadfull", "1217023924078092289");
     // 自定义故障
     JvmActionToCategory.put("script", "1216606920988938241");
   }

@@ -29,6 +29,7 @@ public class ActionSpecBean {
   private String example;
   private List<String> programs;
   private List<String> categories;
+  private Boolean actionProcessHang;
 
   public String getAction() {
     return action;
@@ -100,5 +101,13 @@ public class ActionSpecBean {
 
   public void setCategories(List<String> categories) {
     this.categories = categories;
+  }
+
+  public Boolean getActionProcessHang() {
+    return actionProcessHang;
+  }
+
+  public void setActionProcessHang(Boolean actionProcessHang) {
+    this.actionProcessHang = actionProcessHang;
   }
 }

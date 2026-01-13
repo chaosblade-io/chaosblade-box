@@ -91,30 +91,49 @@ public class QuartzSchedulerService extends BaseSchedulerService
 
   @Override
   protected void rescheduleCronJob(SchedulerJobDO schedulerJobDO) throws Exception {
+    // 使用 name 或 schedulerBeanClass 作为 Job 名称（与 internalAddSchedulerJob 保持一致）
+    String jobName =
+        schedulerJobDO.getName() != null
+            ? schedulerJobDO.getName()
+            : schedulerJobDO.getSchedulerBeanClass();
     TriggerKey triggerKey = new TriggerKey(getTriggerName(schedulerJobDO.getJobId()));
-    boolean exist = scheduler.checkExists(triggerKey);
-    if (exist) {
+    JobKey jobKey = new JobKey(jobName, "DEFAULT");
+    boolean triggerExist = scheduler.checkExists(triggerKey);
+    boolean jobExist = scheduler.checkExists(jobKey);
+
+    // 如果 Job 或 Trigger 存在，先删除
+    if (triggerExist) {
       Trigger trigger = scheduler.getTrigger(triggerKey);
-      scheduler.deleteJob(trigger.getJobKey());
-      scheduler.pauseTrigger(triggerKey);
-      JobDataMap jobDataMap = new JobDataMap();
-      fillJobDataMap(jobDataMap, schedulerJobDO);
-      JobDetail jobDetail =
-          initJobDetail(
-              loadClassFromSpring(schedulerJobDO),
-              schedulerJobDO.getName(),
-              applicationContext,
-              jobDataMap);
-      trigger =
-          initTrigger(
-              jobDetail,
-              schedulerJobDO.getName(),
-              schedulerJobDO.getCronExpression(),
-              schedulerJobDO.getStartTime(),
-              2000);
+      if (trigger != null) {
+        scheduler.pauseTrigger(triggerKey);
+        scheduler.deleteJob(trigger.getJobKey());
+      }
+    } else if (jobExist) {
+      // 如果 Job 存在但 Trigger 不存在，也删除 Job
+      scheduler.deleteJob(jobKey);
+    }
+
+    // 重新创建 Job 和 Trigger
+    JobDataMap jobDataMap = new JobDataMap();
+    fillJobDataMap(jobDataMap, schedulerJobDO);
+    JobDetail jobDetail =
+        initJobDetail(loadClassFromSpring(schedulerJobDO), jobName, applicationContext, jobDataMap);
+    Trigger trigger =
+        initTrigger(
+            jobDetail,
+            schedulerJobDO.getJobId(),
+            schedulerJobDO.getCronExpression(),
+            schedulerJobDO.getStartTime(),
+            2000);
+    try {
       scheduler.scheduleJob(jobDetail, trigger);
-    } else {
-      internalAddSchedulerJob(schedulerJobDO);
+    } catch (ObjectAlreadyExistsException e) {
+      // 如果仍然存在（可能是并发情况），记录警告但不抛出异常
+      log.warn(
+          "reschedule cron job failed, job already exists, jobId:{}, jobName:{}, className:{}",
+          schedulerJobDO.getJobId(),
+          jobName,
+          schedulerJobDO.getSchedulerBeanClass());
     }
   }
 

@@ -66,6 +66,9 @@ public class SettingServiceImpl implements SettingService {
   @Value("${chaos.agent.helm:}")
   private String agentHelm;
 
+  @Value("${chaos.agent.helm-arm64:}")
+  private String agentHelmArm64;
+
   @Value("${chaos.agent.version:}")
   private String chaosAgentVersion;
 
@@ -192,10 +195,18 @@ public class SettingServiceImpl implements SettingService {
             sb.append(" --set images.chaos.repository=").append(chaosAgentRepository);
             sb.append(" --set images.chaos.version=").append(chaosAgentVersion);
           }
-          sb.append(" --namespace chaosblade --name agent chaos.tgz");
+          String chartFileName =
+              StringUtils.isNotBlank(chaosAgentVersion)
+                  ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+                  : "chaos.tgz";
+          sb.append(" --namespace chaosblade --name chaosblade-box-agent ").append(chartFileName);
           break;
         case "v3":
-          sb.append(" agent chaos.tgz");
+          String chartFileNameV3 =
+              StringUtils.isNotBlank(chaosAgentVersion)
+                  ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+                  : "chaos.tgz";
+          sb.append(" chaosblade-box-agent ").append(chartFileNameV3);
           sb.append(" --namespace chaosblade --set env.name=");
           sb.append(namespace);
           sb.append(",license=");
@@ -238,19 +249,32 @@ public class SettingServiceImpl implements SettingService {
     sb.append(" license=");
     sb.append(license);
     sb.append(" --namespace chaosblade");
-    sb.append(" --name agent");
-    sb.append(" chaos");
-    sb.append(".tgz");
+    sb.append(" --name chaosblade-box-agent");
+    String chartFileName =
+        StringUtils.isNotBlank(chaosAgentVersion)
+            ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+            : "chaos.tgz";
+    sb.append(" ").append(chartFileName);
 
     return sb;
   }
 
   @Override
   public String queryHelmAgentInstallPackageAddress() {
+    // Return amd64 helm chart address by default for backward compatibility
+    return queryHelmAgentInstallPackageAddressByArch("amd64");
+  }
+
+  public String queryHelmAgentInstallPackageAddressByArch(String arch) {
     StringBuilder sb = new StringBuilder("wget ");
-    sb.append(agentHelm);
-    sb.append(" -O chaos");
-    sb.append(".tgz");
+    String helmUrl;
+    if ("arm64".equalsIgnoreCase(arch) && StringUtils.isNotBlank(agentHelmArm64)) {
+      helmUrl = agentHelmArm64;
+    } else {
+      helmUrl = agentHelm;
+    }
+    sb.append(helmUrl);
+    sb.append(" -O ").append("chaosblade-box-agent-" + chaosAgentVersion + ".tgz");
     return sb.toString();
   }
 

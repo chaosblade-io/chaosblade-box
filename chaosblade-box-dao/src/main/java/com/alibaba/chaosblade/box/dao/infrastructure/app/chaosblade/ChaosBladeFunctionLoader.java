@@ -28,6 +28,7 @@ import com.alibaba.chaosblade.box.common.infrastructure.constant.SceneState;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneFunctionDependency;
 import com.alibaba.chaosblade.box.common.infrastructure.exception.ChaosException;
 import com.alibaba.chaosblade.box.common.infrastructure.util.ApplicationStartUpConfig;
+import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
 import com.alibaba.chaosblade.box.common.infrastructure.util.EnvironmentUtil;
 import com.alibaba.chaosblade.box.common.sdk.entity.*;
 import com.alibaba.chaosblade.box.dao.infrastructure.service.SceneDaoFunctionService;
@@ -61,8 +62,18 @@ public class ChaosBladeFunctionLoader {
       throws Exception {
     log.info("[ChaosBladeFunctionLoader] Load scene functions.");
     ChaosModels bladeModels = chaosBladeInvoker.getBladeModels();
+    if (bladeModels == null) {
+      log.warn("[ChaosBladeFunctionLoader] bladeModels is null, return empty list.");
+      return Lists.newArrayList();
+    }
+    List<ModelSpecBean> items = bladeModels.getItems();
+    if (CollectionUtil.isNullOrEmpty(items)) {
+      log.warn(
+          "[ChaosBladeFunctionLoader] bladeModels.getItems() is null or empty, return empty list.");
+      return Lists.newArrayList();
+    }
     Map<String, SceneFunctionDO> appCodeToSceneFunctionDO = new HashMap<>();
-    for (ModelSpecBean modelSpecBean : bladeModels.getItems()) {
+    for (ModelSpecBean modelSpecBean : items) {
       SceneFunctionDO prepareSceneFunctionDO = null;
       PrepareSpecBean prepareSpecBean = modelSpecBean.getPrepare();
       if (needPrepare(modelSpecBean)) {

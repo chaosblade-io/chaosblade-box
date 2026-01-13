@@ -94,11 +94,18 @@ public class ExperimentGuardMetricLoadCommand
   private ExperimentGuardMonitorMetricResultEntity
       getExperimentGuardMonitorMetricResultEntityFormRedis(
           ExperimentGuardInstanceDO experimentGuardInstanceDO) {
-    Serializable serializable =
-        redisTemplate.prefixGet(
-            ExperimentGuardInstanceServiceImpl.PRE, experimentGuardInstanceDO.getInstanceId());
-    if (null != serializable) {
-      return (ExperimentGuardMonitorMetricResultEntity) serializable;
+    try {
+      Serializable serializable =
+          redisTemplate.prefixGet(
+              ExperimentGuardInstanceServiceImpl.PRE, experimentGuardInstanceDO.getInstanceId());
+      if (null != serializable) {
+        return (ExperimentGuardMonitorMetricResultEntity) serializable;
+      }
+    } catch (Exception e) {
+      log.warn(
+          "Failed to get experiment guard monitor metric from Redis, instanceId: {}, error: {}",
+          experimentGuardInstanceDO.getInstanceId(),
+          e.getMessage());
     }
     return new ExperimentGuardMonitorMetricResultEntity();
   }

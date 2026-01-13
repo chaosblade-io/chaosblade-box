@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.google.common.base.Preconditions;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.ObjectAlreadyExistsException;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -74,10 +75,20 @@ public abstract class BaseSchedulerService implements SchedulerJobService {
       }
     } catch (Exception e) {
       if (schedulerJobDO != null) {
-        log.error("add scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
+        if (e instanceof ObjectAlreadyExistsException) {
+          log.warn(
+              "add scheduler failed, job already exists, jobId:{}, className:{}",
+              schedulerJobDO.getJobId(),
+              schedulerJobCreateRequest.getClassName());
+        } else {
+          log.error("add scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
+        }
+        return schedulerJobDO.getJobId();
+      } else {
+        log.error("add scheduler failed, schedulerJobDO is null", e);
+        throw new RuntimeException("Failed to add scheduler job", e);
       }
     }
-    return schedulerJobDO.getJobId();
   }
 
   private void fillSchedulerJobDO(
@@ -117,7 +128,12 @@ public abstract class BaseSchedulerService implements SchedulerJobService {
       try {
         internalAddSchedulerJob(schedulerJobDO);
       } catch (SchedulerException e) {
-        log.error("enable scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
+        if (e instanceof ObjectAlreadyExistsException) {
+          log.warn(
+              "enable scheduler failed, job already exists, jobId:{}", schedulerJobDO.getJobId());
+        } else {
+          log.error("enable scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
+        }
       }
     }
     return true;
@@ -179,7 +195,12 @@ public abstract class BaseSchedulerService implements SchedulerJobService {
       try {
         rescheduleCronJob(schedulerJobDO);
       } catch (Exception e) {
-        log.error("update scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
+        if (e instanceof ObjectAlreadyExistsException) {
+          log.warn(
+              "update scheduler failed, job already exists, jobId:{}", schedulerJobDO.getJobId());
+        } else {
+          log.error("update scheduler failed,jobId:" + schedulerJobDO.getJobId(), e);
+        }
       }
     }
   }
