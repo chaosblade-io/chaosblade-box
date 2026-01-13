@@ -45,7 +45,8 @@ public class ExperimentGuardMetricLoadCommand
 
   @Autowired private ExperimentGuardInstanceService experimentGuardInstanceService;
 
-  @Autowired private RedisCacheTemplate redisTemplate;
+  @Autowired(required = false)
+  private RedisCacheTemplate redisTemplate;
 
   @Override
   public ExperimentGuardMonitorMetricResultEntity internalExecute(
@@ -94,6 +95,9 @@ public class ExperimentGuardMetricLoadCommand
   private ExperimentGuardMonitorMetricResultEntity
       getExperimentGuardMonitorMetricResultEntityFormRedis(
           ExperimentGuardInstanceDO experimentGuardInstanceDO) {
+    if (redisTemplate == null) {
+      return new ExperimentGuardMonitorMetricResultEntity();
+    }
     try {
       Serializable serializable =
           redisTemplate.prefixGet(

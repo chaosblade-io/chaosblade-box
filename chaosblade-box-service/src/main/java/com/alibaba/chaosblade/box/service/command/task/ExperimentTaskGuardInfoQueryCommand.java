@@ -51,7 +51,8 @@ public class ExperimentTaskGuardInfoQueryCommand
 
   @Autowired private ExperimentChecker experimentChecker;
 
-  @Autowired private RedisCacheTemplate redisTemplate;
+  @Autowired(required = false)
+  private RedisCacheTemplate redisTemplate;
 
   @Autowired private ExperimentGuardInstanceRepository experimentGuardInstanceRepository;
 
@@ -152,6 +153,9 @@ public class ExperimentTaskGuardInfoQueryCommand
   private ExperimentGuardMonitorMetricResultEntity
       getExperimentGuardMonitorMetricResultEntityFormRedis(
           ExperimentGuardInstanceDO experimentGuardInstanceDO) {
+    if (redisTemplate == null) {
+      return new ExperimentGuardMonitorMetricResultEntity();
+    }
     try {
       Serializable serializable =
           redisTemplate.prefixGet(
