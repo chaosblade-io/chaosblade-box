@@ -22,6 +22,7 @@ import com.alibaba.chaosblade.box.common.common.domain.PageableRequest;
 import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
 import com.alibaba.chaosblade.box.common.infrastructure.constant.PermissionTypes;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.PageableSceneQueryRequest;
+import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneFunctionPageableSearchRequest;
 import com.alibaba.chaosblade.box.common.infrastructure.domain.scene.SceneQueryRequest;
 import com.alibaba.chaosblade.box.common.infrastructure.exception.PermissionDeniedException;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
@@ -95,6 +96,31 @@ public class SceneController extends BaseController {
             .map(SceneFunctionParameterVO::from)
             .collect(Collectors.toList()),
         Lists.newArrayList());
+  }
+
+  /** 根据关键字搜索小程序 */
+  @PostMapping("SearchSceneFunctions")
+  public RestResponse<PageableResponse<SceneFunctionVO>> searchSceneFunctions(
+      @LoginUser ChaosUser user, @RequestBody SceneFunctionPageableSearchRequest pageableRequest) {
+    SceneQueryRequest queryRequest = new SceneQueryRequest();
+    queryRequest.setSearchKey(pageableRequest.getKey());
+    queryRequest.setPhase(pageableRequest.getPhase());
+    queryRequest.setSupportScopeType(pageableRequest.getScopeType());
+    queryRequest.setK8sResourceType(pageableRequest.getK8sResourceType());
+
+    queryRequest.setPermission(PermissionTypes.X);
+    queryRequest.setUser(user);
+    queryRequest.setIsPublic(true);
+
+    PageableResponse<SceneFunctionVO> functions =
+        convertSceneFunctions(
+            sceneFunctionService.querySceneFunctions(
+                pageableRequest.getPage(), pageableRequest.getSize(), queryRequest),
+            pageableRequest.getLang());
+    return wrapResponse(
+        functions,
+        PageableResponse.of(
+            pageableRequest.getPage(), pageableRequest.getSize(), Lists.newArrayList()));
   }
 
   /** 查询可修改的小程序（写权限） */
