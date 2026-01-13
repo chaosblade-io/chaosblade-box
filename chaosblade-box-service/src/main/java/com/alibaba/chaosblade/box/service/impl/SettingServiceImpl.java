@@ -338,9 +338,16 @@ public class SettingServiceImpl implements SettingService {
       return true;
     }
 
+    String agentIp = getAgentAccessibleIp(deviceDO);
+    if (agentIp == null || agentIp.isEmpty()) {
+      log.warn(
+          "Cannot uninstall agent: IP is empty for device: configurationId={}",
+          deviceDO.getConfigurationId());
+      return false;
+    }
+
     String hostDeviceIp =
-        ProxyHelper.getProxyIp(
-            deviceDO.getDeviceType(), deviceDO.getPrivateIp(), deviceDO.getParentIp());
+        ProxyHelper.getProxyIp(deviceDO.getDeviceType(), agentIp, deviceDO.getParentIp());
     Response<String> response =
         agentForChaos.uninstallAgent(
             hostDeviceIp, Integer.toString(deviceDO.getPort()), "uninstall");
@@ -401,9 +408,17 @@ public class SettingServiceImpl implements SettingService {
       return true;
     }
 
+    String agentIp = getAgentAccessibleIp(deviceDO);
+    if (agentIp == null || agentIp.isEmpty()) {
+      log.warn(
+          "Cannot uninstall agent: IP is empty for device: configurationId={}",
+          deviceDO.getConfigurationId());
+      return false;
+    }
+
     Host host = new Host();
-    host.setIp(deviceDO.getPrivateIp());
-    host.setTargetIp(deviceDO.getPrivateIp());
+    host.setIp(agentIp);
+    host.setTargetIp(agentIp);
     host.setPort(deviceDO.getPort());
     Response<String> uninstallResponse = chaosBladeInvoker.uninstallAgent(host);
     return uninstallResponse.isSuccess();
@@ -416,9 +431,17 @@ public class SettingServiceImpl implements SettingService {
       return true;
     }
 
+    String agentIp = getAgentAccessibleIp(deviceDO);
+    if (agentIp == null || agentIp.isEmpty()) {
+      log.warn(
+          "Cannot ping agent: IP is empty for device: configurationId={}",
+          deviceDO.getConfigurationId());
+      return false;
+    }
+
     Host host = new Host();
-    host.setIp(deviceDO.getPrivateIp());
-    host.setTargetIp(deviceDO.getPrivateIp());
+    host.setIp(agentIp);
+    host.setTargetIp(agentIp);
     host.setPort(deviceDO.getPort());
     Response<String> pingResponse = chaosBladeInvoker.pingAgent(host);
     return pingResponse.isSuccess();
@@ -475,5 +498,60 @@ public class SettingServiceImpl implements SettingService {
     }
 
     return null;
+  }
+
+  /**
+   * 获取Agent的可访问IP地址 优先使用publicIp（ExternalIP），如果为空则使用privateIp
+   * 当externalIp.enable=true时，心跳会更新publicIp为ExternalIP 这样可以确保使用最新的可访问IP
+   *
+   * @param deviceDO 设备信息
+   * @return Agent的可访问IP地址，如果为空则返回null并记录警告日志
+   */
+  private String getAgentAccessibleIp(DeviceDO deviceDO) {
+    if (deviceDO == null) {
+      log.warn("DeviceDO is null, cannot get agent IP");
+      return null;
+    }
+
+    String agentIp = deviceDO.getPublicIp();
+    String ipSource = "publicIp";
+    if (agentIp == null || agentIp.isEmpty() || agentIp.trim().isEmpty()) {
+      agentIp = deviceDO.getPrivateIp();
+      ipSource = "privateIp";
+    }
+
+    // 验证IP是否有效
+    if (agentIp == null || agentIp.isEmpty() || agentIp.trim().isEmpty()) {
+      log.warn(
+          "Agent IP is empty for device: configurationId={}, deviceId={}, publicIp={}, privateIp={}",
+          deviceDO.getConfigurationId(),
+          deviceDO.getDeviceId(),
+          deviceDO.getPublicIp(),
+          deviceDO.getPrivateIp());
+      return null;
+    }
+
+    // 过滤无效的IP字符串
+    String trimmedIp = agentIp.trim();
+    if (trimmedIp.equals("<none>")
+        || trimmedIp.equals("<pending>")
+        || trimmedIp.equals("<unknown>")) {
+      log.warn(
+          "Agent IP is invalid ({}) for device: configurationId={}, deviceId={}, publicIp={}, privateIp={}",
+          trimmedIp,
+          deviceDO.getConfigurationId(),
+          deviceDO.getDeviceId(),
+          deviceDO.getPublicIp(),
+          deviceDO.getPrivateIp());
+      return null;
+    }
+
+    log.debug(
+        "Get agent accessible IP: {} (from {}) for device: configurationId={}",
+        trimmedIp,
+        ipSource,
+        deviceDO.getConfigurationId());
+
+    return trimmedIp;
   }
 }

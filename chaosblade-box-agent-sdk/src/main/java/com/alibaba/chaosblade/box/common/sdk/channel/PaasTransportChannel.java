@@ -45,7 +45,20 @@ public class PaasTransportChannel {
   private String domain;
 
   public PaasTransportChannel(String host, String port) {
-    this.domain = host + ":" + port;
+    if (host == null || host.trim().isEmpty()) {
+      LOGGER.error(
+          "Cannot create PaasTransportChannel: host is empty, port={}. This will cause URL format error like 'http://:port/path'",
+          port);
+      throw new IllegalArgumentException("Host cannot be null or empty");
+    }
+    if (port == null || port.trim().isEmpty()) {
+      LOGGER.error(
+          "Cannot create PaasTransportChannel: port is empty, host={}. This will cause URL format error",
+          host);
+      throw new IllegalArgumentException("Port cannot be null or empty");
+    }
+    this.domain = host.trim() + ":" + port.trim();
+    LOGGER.debug("Created PaasTransportChannel with domain: {}", this.domain);
   }
 
   public <R> Response<R> invoke(Request request, Class<?> clazz, int timeout) {

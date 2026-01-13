@@ -19,9 +19,14 @@ package com.alibaba.chaosblade.box.common.sdk.channel;
 import com.alibaba.chaosblade.box.common.common.domain.response.Response;
 import com.alibaba.chaosblade.box.common.sdk.constant.Header;
 import com.alibaba.chaosblade.box.common.sdk.transport.Request;
+import com.alibaba.chaosblade.box.common.sdk.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author Changjun Xiao */
 public class PaasTransportService implements TransportService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PaasTransportService.class);
 
   /** 单位是毫秒 */
   private int timeout;
@@ -35,7 +40,30 @@ public class PaasTransportService implements TransportService {
     String host = request.getHeader(Header.HOST);
     String port = request.getHeader(Header.PORT);
 
-    PaasTransportChannel transportChannel = new PaasTransportChannel(host, port);
-    return transportChannel.invoke(request, clazz, timeout);
+    // 验证 host 和 port 是否有效
+    if (StringUtil.isBlank(host)) {
+      String errorMsg =
+          String.format(
+              "Cannot invoke agent: host is empty, port=%s. This will cause URL format error like 'http://:port/path'",
+              port);
+      LOGGER.error(errorMsg);
+      return Response.ofFailure(Response.Code.INVALID_Parameter, errorMsg);
+    }
+    if (StringUtil.isBlank(port)) {
+      String errorMsg =
+          String.format(
+              "Cannot invoke agent: port is empty, host=%s. This will cause URL format error",
+              host);
+      LOGGER.error(errorMsg);
+      return Response.ofFailure(Response.Code.INVALID_Parameter, errorMsg);
+    }
+
+    try {
+      PaasTransportChannel transportChannel = new PaasTransportChannel(host, port);
+      return transportChannel.invoke(request, clazz, timeout);
+    } catch (IllegalArgumentException e) {
+      LOGGER.error("Failed to create PaasTransportChannel: host={}, port={}", host, port, e);
+      return Response.ofFailure(Response.Code.INVALID_Parameter, e.getMessage());
+    }
   }
 }
