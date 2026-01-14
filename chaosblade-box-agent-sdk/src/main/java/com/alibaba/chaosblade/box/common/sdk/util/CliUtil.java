@@ -78,7 +78,7 @@ public class CliUtil {
         String safeValue =
             ("filter-script-content".equals(entry.getKey())
                     || "script-content".equals(entry.getKey()))
-                ? processedValue // base64 编码后的值已经是从过滤后的原始值编码得到的
+                ? processedValue // base64 编码后的值，script-content 保留完整格式，filter-script-content 是过滤后编码的
                 : trimCmdwithCh(processedValue); // 其他参数需要过滤
         if (safeValue == null) {
           safeValue = "";
@@ -110,7 +110,7 @@ public class CliUtil {
         String safeValue =
             ("filter-script-content".equals(entry.getKey())
                     || "script-content".equals(entry.getKey()))
-                ? processedValue // base64 编码后的值已经是从过滤后的原始值编码得到的
+                ? processedValue // base64 编码后的值，script-content 保留完整格式，filter-script-content 是过滤后编码的
                 : trimCmdwithCh(processedValue); // 其他参数需要过滤
         if (safeValue == null) {
           safeValue = "";
@@ -133,12 +133,18 @@ public class CliUtil {
 
   private static String base64encodeScriptContent(String key, String value) {
     if ("filter-script-content".equals(key) || "script-content".equals(key)) {
-      // 先过滤原始值，防止注入，然后再 base64 编码
-      String filteredValue = trimCmdwithCh(value);
-      if (filteredValue == null) {
-        return "";
+      String valueToEncode;
+      if ("script-content".equals(key)) {
+        // script-content 跳过 trimCmdwithCh 过滤，保留完整代码格式
+        valueToEncode = value;
+      } else {
+        // filter-script-content 先过滤原始值，防止注入，然后再 base64 编码
+        valueToEncode = trimCmdwithCh(value);
+        if (valueToEncode == null) {
+          return "";
+        }
       }
-      return Base64Util.encode(filteredValue.getBytes(Charset.forName("UTF-8")), false);
+      return Base64Util.encode(valueToEncode.getBytes(Charset.forName("UTF-8")), false);
     }
     return value;
   }
@@ -212,7 +218,7 @@ public class CliUtil {
         String safeValue =
             ("filter-script-content".equals(entry.getKey())
                     || "script-content".equals(entry.getKey()))
-                ? processedValue // base64 编码后的值已经是从过滤后的原始值编码得到的
+                ? processedValue // base64 编码后的值，script-content 保留完整格式，filter-script-content 是过滤后编码的
                 : trimCmdwithCh(processedValue); // 其他参数需要过滤
         if (safeValue == null) {
           safeValue = "";
@@ -244,7 +250,7 @@ public class CliUtil {
         String safeValue =
             ("filter-script-content".equals(entry.getKey())
                     || "script-content".equals(entry.getKey()))
-                ? processedValue // base64 编码后的值已经是从过滤后的原始值编码得到的
+                ? processedValue // base64 编码后的值，script-content 保留完整格式，filter-script-content 是过滤后编码的
                 : trimCmdwithCh(processedValue); // 其他参数需要过滤
         if (safeValue == null) {
           safeValue = "";
@@ -372,7 +378,7 @@ public class CliUtil {
         String safeValue =
             ("filter-script-content".equals(entry.getKey())
                     || "script-content".equals(entry.getKey()))
-                ? processedValue // base64 编码后的值已经是从过滤后的原始值编码得到的
+                ? processedValue // base64 编码后的值，script-content 保留完整格式，filter-script-content 是过滤后编码的
                 : trimCmdwithCh(processedValue); // 其他参数需要过滤
         if (safeValue == null) {
           safeValue = "";
@@ -400,7 +406,7 @@ public class CliUtil {
         String safeValue =
             ("filter-script-content".equals(entry.getKey())
                     || "script-content".equals(entry.getKey()))
-                ? processedValue // base64 编码后的值已经是从过滤后的原始值编码得到的
+                ? processedValue // base64 编码后的值，script-content 保留完整格式，filter-script-content 是过滤后编码的
                 : trimCmdwithCh(processedValue); // 其他参数需要过滤
         if (safeValue == null) {
           safeValue = "";
