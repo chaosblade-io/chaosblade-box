@@ -536,11 +536,6 @@ kubectl logs -f deployment/chaosblade-box -n chaosblade
 # View Services
 kubectl get svc -n chaosblade
 
-# Check database connection (enter Pod)
-kubectl exec -it deployment/chaosblade-box -n chaosblade -- sh
-# Execute in Pod
-nc -zv chaosblade-box-mysql 3306
-nc -zv chaosblade-box-redis 6379
 ```
 
 ### Step 5: Access Application

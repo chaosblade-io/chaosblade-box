@@ -74,21 +74,9 @@ spec:
             {{ end }}
           securityContext:
             privileged: true
-          volumeMounts:
-            - mountPath: /var/run/docker.sock
-              name: docker-socket
-            - mountPath: /etc/hosts
-              name: hosts
 
       dnsPolicy: ClusterFirstWithHostNet
       tolerations:
         - effect: NoSchedule
           operator: Exists
-      volumes:
-        - hostPath:
-            path: /var/run/docker.sock
-          name: docker-socket
-        - hostPath:
-            path: /etc/hosts
-          name: hosts
       serviceAccountName: chaosblade-box

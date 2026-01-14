@@ -445,6 +445,7 @@ logging:
 > - **推荐使用 Kubernetes Secret** 存储密码，避免在 values.yaml 中明文存储
 > - 如果必须使用 values.yaml，请确保文件权限设置为 600，并不要提交到版本控制系统
 > - 可以通过环境变量或 Secret 注入密码：
+>
 >   ```bash
 >   # 方式1：通过 Helm 参数传递（从 Secret 读取）
 >   helm install chaosblade-box ./chaosblade-box-1.1.0.tgz \
@@ -530,11 +531,6 @@ kubectl logs -f deployment/chaosblade-box -n chaosblade
 # 查看 Service
 kubectl get svc -n chaosblade
 
-# 检查数据库连接（进入 Pod）
-kubectl exec -it deployment/chaosblade-box -n chaosblade -- sh
-# 在 Pod 内执行
-nc -zv chaosblade-box-mysql 3306
-nc -zv chaosblade-box-redis 6379
 ```
 
 ### 步骤5：访问应用
