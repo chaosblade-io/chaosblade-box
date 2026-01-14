@@ -41,6 +41,7 @@ import com.google.common.base.Preconditions;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +88,23 @@ public class SettingServiceImpl implements SettingService {
   @Autowired private ChaosToolsMgr chaosToolsMgr;
 
   @Autowired private ChaosBladeInvoker chaosBladeInvoker;
+
+  @PostConstruct
+  public void init() {
+    log.info(
+        "Chaos agent configuration loaded - version: {}, helm: {}, helm-arm64: {}",
+        chaosAgentVersion,
+        StringUtils.isNotBlank(agentHelm) ? agentHelm : "NOT SET",
+        StringUtils.isNotBlank(agentHelmArm64) ? agentHelmArm64 : "NOT SET");
+    if (StringUtils.isBlank(agentHelm)) {
+      log.warn(
+          "chaos.agent.helm is not configured! The helm package download address will be empty.");
+    }
+    if (StringUtils.isBlank(chaosAgentVersion)) {
+      log.warn(
+          "chaos.agent.version is not configured! This may cause issues with agent installation.");
+    }
+  }
 
   @Override
   public Map<String, String> queryAgentInstallCommandByMode(
@@ -270,11 +288,27 @@ public class SettingServiceImpl implements SettingService {
     String helmUrl;
     if ("arm64".equalsIgnoreCase(arch) && StringUtils.isNotBlank(agentHelmArm64)) {
       helmUrl = agentHelmArm64;
+      log.debug("Using ARM64 helm package URL: {}", helmUrl);
     } else {
       helmUrl = agentHelm;
+      log.debug("Using AMD64 helm package URL: {}", helmUrl);
     }
+
+    if (StringUtils.isBlank(helmUrl)) {
+      log.error(
+          "Helm package URL is empty for architecture: {}. Please check chaos.agent.helm or chaos.agent.helm-arm64 configuration.",
+          arch);
+      return "";
+    }
+
     sb.append(helmUrl);
-    sb.append(" -O ").append("chaosblade-box-agent-" + chaosAgentVersion + ".tgz");
+    String outputFileName =
+        StringUtils.isNotBlank(chaosAgentVersion)
+            ? "chaosblade-box-agent-" + chaosAgentVersion + ".tgz"
+            : "chaosblade-box-agent.tgz";
+    sb.append(" -O ").append(outputFileName);
+
+    log.debug("Generated helm package download command: {}", sb.toString());
     return sb.toString();
   }
 

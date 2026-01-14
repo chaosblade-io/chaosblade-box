@@ -43,9 +43,11 @@ spring:
 chaos:
   agent:
     version: 1.1.0
-    repository: ghcr.io/chaosblade-io/chaosblade-agent
-    url: https://github.com/chaosblade-io/chaosblade-box-agent/releases/download/v1.1.0/chaosblade-box-agent-1.1.0-linux_amd64.tar.gz
-    helm: https://github.com/chaosblade-io/chaosblade-box-agent/releases/download/v1.1.0/chaosblade-box-agent-1.1.0-linux_amd64.tgz
+    repository: ghcr.io/chaosblade-io/chaosblade-box-agent
+    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosagent-1.1.0-linux_amd64.tar.gz
+    url-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosagent-1.1.0-linux_arm64.tar.gz
+    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosblade-box-agent-1.1.0-helm_amd64.tgz
+    helm-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosblade-box-agent-1.1.0-helm_arm64.tgz
   function:
     sync:
       type: ALL
