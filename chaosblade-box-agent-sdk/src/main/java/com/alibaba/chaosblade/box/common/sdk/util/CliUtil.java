@@ -443,10 +443,10 @@ public class CliUtil {
    * 请勿修改 trimCmdwithCh 函数名，否则引擎无法识别。
    *
    * @param slice 需要过滤的字符串
-   * @return 过滤后的安全字符串，只包含 a-zA-Z0-9_-,./:=?+& 和中文字符
+   * @return 过滤后的安全字符串，只包含 a-zA-Z0-9_-,./:=?+ 空格和中文字符
    */
   public static String trimCmdwithCh(String slice) {
-    // [a-zA-Z0-9_-,./:=?+&]+ and Chinese characters (0x4e00-0x9fbb)
+    // [a-zA-Z0-9_-,./:=?+ ]+ and Chinese characters (0x4e00-0x9fbb)
     if (slice == null) {
       return null;
     }
@@ -464,7 +464,7 @@ public class CliUtil {
           || c == '='
           || c == '?'
           || c == '+'
-          || c == '&'
+          || c == ' '  // 允许空格，用于支持 "create uid" 这样的格式
           || (c >= 0x4e00 && c <= 0x9fbb)) {
         sb.append(c);
       }
