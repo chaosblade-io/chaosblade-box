@@ -31,6 +31,25 @@ spec:
   type: ClusterIP
 {{- end }}
 ---
+{{- if .Values.redis.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: chaosblade-box-redis
+  name: chaosblade-box-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+  selector:
+    app: chaosblade-box-redis
+  sessionAffinity: None
+  type: ClusterIP
+{{- end }}
+---
 apiVersion: v1
 kind: Service
 metadata:

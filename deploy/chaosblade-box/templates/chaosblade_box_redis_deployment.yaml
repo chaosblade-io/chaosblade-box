@@ -1,0 +1,62 @@
+# Copyright 2025 The ChaosBlade Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- if .Values.redis.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaosblade-box-redis
+  labels:
+    app: chaosblade-box-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: chaosblade-box-redis
+  template:
+    metadata:
+      name: chaosblade-box-redis
+      labels:
+        app: chaosblade-box-redis
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: NotIn
+                    values:
+                      - virtual-kubelet
+      containers:
+        - name: chaosblade-box-redis
+          image: {{ .Values.redis.image.repository }}:{{ .Values.redis.image.version }}
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - name: redis-port
+              containerPort: 6379
+          {{- if .Values.spring.redis.password }}
+          args:
+            - '--requirepass'
+            - '{{ .Values.spring.redis.password }}'
+          {{- end }}
+          volumeMounts:
+            - mountPath: /data
+              name: chaosblade-box-redis-volume
+      volumes:
+        - name: chaosblade-box-redis-volume
+          hostPath:
+            path: /data/redis
+            type: DirectoryOrCreate
+{{- end }}
