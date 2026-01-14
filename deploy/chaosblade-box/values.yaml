@@ -21,7 +21,7 @@ box:
 mysql:
   # If true, use the built-in MySQL. Otherwise, an external MySQL is required,
   # and must edit the spring.datasource to your external MySQL.
-  enable: true
+  enable: false
   image:
     repository: mysql
     version: 5.6

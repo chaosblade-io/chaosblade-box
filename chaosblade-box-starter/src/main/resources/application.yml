@@ -91,7 +91,7 @@ spring:
     cassandra:
       cluster-name: ''
     redis:
-      host: ${SPRING_REDIS_HOST:localhost}
+      host: ${SPRING_REDIS_HOST:127.0.0.1}
       port: ${SPRING_REDIS_PORT:6379}
       password: ${SPRING_REDIS_PASSWORD:}
       database: ${SPRING_REDIS_DATABASE:0}

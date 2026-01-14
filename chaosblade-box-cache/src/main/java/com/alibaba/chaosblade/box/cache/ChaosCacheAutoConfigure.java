@@ -68,6 +68,7 @@ public class ChaosCacheAutoConfigure {
   }
 
   @Bean
+  @ConditionalOnMissingBean(name = "redisTemplate")
   @ConditionalOnProperty(name = "chaos.cache.distributed-cache.name", havingValue = "redis")
   public RedisTemplate<String, Serializable> redisTemplate(
       RedisConnectionFactory redisConnectionFactory) {
