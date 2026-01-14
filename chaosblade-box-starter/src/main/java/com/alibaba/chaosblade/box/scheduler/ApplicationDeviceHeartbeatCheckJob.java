@@ -28,8 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * ApplicationDevice 心跳超时检查定时任务
- * 定期检查 ApplicationDevice（包括Pod）的心跳时间，将超时的设备设置为离线状态
+ * ApplicationDevice 心跳超时检查定时任务 定期检查 ApplicationDevice（包括Pod）的心跳时间，将超时的设备设置为离线状态
  *
  * @author changjun.xcj
  */
@@ -47,7 +46,9 @@ public class ApplicationDeviceHeartbeatCheckJob extends BaseJob implements Job {
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
     long startTime = System.currentTimeMillis();
-    log.debug("[ApplicationDeviceHeartbeatCheckJob] start, heartbeatExpireTime: {}ms", heartbeatExpireTime);
+    log.debug(
+        "[ApplicationDeviceHeartbeatCheckJob] start, heartbeatExpireTime: {}ms",
+        heartbeatExpireTime);
 
     try {
       // 将心跳超时的 ApplicationDevice 设置为离线
@@ -59,7 +60,8 @@ public class ApplicationDeviceHeartbeatCheckJob extends BaseJob implements Job {
             "[ApplicationDeviceHeartbeatCheckJob] set {} ApplicationDevices to offline due to heartbeat timeout",
             offlineCount);
       } else {
-        log.debug("[ApplicationDeviceHeartbeatCheckJob] no ApplicationDevices need to be set offline");
+        log.debug(
+            "[ApplicationDeviceHeartbeatCheckJob] no ApplicationDevices need to be set offline");
       }
     } catch (Exception e) {
       log.error("[ApplicationDeviceHeartbeatCheckJob] execute failed", e);
