@@ -91,10 +91,10 @@ spring:
     cassandra:
       cluster-name: ''
     redis:
-      host: localhost
-      port: 6379
-      password: 
-      database: 0
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+      password: ${SPRING_REDIS_PASSWORD:}
+      database: ${SPRING_REDIS_DATABASE:0}
       timeout: 2000
       jedis:
         pool:

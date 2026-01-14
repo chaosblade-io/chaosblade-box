@@ -52,6 +52,12 @@ spec:
             - '--spring.datasource.url={{ .Values.spring.datasource.url }}'
             - '--spring.datasource.username={{ .Values.spring.datasource.username }}'
             - '--spring.datasource.password={{ .Values.spring.datasource.password }}'
+            - '--spring.data.redis.host={{ .Values.spring.redis.host }}'
+            - '--spring.data.redis.port={{ .Values.spring.redis.port }}'
+            {{- if .Values.spring.redis.password }}
+            - '--spring.data.redis.password={{ .Values.spring.redis.password }}'
+            {{- end }}
+            - '--spring.data.redis.database={{ .Values.spring.redis.database }}'
             - '--chaos.function.sync.type={{ .Values.chaos.function.sync.type }}'
             - '--chaos.agent.version={{ .Values.chaos.agent.version }}'
             - '--chaos.agent.repository={{ .Values.chaos.agent.repository }}'

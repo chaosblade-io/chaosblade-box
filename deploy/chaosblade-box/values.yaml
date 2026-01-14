@@ -31,6 +31,15 @@ spring:
     url: jdbc:mysql://chaosblade-box-mysql:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password:
+  redis:
+    # Redis host configuration
+    # For Redis in Kubernetes cluster, use the Service name (e.g., 'redis' or 'chaosblade-box-redis')
+    # For external Redis, use the external address
+    # Note: 'localhost' may cause issues in Kubernetes, use Service name or IP address instead
+    host: localhost
+    port: 6379
+    password:
+    database: 0
 chaos:
   agent:
     version: 1.1.0
