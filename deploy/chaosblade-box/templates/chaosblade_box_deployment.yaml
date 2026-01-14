@@ -52,31 +52,31 @@ spec:
             - '--spring.datasource.url={{ .Values.spring.datasource.url }}'
             - '--spring.datasource.username={{ .Values.spring.datasource.username }}'
             - '--spring.datasource.password={{ .Values.spring.datasource.password }}'
+            - '--spring.data.redis.host={{ .Values.spring.redis.host }}'
+            - '--spring.data.redis.port={{ .Values.spring.redis.port }}'
+            {{- if .Values.spring.redis.password }}
+            - '--spring.data.redis.password={{ .Values.spring.redis.password }}'
+            {{- end }}
+            - '--spring.data.redis.database={{ .Values.spring.redis.database }}'
             - '--chaos.function.sync.type={{ .Values.chaos.function.sync.type }}'
             - '--chaos.agent.version={{ .Values.chaos.agent.version }}'
             - '--chaos.agent.repository={{ .Values.chaos.agent.repository }}'
             - '--chaos.agent.url={{ .Values.chaos.agent.url }}'
             - '--chaos.agent.helm={{ .Values.chaos.agent.helm }}'
+            {{- if .Values.chaos.agent.helm_arm64 }}
+            - '--chaos.agent.helm_arm64={{ .Values.chaos.agent.helm_arm64 }}'
+            {{- end }}
+            {{- if .Values.chaos.agent.url_arm64 }}
+            - '--chaos.agent.url_arm64={{ .Values.chaos.agent.url_arm64 }}'
+            {{- end }}
             {{- if .Values.chaos.prometheus.api }}
             - '--chaos.prometheus.api={{ .Values.chaos.prometheus.api }}'
             {{ end }}
           securityContext:
             privileged: true
-          volumeMounts:
-            - mountPath: /var/run/docker.sock
-              name: docker-socket
-            - mountPath: /etc/hosts
-              name: hosts
 
       dnsPolicy: ClusterFirstWithHostNet
       tolerations:
         - effect: NoSchedule
           operator: Exists
-      volumes:
-        - hostPath:
-            path: /var/run/docker.sock
-          name: docker-socket
-        - hostPath:
-            path: /etc/hosts
-          name: hosts
       serviceAccountName: chaosblade-box

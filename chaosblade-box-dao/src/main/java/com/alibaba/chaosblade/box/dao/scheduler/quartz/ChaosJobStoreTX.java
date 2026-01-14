@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDetail;
 import org.quartz.JobPersistenceException;
+import org.quartz.ObjectAlreadyExistsException;
 import org.quartz.TriggerKey;
 import org.quartz.spi.OperableTrigger;
 import org.springframework.scheduling.quartz.LocalDataSourceJobStore;
@@ -52,6 +53,9 @@ public class ChaosJobStoreTX extends LocalDataSourceJobStore {
       throws JobPersistenceException {
     try {
       super.storeTrigger(conn, newTrigger, job, replaceExisting, state, forceState, recovering);
+    } catch (ObjectAlreadyExistsException exception) {
+      // ObjectAlreadyExistsException 对系统无影响，只打印消息，不打印堆栈
+      log.warn("store retrieve trigger error: {}", exception.getMessage());
     } catch (Exception exception) {
       log.warn("store retrieve trigger error", exception);
     }

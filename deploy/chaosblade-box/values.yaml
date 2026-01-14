@@ -21,22 +21,43 @@ box:
 mysql:
   # If true, use the built-in MySQL. Otherwise, an external MySQL is required,
   # and must edit the spring.datasource to your external MySQL.
-  enable: true
+  enable: false
   image:
     repository: mysql
-    version: 5.6
+    version: 8.0.0
     pullPolicy: IfNotPresent
+
+redis:
+  # If true, use the built-in Redis. Otherwise, an external Redis is required,
+  # and must edit the spring.redis to your external Redis.
+  enable: false
+  image:
+    repository: redis
+    version: 7.0
+    pullPolicy: IfNotPresent
+
 spring:
   datasource:
     url: jdbc:mysql://chaosblade-box-mysql:3306/chaosblade?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password:
+  redis:
+    # Redis host configuration
+    # For built-in Redis (when redis.enable=true), use 'chaosblade-box-redis'
+    # For external Redis, use the external address
+    # Note: 'localhost' may cause issues in Kubernetes, use Service name or IP address instead
+    host: chaosblade-box-redis
+    port: 6379
+    password:
+    database: 0
 chaos:
   agent:
     version: 1.1.0
-    repository: ghcr.io/chaosblade-io/chaosblade-agent
-    url: https://github.com/chaosblade-io/chaosblade-box-agent/releases/download/v1.1.0/chaosblade-box-agent-1.1.0-linux_amd64.tar.gz
-    helm: https://github.com/chaosblade-io/chaosblade-box-agent/releases/download/v1.1.0/chaosblade-box-agent-1.1.0-linux_amd64.tgz
+    repository: ghcr.io/chaosblade-io/chaosblade-box-agent
+    url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosagent-1.1.0-linux_amd64.tar.gz
+    url_arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosagent-1.1.0-linux_arm64.tar.gz
+    helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosblade-box-agent-1.1.0-helm_amd64.tgz
+    helm_arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/1.1.0/chaosblade-box-agent-1.1.0-helm_arm64.tgz
   function:
     sync:
       type: ALL

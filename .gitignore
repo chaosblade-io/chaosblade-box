@@ -36,3 +36,4 @@ chaosblade-box-starter/src/main/resources/build/
 *.log
 cache/
 target_test-classes/
+nohup.out
