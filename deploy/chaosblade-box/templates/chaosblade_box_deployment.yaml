@@ -63,11 +63,11 @@ spec:
             - '--chaos.agent.repository={{ .Values.chaos.agent.repository }}'
             - '--chaos.agent.url={{ .Values.chaos.agent.url }}'
             - '--chaos.agent.helm={{ .Values.chaos.agent.helm }}'
-            {{- if .Values.chaos.agent.helm-arm64 }}
-            - '--chaos.agent.helm-arm64={{ .Values.chaos.agent.helm-arm64 }}'
+            {{- if .Values.chaos.agent.helm_arm64 }}
+            - '--chaos.agent.helm_arm64={{ .Values.chaos.agent.helm_arm64 }}'
             {{- end }}
-            {{- if .Values.chaos.agent.url-arm64 }}
-            - '--chaos.agent.url-arm64={{ .Values.chaos.agent.url-arm64 }}'
+            {{- if .Values.chaos.agent.url_arm64 }}
+            - '--chaos.agent.url_arm64={{ .Values.chaos.agent.url_arm64 }}'
             {{- end }}
             {{- if .Values.chaos.prometheus.api }}
             - '--chaos.prometheus.api={{ .Values.chaos.prometheus.api }}'

@@ -67,7 +67,7 @@ public class SettingServiceImpl implements SettingService {
   @Value("${chaos.agent.helm:}")
   private String agentHelm;
 
-  @Value("${chaos.agent.helm-arm64:}")
+  @Value("${chaos.agent.helm_arm64:}")
   private String agentHelmArm64;
 
   @Value("${chaos.agent.version:}")
@@ -92,7 +92,7 @@ public class SettingServiceImpl implements SettingService {
   @PostConstruct
   public void init() {
     log.info(
-        "Chaos agent configuration loaded - version: {}, helm: {}, helm-arm64: {}",
+        "Chaos agent configuration loaded - version: {}, helm: {}, helm_arm64: {}",
         chaosAgentVersion,
         StringUtils.isNotBlank(agentHelm) ? agentHelm : "NOT SET",
         StringUtils.isNotBlank(agentHelmArm64) ? agentHelmArm64 : "NOT SET");
@@ -296,7 +296,7 @@ public class SettingServiceImpl implements SettingService {
 
     if (StringUtils.isBlank(helmUrl)) {
       log.error(
-          "Helm package URL is empty for architecture: {}. Please check chaos.agent.helm or chaos.agent.helm-arm64 configuration.",
+          "Helm package URL is empty for architecture: {}. Please check chaos.agent.helm or chaos.agent.helm_arm64 configuration.",
           arch);
       return "";
     }

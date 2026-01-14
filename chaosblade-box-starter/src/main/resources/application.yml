@@ -15,10 +15,10 @@
 chaos:
   agent:
     helm: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}-helm_amd64.tgz
-    helm-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}-helm_arm64.tgz
+    helm_arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosblade-box-agent-${chaos.agent.version}-helm_arm64.tgz
     repository: ghcr.io/chaosblade-io/chaosblade-box-agent
     url: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_amd64.tar.gz
-    url-arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_arm64.tar.gz
+    url_arm64: https://chaosblade.oss-cn-hangzhou.aliyuncs.com/platform/release/${chaos.agent.version}/chaosagent-${chaos.agent.version}-linux_arm64.tar.gz
     version: 1.1.0
   cache:
     auto-sync: true
