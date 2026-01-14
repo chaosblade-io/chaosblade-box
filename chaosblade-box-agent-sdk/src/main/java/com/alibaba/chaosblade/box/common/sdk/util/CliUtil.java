@@ -464,7 +464,7 @@ public class CliUtil {
           || c == '='
           || c == '?'
           || c == '+'
-          || c == ' '  // 允许空格，用于支持 "create uid" 这样的格式
+          || c == ' ' // 允许空格，用于支持 "create uid" 这样的格式
           || (c >= 0x4e00 && c <= 0x9fbb)) {
         sb.append(c);
       }
