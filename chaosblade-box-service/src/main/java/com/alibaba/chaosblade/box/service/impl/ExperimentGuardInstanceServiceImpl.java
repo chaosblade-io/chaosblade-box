@@ -34,7 +34,8 @@ public class ExperimentGuardInstanceServiceImpl implements ExperimentGuardInstan
 
   @Autowired private ExperimentGuardInstanceRepository experimentGuardInstanceRepository;
 
-  @Autowired private RedisCacheTemplate redisTemplate;
+  @Autowired(required = false)
+  private RedisCacheTemplate redisTemplate;
 
   @Override
   public boolean addExperimentGuardInstance(ExperimentGuardInstanceDO experimentGuardInstanceDO) {
@@ -45,16 +46,18 @@ public class ExperimentGuardInstanceServiceImpl implements ExperimentGuardInstan
           experimentGuardInstanceDO.getValue();
       experimentGuardInstanceDO.setValue(null);
       experimentGuardInstanceRepository.add(experimentGuardInstanceDO);
-      try {
-        redisTemplate.prefixPut(
-            PRE,
-            experimentGuardInstanceDO.getInstanceId(),
-            experimentGuardMonitorMetricResultEntity);
-      } catch (Exception e) {
-        log.warn(
-            "Failed to save experiment guard monitor metric to Redis, instanceId: {}, error: {}",
-            experimentGuardInstanceDO.getInstanceId(),
-            e.getMessage());
+      if (redisTemplate != null) {
+        try {
+          redisTemplate.prefixPut(
+              PRE,
+              experimentGuardInstanceDO.getInstanceId(),
+              experimentGuardMonitorMetricResultEntity);
+        } catch (Exception e) {
+          log.warn(
+              "Failed to save experiment guard monitor metric to Redis, instanceId: {}, error: {}",
+              experimentGuardInstanceDO.getInstanceId(),
+              e.getMessage());
+        }
       }
       return true;
     }
@@ -71,16 +74,18 @@ public class ExperimentGuardInstanceServiceImpl implements ExperimentGuardInstan
           experimentGuardInstanceDO.getValue();
       experimentGuardInstanceDO.setValue(null);
       experimentGuardInstanceRepository.update(experimentGuardInstanceDO);
-      try {
-        redisTemplate.prefixPut(
-            PRE,
-            experimentGuardInstanceDO.getInstanceId(),
-            experimentGuardMonitorMetricResultEntity);
-      } catch (Exception e) {
-        log.warn(
-            "Failed to update experiment guard monitor metric to Redis, instanceId: {}, error: {}",
-            experimentGuardInstanceDO.getInstanceId(),
-            e.getMessage());
+      if (redisTemplate != null) {
+        try {
+          redisTemplate.prefixPut(
+              PRE,
+              experimentGuardInstanceDO.getInstanceId(),
+              experimentGuardMonitorMetricResultEntity);
+        } catch (Exception e) {
+          log.warn(
+              "Failed to update experiment guard monitor metric to Redis, instanceId: {}, error: {}",
+              experimentGuardInstanceDO.getInstanceId(),
+              e.getMessage());
+        }
       }
       return true;
     }
