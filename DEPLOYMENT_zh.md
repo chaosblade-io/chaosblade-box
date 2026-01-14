@@ -613,6 +613,9 @@ echo "INGRESS_IP chaosblade.example.com" | sudo tee -a /etc/hosts
 # http://chaosblade.example.com
 ```
 
+### ChaosBlade 工具安装
+详见 https://github.com/chaosblade-io/chaosblade/releases/latest
+
 ## 配置说明
 
 ### 环境变量配置（推荐）

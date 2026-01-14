@@ -618,6 +618,10 @@ echo "INGRESS_IP chaosblade.example.com" | sudo tee -a /etc/hosts
 # http://chaosblade.example.com
 ```
 
+### ChaosBlade Tool Installation
+
+For details, see https://github.com/chaosblade-io/chaosblade/releases/latest
+
 ## Configuration Reference
 
 ### Environment Variable Configuration (Recommended)
