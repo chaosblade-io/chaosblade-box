@@ -99,4 +99,35 @@ public interface DeviceMapper extends BaseMapper<DeviceDO> {
           + "</script>")
   IPage<DeviceDO> selectK8sPageByKeyAndTags(
       IPage<DeviceDO> page, @Param("query") CloudDeviceQuery query);
+
+  @Select(
+      "<script>"
+          + "SELECT td.* FROM t_chaos_device td "
+          + "WHERE td.id IN ( "
+          + "  SELECT MAX(id) FROM t_chaos_device "
+          + "  WHERE 1=1 "
+          + "  <if test='null != query.userId and query.userId != \"\" '>"
+          + "  AND user_id = #{query.userId} "
+          + "  </if>"
+          + "  <if test='null != query.namespace and query.namespace != \"\" '>"
+          + "  AND namespace = #{query.namespace} "
+          + "  </if>"
+          + "  <if test='null != query.scopeType'>"
+          + "  AND install_mode IN "
+          + "  <foreach collection='query.scopeType.asList' item='mode' open='(' close=')' separator=','>"
+          + "    #{mode}"
+          + "  </foreach>"
+          + "  </if>"
+          + "  AND device_type IN (0, 1) "
+          + "  AND status = 2 "
+          + "  AND version IS NOT NULL "
+          + "  <if test='null != query.key and query.key != \"\" '>"
+          + "  AND (cluster_name LIKE #{query.key} OR device_name LIKE #{query.key}) "
+          + "  </if>"
+          + "  GROUP BY cluster_id "
+          + ") "
+          + "ORDER BY td.gmt_create DESC"
+          + "</script>")
+  IPage<DeviceDO> selectK8sPageByCluster(
+      IPage<DeviceDO> page, @Param("query") CloudDeviceQuery query);
 }

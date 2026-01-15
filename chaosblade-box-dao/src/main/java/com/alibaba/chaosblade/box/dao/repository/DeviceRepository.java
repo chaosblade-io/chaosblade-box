@@ -73,9 +73,8 @@ public class DeviceRepository extends ServiceImpl<DeviceMapper, DeviceDO>
     IPage<DeviceDO> result = null;
     // 这里需要区分，因为目前k8s不支持标签检索
     if (query.getScopeType() == ScopeTypeEnum.K8s) {
-      result =
-          deviceMapper.selectPage(
-              MyBatisUtil.getPage(page, size), buildQueryWrapper(pageableQueryWrapper));
+      // 对于K8s类型，使用特殊的查询方法来避免GROUP BY的SQL问题
+      result = deviceMapper.selectK8sPageByCluster(MyBatisUtil.getPage(page, size), query);
     } else {
       if (!Strings.isNullOrEmpty(query.getKey())) {
         query.setKey("%" + query.getKey() + "%");
