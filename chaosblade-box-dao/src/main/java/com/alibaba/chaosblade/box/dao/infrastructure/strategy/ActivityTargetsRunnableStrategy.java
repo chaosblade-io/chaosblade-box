@@ -21,6 +21,7 @@ import com.alibaba.chaosblade.box.common.app.sdk.InvokeMode;
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
 import com.alibaba.chaosblade.box.common.experiment.task.flow.ActivityTaskExecutionAttributes;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
+import com.alibaba.chaosblade.box.common.infrastructure.util.PublicCloudUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.app.MiniAppInvokerFactory;
 import com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.flow.step.ActivityInvokeContext;
 import java.util.ArrayList;
@@ -57,7 +58,10 @@ public abstract class ActivityTargetsRunnableStrategy {
             .add(
                 ActivityTaskExecutionAttributes.ATTRIBUTE_INVOKE_ONCE_HOST_RESPONSE,
                 chaosAppResponse);
-        if (hosts.size() > 1) {
+        // 对于 K8s 场景，命令中已经包含了所有目标 pod 名称（通过 --names 参数），
+        // 因此第一次调用就已经涵盖了所有 pod，不需要再对剩余的 hosts 进行调用
+        // 避免重复下发相同命令给 agent
+        if (hosts.size() > 1 && !isK8sScenario(activityInvokeContext)) {
           chaosAppResponses.addAll(
               internalRun(activityInvokeContext, hosts.subList(1, hosts.size())));
         }
@@ -77,4 +81,15 @@ public abstract class ActivityTargetsRunnableStrategy {
       ActivityInvokeContext activityInvokeContext, List<Host> invokeHosts);
 
   public abstract boolean support(ActivityInvokeContext activityInvokeContext);
+
+  /**
+   * 判断是否为 K8s 场景 K8s 场景下，混沌命令通过 --names 参数已经包含了所有目标 pod， 因此只需要调用一次即可
+   *
+   * @param activityInvokeContext 活动调用上下文
+   * @return true 表示是 K8s 场景
+   */
+  private boolean isK8sScenario(ActivityInvokeContext activityInvokeContext) {
+    String appCode = activityInvokeContext.getExecutableAppCode();
+    return PublicCloudUtil.isK8SByAppCode(appCode);
+  }
 }
