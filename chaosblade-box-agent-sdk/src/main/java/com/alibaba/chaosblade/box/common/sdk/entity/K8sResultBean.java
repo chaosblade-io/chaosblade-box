@@ -94,6 +94,7 @@ public class K8sResultBean {
     private String kind;
     private boolean success;
     private String error;
+    private String identifier; // pod标识: namespace/node/podName/containerName/containerId/runtime
 
     public K8sExpStatusBean() {}
 
@@ -168,6 +169,14 @@ public class K8sResultBean {
 
     public void setKind(String kind) {
       this.kind = kind;
+    }
+
+    public String getIdentifier() {
+      return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+      this.identifier = identifier;
     }
   }
 }
