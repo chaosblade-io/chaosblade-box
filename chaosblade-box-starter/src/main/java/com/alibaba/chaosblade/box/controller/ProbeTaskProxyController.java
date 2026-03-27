@@ -35,11 +35,58 @@ public class ProbeTaskProxyController extends BaseController {
         return forward(request, HttpMethod.GET, null, "/api/systems");
     }
 
+    // 1b. 创建系统 POST /api/systems
+    @PostMapping("/systems")
+    public ResponseEntity<byte[]> createSystem(@RequestBody(required = false) byte[] body, HttpServletRequest request) {
+        return forward(request, HttpMethod.POST, body, "/api/systems");
+    }
+
+    // 1c. 更新系统 PUT /api/systems/{systemId}
+    @PutMapping("/systems/{systemId}")
+    public ResponseEntity<byte[]> updateSystem(@PathVariable("systemId") String systemId,
+                                               @RequestBody(required = false) byte[] body,
+                                               HttpServletRequest request) {
+        String targetPath = "/api/systems/" + systemId;
+        return forward(request, HttpMethod.PUT, body, targetPath);
+    }
+
+    // 1d. 删除系统 DELETE /api/systems/{systemId}
+    @DeleteMapping("/systems/{systemId}")
+    public ResponseEntity<byte[]> deleteSystem(@PathVariable("systemId") String systemId, HttpServletRequest request) {
+        String targetPath = "/api/systems/" + systemId;
+        return forward(request, HttpMethod.DELETE, null, targetPath);
+    }
+
     // 2. 获取API信息 GET /api/systems/{systemId}/apis
     @GetMapping("/systems/{systemId}/apis")
     public ResponseEntity<byte[]> getApis(@PathVariable("systemId") String systemId, HttpServletRequest request) {
         String targetPath = "/api/systems/" + systemId + "/apis";
         return forward(request, HttpMethod.GET, null, targetPath);
+    }
+
+    // 2b. 创建API POST /api/systems/{systemId}/apis
+    @PostMapping("/systems/{systemId}/apis")
+    public ResponseEntity<byte[]> createApi(@PathVariable("systemId") String systemId,
+                                            @RequestBody(required = false) byte[] body,
+                                            HttpServletRequest request) {
+        String targetPath = "/api/systems/" + systemId + "/apis";
+        return forward(request, HttpMethod.POST, body, targetPath);
+    }
+
+    // 2c. 更新API PUT /api/apis/{apiId}
+    @PutMapping("/apis/{apiId}")
+    public ResponseEntity<byte[]> updateApi(@PathVariable("apiId") String apiId,
+                                            @RequestBody(required = false) byte[] body,
+                                            HttpServletRequest request) {
+        String targetPath = "/api/apis/" + apiId;
+        return forward(request, HttpMethod.PUT, body, targetPath);
+    }
+
+    // 2d. 删除API DELETE /api/apis/{apiId}
+    @DeleteMapping("/apis/{apiId}")
+    public ResponseEntity<byte[]> deleteApi(@PathVariable("apiId") String apiId, HttpServletRequest request) {
+        String targetPath = "/api/apis/" + apiId;
+        return forward(request, HttpMethod.DELETE, null, targetPath);
     }
 
     // 3. 获取拓扑 GET /api/topologies/{apiId}/topology
@@ -115,6 +162,22 @@ public class ProbeTaskProxyController extends BaseController {
                                                        @RequestBody(required = false) byte[] body,
                                                        HttpServletRequest request) {
         String targetPath = "/api/detection-tasks/" + taskId + "/execute";
+        return forward(request, HttpMethod.POST, body, targetPath);
+    }
+
+    // 1.4) 删除任务：DELETE /api/detection-tasks/{taskId}
+    @DeleteMapping("/detection-tasks/{taskId}")
+    public ResponseEntity<byte[]> deleteDetectionTask(@PathVariable("taskId") String taskId, HttpServletRequest request) {
+        String targetPath = "/api/detection-tasks/" + taskId;
+        return forward(request, HttpMethod.DELETE, null, targetPath);
+    }
+
+    // 1.5) 取消执行接口：POST /api/detection-tasks/{taskId}/cancel
+    @PostMapping("/detection-tasks/{taskId}/cancel")
+    public ResponseEntity<byte[]> cancelDetectionTask(@PathVariable("taskId") String taskId,
+                                                       @RequestBody(required = false) byte[] body,
+                                                       HttpServletRequest request) {
+        String targetPath = "/api/detection-tasks/" + taskId + "/cancel";
         return forward(request, HttpMethod.POST, body, targetPath);
     }
 
