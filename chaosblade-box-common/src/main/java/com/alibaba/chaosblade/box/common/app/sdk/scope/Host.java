@@ -29,6 +29,17 @@ public class Host extends Scope {
 
   private boolean invalid;
 
+  /** the user id of the device, used as the agent secret key to sign requests */
+  private String userId;
+
+  public String getUserId() {
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
   public boolean isInvalid() {
     return invalid;
   }

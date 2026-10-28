@@ -38,6 +38,15 @@ public class RequestUtil {
   }
 
   public static Request createRequest(
+      String machine, String port, String handler, String machineType, String sk) {
+    Request request = createRequest(machine, port, handler, machineType);
+    if (sk != null && !sk.isEmpty()) {
+      request.addHeader(Header.SK, sk);
+    }
+    return request;
+  }
+
+  public static Request createRequest(
       String machine, String port, String handler, String machineType) {
     Request request = new Request();
     request
