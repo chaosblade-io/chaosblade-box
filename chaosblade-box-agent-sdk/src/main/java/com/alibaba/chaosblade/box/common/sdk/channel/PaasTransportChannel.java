@@ -17,7 +17,10 @@
 package com.alibaba.chaosblade.box.common.sdk.channel;
 
 import com.alibaba.chaosblade.box.common.common.domain.response.Response;
+import com.alibaba.chaosblade.box.common.sdk.transport.AuthInterceptor;
 import com.alibaba.chaosblade.box.common.sdk.transport.Request;
+import com.alibaba.chaosblade.box.common.sdk.transport.RequestInterceptorChain;
+import com.alibaba.chaosblade.box.common.sdk.transport.TimestampInterceptor;
 import com.alibaba.chaosblade.box.common.sdk.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -69,6 +72,11 @@ public class PaasTransportChannel {
       if (StringUtil.isBlank(handler)) {
         handler = CHAOSBLADE_HANDLER;
       }
+      // apply the outgoing interceptor chain (timestamp -> auth), mirroring the
+      // agent-side incoming chain so that every request satisfies the agent gates
+      RequestInterceptorChain interceptor = new TimestampInterceptor();
+      interceptor.setInterceptor(new AuthInterceptor());
+      interceptor.invoke(request);
       String result = invoke(domain, handler, createHttpEntity(request), timeout);
       request.removeHeader("timeout");
       try {

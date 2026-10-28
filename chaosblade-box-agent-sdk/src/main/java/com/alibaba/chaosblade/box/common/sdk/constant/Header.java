@@ -27,4 +27,6 @@ public interface Header {
   String SK = "sk";
   String CMD = "cmd";
   String TIMESTAMP_KEY = "ts";
+  String SD = "sd";
+  String SN = "sn";
 }
