@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.alibaba.chaosblade.box.common.sdk.transport;
 
 import com.alibaba.chaosblade.box.common.sdk.constant.Header;
