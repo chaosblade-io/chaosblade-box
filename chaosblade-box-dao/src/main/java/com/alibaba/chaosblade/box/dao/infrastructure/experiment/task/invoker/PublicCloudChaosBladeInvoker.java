@@ -606,12 +606,14 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
 
   @Override
   public Response<String> uninstallAgent(Host host) {
-    return chaosBladeForCloud.uninstallAgent(host.getTargetIp(), String.valueOf(host.getPort()));
+    return chaosBladeForCloud.uninstallAgent(
+        host.getTargetIp(), String.valueOf(host.getPort()), host.getUserId());
   }
 
   @Override
   public Response<String> pingAgent(Host host) {
-    return chaosBladeForCloud.pingAgent(host.getTargetIp(), String.valueOf(host.getPort()));
+    return chaosBladeForCloud.pingAgent(
+        host.getTargetIp(), String.valueOf(host.getPort()), host.getUserId());
   }
 
   @Data

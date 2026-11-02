@@ -454,13 +454,20 @@ public class ChaosBladeForCloud extends ChaosBase {
   }
 
   public Response<String> uninstallAgent(String scope, String port) {
+    return uninstallAgent(scope, port, null);
+  }
 
-    Request request = RequestUtil.createRequest(scope, port, "uninstall", Target.IP);
+  public Response<String> uninstallAgent(String scope, String port, String sk) {
+    Request request = RequestUtil.createRequest(scope, port, "uninstall", Target.IP, sk);
     return transportService.invoke(request, String.class);
   }
 
   public Response<String> pingAgent(String scope, String port) {
-    Request request = RequestUtil.createRequest(scope, port, "ping", Target.IP);
+    return pingAgent(scope, port, null);
+  }
+
+  public Response<String> pingAgent(String scope, String port, String sk) {
+    Request request = RequestUtil.createRequest(scope, port, "ping", Target.IP, sk);
     return transportService.invoke(request, String.class);
   }
 }

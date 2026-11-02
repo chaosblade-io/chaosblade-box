@@ -454,6 +454,7 @@ public class SettingServiceImpl implements SettingService {
     host.setIp(agentIp);
     host.setTargetIp(agentIp);
     host.setPort(deviceDO.getPort());
+    host.setUserId(deviceDO.getUserId());
     Response<String> uninstallResponse = chaosBladeInvoker.uninstallAgent(host);
     return uninstallResponse.isSuccess();
   }
@@ -477,6 +478,7 @@ public class SettingServiceImpl implements SettingService {
     host.setIp(agentIp);
     host.setTargetIp(agentIp);
     host.setPort(deviceDO.getPort());
+    host.setUserId(deviceDO.getUserId());
     Response<String> pingResponse = chaosBladeInvoker.pingAgent(host);
     return pingResponse.isSuccess();
   }
