@@ -29,6 +29,10 @@ import java.util.Base64;
  * <p>The algorithm must stay consistent with the agent side (chaos-agent pkg/tools.Sign): sn =
  * Base64(hex(sha256(signData + sk))). The exact signData is carried in the "sd" header so that the
  * agent verifies it verbatim instead of re-serializing the params with its own JSON marshaller.
+ *
+ * <p>The secret key is the credential the server issued to that agent when it registered, i.e. the
+ * device userId. It travels in the "sk" header only as far as this interceptor, which consumes it
+ * and drops it together with "ak" before the request is serialized.
  */
 public class AuthInterceptor extends RequestInterceptorChain {
 
@@ -45,9 +49,26 @@ public class AuthInterceptor extends RequestInterceptorChain {
 
   @Override
   public void doInvoke(Request request) throws RequestException {
+    String secretKey = request.getHeader(Header.SK);
+    if (secretKey == null || secretKey.isEmpty()) {
+      // Fail here rather than sign with an empty key. The agent verifies with the
+      // credential it was issued at registration, so an empty-key signature is always
+      // rejected there as a bare "illegal request" that says nothing about the real
+      // cause, which is a missing device credential on this side.
+      throw new RequestException(
+          "missing agent secret key, cannot sign the request to "
+              + request.getHeader(Header.HOST)
+              + ":"
+              + request.getHeader(Header.PORT));
+    }
     String signData = JSON.toJSONString(request.getParams());
     request.addHeader(Header.SD, signData);
-    request.addHeader(Header.SN, sign(signData, secretKey(request)));
+    request.addHeader(Header.SN, sign(signData, secretKey));
+    // The credentials only feed the signature. The agent never reads them (it verifies
+    // with its own local copy) and this transport is plain HTTP, so neither may leave
+    // this process.
+    request.removeHeader(Header.SK);
+    request.removeHeader(Header.AK);
   }
 
   private String signData(Request request) {

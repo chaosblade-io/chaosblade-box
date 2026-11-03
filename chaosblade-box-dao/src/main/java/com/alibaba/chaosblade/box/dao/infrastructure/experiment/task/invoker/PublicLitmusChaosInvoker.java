@@ -19,12 +19,8 @@ package com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.invoker;
 import com.alibaba.chaosblade.box.common.app.sdk.ChaosAppRequest;
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
 import com.alibaba.chaosblade.box.common.common.annotation.ChaosComponent;
-import com.alibaba.chaosblade.box.common.common.constant.PublicCloudConstant;
 import com.alibaba.chaosblade.box.common.common.domain.chaosblade.ChaosBladeAction;
 import com.alibaba.chaosblade.box.common.common.domain.response.Response;
-import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
-import com.alibaba.chaosblade.box.common.infrastructure.ChaosApplicationContext;
-import com.alibaba.chaosblade.box.common.infrastructure.ChaosRequestContextHolder;
 import com.alibaba.chaosblade.box.common.sdk.LitmusChaosForCloud;
 import com.alibaba.chaosblade.box.common.sdk.entity.ChaosModels;
 import com.alibaba.chaosblade.box.common.sdk.entity.ModelArgs;
@@ -35,12 +31,7 @@ import com.alibaba.chaosblade.box.dao.infrastructure.utils.PluginTypeUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.utils.ProxyHelper;
 import com.alibaba.chaosblade.box.dao.model.ChaosBladeExpUidDO;
 import com.alibaba.chaosblade.box.dao.model.DeviceDO;
-import com.alibaba.chaosblade.box.dao.model.ExperimentTaskDO;
-import com.alibaba.chaosblade.box.dao.model.UserDo;
-import com.alibaba.chaosblade.box.dao.repository.ChaosBladeExpUidRepository;
 import com.alibaba.chaosblade.box.dao.repository.DeviceRepository;
-import com.alibaba.chaosblade.box.dao.repository.ExperimentTaskRepository;
-import com.alibaba.chaosblade.box.dao.repository.LicenseRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,12 +46,6 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
 
   @Autowired private DeviceRepository deviceRepository;
 
-  @Autowired private ChaosBladeExpUidRepository chaosBladeExpUidRepository;
-
-  @Autowired private LicenseRepository licenseRepository;
-
-  @Autowired private ExperimentTaskRepository experimentTaskRepository;
-
   @Override
   public ChaosModels getBladeModels() throws Exception {
     return litmusChaosForCloud.getChaosModels();
@@ -73,17 +58,15 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
     ModelArgs modelArgs =
         buildModelArgs(
             appInvokeContext.getChaosAppRequest(), litmusChaosRequest.getChaosBladeAction());
-    String ak = appInvokeContext.getActivityInvokeContext().getUserAk();
-    String sk = appInvokeContext.getActivityInvokeContext().getUserSk();
     PublicCloudChaosBladeInvoker.UserIdentification userIdentification =
-        getUserIdentification(appInvokeContext.getHost(), false, null);
+        getUserIdentification(appInvokeContext.getHost());
 
     return litmusChaosForCloud.createExpForCloud(
         modelArgs,
         "default",
         "generic",
-        ak,
-        sk,
+        userIdentification.getAk(),
+        userIdentification.getSk(),
         userIdentification.getVpcId(),
         userIdentification.getCloudTag());
   }
@@ -95,17 +78,15 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
     ModelArgs modelArgs =
         buildModelArgs(
             appInvokeContext.getChaosAppRequest(), litmusChaosRequest.getChaosBladeAction());
-    String ak = appInvokeContext.getActivityInvokeContext().getUserAk();
-    String sk = appInvokeContext.getActivityInvokeContext().getUserSk();
     PublicCloudChaosBladeInvoker.UserIdentification userIdentification =
-        getUserIdentification(appInvokeContext.getHost(), false, null);
+        getUserIdentification(appInvokeContext.getHost());
     return litmusChaosForCloud.destroyExpForCloud(
         modelArgs.getMachine(),
         modelArgs.getMachineType(),
         "default",
         expId,
-        ak,
-        sk,
+        userIdentification.getAk(),
+        userIdentification.getSk(),
         userIdentification.getVpcId(),
         userIdentification.getCloudTag());
   }
@@ -119,7 +100,7 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
           "Not find device by configurationId:" + chaosBladeExpUidDO.getConfigurationId());
     }
     PublicCloudChaosBladeInvoker.UserIdentification userIdentification =
-        getUserIdentification(deviceDO, chaosBladeExpUidDO);
+        getUserIdentification(deviceDO);
     return litmusChaosForCloud.destroyExpForCloud(
         chaosBladeExpUidDO.getTargetIp(),
         null,
@@ -131,34 +112,31 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
         userIdentification.getCloudTag());
   }
 
-  private PublicCloudChaosBladeInvoker.UserIdentification getUserIdentification(
-      DeviceDO deviceDO, ChaosBladeExpUidDO chaosBladeExpUidDO) {
+  private PublicCloudChaosBladeInvoker.UserIdentification getUserIdentification(DeviceDO deviceDO) {
     PublicCloudChaosBladeInvoker.UserIdentification userIdentification =
         new PublicCloudChaosBladeInvoker.UserIdentification();
     userIdentification.setVpcId(deviceDO.getVpcId());
     userIdentification.setCloudTag(
         buildCloudTag(deviceDO.getDeviceType(), deviceDO.getPrivateIp()));
-    userIdentification.setAk(chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_AK));
-    userIdentification.setSk(chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_SK));
+    userIdentification.setSk(deviceDO.getUserId());
     return userIdentification;
   }
 
-  private PublicCloudChaosBladeInvoker.UserIdentification getUserIdentification(
-      Host host, boolean reloadAkSk, String expId) {
+  /**
+   * See PublicCloudChaosBladeInvoker#getUserIdentification(Host): the agent authenticates with the
+   * credential issued to it at registration, which is the device userId, so that is the only value
+   * usable as the signing key. ak stays unset because DeviceDO carries no license column and the
+   * agent skips its access key check when the header is absent.
+   */
+  private PublicCloudChaosBladeInvoker.UserIdentification getUserIdentification(Host host) {
     PublicCloudChaosBladeInvoker.UserIdentification userIdentification =
         new PublicCloudChaosBladeInvoker.UserIdentification();
     userIdentification.setHost(host);
     if (host.getVpcId() != null) {
       userIdentification.setVpcId(host.getVpcId());
     }
+    DeviceDO deviceDO = findDevice(host);
     if (host.getDeviceType() == null) {
-      DeviceDO deviceDO = null;
-      if (host.getDeviceConfigurationId() != null) {
-        deviceDO = deviceRepository.findByConfigurationId(host.getDeviceConfigurationId());
-      }
-      if (deviceDO == null) {
-        deviceDO = deviceRepository.findByPrivateIp(host.getTargetIp());
-      }
       if (deviceDO != null) {
         userIdentification.setVpcId(deviceDO.getVpcId());
         userIdentification.setCloudTag(buildCloudTag(deviceDO.getDeviceType(), host.getTargetIp()));
@@ -166,34 +144,30 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
     } else {
       userIdentification.setCloudTag(buildCloudTag(host.getDeviceType(), host.getTargetIp()));
     }
-    if (!reloadAkSk) {
-      return userIdentification;
-    }
-    ChaosUser chaosUser =
-        ChaosRequestContextHolder.getApplicationContext()
-            .map(ChaosApplicationContext::getLoginUser)
-            .orElse(null);
-    String ak = null;
-    String sk = null;
-    if (chaosUser != null) {
-      ak = chaosUser.getUserId();
-      sk = chaosUser.getLicense();
-    } else {
-      if (expId != null) {
-        ChaosBladeExpUidDO chaosBladeExpUidDO = chaosBladeExpUidRepository.findLastByExpUid(expId);
-        ak = chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_AK);
-        sk = chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_SK);
-        if (ak == null) {
-          UserDo userDo = findByExpId(chaosBladeExpUidDO);
-          ak = userDo.getUserId();
-          sk = userDo.getLicense();
-        }
-      }
-    }
-    userIdentification.setAk(ak);
-    userIdentification.setSk(sk);
-
+    userIdentification.setSk(deviceDO != null ? deviceDO.getUserId() : host.getUserId());
     return userIdentification;
+  }
+
+  /**
+   * Look up the device the agent on {@code host} registered as. Its userId is the credential this
+   * server issued at registration, so it is the only value that can sign a request to that agent.
+   *
+   * <p>targetIp is tried against both the private and the public IP column because the app scope
+   * resolver deliberately prefers the public IP when the device has one (see
+   * ApplicationHostMiniAppInvokeInterceptor).
+   */
+  private DeviceDO findDevice(Host host) {
+    DeviceDO deviceDO = null;
+    if (host.getDeviceConfigurationId() != null) {
+      deviceDO = deviceRepository.findByConfigurationId(host.getDeviceConfigurationId());
+    }
+    if (deviceDO == null && host.getTargetIp() != null) {
+      deviceDO = deviceRepository.findByPrivateIp(host.getTargetIp());
+    }
+    if (deviceDO == null && host.getTargetIp() != null) {
+      deviceDO = deviceRepository.findByPublicIp(host.getTargetIp());
+    }
+    return deviceDO;
   }
 
   private String buildCloudTag(Integer deviceType, String ip) {
@@ -206,16 +180,6 @@ public class PublicLitmusChaosInvoker implements LitmusChaosInvoker {
     ModelArgs modelArgs = new ModelArgs();
     fillModelArgs(chaosAppRequest, modelArgs, chaosBladeAction);
     return modelArgs;
-  }
-
-  private UserDo findByExpId(ChaosBladeExpUidDO chaosBladeExpUidDO) {
-    ExperimentTaskDO experimentTaskDO =
-        experimentTaskRepository.findById(chaosBladeExpUidDO.getExperimentTaskId()).get();
-    return findByUserId(experimentTaskDO.getUserId());
-  }
-
-  private UserDo findByUserId(String userId) {
-    return licenseRepository.getUserLicense(userId).get();
   }
 
   private void fillModelArgs(

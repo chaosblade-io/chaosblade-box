@@ -142,7 +142,7 @@ public interface ChaosBladeInvoker {
 
   /** 销毁演练，不传Uid */
   Response<String> destroyExpWithoutUid(
-      ChaosBladeAction chaosBladeAction, ChaosAppRequest chaosAppRequest, String ak, String sk);
+      ChaosBladeAction chaosBladeAction, ChaosAppRequest chaosAppRequest);
 
   Response<String> destroyByChaosBladeExpDO(ChaosBladeExpUidDO chaosBladeExpUidDO);
 
