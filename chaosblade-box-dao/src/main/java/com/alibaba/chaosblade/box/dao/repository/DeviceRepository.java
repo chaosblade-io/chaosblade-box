@@ -188,6 +188,12 @@ public class DeviceRepository extends ServiceImpl<DeviceMapper, DeviceDO>
     return deviceMapper.selectOne(queryWrapper);
   }
 
+  public DeviceDO findByPublicIp(String ip) {
+    QueryWrapper<DeviceDO> queryWrapper = new QueryWrapper<DeviceDO>();
+    queryWrapper.eq("public_ip", ip).last("limit 1");
+    return deviceMapper.selectOne(queryWrapper);
+  }
+
   public DeviceDO findActiveByPrivateIp(String ip) {
     QueryWrapper<DeviceDO> queryWrapper = new QueryWrapper<DeviceDO>();
     queryWrapper.eq("private_ip", ip).eq("status", DeviceStatus.ONLINE.getStatus()).last("limit 1");
