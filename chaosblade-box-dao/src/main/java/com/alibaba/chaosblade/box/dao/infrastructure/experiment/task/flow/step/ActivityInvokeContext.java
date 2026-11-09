@@ -30,10 +30,6 @@ import lombok.Data;
 @Data
 public class ActivityInvokeContext extends InvokeContext {
 
-  private String userAk;
-
-  private String userSk;
-
   private Activity activity;
 
   /** 拒绝演练的机器列表 key是 deviceConfigurationId value是原因 */

@@ -66,7 +66,6 @@ public class PaasTransportChannel {
 
   public <R> Response<R> invoke(Request request, Class<?> clazz, int timeout) {
     Response<R> response;
-    LOGGER.info("paas invoke domain: {}, request: {}", domain, JSON.toJSONString(request));
     try {
       String handler = request.getHeader("handler");
       if (StringUtil.isBlank(handler)) {
@@ -77,6 +76,9 @@ public class PaasTransportChannel {
       RequestInterceptorChain interceptor = new TimestampInterceptor();
       interceptor.setInterceptor(new AuthInterceptor());
       interceptor.invoke(request);
+      // Logged after the chain on purpose: this is what actually goes on the wire, so it shows
+      // the sd/sn the chain produced and no longer shows the ak/sk the AuthInterceptor consumed.
+      LOGGER.info("paas invoke domain: {}, request: {}", domain, JSON.toJSONString(request));
       String result = invoke(domain, handler, createHttpEntity(request), timeout);
       request.removeHeader("timeout");
       try {

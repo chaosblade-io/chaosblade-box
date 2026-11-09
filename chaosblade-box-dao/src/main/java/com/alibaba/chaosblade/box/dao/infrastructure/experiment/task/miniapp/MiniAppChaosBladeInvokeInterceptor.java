@@ -342,9 +342,7 @@ public class MiniAppChaosBladeInvokeInterceptor extends BaseMiniAppInvokeInterce
           chaosBladeInvoker.destroyExpWithoutUid(
               ChaosBladeMetaData.getInstance()
                   .getChaosBladeAction(attackActivityTask.getExecutableAppCode()),
-              chaosAppRequest,
-              appInvokeContext.getActivityInvokeContext().getUserAk(),
-              appInvokeContext.getActivityInvokeContext().getUserSk());
+              chaosAppRequest);
       if (response.isSuccess()) {
         return response.getResult();
       }

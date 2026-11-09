@@ -19,13 +19,9 @@ package com.alibaba.chaosblade.box.dao.infrastructure.experiment.task.invoker;
 import com.alibaba.chaosblade.box.common.app.sdk.ChaosAppRequest;
 import com.alibaba.chaosblade.box.common.app.sdk.scope.Host;
 import com.alibaba.chaosblade.box.common.common.annotation.ChaosComponent;
-import com.alibaba.chaosblade.box.common.common.constant.PublicCloudConstant;
 import com.alibaba.chaosblade.box.common.common.domain.chaosblade.ChaosBladeAction;
 import com.alibaba.chaosblade.box.common.common.domain.chaosblade.requst.*;
 import com.alibaba.chaosblade.box.common.common.domain.response.Response;
-import com.alibaba.chaosblade.box.common.common.domain.user.ChaosUser;
-import com.alibaba.chaosblade.box.common.infrastructure.ChaosApplicationContext;
-import com.alibaba.chaosblade.box.common.infrastructure.ChaosRequestContextHolder;
 import com.alibaba.chaosblade.box.common.infrastructure.monitor.log.MiniAppInvocationRecord;
 import com.alibaba.chaosblade.box.common.infrastructure.monitor.log.MiniAppInvocationRecordBuilder;
 import com.alibaba.chaosblade.box.common.infrastructure.util.CollectionUtil;
@@ -43,10 +39,7 @@ import com.alibaba.chaosblade.box.dao.infrastructure.monitor.log.RecordsRepo;
 import com.alibaba.chaosblade.box.dao.infrastructure.utils.PluginTypeUtil;
 import com.alibaba.chaosblade.box.dao.infrastructure.utils.ProxyHelper;
 import com.alibaba.chaosblade.box.dao.model.*;
-import com.alibaba.chaosblade.box.dao.repository.ChaosBladeExpUidRepository;
 import com.alibaba.chaosblade.box.dao.repository.DeviceRepository;
-import com.alibaba.chaosblade.box.dao.repository.ExperimentTaskRepository;
-import com.alibaba.chaosblade.box.dao.repository.LicenseRepository;
 import com.alibaba.fastjson.JSON;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -65,13 +58,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
 
   @Autowired private ChaosBladeForCloud chaosBladeForCloud;
 
-  @Autowired private LicenseRepository licenseRepository;
-
   @Autowired private DeviceRepository deviceRepository;
-
-  @Autowired private ExperimentTaskRepository experimentTaskRepository;
-
-  @Autowired private ChaosBladeExpUidRepository chaosBladeExpUidRepository;
 
   private static String SCOPE_DOCKER = "docker";
 
@@ -124,18 +111,15 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<String> prepareExp(ChaosBladePrepareExpRequest chaosBladePrepareExpRequest) {
     MiniAppInvokeContext miniAppInvokeContext = chaosBladePrepareExpRequest.getAppInvokeContext();
-    String ak = miniAppInvokeContext.getActivityInvokeContext().getUserAk();
-    String sk = miniAppInvokeContext.getActivityInvokeContext().getUserSk();
-    UserIdentification userIdentification =
-        getUserIdentification(miniAppInvokeContext.getHost(), false, null);
+    UserIdentification userIdentification = getUserIdentification(miniAppInvokeContext.getHost());
     PrepareArgs prepareArgs =
         buildPrepareArgs(miniAppInvokeContext, chaosBladePrepareExpRequest.getChaosBladeAction());
     return internalInvoke(
         () ->
             chaosBladeForCloud.prepareExpForCloud(
                 prepareArgs,
-                ak,
-                sk,
+                userIdentification.getAk(),
+                userIdentification.getSk(),
                 miniAppInvokeContext.getHost().getVpcId(),
                 userIdentification.getCloudTag()),
         new Tracer() {
@@ -180,22 +164,19 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<String> createExp(ChaosBladeCreateExpRequest chaosBladeCreateExpRequest) {
     MiniAppInvokeContext miniAppInvokeContext = chaosBladeCreateExpRequest.getAppInvokeContext();
-    String ak = miniAppInvokeContext.getActivityInvokeContext().getUserAk();
-    String sk = miniAppInvokeContext.getActivityInvokeContext().getUserSk();
     ModelArgs modelArgs =
         buildModelArgs(
             miniAppInvokeContext.getChaosAppRequest(),
             chaosBladeCreateExpRequest.getChaosBladeAction());
-    UserIdentification userIdentification =
-        getUserIdentification(miniAppInvokeContext.getHost(), false, null);
+    UserIdentification userIdentification = getUserIdentification(miniAppInvokeContext.getHost());
     return internalInvoke(
         () -> {
           if (PublicCloudUtil.isK8SByScope(modelArgs.getScope())) {
             Response<K8sResultBean> response =
                 chaosBladeForCloud.createK8sExpForCloud(
                     modelArgs,
-                    ak,
-                    sk,
+                    userIdentification.getAk(),
+                    userIdentification.getSk(),
                     miniAppInvokeContext.getHost().getVpcId(),
                     userIdentification.getCloudTag());
 
@@ -208,8 +189,8 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
           }
           return chaosBladeForCloud.createExpForCloud(
               modelArgs,
-              ak,
-              sk,
+              userIdentification.getAk(),
+              userIdentification.getSk(),
               miniAppInvokeContext.getHost().getVpcId(),
               userIdentification.getCloudTag());
         },
@@ -246,8 +227,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<String> destroyExp(ChaosBladeDestroyExpRequest chaosBladeDestroyExpRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(
-            chaosBladeDestroyExpRequest.getHost(), true, chaosBladeDestroyExpRequest.getExpId());
+        getUserIdentification(chaosBladeDestroyExpRequest.getHost());
     return destroyExp0(
         chaosBladeDestroyExpRequest.getAppCode(),
         chaosBladeDestroyExpRequest.getExpId(),
@@ -329,8 +309,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<String> revokeExp(ChaosBladeRevokeExpRequest chaosBladeRevokeExpRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(
-            chaosBladeRevokeExpRequest.getHost(), true, chaosBladeRevokeExpRequest.getExpId());
+        getUserIdentification(chaosBladeRevokeExpRequest.getHost());
     return internalInvoke(
         new Supplier<Response<String>>() {
           @Override
@@ -362,8 +341,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<ExpStatusBean> getExpStatus(ChaosBladeExpQueryRequest chaosBladeExpQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(
-            chaosBladeExpQueryRequest.getHost(), true, chaosBladeExpQueryRequest.getExpId());
+        getUserIdentification(chaosBladeExpQueryRequest.getHost());
     return chaosBladeForCloud.getExpStatusForCloud(
         chaosBladeExpQueryRequest.getExpId(),
         chaosBladeExpQueryRequest.getHost().getTargetIp(),
@@ -378,7 +356,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   public Response<List<ExpStatusBean>> getExpStatusList(
       ChaosBladeHostQueryRequest chaosBladeHostQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(chaosBladeHostQueryRequest.getHost(), true, null);
+        getUserIdentification(chaosBladeHostQueryRequest.getHost());
     return chaosBladeForCloud.getExpStatusListForCloud(
         chaosBladeHostQueryRequest.getHost().getTargetIp(),
         String.valueOf(chaosBladeHostQueryRequest.getHost().getPort()),
@@ -392,7 +370,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   public Response<String[]> getNetworkDevice(
       ChaosBladeHostQueryRequest chaosBladeHostQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(chaosBladeHostQueryRequest.getHost(), true, null);
+        getUserIdentification(chaosBladeHostQueryRequest.getHost());
     return chaosBladeForCloud.getNetworkDeviceForCloud(
         chaosBladeHostQueryRequest.getHost().getTargetIp(),
         String.valueOf(chaosBladeHostQueryRequest.getHost().getPort()),
@@ -405,7 +383,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<String[]> getDiskDevice(ChaosBladeHostQueryRequest chaosBladeHostQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(chaosBladeHostQueryRequest.getHost(), true, null);
+        getUserIdentification(chaosBladeHostQueryRequest.getHost());
     return chaosBladeForCloud.getDiskDeviceForCloud(
         chaosBladeHostQueryRequest.getHost().getTargetIp(),
         String.valueOf(chaosBladeHostQueryRequest.getHost().getPort()),
@@ -418,8 +396,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   @Override
   public Response<Long> getHitCountInJvm(ChaosBladeExpQueryRequest chaosBladeExpQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(
-            chaosBladeExpQueryRequest.getHost(), true, chaosBladeExpQueryRequest.getExpId());
+        getUserIdentification(chaosBladeExpQueryRequest.getHost());
     return internalInvoke(
         new Supplier<Response<Long>>() {
           @Override
@@ -495,8 +472,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   public Response<PrepareStatusBean> getPrepareStatus(
       ChaosBladeExpQueryRequest chaosBladeExpQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(
-            chaosBladeExpQueryRequest.getHost(), true, chaosBladeExpQueryRequest.getExpId());
+        getUserIdentification(chaosBladeExpQueryRequest.getHost());
     return chaosBladeForCloud.getPrepareStatusForCloud(
         chaosBladeExpQueryRequest.getExpId(),
         chaosBladeExpQueryRequest.getHost().getTargetIp(),
@@ -511,7 +487,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   public Response<List<PrepareStatusBean>> getPrepareStatusList(
       ChaosBladeHostQueryRequest chaosBladeHostQueryRequest) {
     UserIdentification userIdentification =
-        getUserIdentification(chaosBladeHostQueryRequest.getHost(), true, null);
+        getUserIdentification(chaosBladeHostQueryRequest.getHost());
     return chaosBladeForCloud.getPrepareStatusListForCloud(
         chaosBladeHostQueryRequest.getHost().getTargetIp(),
         String.valueOf(chaosBladeHostQueryRequest.getHost().getPort()),
@@ -529,12 +505,16 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
 
   @Override
   public Response<String> destroyExpWithoutUid(
-      ChaosBladeAction chaosBladeAction, ChaosAppRequest chaosAppRequest, String ak, String sk) {
+      ChaosBladeAction chaosBladeAction, ChaosAppRequest chaosAppRequest) {
     ModelArgs modelArgs = buildModelArgs(chaosAppRequest, chaosBladeAction);
     UserIdentification userIdentification =
-        getUserIdentification((Host) chaosAppRequest.getScope(), true, null);
+        getUserIdentification((Host) chaosAppRequest.getScope());
     return chaosBladeForCloud.destroyExpForCloudWithoutUid(
-        modelArgs, ak, sk, chaosAppRequest.getScope().getVpcId(), userIdentification.getCloudTag());
+        modelArgs,
+        userIdentification.getAk(),
+        userIdentification.getSk(),
+        chaosAppRequest.getScope().getVpcId(),
+        userIdentification.getCloudTag());
   }
 
   @Override
@@ -545,7 +525,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
       throw new RuntimeException(
           "Not find device by configurationId:" + chaosBladeExpUidDO.getConfigurationId());
     }
-    UserIdentification userIdentification = getUserIdentification(deviceDO, chaosBladeExpUidDO);
+    UserIdentification userIdentification = getUserIdentification(deviceDO);
     return destroyExp0(
         chaosBladeExpUidDO.getAppCode(),
         chaosBladeExpUidDO.getExpUid(),
@@ -555,9 +535,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
   }
 
   public Response<K8sResultBean> queryK8sExp(K8sStatusQueryRequest k8SStatusQueryRequest) {
-    UserIdentification userIdentification =
-        getUserIdentification(
-            k8SStatusQueryRequest.getHost(), true, k8SStatusQueryRequest.getExpId());
+    UserIdentification userIdentification = getUserIdentification(k8SStatusQueryRequest.getHost());
     String cmd = k8SStatusQueryRequest.isCreate() ? CliUtil.CREATE : CliUtil.DESTROY;
     return chaosBladeForCloud.queryK8sExpForCloud(
         k8SStatusQueryRequest.getExpId(),
@@ -572,18 +550,14 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
 
   @Override
   public Response<String> checkForCloud(ChaosBladePreCheckRequest chaosBladePreCheckRequest) {
-    String ak = chaosBladePreCheckRequest.getAk();
-    String sk = chaosBladePreCheckRequest.getSk();
-    log.info(
-        "[PublicCloudChaosBladeInvoker][checkLicenseResult] pre check env ak:{},sk:{}", ak, sk);
     UserIdentification userIdentification =
-        getUserIdentification(chaosBladePreCheckRequest.getHost(), false, null);
+        getUserIdentification(chaosBladePreCheckRequest.getHost());
     return chaosBladeForCloud.checkForCloud(
         buildModelArgs(
             chaosBladePreCheckRequest.getChaosAppRequest(),
             chaosBladePreCheckRequest.getChaosBladeAction()),
-        ak,
-        sk,
+        userIdentification.getAk(),
+        userIdentification.getSk(),
         chaosBladePreCheckRequest.getHost().getVpcId(),
         userIdentification.getCloudTag(),
         chaosBladePreCheckRequest.getEvnType());
@@ -591,7 +565,7 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
 
   @Override
   public Response<K8sResultBean> queryK8sExp(Host host, String expId, boolean isCreate) {
-    UserIdentification userIdentification = getUserIdentification(host, true, expId);
+    UserIdentification userIdentification = getUserIdentification(host);
     String cmd = isCreate ? CliUtil.CREATE : CliUtil.DESTROY;
     return chaosBladeForCloud.queryK8sExpForCloud(
         expId,
@@ -640,31 +614,34 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
         PluginTypeUtil.getPluginTypeByDeviceType(deviceType), ip, null);
   }
 
-  private UserIdentification getUserIdentification(
-      DeviceDO deviceDO, ChaosBladeExpUidDO chaosBladeExpUidDO) {
+  private UserIdentification getUserIdentification(DeviceDO deviceDO) {
     UserIdentification userIdentification = new UserIdentification();
     userIdentification.setVpcId(deviceDO.getVpcId());
     userIdentification.setCloudTag(
         buildCloudTag(deviceDO.getDeviceType(), deviceDO.getPrivateIp()));
-    userIdentification.setAk(chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_AK));
-    userIdentification.setSk(chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_SK));
+    userIdentification.setSk(deviceDO.getUserId());
     return userIdentification;
   }
 
-  private UserIdentification getUserIdentification(Host host, boolean reloadAkSk, String expId) {
+  /**
+   * Resolve what this server needs in order to talk to the agent running on {@code host}.
+   *
+   * <p>The agent authenticates every server-to-agent request with the credential this server handed
+   * out when that agent registered, which is the device userId (see RegisteredRequestCommand, which
+   * answers a registration with sk = request.getUserId()). So the device userId is the only value
+   * that can serve as the signing key here.
+   *
+   * <p>ak is deliberately left unset: DeviceDO carries no license column, so this side has no copy
+   * of the agent access key, and the agent skips its access key check when the header is absent.
+   */
+  private UserIdentification getUserIdentification(Host host) {
     UserIdentification userIdentification = new UserIdentification();
     userIdentification.setHost(host);
     if (host.getVpcId() != null) {
       userIdentification.setVpcId(host.getVpcId());
     }
+    DeviceDO deviceDO = findDevice(host);
     if (host.getDeviceType() == null) {
-      DeviceDO deviceDO = null;
-      if (host.getDeviceConfigurationId() != null) {
-        deviceDO = deviceRepository.findByConfigurationId(host.getDeviceConfigurationId());
-      }
-      if (deviceDO == null) {
-        deviceDO = deviceRepository.findByPrivateIp(host.getTargetIp());
-      }
       if (deviceDO != null) {
         userIdentification.setVpcId(deviceDO.getVpcId());
         userIdentification.setCloudTag(buildCloudTag(deviceDO.getDeviceType(), host.getTargetIp()));
@@ -672,45 +649,30 @@ public class PublicCloudChaosBladeInvoker implements ChaosBladeInvoker {
     } else {
       userIdentification.setCloudTag(buildCloudTag(host.getDeviceType(), host.getTargetIp()));
     }
-    if (!reloadAkSk) {
-      return userIdentification;
-    }
-
-    ChaosUser chaosUser =
-        ChaosRequestContextHolder.getApplicationContext()
-            .map(ChaosApplicationContext::getLoginUser)
-            .orElse(null);
-    String ak = null;
-    String sk = null;
-    if (chaosUser != null) {
-      ak = chaosUser.getUserId();
-      sk = chaosUser.getLicense();
-    } else {
-      if (expId != null) {
-        ChaosBladeExpUidDO chaosBladeExpUidDO = chaosBladeExpUidRepository.findLastByExpUid(expId);
-        ak = chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_AK);
-        sk = chaosBladeExpUidDO.getAttribute(PublicCloudConstant.USER_SK);
-        if (ak == null) {
-          UserDo userDo = findByExpId(chaosBladeExpUidDO);
-          ak = userDo.getUserId();
-          sk = userDo.getLicense();
-        }
-      }
-    }
-    userIdentification.setAk(ak);
-    userIdentification.setSk(sk);
-
+    userIdentification.setSk(deviceDO != null ? deviceDO.getUserId() : host.getUserId());
     return userIdentification;
   }
 
-  private UserDo findByExpId(ChaosBladeExpUidDO chaosBladeExpUidDO) {
-    ExperimentTaskDO experimentTaskDO =
-        experimentTaskRepository.findById(chaosBladeExpUidDO.getExperimentTaskId()).get();
-    return findByUserId(experimentTaskDO.getUserId());
-  }
-
-  private UserDo findByUserId(String userId) {
-    return licenseRepository.getUserLicense(userId).get();
+  /**
+   * Look up the device the agent on {@code host} registered as. Its userId is the credential this
+   * server issued at registration, so it is the only value that can sign a request to that agent.
+   *
+   * <p>targetIp is tried against both the private and the public IP column because the app scope
+   * resolver deliberately prefers the public IP when the device has one (see
+   * ApplicationHostMiniAppInvokeInterceptor).
+   */
+  private DeviceDO findDevice(Host host) {
+    DeviceDO deviceDO = null;
+    if (host.getDeviceConfigurationId() != null) {
+      deviceDO = deviceRepository.findByConfigurationId(host.getDeviceConfigurationId());
+    }
+    if (deviceDO == null && host.getTargetIp() != null) {
+      deviceDO = deviceRepository.findByPrivateIp(host.getTargetIp());
+    }
+    if (deviceDO == null && host.getTargetIp() != null) {
+      deviceDO = deviceRepository.findByPublicIp(host.getTargetIp());
+    }
+    return deviceDO;
   }
 
   private void fillModelArgs(
