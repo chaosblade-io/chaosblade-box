@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM eclipse-temurin:8-jdk
+FROM eclipse-temurin:25-jdk
 
 WORKDIR /app
 
