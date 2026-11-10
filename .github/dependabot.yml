@@ -16,13 +16,36 @@ version: 2
 updates:
   # Keeps the commit-SHA pinned GitHub Actions up to date. Pinning by hash
   # without an update tool would otherwise freeze the workflow dependencies.
+  #
+  # Major bumps are excluded deliberately, for two reasons:
+  #
+  #   1. Most pinned references live in release.yml, which only runs on
+  #      `push: tags:`. A PR touching that file gets no CI coverage at all, so
+  #      a breaking major would pass every check and only fail at the next
+  #      release.
+  #   2. github/codeql-action/init and github/codeql-action/analyze are tracked
+  #      as separate dependencies, so a major bump can move one and leave the
+  #      other behind. They must stay on the same major version.
+  #
+  # Minor and patch updates still flow through, which is enough to keep the
+  # pinned SHAs from rotting.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
-  # The Dockerfile base image is referenced by tag, not by digest.
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
+  # No "docker" ecosystem, on purpose.
+  #
+  # The only Dockerfile ends in `FROM eclipse-temurin:8-jdk`. That tag is
+  # mutable, so every build already resolves to the current patched 8uXXX
+  # image -- there is no security update left for Dependabot to propose. The
+  # only thing it can offer here is a major bump, and every major bump is
+  # breaking: maven.compiler.source/target is 8, and Spring Boot 1.5.9 (Spring
+  # Framework 4.3) does not run on JDK 17+. Because ci.yml never builds the
+  # image, such a PR would pass CI Gate and only surface later as a release
+  # artifact that fails to start.
+  #
+  # Revisit once the Spring Boot migration lifts the JDK 8 constraint.
